@@ -4,13 +4,17 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "joi": "^17.11.0"
+    "ipfs-http-client": "^60.0.1",
+    "joi": "^17.11.0",
+    "nodemon": "^3.0.1"
   }
 }

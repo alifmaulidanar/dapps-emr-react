@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "fe": "cd frontend && npm run dev",
+    "be": "cd backend",
+    "sc": "cd smart-contracts"
+  },
   "dependencies": {
     "dotenv": "^16.3.1",
     "react-router-dom": "^6.16.0"

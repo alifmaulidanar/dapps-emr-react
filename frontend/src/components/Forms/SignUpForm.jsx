@@ -1,60 +1,69 @@
-// import { useState } from "react";
-// import pinataSDK from "@pinata/sdk";
-// import DotEnv from "dotenv";
-// DotEnv.config({ path: "../../.env" });
-// const pinata = new pinataSDK({ pinataJWTKey: process.env.PINATA_JWT });
+import React, { useState } from "react";
 
 export default function SignUpForm({ role }) {
-  // const [confirmPassword, setConfirmPassword] = useState("");
-  // const [patientData, setPatientData] = useState({
-  //   username: "",
-  //   email: "",
-  //   phone: "",
-  //   password: "",
-  //   patients: [],
-  //   role: role,
-  // });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setPatientData((prevState) => ({
-  //     ...prevState,
-  //     [name]: value,
-  //   }));
-  // };
+  const [passwordMatchError, setPasswordMatchError] = useState("");
 
-  // const handleConfirmPasswordChange = (e) => {
-  //   const { value } = e.target;
-  //   setConfirmPassword(value);
-  // };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  // const handleSignUp = async (e) => {
-  //   e.preventDefault();
+    // Lakukan validasi formulir jika diperlukan
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordMatchError("Password dan Konfirmasi Password harus sama");
+      return;
+    }
+    setPasswordMatchError("");
 
-  //   try {
-  //     if (patientData.password !== confirmPassword) {
-  //       console.error("Password dan konfirmasi password tidak cocok.");
-  //       return;
-  //     }
+    // Buat objek data pasien dari formulir
+    const newPatient = {
+      username: formData.username,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+    };
 
-  //     const res = await pinata.pinJSONToIPFS(patientData);
+    let endpoint = "";
+    if (role === "Pasien") {
+      endpoint = "/patient/signup";
+    } else if (role === "Dokter") {
+      endpoint = "/doctor/signup";
+    }
 
-  //     // Print the IPFS hash for testing (you can store it for reference)
-  //     const ipfsHash = res.data;
-  //     console.log("IPFS Hash:", ipfsHash);
+    // Kirim permintaan POST ke endpoint yang sesuai
+    if (endpoint) {
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPatient),
+        });
 
-  //     // Retrieve data from IPFS using IPFS Hash
-  //     const response = await fetch(
-  //       `https://pink-ruling-damselfly-201.mypinata.cloud/ipfs/${ipfsHash}`
-  //     );
-  //     const data = await response.json();
-  //     console.log("Data:\n", data);
+        const data = await response.json();
+        console.log("Pendaftaran berhasil:", data);
+        // Tambahkan logika penanganan respons di sini
+      } catch (error) {
+        console.error("Terjadi kesalahan:", error);
+        // Tambahkan logika penanganan kesalahan di sini
+      }
+    } else {
+      console.error("Role tidak valid");
+      // Tambahkan logika penanganan kesalahan jika role tidak valid
+    }
+  };
 
-  //     // After this, you can perform actions like storing the IPFS hash on the blockchain or other necessary steps.
-  //   } catch (error) {
-  //     console.error("Error uploading to IPFS:", error);
-  //   }
-  // };
+  const handleInputChange = (event) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
+  };
 
   return (
     <div className="w-90 h-fit grid col-start-2 col-span-2 pt-12 pb-8">
@@ -62,7 +71,7 @@ export default function SignUpForm({ role }) {
         <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
           Pendaftaran Akun {role}
         </h1>
-        <form className="grid grid-cols-1 gap-x-12">
+        <form className="grid grid-cols-1 gap-x-12" onSubmit={handleSubmit}>
           <div className="grid mb-6">
             <label
               htmlFor="name"
@@ -76,8 +85,6 @@ export default function SignUpForm({ role }) {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
               placeholder="Nama Pengguna"
               required
-              // value={patientData.username}
-              // onChange={handleInputChange}
             />
           </div>
           <div className="grid mb-6">
@@ -93,8 +100,6 @@ export default function SignUpForm({ role }) {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="Alamat Email"
               required
-              // value={patientData.email}
-              // onChange={handleInputChange}
             />
           </div>
           <div className="grid mb-6">
@@ -110,8 +115,6 @@ export default function SignUpForm({ role }) {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
               placeholder="Nomor Telepon"
               required
-              // value={patientData.phone}
-              // onChange={handleInputChange}
             />
           </div>
           <div className="grid mb-6">
@@ -127,13 +130,11 @@ export default function SignUpForm({ role }) {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="Ketik password baru Anda"
               required
-              // value={patientData.password}
-              // onChange={handleInputChange}
             />
           </div>
           <div className="grid mb-6">
             <label
-              htmlFor="repassword"
+              htmlFor="confirmPassword"
               className="block mb-2 text-sm font-medium text-gray-900 "
             >
               Ketik Ulang Password
@@ -144,15 +145,13 @@ export default function SignUpForm({ role }) {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="Ketik ulang password baru Anda"
               required
-              // value={confirmPassword}
-              // onChange={handleConfirmPasswordChange}
             />
           </div>
+          <div className="text-red-500">{passwordMatchError}</div>
           <div className="mx-auto">
             <button
               type="submit"
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center mt-4"
-              // onSubmit={handleSignUp}
             >
               Daftarkan Akun
             </button>

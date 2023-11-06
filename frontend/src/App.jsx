@@ -11,7 +11,7 @@ import DoctorProfile from "./pages/doctor/DoctorProdile";
 import DoctorAccount from "./pages/doctor/Doctor.Account";
 
 const accountAddress = "0x1e6b98a582Fdd23614b58A4459C1C875C6705f55";
-const recordAddress = "0x3b35bf31deFdd23614b58A4459C1C875C6705f55";
+const recordAddress = "0x7efab42e0aFdd23614b58A4459C1C875C6705f55";
 
 function App() {
   return (

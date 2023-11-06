@@ -7,6 +7,14 @@ DotEnv.config({ path: ".env" });
 const { ACCOUNT_PRIVATE_KEY = "", ALCHEMY_KEY = "" } = process.env;
 
 const config = {
+  networks: {
+    hardhat: {
+      accounts: {
+        mnemonic: process.env.SEED_PHRASE,
+      },
+      chainId: 1337,
+    },
+  },
   solidity: {
     compilers: [
       {
