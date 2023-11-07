@@ -1,40 +1,28 @@
-import React, { useState } from "react";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { Button, Form, Input } from "antd";
+import { useForm } from "antd/lib/form/Form";
 
 export default function SignUpForm({ role }) {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [form] = useForm();
 
-  const [passwordMatchError, setPasswordMatchError] = useState("");
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Lakukan validasi formulir jika diperlukan
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordMatchError("Password dan Konfirmasi Password harus sama");
-      return;
-    }
-    setPasswordMatchError("");
-
+  // Lakukan validasi formulir
+  const handleSubmit = async (values) => {
     // Buat objek data pasien dari formulir
     const newPatient = {
-      username: formData.username,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password,
-      confirmPassword: formData.confirmPassword,
+      username: values.username,
+      email: values.email,
+      phone: values.phone,
+      password: values.password,
+      confirmPassword: values.confirmPassword,
+      role: role,
     };
 
     let endpoint = "";
     if (role === "Pasien") {
-      endpoint = "/patient/signup";
+      endpoint = "http://localhost:3000/patient/signup";
     } else if (role === "Dokter") {
-      endpoint = "/doctor/signup";
+      endpoint = "http://localhost:3000/doctor/signup";
     }
 
     // Kirim permintaan POST ke endpoint yang sesuai
@@ -48,21 +36,34 @@ export default function SignUpForm({ role }) {
           body: JSON.stringify(newPatient),
         });
 
-        const data = await response.json();
-        console.log("Pendaftaran berhasil:", data);
-        // Tambahkan logika penanganan respons di sini
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data.message, data);
+          Swal.fire({
+            icon: "success",
+            title: "Registrasi Akun Berhasil!",
+            text: "Gunakan Email dan Password untuk melakukan Sign In.",
+          });
+        } else {
+          const data = await response.json();
+          console.log(data.error, data.message);
+          Swal.fire({
+            icon: "error",
+            title: "Registrasi Gagal",
+            text: data.error,
+          });
+        }
       } catch (error) {
         console.error("Terjadi kesalahan:", error);
-        // Tambahkan logika penanganan kesalahan di sini
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Terjadi kesalahan saat melakukan registrasi. Silakan coba lagi!",
+        });
       }
     } else {
       console.error("Role tidak valid");
-      // Tambahkan logika penanganan kesalahan jika role tidak valid
     }
-  };
-
-  const handleInputChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
   return (
@@ -71,92 +72,141 @@ export default function SignUpForm({ role }) {
         <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
           Pendaftaran Akun {role}
         </h1>
-        <form className="grid grid-cols-1 gap-x-12" onSubmit={handleSubmit}>
-          <div className="grid mb-6">
+        <Form
+          form={form}
+          className="grid grid-cols-1 gap-x-12"
+          onFinish={handleSubmit}
+        >
+          <div className="grid mb-2">
             <label
               htmlFor="name"
               className="block mb-2 text-sm font-medium text-gray-900"
             >
               Nama Pengguna
             </label>
-            <input
-              type="text"
+            <Form.Item
               name="username"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-              placeholder="Nama Pengguna"
-              required
-            />
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi Nama Pengguna.",
+                },
+              ]}
+            >
+              <Input
+                type="text"
+                name="username"
+                placeholder="Nama Pengguna"
+                className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
+              />
+            </Form.Item>
           </div>
-          <div className="grid mb-6">
+          <div className="grid mb-2">
             <label
               htmlFor="email"
               className="block mb-2 text-sm font-medium text-gray-900 "
             >
               Email
             </label>
-            <input
-              type="email"
+            <Form.Item
               name="email"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="Alamat Email"
-              required
-            />
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi Email.",
+                },
+              ]}
+            >
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email"
+                className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
+              />
+            </Form.Item>
           </div>
-          <div className="grid mb-6">
+          <div className="grid mb-2">
             <label
               htmlFor="phone"
               className="block mb-2 text-sm font-medium text-gray-900"
             >
               Nomor Telepon
             </label>
-            <input
-              type="tel"
+            <Form.Item
               name="phone"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-              placeholder="Nomor Telepon"
-              required
-            />
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi Nomor Telepon.",
+                },
+              ]}
+            >
+              <Input
+                type="tel"
+                name="phone"
+                placeholder="Nomor Telepon"
+                className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
+              />
+            </Form.Item>
           </div>
-          <div className="grid mb-6">
+          <div className="grid mb-2">
             <label
               htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900 "
+              className="block mb-2 text-sm font-medium text-gray-900"
             >
               Password
             </label>
-            <input
-              type="password"
+            <Form.Item
               name="password"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="Ketik password baru Anda"
-              required
-            />
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi password Anda.",
+                },
+              ]}
+            >
+              <Input.Password
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="border-gray-300 text-sm rounded-lg py-1.5 px-2.5"
+              />
+            </Form.Item>
           </div>
-          <div className="grid mb-6">
+          <div className="grid mb-2">
             <label
               htmlFor="confirmPassword"
               className="block mb-2 text-sm font-medium text-gray-900 "
             >
-              Ketik Ulang Password
+              Konfirmasi Password
             </label>
-            <input
-              type="password"
+            <Form.Item
               name="confirmPassword"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="Ketik ulang password baru Anda"
-              required
-            />
+              rules={[
+                {
+                  required: true,
+                  message: "Harap konfirmasi password Anda.",
+                },
+              ]}
+            >
+              <Input.Password
+                type="password"
+                name="confirmPassword"
+                placeholder="Konfirmasi Password"
+                className="border-gray-300 text-sm rounded-lg py-1.5 px-2.5"
+              />
+            </Form.Item>
           </div>
-          <div className="text-red-500">{passwordMatchError}</div>
           <div className="mx-auto">
-            <button
-              type="submit"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center mt-4"
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 text-center mt-4"
             >
               Daftarkan Akun
-            </button>
+            </Button>
           </div>
-        </form>
+        </Form>
       </div>
     </div>
   );
