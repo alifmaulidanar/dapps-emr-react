@@ -1,0 +1,13 @@
+{
+  "accounts": [
+    {
+      "accountHash": "",
+      "accountId": "",
+      "accountData": {
+        "email": "",
+        "password": "",
+        "cid": ""
+      }
+    }
+  ]
+}

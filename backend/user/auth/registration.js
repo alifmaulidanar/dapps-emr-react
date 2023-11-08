@@ -130,6 +130,15 @@ router.post("/:role/signup", async (req, res) => {
 
     console.log(responseData);
 
+    // To Do:
+    // 1. Simpan CID ke blockchain (addIpfs())
+    // 2. Buat JSON objek akun pasien untuk di blockchain
+    //    {
+    //      email,
+    //      role,
+    //      ipfsHash    // didapat dari hasil nomor 1
+    //    }
+
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
