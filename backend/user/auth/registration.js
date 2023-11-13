@@ -1,12 +1,30 @@
-import express from "express";
 import Joi from "joi";
+import express from "express";
 import bcrypt from "bcryptjs";
+import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
-import { API_KEY, API_KEY_SECRET } from "../../dotenvConfig.js";
+import {
+  API_KEY,
+  API_KEY_SECRET,
+  CONTRACT_ADDRESS,
+  PRIVATE_KEY,
+} from "../../dotenvConfig.js";
+import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
+
+const contractAddress = CONTRACT_ADDRESS.toString();
 
 // Koneksi ke IPFS Infura
 const authorization =
   "Basic " + Buffer.from(API_KEY + ":" + API_KEY_SECRET).toString("base64");
+
+const client = create({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: "https",
+  headers: {
+    authorization: authorization,
+  },
+});
 
 const router = express.Router();
 router.use(express.json());
@@ -48,15 +66,6 @@ const schema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 });
 
-const client = create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-  headers: {
-    authorization: authorization,
-  },
-});
-
 // Format Tanggal dan Waktu
 function formatDateTime(date) {
   const day = String(date.getDate()).padStart(2, "0");
@@ -72,12 +81,33 @@ function formatDateTime(date) {
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
 
+// GET Sign Up
+router.get("/:role/signup", (req, res) => {
+  const { role } = req.params;
+
+  function capitalize(s) {
+    return s[0].toUpperCase() + s.slice(1);
+  }
+
+  const capitalizedRole = capitalize(role);
+
+  res.status(200).json({ message: `${capitalizedRole} Sign Up Page✅` });
+});
+
+// POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
   const capitalizedRole = role.charAt(0).toUpperCase() + role.slice(1);
 
   try {
-    const { username, email, phone, password, confirmPassword } = req.body;
+    const {
+      accountAddress,
+      username,
+      email,
+      phone,
+      password,
+      confirmPassword,
+    } = req.body;
 
     // Enkripsi password menggunakan bcrypt.js
     const encryptedPassword = await bcrypt.hash(password, 10);
@@ -97,6 +127,7 @@ router.post("/:role/signup", async (req, res) => {
 
     // Mmebuat objek untuk akun pasien
     const newPatient = {
+      accountAddress: accountAddress,
       accountUsername: username,
       accountEmail: email,
       accountPhone: phone,
@@ -118,33 +149,51 @@ router.post("/:role/signup", async (req, res) => {
     // Fetch data dari IPFS
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
+    console.log(ipfsData);
+
+    // Menambahkan CID ke Smart Contract
+    const provider = new ethers.providers.JsonRpcProvider(
+      "http://127.0.0.1:7545/"
+    );
+    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+
+    const ipfsTX = await contract.addIpfs(cid);
+    await ipfsTX.wait();
+    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    const ipfsHash = getIpfs.ipfsAddress;
+
+    const accountTX = await contract.addPatientAccount(email, role, ipfsHash);
+    await accountTX.wait();
+    const getAccount = await contract.getPatientAccountByAddress(
+      accountAddress
+    );
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
-      message: `${capitalizedRole} Registration Successful✅`,
-      cid: cid,
-      path: result.path,
-      size: result.size,
-      data: ipfsData,
+      message: `${capitalizedRole} Registration Successful`,
+      patientAccount: {
+        accountAddress: getAccount.accountAddress,
+        email: getAccount.email,
+        role: getAccount.role,
+        ipfsHash: getAccount.ipfsHash,
+      },
+      ipfs: {
+        ipfsAddress: ipfsHash,
+        cid: cid,
+        size: result.size,
+        data: ipfsData,
+      },
     };
 
     console.log(responseData);
-
-    // To Do:
-    // 1. Simpan CID ke blockchain (addIpfs())
-    // 2. Buat JSON objek akun pasien untuk di blockchain
-    //    {
-    //      email,
-    //      role,
-    //      ipfsHash    // didapat dari hasil nomor 1
-    //    }
 
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     res.status(500).json({
       error: error,
-      message: `${capitalizedRole} Registration Failed❌`,
+      message: `${capitalizedRole} Registration Failed`,
     });
   }
 });

@@ -4,10 +4,5 @@
     "be": "cd backend && npm run dev",
     "sc": "cd smart-contracts"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "dotenv": "^16.3.1",
-    "react-router-dom": "^6.16.0",
-    "sweetalert2": "^11.9.0"
-  }
+  "dependencies": {}
 }

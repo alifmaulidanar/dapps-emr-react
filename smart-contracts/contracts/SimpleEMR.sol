@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.22;
 
 contract SimpleEMR {
     event PatientAdded(address indexed patientAddress, string email);
-    event IpfsAdded(address indexed patientAddress, string cid);
+    event IpfsAdded(address indexed ipfsAddress, string cid);
 
     struct PatientAccount {
-        uint accountId;
         address accountAddress;
         string email;
         string role;
@@ -14,7 +13,6 @@ contract SimpleEMR {
     }
 
     struct Ipfs {
-        uint ipfsId;
         address ipfsAddress;
         string cid;
     }
@@ -23,11 +21,11 @@ contract SimpleEMR {
     Ipfs[] public ipfss;
 
     mapping(address => PatientAccount) accountsMap;
-    mapping(string => address) public emailToAddress;
+    mapping(string => address) emailToAddress;
     mapping(address => Ipfs) ipfsMap;
 
-    uint private patientAccountCounter = 1;
-    uint private ipfsCounter = 1;
+    // uint private patientAccountCounter = 1;
+    // uint private ipfsCounter = 1;
 
     function addPatientAccount(
         string memory _email,
@@ -35,7 +33,6 @@ contract SimpleEMR {
         address _ipfsHash
     ) public {
         PatientAccount memory patientAccount = PatientAccount(
-            patientAccountCounter,
             msg.sender,
             _email,
             _role,
@@ -44,7 +41,7 @@ contract SimpleEMR {
         patientAccounts.push(patientAccount);
         accountsMap[msg.sender] = patientAccount;
         emailToAddress[_email] = msg.sender;
-        patientAccountCounter++;
+        // patientAccountCounter++;
 
         emit PatientAdded(msg.sender, _email);
     }
@@ -65,11 +62,19 @@ contract SimpleEMR {
         return accountsMap[_address];
     }
 
+    function getNumberOfPatients()
+        public
+        view
+        returns (uint, PatientAccount[] memory)
+    {
+        return (patientAccounts.length, patientAccounts);
+    }
+
     function addIpfs(string memory _cid) public {
-        Ipfs memory ipfs = Ipfs(ipfsCounter, msg.sender, _cid);
+        Ipfs memory ipfs = Ipfs(msg.sender, _cid);
         ipfss.push(ipfs);
         ipfsMap[msg.sender] = ipfs;
-        ipfsCounter++;
+        // ipfsCounter++;
 
         emit IpfsAdded(msg.sender, _cid);
     }
@@ -82,5 +87,9 @@ contract SimpleEMR {
         address _address
     ) public view returns (Ipfs memory) {
         return ipfsMap[_address];
+    }
+
+    function getNumberOfIpfs() public view returns (uint, Ipfs[] memory) {
+        return (ipfss.length, ipfss);
     }
 }

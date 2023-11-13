@@ -1,4 +1,5 @@
 require("hardhat/config");
+// require("@nomiclabs/hardhat-ganache");
 require("@nomicfoundation/hardhat-toolbox");
 const DotEnv = require("dotenv");
 
@@ -18,7 +19,7 @@ const config = {
   solidity: {
     compilers: [
       {
-        version: "0.8.21",
+        version: "0.8.22",
       },
     ],
   },
@@ -27,6 +28,13 @@ const config = {
     sepolia: {
       url: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_KEY}`,
       accounts: [ACCOUNT_PRIVATE_KEY],
+    },
+    ganache: {
+      url: "http://127.0.0.1:7545",
+      accounts: [
+        "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
+        "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
+      ],
     },
   },
 };

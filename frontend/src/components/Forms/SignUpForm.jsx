@@ -2,67 +2,86 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/lib/form/Form";
+import { useState } from "react";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
+  const [accountAddress, setaccountAddress] = useState(null);
 
   // Lakukan validasi formulir
   const handleSubmit = async (values) => {
-    // Buat objek data pasien dari formulir
-    const newPatient = {
-      username: values.username,
-      email: values.email,
-      phone: values.phone,
-      password: values.password,
-      confirmPassword: values.confirmPassword,
-      role: role,
-    };
-
-    let endpoint = "";
-    if (role === "Pasien") {
-      endpoint = "http://localhost:3000/patient/signup";
-    } else if (role === "Dokter") {
-      endpoint = "http://localhost:3000/doctor/signup";
-    }
-
-    // Kirim permintaan POST ke endpoint yang sesuai
-    if (endpoint) {
+    if (window.ethereum) {
       try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newPatient),
+        // Mendapatkan alamat wallet Ethereum dari Metamask
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
         });
+        setaccountAddress(accounts[0]); // Set alamat wallet ke state
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data.message, data);
-          Swal.fire({
-            icon: "success",
-            title: "Registrasi Akun Berhasil!",
-            text: "Gunakan Email dan Password untuk melakukan Sign In.",
-          });
+        // Buat objek data pasien dari formulir
+        const newPatient = {
+          accountAddress: accounts[0],
+          username: values.username,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
+          role: role,
+        };
+
+        let endpoint = "";
+        if (role === "Pasien") {
+          endpoint = "http://localhost:3000/patient/signup";
+        } else if (role === "Dokter") {
+          endpoint = "http://localhost:3000/doctor/signup";
+        }
+
+        // Kirim permintaan POST ke endpoint yang sesuai
+        if (endpoint) {
+          try {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newPatient),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log(data.message, data);
+              Swal.fire({
+                icon: "success",
+                title: "Registrasi Akun Berhasil!",
+                text: "Gunakan Email dan Password untuk melakukan Sign In.",
+              });
+            } else {
+              const data = await response.json();
+              console.log(data.error, data.message);
+              Swal.fire({
+                icon: "error",
+                title: "Registrasi Gagal",
+                text: data.error,
+              });
+            }
+          } catch (error) {
+            console.error("Terjadi kesalahan:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Terjadi kesalahan saat melakukan registrasi. Silakan coba lagi!",
+            });
+          }
         } else {
-          const data = await response.json();
-          console.log(data.error, data.message);
-          Swal.fire({
-            icon: "error",
-            title: "Registrasi Gagal",
-            text: data.error,
-          });
+          console.error("Role tidak valid");
         }
       } catch (error) {
-        console.error("Terjadi kesalahan:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Terjadi kesalahan saat melakukan registrasi. Silakan coba lagi!",
-        });
+        console.error(error);
+        setaccountAddress(null);
       }
     } else {
-      console.error("Role tidak valid");
+      console.error("Metamask not detected");
+      setaccountAddress(null);
     }
   };
 
