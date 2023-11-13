@@ -63,7 +63,7 @@ const formattedDateTime = formatDateTime(currentDateTime);
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
-  const capitalizedRole = role.charAt(0).toUpperCase() + role.slice(1);
+  const originalRole = role;
 
   try {
     const {
@@ -108,7 +108,7 @@ router.post("/:role/signup", async (req, res) => {
       }),
       signature
     );
-    console.log("Recovered Address:", recoveredAddress);
+    // console.log("Recovered Address:", recoveredAddress);
 
     // Menggunakan alamat dari signer
     const accountAddress = await signer.getAddress();
@@ -124,28 +124,22 @@ router.post("/:role/signup", async (req, res) => {
       accountEmail: email,
       accountPhone: phone,
       accountPassword: encryptedPassword,
-      accountRole: role,
+      accountRole: originalRole,
       accountCreated: formattedDateTime,
       accountProfiles: [],
     };
 
     // Menyimpan objek akun pasien ke IPFS
     const result = await client.add(JSON.stringify(newPatient));
-
-    // Ambil CID dari hasil IPFS
     const cid = result.cid.toString();
 
-    // Dedicated gateway Infura untuk mengakses data di IPFS
+    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
     const ipfsGatewayUrl = `https://dapp-emr.infura-ipfs.io/ipfs/${cid}`;
-
-    // Fetch data dari IPFS
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
-    console.log(ipfsData);
 
     // Menambahkan CID ke Smart Contract
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
-
     const ipfsTX = await contract.addIpfs(cid);
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
@@ -159,7 +153,7 @@ router.post("/:role/signup", async (req, res) => {
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
-      message: `${capitalizedRole} Registration Successful`,
+      message: `${role} Registration Successful`,
       patientAccount: {
         accountAddress: getAccount.accountAddress,
         email: getAccount.email,
@@ -175,7 +169,6 @@ router.post("/:role/signup", async (req, res) => {
     };
 
     console.log(responseData);
-
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
