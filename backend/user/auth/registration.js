@@ -36,32 +36,11 @@ const schema = Joi.object({
     .alphanum()
     .min(3)
     .max(50)
-    .messages({
-      "string.pattern.base": "Nama Penguna tidak boleh diawali dengan spasi.",
-      "string.alphanum": "Nama pengguna hanya dapat berisi huruf dan angka.",
-      "string.min": "Nama pengguna harus memiliki setidaknya 3 karakter.",
-      "string.max": "Nama pengguna tidak boleh lebih dari 50 karakter.",
-    })
     .required(),
-  email: Joi.string()
-    .email()
-    .messages({
-      "string.email": "Format alamat email tidak valid.",
-    })
-    .required(),
-  phone: Joi.string()
-    .pattern(new RegExp("^[0-9]{10,12}$"))
-    .messages({
-      "string.pattern.base":
-        "Nomor telepon harus berisi angka sepanjang 10-12 karakter",
-    })
-    .required(),
+  email: Joi.string().email().required(),
+  phone: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).required(),
   password: Joi.string()
     .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"))
-    .messages({
-      "string.pattern.base":
-        "Password harus memiliki setidaknya 1 huruf kapital, 1 huruf kecil, dan 1 angka.",
-    })
     .required(),
   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 });
@@ -81,19 +60,6 @@ function formatDateTime(date) {
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
 
-// GET Sign Up
-router.get("/:role/signup", (req, res) => {
-  const { role } = req.params;
-
-  function capitalize(s) {
-    return s[0].toUpperCase() + s.slice(1);
-  }
-
-  const capitalizedRole = capitalize(role);
-
-  res.status(200).json({ message: `${capitalizedRole} Sign Up Page✅` });
-});
-
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
@@ -101,12 +67,13 @@ router.post("/:role/signup", async (req, res) => {
 
   try {
     const {
-      accountAddress,
       username,
       email,
       phone,
       password,
       confirmPassword,
+      role,
+      signature,
     } = req.body;
 
     // Enkripsi password menggunakan bcrypt.js
@@ -125,9 +92,34 @@ router.post("/:role/signup", async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
 
-    // Mmebuat objek untuk akun pasien
+    // Verifikasi tanda tangan
+    const provider = new ethers.providers.JsonRpcProvider(
+      "http://127.0.0.1:7545/"
+    );
+    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    const recoveredAddress = ethers.utils.verifyMessage(
+      JSON.stringify({
+        username,
+        email,
+        phone,
+        password,
+        confirmPassword,
+        role,
+      }),
+      signature
+    );
+    console.log("Recovered Address:", recoveredAddress);
+
+    // Menggunakan alamat dari signer
+    const accountAddress = await signer.getAddress();
+
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
+      return res.status(400).json({ error: "Invalid signature" });
+    }
+
+    // Membuat objek untuk akun pasien
     const newPatient = {
-      accountAddress: accountAddress,
+      accountAddress,
       accountUsername: username,
       accountEmail: email,
       accountPhone: phone,
@@ -152,10 +144,6 @@ router.post("/:role/signup", async (req, res) => {
     console.log(ipfsData);
 
     // Menambahkan CID ke Smart Contract
-    const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
-    );
-    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
     const contract = new ethers.Contract(contractAddress, contractAbi, signer);
 
     const ipfsTX = await contract.addIpfs(cid);

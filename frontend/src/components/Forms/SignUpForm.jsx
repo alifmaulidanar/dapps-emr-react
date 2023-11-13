@@ -2,25 +2,47 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import { useState } from "react";
+import { useCallback } from "react";
+import { ethers } from "ethers";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
-  const [accountAddress, setaccountAddress] = useState(null);
+
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    const provider = new ethers.providers.Web3Provider(win.ethereum);
+
+    try {
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: ["http://127.0.0.1:7545"],
+        },
+      ]);
+
+      const signer = provider.getSigner();
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
 
   // Lakukan validasi formulir
   const handleSubmit = async (values) => {
     if (window.ethereum) {
       try {
-        // Mendapatkan alamat wallet Ethereum dari Metamask
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        setaccountAddress(accounts[0]); // Set alamat wallet ke state
-
         // Buat objek data pasien dari formulir
         const newPatient = {
-          accountAddress: accounts[0],
           username: values.username,
           email: values.email,
           phone: values.phone,
@@ -29,12 +51,21 @@ export default function SignUpForm({ role }) {
           role: role,
         };
 
+        // Menandatangani data menggunakan signer
+        const signer = await getSigner();
+        const signature = await signer.signMessage(JSON.stringify(newPatient));
+        newPatient.signature = signature;
+        console.log("Signature:", signature);
+
         let endpoint = "";
         if (role === "Pasien") {
           endpoint = "http://localhost:3000/patient/signup";
         } else if (role === "Dokter") {
           endpoint = "http://localhost:3000/doctor/signup";
         }
+
+        // Include the signature in the req.body
+        newPatient.signature = signature;
 
         // Kirim permintaan POST ke endpoint yang sesuai
         if (endpoint) {
@@ -77,11 +108,9 @@ export default function SignUpForm({ role }) {
         }
       } catch (error) {
         console.error(error);
-        setaccountAddress(null);
       }
     } else {
       console.error("Metamask not detected");
-      setaccountAddress(null);
     }
   };
 
