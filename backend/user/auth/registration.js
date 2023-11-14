@@ -7,7 +7,7 @@ import {
   API_KEY,
   API_KEY_SECRET,
   CONTRACT_ADDRESS,
-  PRIVATE_KEY,
+  // PRIVATE_KEY,
 } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 
@@ -63,7 +63,6 @@ const formattedDateTime = formatDateTime(currentDateTime);
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
-  const originalRole = role;
 
   try {
     const {
@@ -96,7 +95,8 @@ router.post("/:role/signup", async (req, res) => {
     const provider = new ethers.providers.JsonRpcProvider(
       "http://127.0.0.1:7545/"
     );
-    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+
+    // const signer = provider.getSigner();
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         username,
@@ -108,10 +108,18 @@ router.post("/:role/signup", async (req, res) => {
       }),
       signature
     );
-    // console.log("Recovered Address:", recoveredAddress);
 
-    // Menggunakan alamat dari signer
-    const accountAddress = await signer.getAddress();
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find(
+      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
+    );
+    // console.log("Recovered Address: ", recoveredAddress);
+    // console.log("Account Address: ", accountAddress);
+
+    if (!accountAddress) {
+      return res.status(400).json({ error: "Account not found" });
+    }
 
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
       return res.status(400).json({ error: "Invalid signature" });
@@ -124,7 +132,7 @@ router.post("/:role/signup", async (req, res) => {
       accountEmail: email,
       accountPhone: phone,
       accountPassword: encryptedPassword,
-      accountRole: originalRole,
+      accountRole: role,
       accountCreated: formattedDateTime,
       accountProfiles: [],
     };
@@ -139,7 +147,11 @@ router.post("/:role/signup", async (req, res) => {
     const ipfsData = await response.json();
 
     // Menambahkan CID ke Smart Contract
-    const contract = new ethers.Contract(contractAddress, contractAbi, signer);
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      recoveredSigner
+    );
     const ipfsTX = await contract.addIpfs(cid);
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
@@ -161,8 +173,8 @@ router.post("/:role/signup", async (req, res) => {
         ipfsHash: getAccount.ipfsHash,
       },
       ipfs: {
-        ipfsAddress: ipfsHash,
-        cid: cid,
+        ipfsAddress: getIpfs.ipfsAddress,
+        cid: getIpfs.cid,
         size: result.size,
         data: ipfsData,
       },
@@ -174,7 +186,7 @@ router.post("/:role/signup", async (req, res) => {
     console.error(error);
     res.status(500).json({
       error: error,
-      message: `${capitalizedRole} Registration Failed`,
+      message: `${role} Registration Failed`,
     });
   }
 });

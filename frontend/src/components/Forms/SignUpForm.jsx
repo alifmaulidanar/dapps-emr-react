@@ -2,11 +2,12 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import { ethers } from "ethers";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   const getSigner = useCallback(async () => {
     const win = window;
@@ -15,9 +16,15 @@ export default function SignUpForm({ role }) {
       return;
     }
 
-    const provider = new ethers.providers.Web3Provider(win.ethereum);
-
     try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
       await provider.send("wallet_addEthereumChain", [
         {
           chainId: "0x539",
@@ -30,7 +37,7 @@ export default function SignUpForm({ role }) {
         },
       ]);
 
-      const signer = provider.getSigner();
+      const signer = provider.getSigner(selectedAccount);
       return signer;
     } catch (error) {
       console.error("Error setting up Web3Provider:", error);
@@ -41,6 +48,8 @@ export default function SignUpForm({ role }) {
   const handleSubmit = async (values) => {
     if (window.ethereum) {
       try {
+        const roleLowerCase = role.toLowerCase();
+
         // Buat objek data pasien dari formulir
         const newPatient = {
           username: values.username,
@@ -48,7 +57,7 @@ export default function SignUpForm({ role }) {
           phone: values.phone,
           password: values.password,
           confirmPassword: values.confirmPassword,
-          role: role,
+          role: roleLowerCase,
         };
 
         // Menandatangani data menggunakan signer
@@ -58,9 +67,9 @@ export default function SignUpForm({ role }) {
         console.log("Signature:", signature);
 
         let endpoint = "";
-        if (role === "Pasien") {
+        if (roleLowerCase === "pasien") {
           endpoint = "http://localhost:3000/patient/signup";
-        } else if (role === "Dokter") {
+        } else if (roleLowerCase === "dokter") {
           endpoint = "http://localhost:3000/doctor/signup";
         }
 
