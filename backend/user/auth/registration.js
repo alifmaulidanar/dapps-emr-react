@@ -7,7 +7,6 @@ import {
   API_KEY,
   API_KEY_SECRET,
   CONTRACT_ADDRESS,
-  // PRIVATE_KEY,
 } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 
@@ -65,15 +64,8 @@ router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
 
   try {
-    const {
-      username,
-      email,
-      phone,
-      password,
-      confirmPassword,
-      role,
-      signature,
-    } = req.body;
+    const { username, email, phone, password, confirmPassword, signature } =
+      req.body;
 
     // Enkripsi password menggunakan bcrypt.js
     const encryptedPassword = await bcrypt.hash(password, 10);
@@ -104,7 +96,6 @@ router.post("/:role/signup", async (req, res) => {
         phone,
         password,
         confirmPassword,
-        role,
       }),
       signature
     );
@@ -114,8 +105,6 @@ router.post("/:role/signup", async (req, res) => {
     const accountAddress = accounts.find(
       (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
     );
-    // console.log("Recovered Address: ", recoveredAddress);
-    // console.log("Account Address: ", accountAddress);
 
     if (!accountAddress) {
       return res.status(400).json({ error: "Account not found" });
@@ -125,8 +114,36 @@ router.post("/:role/signup", async (req, res) => {
       return res.status(400).json({ error: "Invalid signature" });
     }
 
+    // Koneksi ke Smart Contract
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      recoveredSigner
+    );
+
+    // Pengecekan apakah email sudah terdaftar
+    const getAccountByEmail = await contract.getUserAccountByEmail(email);
+    if (getAccountByEmail.accountAddress !== ethers.constants.AddressZero) {
+      return res.status(400).json({
+        error: `Akun dengan email ${email} sudah terdaftar.`,
+      });
+    }
+
+    // Pengecekan apakah address dari signature sudah terdaftar dengan email lain
+    const getAccountByAddress = await contract.getUserAccountByAddress(
+      recoveredAddress
+    );
+    if (
+      getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
+      getAccountByAddress.email !== email
+    ) {
+      return res.status(400).json({
+        error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
+      });
+    }
+
     // Membuat objek untuk akun pasien
-    const newPatient = {
+    const newAccount = {
       accountAddress,
       accountUsername: username,
       accountEmail: email,
@@ -138,7 +155,7 @@ router.post("/:role/signup", async (req, res) => {
     };
 
     // Menyimpan objek akun pasien ke IPFS
-    const result = await client.add(JSON.stringify(newPatient));
+    const result = await client.add(JSON.stringify(newAccount));
     const cid = result.cid.toString();
 
     // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
@@ -146,27 +163,23 @@ router.post("/:role/signup", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // Menambahkan CID ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-    const ipfsTX = await contract.addIpfs(cid);
+    // Menambahkan CID dan detail akun ke Smart Contract
+    const ipfsTX = await contract.addIpfsAccount(cid);
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const ipfsHash = getIpfs.ipfsAddress;
 
-    const accountTX = await contract.addPatientAccount(email, role, ipfsHash);
-    await accountTX.wait();
-    const getAccount = await contract.getPatientAccountByAddress(
-      accountAddress
+    const accountTX = await contract.addUserAccount(
+      email,
+      role,
+      getIpfs.ipfsAddress
     );
+    await accountTX.wait();
+    const getAccount = await contract.getUserAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `${role} Registration Successful`,
-      patientAccount: {
+      account: {
         accountAddress: getAccount.accountAddress,
         email: getAccount.email,
         role: getAccount.role,

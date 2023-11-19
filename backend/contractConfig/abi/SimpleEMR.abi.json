@@ -5,6 +5,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      }
+    ],
+    "name": "DoctorAccountAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "ipfsAddress",
         "type": "address"
       },
@@ -15,7 +34,7 @@
         "type": "string"
       }
     ],
-    "name": "IpfsAdded",
+    "name": "IpfsAccountAdded",
     "type": "event"
   },
   {
@@ -24,7 +43,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "patientAddress",
+        "name": "userAddress",
         "type": "address"
       },
       {
@@ -34,7 +53,7 @@
         "type": "string"
       }
     ],
-    "name": "PatientAdded",
+    "name": "PatientAccountAdded",
     "type": "event"
   },
   {
@@ -45,7 +64,7 @@
         "type": "string"
       }
     ],
-    "name": "addIpfs",
+    "name": "addIpfsAccount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -68,9 +87,49 @@
         "type": "address"
       }
     ],
-    "name": "addPatientAccount",
+    "name": "addUserAccount",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDoctorAccounts",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "accountAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "role",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "ipfsHash",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct SimpleEMR.UserAccount[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -79,6 +138,11 @@
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
           {
             "internalType": "address",
             "name": "ipfsAddress",
@@ -90,7 +154,7 @@
             "type": "string"
           }
         ],
-        "internalType": "struct SimpleEMR.Ipfs[]",
+        "internalType": "struct SimpleEMR.IpfsAccount[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -111,6 +175,11 @@
       {
         "components": [
           {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "ipfsAddress",
             "type": "address"
@@ -121,9 +190,22 @@
             "type": "string"
           }
         ],
-        "internalType": "struct SimpleEMR.Ipfs",
+        "internalType": "struct SimpleEMR.IpfsAccount",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNumberOfDoctorAccounts",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -137,23 +219,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "ipfsAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "cid",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct SimpleEMR.Ipfs[]",
-        "name": "",
-        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -161,39 +226,12 @@
   },
   {
     "inputs": [],
-    "name": "getNumberOfPatients",
+    "name": "getNumberOfPatientAccounts",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "accountAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "email",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "role",
-            "type": "string"
-          },
-          {
-            "internalType": "address",
-            "name": "ipfsHash",
-            "type": "address"
-          }
-        ],
-        "internalType": "struct SimpleEMR.PatientAccount[]",
-        "name": "",
-        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -201,10 +239,15 @@
   },
   {
     "inputs": [],
-    "name": "getPatientAccount",
+    "name": "getPatientAccounts",
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
           {
             "internalType": "address",
             "name": "accountAddress",
@@ -226,7 +269,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct SimpleEMR.PatientAccount[]",
+        "internalType": "struct SimpleEMR.UserAccount[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -242,10 +285,15 @@
         "type": "address"
       }
     ],
-    "name": "getPatientAccountByAddress",
+    "name": "getUserAccountByAddress",
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
           {
             "internalType": "address",
             "name": "accountAddress",
@@ -267,7 +315,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct SimpleEMR.PatientAccount",
+        "internalType": "struct SimpleEMR.UserAccount",
         "name": "",
         "type": "tuple"
       }
@@ -283,12 +331,39 @@
         "type": "string"
       }
     ],
-    "name": "getPatientAccountByEmail",
+    "name": "getUserAccountByEmail",
     "outputs": [
       {
-        "internalType": "address",
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "accountAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "role",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "ipfsHash",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct SimpleEMR.UserAccount",
         "name": "",
-        "type": "address"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -302,8 +377,13 @@
         "type": "uint256"
       }
     ],
-    "name": "ipfss",
+    "name": "ipfsAccounts",
     "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "ipfsAddress",
@@ -326,8 +406,13 @@
         "type": "uint256"
       }
     ],
-    "name": "patientAccounts",
+    "name": "userAccounts",
     "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "accountAddress",
