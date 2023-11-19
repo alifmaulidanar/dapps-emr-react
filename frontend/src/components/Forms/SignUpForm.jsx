@@ -1,13 +1,18 @@
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { ethers } from "ethers";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [spinning, setSpinning] = React.useState(false);
+
+  const showLoader = () => {
+    setSpinning(true);
+  };
 
   const getSigner = useCallback(async () => {
     const win = window;
@@ -57,7 +62,6 @@ export default function SignUpForm({ role }) {
           phone: values.phone,
           password: values.password,
           confirmPassword: values.confirmPassword,
-          role: roleLowerCase,
         };
 
         // Menandatangani data menggunakan signer
@@ -90,6 +94,7 @@ export default function SignUpForm({ role }) {
             if (response.ok) {
               const data = await response.json();
               console.log(data.message, data);
+              setSpinning(false);
               Swal.fire({
                 icon: "success",
                 title: "Registrasi Akun Berhasil!",
@@ -98,6 +103,7 @@ export default function SignUpForm({ role }) {
             } else {
               const data = await response.json();
               console.log(data.error, data.message);
+              setSpinning(false);
               Swal.fire({
                 icon: "error",
                 title: "Registrasi Gagal",
@@ -106,6 +112,7 @@ export default function SignUpForm({ role }) {
             }
           } catch (error) {
             console.error("Terjadi kesalahan:", error);
+            setSpinning(false);
             Swal.fire({
               icon: "error",
               title: "Oops...",
@@ -114,12 +121,30 @@ export default function SignUpForm({ role }) {
           }
         } else {
           console.error("Role tidak valid");
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Role tidak valid. Silakan coba lagi!",
+          });
         }
       } catch (error) {
         console.error(error);
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Pendaftaran telah dibatalkan.",
+        });
       }
     } else {
       console.error("Metamask not detected");
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Metamask tidak terdeteksi. Tolong pasang MetaMask terlebih dahulu!",
+      });
     }
   };
 
@@ -259,9 +284,11 @@ export default function SignUpForm({ role }) {
               type="primary"
               htmlType="submit"
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 text-center mt-4"
+              onClick={showLoader}
             >
               Daftarkan Akun
             </Button>
+            <Spin spinning={spinning} fullscreen />
           </div>
         </Form>
       </div>
