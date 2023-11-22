@@ -130,17 +130,17 @@ router.post("/:role/signup", async (req, res) => {
     }
 
     // Pengecekan apakah address dari signature sudah terdaftar dengan email lain
-    const getAccountByAddress = await contract.getUserAccountByAddress(
-      recoveredAddress
-    );
-    if (
-      getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
-      getAccountByAddress.email !== email
-    ) {
-      return res.status(400).json({
-        error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
-      });
-    }
+    // const getAccountByAddress = await contract.getUserAccountByAddress(
+    //   recoveredAddress
+    // );
+    // if (
+    //   getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
+    //   getAccountByAddress.email !== email
+    // ) {
+    //   return res.status(400).json({
+    //     error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
+    //   });
+    // }
 
     // Membuat objek untuk akun pasien
     const newAccount = {

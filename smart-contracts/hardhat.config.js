@@ -20,10 +20,13 @@ const config = {
     compilers: [
       {
         version: "0.8.22",
+        settings: {
+          evmVersion: "london",
+        },
       },
     ],
   },
-  defaultNetwork: "sepolia",
+  defaultNetwork: "ganache",
   networks: {
     sepolia: {
       url: `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_KEY}`,
@@ -32,7 +35,6 @@ const config = {
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: [
-        "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
         "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
       ],
     },

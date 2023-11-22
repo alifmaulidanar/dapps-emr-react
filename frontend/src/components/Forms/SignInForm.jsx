@@ -1,13 +1,158 @@
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { Button, Form, Input, Spin } from "antd";
+import { useForm } from "antd/lib/form/Form";
+import React, { useState, useCallback } from "react";
+import { ethers } from "ethers";
+
 export default function SignInForm({ role, resetLink, signupLink }) {
-  const id = "2020";
+  const [form] = useForm();
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [spinning, setSpinning] = React.useState(false);
 
-  let loginHref = "#";
+  const showLoader = () => {
+    setSpinning(true);
+  };
 
-  if (role === "Pasien") {
-    loginHref = `/patient/${id}/record-list`;
-  } else if (role === "Dokter") {
-    loginHref = `/doctor/${id}/patient-list`;
-  }
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: ["http://127.0.0.1:7545"],
+        },
+      ]);
+
+      const signer = provider.getSigner(selectedAccount);
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
+
+  // Lakukan validasi formulir
+  const handleSubmit = async (values) => {
+    if (window.ethereum) {
+      try {
+        const roleLowerCase = role.toLowerCase();
+
+        // Buat objek data pasien dari formulir
+        const newPatient = {
+          email: values.email,
+          password: values.password,
+        };
+
+        // Menandatangani data menggunakan signer
+        const signer = await getSigner();
+        const signature = await signer.signMessage(JSON.stringify(newPatient));
+        newPatient.signature = signature;
+        console.log("Signature:", signature);
+
+        let endpoint = "";
+        if (roleLowerCase === "pasien") {
+          endpoint = "http://localhost:3000/patient/signin";
+        } else if (roleLowerCase === "dokter") {
+          endpoint = "http://localhost:3000/doctor/signin";
+        }
+
+        // Include the signature in the req.body
+        newPatient.signature = signature;
+
+        // Kirim permintaan POST ke endpoint yang sesuai
+        if (endpoint) {
+          try {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newPatient),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log(data.message, data);
+              setSpinning(false);
+              Swal.fire({
+                icon: "success",
+                title: "Sign In Successful!",
+              }).then(() => {
+                if (roleLowerCase === "pasien") {
+                  window.location.assign(
+                    `/patient/${selectedAccount}/record-list`
+                  );
+                } else if (roleLowerCase === "dokter") {
+                  window.location.assign(
+                    `/doctor/${selectedAccount}/patient-list`
+                  );
+                }
+              });
+            } else {
+              const data = await response.json();
+              console.log(data.error, data.message);
+              setSpinning(false);
+              Swal.fire({
+                icon: "error",
+                title: "Sign In Failed",
+                text: data.error,
+              });
+            }
+          } catch (error) {
+            console.error("Terjadi kesalahan:", error);
+            setSpinning(false);
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Terjadi kesalahan saat melakukan registrasi. Silakan coba lagi!",
+            });
+          }
+        } else {
+          console.error("Role tidak valid");
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Role tidak valid. Silakan coba lagi!",
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Pendaftaran telah dibatalkan.",
+        });
+      }
+    } else {
+      console.error("Metamask not detected");
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Metamask tidak terdeteksi. Tolong pasang MetaMask terlebih dahulu!",
+      });
+    }
+  };
 
   return (
     <div className="col-start-2 col-span-2 h-fit">
@@ -15,47 +160,71 @@ export default function SignInForm({ role, resetLink, signupLink }) {
         <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
           Masuk sebagai {role}
         </h1>
-        <form>
+        <Form
+          form={form}
+          className="grid grid-cols-1 gap-x-12"
+          onFinish={handleSubmit}
+        >
           <div className="mb-6">
             <label
-              htmlFor="email"
-              className="block mb-2 text-sm font-medium text-gray-900 "
+              htmlFor="name"
+              className="block mb-2 text-sm font-medium text-gray-900"
             >
               Alamat Email
             </label>
-            <input
-              type="email"
-              id="email"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="contoh@gmail.com"
-              required
-            />
+            <Form.Item
+              name="email"
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi Email.",
+                },
+              ]}
+            >
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email"
+                className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
+              />
+            </Form.Item>
           </div>
           <div className="mb-6">
             <label
               htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900 "
+              className="block mb-2 text-sm font-medium text-gray-900"
             >
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-              placeholder="Ketik password Anda"
-              required
-            />
+            <Form.Item
+              name="password"
+              rules={[
+                {
+                  required: true,
+                  message: "Harap isi password Anda.",
+                },
+              ]}
+            >
+              <Input.Password
+                type="password"
+                name="password"
+                placeholder="Password"
+                className="border-gray-300 text-sm rounded-lg py-1.5 px-2.5"
+              />
+            </Form.Item>
           </div>
           <div className="text-right">
-            <button
-              href={loginHref}
-              type="submit"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5"
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 text-center mt-4"
+              onClick={showLoader}
             >
               Masuk
-            </button>
+            </Button>
+            <Spin spinning={spinning} fullscreen />
           </div>
-        </form>
+        </Form>
         <div className="flex mt-8 justify-evenly items-center text-center">
           <div>
             <a href={resetLink}>

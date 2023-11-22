@@ -1,7 +1,8 @@
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
-import registrationRouter from "./user/auth/registration.js";
+import signupRouter from "./user/auth/signup.js";
+import signinRouter from "./user/auth/signin.js";
 
 const app = express();
 app.use(cors());
@@ -9,7 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
-app.use("/", registrationRouter);
+app.use("/", signupRouter, signinRouter);
 
 // Menjalankan server pada port 3000
 app.listen(3000, () => {

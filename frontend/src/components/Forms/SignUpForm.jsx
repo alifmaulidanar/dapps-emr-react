@@ -99,6 +99,12 @@ export default function SignUpForm({ role }) {
                 icon: "success",
                 title: "Registrasi Akun Berhasil!",
                 text: "Gunakan Email dan Password untuk melakukan Sign In.",
+              }).then(() => {
+                if (roleLowerCase === "pasien") {
+                  window.location.assign("/patient/signin");
+                } else if (roleLowerCase === "dokter") {
+                  window.location.assign("/doctor/signin");
+                }
               });
             } else {
               const data = await response.json();
