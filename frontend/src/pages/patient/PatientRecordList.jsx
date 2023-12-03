@@ -1,5 +1,5 @@
 import "./../../index.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
@@ -10,7 +10,37 @@ import { useParams } from "react-router-dom";
 
 export default function PatientRecordList() {
   const { accountAddress } = useParams();
+  const [patientData, setPatientData] = useState(null);
   const [chosenIndex, setChosenIndex] = useState(0);
+
+  useEffect(() => {
+    const capitalizedAccountAddress =
+      accountAddress.charAt(0) +
+      accountAddress.charAt(1) +
+      accountAddress.substring(2).toUpperCase();
+    console.log(capitalizedAccountAddress);
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/patient/${capitalizedAccountAddress}/record-list`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
+        setPatientData(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+
+    fetchData();
+  }, [accountAddress]);
+
+  // const accountData = patientData.account;
+  // const ipfsData = patientData.ipfs;
 
   const handlePatientClick = (index) => {
     setChosenIndex(index);

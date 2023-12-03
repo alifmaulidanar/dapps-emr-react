@@ -1,7 +1,7 @@
 import Navbar from "./Navbar";
 
 function NavbarController({ type, page, color }) {
-  const id = "0x1e6b98a582Fdd23614b58A4459C1C875C6705f55";
+  const id = "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D";
   const title = "Eka Hospital";
   let navItems = [];
   let buttons = [];

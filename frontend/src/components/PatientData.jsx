@@ -1,37 +1,7 @@
 import { useState } from "react";
+import { DatePicker } from "antd";
 
-export default function PatientData({
-  patientName,
-  patientIdNumber,
-  patientBirthLocation,
-  patientBirthDate,
-  patientGender,
-  patientBloodType,
-  patientMaritalStatus,
-  patientReligion,
-  patientJob,
-  patientCitizenship,
-  patientPhone,
-  patientEmail,
-  patientHomeAddress,
-  patientProvince,
-  patientCity,
-  patientSubdistrict,
-  patientVillage,
-  patientPostalCode,
-  relativesName,
-  relativesIdNumber,
-  relativesGender,
-  relativesBirthDate,
-  relativesPhone,
-  relativesRelation,
-  relativesHomeAddress,
-  relativesProvince,
-  relativesCity,
-  relativesSubdistrict,
-  relativesVillage,
-  relativesPostalCode,
-}) {
+export default function PatientData() {
   const [isEditing, setIsEditing] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
@@ -51,10 +21,13 @@ export default function PatientData({
     setIsChecked(!isChecked);
   };
 
+  const dateFormat = "DD/MM/YYYY";
+  const customFormat = (value) => `${value.format(dateFormat)}`;
+
   return (
     <form className="col-span-2 p-8">
       <div className="grid grid-cols-2 gap-x-8">
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           Data Pasien
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
@@ -68,10 +41,10 @@ export default function PatientData({
           <input
             type="text"
             id="nama"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientName}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nama lengkap"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -79,15 +52,15 @@ export default function PatientData({
             htmlFor="nomor_identitas"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Nomor Identitas (E-KTP, SIM, atau Paspor)
+            Nomor Identitas (NIK, SIM, atau Paspor)
           </label>
           <input
-            type="text"
+            type="number"
             id="nomor_identitas"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientIdNumber}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nomor identitas"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -100,10 +73,11 @@ export default function PatientData({
           <input
             type="text"
             id="tempat_lahir"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientBirthLocation}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Tempat lahir"
+            // defaultValue={patientBirthLocation}
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -113,87 +87,50 @@ export default function PatientData({
           >
             Tanggal Lahir
           </label>
-          <div className="relative max-w-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-              </svg>
-            </div>
-            <input
-              datepicker
-              datepicker-format="dd/mm/yyyy"
-              datepicker-autohide="true"
-              type="text"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-              defaultValue={patientBirthDate}
-              required
-              disabled={!isEditing}
-            />
-          </div>
+          <DatePicker
+            id="tanggal_lahir"
+            className="w-full h-auto text-gray-900"
+            size="large"
+            format={customFormat}
+            disabled={!isEditing}
+            required
+          />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="jenis_kelamin"
+            htmlFor="nama_ibu"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Nama Ibu Kandung
+          </label>
+          <input
+            type="text"
+            id="nama_ibu"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nama ibu kandung"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="gender"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Jenis Kelamin
           </label>
           <select
-            id="jenis_kelamin"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientGender}
+            id="gender"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             disabled={!isEditing}
             required
           >
             <option>Pilih Jenis Kelamin</option>
-            <option value="Pria">Pria</option>
-            <option value="Wanita">Wanita</option>
-          </select>
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="golongan_darah"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Golongan Darah
-          </label>
-          <select
-            id="golongan_darah"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientBloodType}
-            disabled={!isEditing}
-            required
-          >
-            <option>Pilih Golongan Darah</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="O">O</option>
-            <option value="AB">AB</option>
-          </select>
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="status_perkawinan"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Status Perkawinan
-          </label>
-          <select
-            id="status_perkawinan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientMaritalStatus}
-            disabled={!isEditing}
-            required
-          >
-            <option>Pilih Status Perkawinan</option>
-            <option value="Menikah">Menikah</option>
-            <option value="Tidak/Belum Menikah">Tidak/Belum Menikah</option>
+            <option value="0">Tidak diketahui</option>
+            <option value="1">Laki-laki</option>
+            <option value="2">Perempuan</option>
+            <option value="3">Tidak dapat ditentukan</option>
+            <option value="4">Tidak mengisi</option>
           </select>
         </div>
         <div className="mb-6">
@@ -205,66 +142,113 @@ export default function PatientData({
           </label>
           <select
             id="agama"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientReligion}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             disabled={!isEditing}
+            required
           >
             <option>Pilih Agama</option>
-            <option value="Budha">Budha</option>
-            <option value="Hindu">Hindu</option>
-            <option value="Islam">Islam</option>
-            <option value="Katolik">Kristen Katolik</option>
-            <option value="Protestan">Kristen Protestan</option>
-            <option value="Konghucu">Konghuchu</option>
+            <option value="1">Islam</option>
+            <option value="2">Kristen (Protestan)</option>
+            <option value="3">Katolik</option>
+            <option value="4">Hindu</option>
+            <option value="5">Budha</option>
+            <option value="6">Konghuchu</option>
+            <option value="7">Penghayat</option>
+            <option value="8">Lain-lain</option>
           </select>
         </div>
         <div className="mb-6">
           <label
-            htmlFor="pekerjaan"
+            htmlFor="suku"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Pekerjaan
+            Suku
           </label>
           <input
             type="text"
-            id="pekerjaan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={`${patientJob}`}
-            required
+            id="suku"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Suku"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="kewarganegaraan"
+            htmlFor="bahasa"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Kewarganegaraan
+            Bahasa yang Dikuasai
           </label>
           <input
             type="text"
-            id="kewarganegaraan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={`${patientCitizenship}`}
-            required
+            id="bahasa"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Bahasa yang Dikuasai"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="nomor_telepon"
+            htmlFor="darah"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Nomor Telepon
+            Golongan Darah
+          </label>
+          <select
+            id="darah"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            disabled={!isEditing}
+            required
+          >
+            <option>Pilih Agama</option>
+            <option value="1">A</option>
+            <option value="2">B</option>
+            <option value="3">AB</option>
+            <option value="4">0</option>
+            <option value="5">A+</option>
+            <option value="6">A-</option>
+            <option value="7">B+</option>
+            <option value="8">B-</option>
+            <option value="9">AB+</option>
+            <option value="10">AB-</option>
+            <option value="11">O+</option>
+            <option value="12">O-</option>
+            <option value="7">B+</option>
+            <option value="13">Tidak tahu</option>
+          </select>
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="tel"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Nomor Telepon Rumah
           </label>
           <input
             type="tel"
-            id="nomor_telepon"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientPhone}
-            required
+            id="telp_rumah"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nomor telepon rumah"
             disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="tel"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Nomor Telepon Selular
+          </label>
+          <input
+            type="tel"
+            id="telp_selular"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nomor telepon selular"
+            disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -277,20 +261,82 @@ export default function PatientData({
           <input
             type="email"
             id="email"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientEmail}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Email"
             disabled={!isEditing}
+            required
           />
         </div>
-        {/* TEMPAT TINGGAL */}
-        {/* <div className="col-span-2 text-gray-900 text-lg my-6">
-                Tempat Tinggal
-                <hr class="h-px bg-gray-700 border-0"></hr>
-              </div> */}
+        <div className="mb-6">
+          <label
+            htmlFor="pendidikan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Pendidikan
+          </label>
+          <select
+            id="pendidikan"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            disabled={!isEditing}
+            required
+          >
+            <option>Pilih Pendidikan</option>
+            <option value="0">Tidak sekolah</option>
+            <option value="1">SD</option>
+            <option value="2">SLTP sederajat</option>
+            <option value="3">SLTA sederajat</option>
+            <option value="4">D1-D3 sederajat</option>
+            <option value="5">D4</option>
+            <option value="6">S1</option>
+            <option value="7">S2</option>
+            <option value="8">S3</option>
+          </select>
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="pekerjaan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Pekerjaan
+          </label>
+          <select
+            id="pekerjaan"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            disabled={!isEditing}
+            required
+          >
+            <option>Pilih Pekerjaan</option>
+            <option value="0">Tidak Bekerja</option>
+            <option value="1">PNS</option>
+            <option value="2">TNI/POLRI</option>
+            <option value="3">BUMN</option>
+            <option value="4">Pegawai Swasta/Wirausaha</option>
+            <option value="5">Lain-lain</option>
+          </select>
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="pernikahan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Status Pernikahan
+          </label>
+          <select
+            id="pernikahan"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            disabled={!isEditing}
+            required
+          >
+            <option>Pilih Status Pernikahan</option>
+            <option value="1">Belum Kawin</option>
+            <option value="2">Kawin</option>
+            <option value="3">Cerai Hidup</option>
+            <option value="4">Cerai Mati</option>
+          </select>
+        </div>
         <div className="col-span-2 mb-6">
           <label
-            htmlFor="alamat"
+            htmlFor="address"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Alamat
@@ -298,9 +344,106 @@ export default function PatientData({
           <textarea
             id="alamat"
             rows={4}
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            defaultValue={patientHomeAddress}
+            className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Alamat"
             disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="rt"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Rukun Tetangga (RT)
+          </label>
+          <input
+            type="text"
+            id="rt"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Rukun Tetangga (RT)"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="rw"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Rukun Warga (RW)
+          </label>
+          <input
+            type="text"
+            id="rw"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Rukun Warga (RW)"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kelurahan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kelurahan / Desa
+          </label>
+          <input
+            type="text"
+            id="kelurahan"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kelurahan / Desa"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kecamatan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kecamatan
+          </label>
+          <input
+            type="text"
+            id="kecamatan"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kecamatan"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kota"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kota Madya / Kabupaten
+          </label>
+          <input
+            type="text"
+            id="kota"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kota Madya / Kabupaten"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="pos"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kode Pos
+          </label>
+          <input
+            type="text"
+            id="pos"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kode Pos"
+            disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -312,9 +455,9 @@ export default function PatientData({
           </label>
           <select
             id="provinsi"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientProvince}
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             disabled={!isEditing}
+            required
           >
             <option>Pilih Provinsi</option>
             <option value="Aceh">Aceh</option>
@@ -359,76 +502,29 @@ export default function PatientData({
         </div>
         <div className="mb-6">
           <label
-            htmlFor="kecamatan"
+            htmlFor="negara"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Kota/Kabupaten
+            Negara
           </label>
           <input
             type="text"
-            id="kecamatan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientCity}
-            required
+            id="negara"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Negara"
             disabled={!isEditing}
+            required
           />
         </div>
-        <div className="mb-6">
-          <label
-            htmlFor="kecamatan"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kecamatan
-          </label>
-          <input
-            type="text"
-            id="kecamatan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientSubdistrict}
-            required
-            disabled={!isEditing}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="kelurahan"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kelurahan
-          </label>
-          <input
-            type="text"
-            id="kelurahan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientVillage}
-            required
-            disabled={!isEditing}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="pos"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kode Pos
-          </label>
-          <input
-            type="text"
-            id="pos"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={patientPostalCode}
-            required
-            disabled={!isEditing}
-          />
-        </div>
+
         {/* DATA PENANGGUNG JAWAB */}
-        <div className="col-span-2 text-gray-900 text-lg my-6">
+        <div className="col-span-2 my-6 text-lg text-gray-900">
           Data Kerabat/Penanggung Jawab
-          <hr class="h-px bg-gray-700 border-0"></hr>
+          <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <div className="mb-6">
           <label
-            htmlFor="nama_kerabat"
+            htmlFor="name"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Nama Lengkap
@@ -436,46 +532,27 @@ export default function PatientData({
           <input
             type="text"
             id="nama_kerabat"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={relativesName}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nama lengkap"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="nomor_identitas_kerabat"
+            htmlFor="nomor_identitas"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Nomor Identitas (E-KTP, SIM, atau Paspor)
+            Nomor Identitas (ENIK, SIM, atau Paspor)
           </label>
           <input
             type="text"
             id="nomor_identitas_kerabat"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={relativesIdNumber}
-            required
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nomor identitas"
             disabled={!isEditing}
+            required
           />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="jenis_kelamin"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Jenis Kelamin
-          </label>
-          <select
-            id="jenis_kelamin_kerabat"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={relativesGender}
-            disabled={!isEditing}
-            required
-          >
-            <option>Pilih Jenis Kelamin</option>
-            <option value="Pria">Pria</option>
-            <option value="Wanita">Wanita</option>
-          </select>
         </div>
         <div className="mb-6">
           <label
@@ -484,63 +561,68 @@ export default function PatientData({
           >
             Tanggal Lahir
           </label>
-          <div className="relative max-w-sm">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-              </svg>
-            </div>
-            <input
-              datepicker
-              type="text"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-              defaultValue={relativesBirthDate}
-              required
-              disabled={!isEditing}
-            />
-          </div>
+          <DatePicker
+            id="tanggal_lahir_kerabat"
+            className="w-full h-auto text-sm text-gray-900"
+            size="large"
+            format={customFormat}
+          />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="nomor_telepon_kerabat"
+            htmlFor="gender"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Jenis Kelamin
+          </label>
+          <select
+            id="gender_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            disabled={!isEditing}
+            required
+          >
+            <option>Pilih Jenis Kelamin</option>
+            <option value="0">Tidak diketahui</option>
+            <option value="1">Laki-laki</option>
+            <option value="2">Perempuan</option>
+            <option value="3">Tidak dapat ditentukan</option>
+            <option value="4">Tidak mengisi</option>
+          </select>
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="tel"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Nomor Telepon
           </label>
           <input
             type="tel"
-            id="nomor_telepon_kerabat"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={relativesPhone}
-            required
+            id="tel_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Nomor telepon selular"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
           <label
-            htmlFor="kerabat"
+            htmlFor="hubungan_kerabat"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Hubungan dengan Pasien
           </label>
           <input
             type="text"
-            id="kerabat"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={relativesRelation}
-            required
+            id="hubungan_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Hubungan dengan pasien"
             disabled={!isEditing}
+            required
           />
         </div>
         <div className="flex items-center mb-4">
           <input
-            checked={isChecked}
             id="checkbox-alamat"
             type="checkbox"
             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
@@ -556,17 +638,114 @@ export default function PatientData({
         </div>
         <div className="col-span-2 mb-6">
           <label
-            htmlFor="alamat"
+            htmlFor="address"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
             Alamat
           </label>
           <textarea
-            id="alamat"
+            id="alamat_kerabat"
             rows={4}
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-            defaultValue={isChecked ? patientHomeAddress : relativesHomeAddress}
+            className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Alamat"
             disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="rt"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Rukun Tetangga (RT)
+          </label>
+          <input
+            type="text"
+            id="rt_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Rukun Tetangga (RT)"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="rw"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Rukun Warga (RW)
+          </label>
+          <input
+            type="text"
+            id="rw_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Rukun Warga (RW)"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kelurahan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kelurahan / Desa
+          </label>
+          <input
+            type="text"
+            id="kelurahan_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kelurahan / Desa"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kecamatan"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kecamatan
+          </label>
+          <input
+            type="text"
+            id="kecamatan_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kecamatan"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="kota"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kota Madya / Kabupaten
+          </label>
+          <input
+            type="text"
+            id="kota_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kota Madya / Kabupaten"
+            disabled={!isEditing}
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label
+            htmlFor="pos"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Kode Pos
+          </label>
+          <input
+            type="text"
+            id="pos_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Kode Pos"
+            disabled={!isEditing}
+            required
           />
         </div>
         <div className="mb-6">
@@ -577,10 +756,10 @@ export default function PatientData({
             Provinsi
           </label>
           <select
-            id="provinsi"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={isChecked ? patientProvince : relativesProvince}
+            id="provinsi_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             disabled={!isEditing}
+            required
           >
             <option>Pilih Provinsi</option>
             <option value="Aceh">Aceh</option>
@@ -625,66 +804,18 @@ export default function PatientData({
         </div>
         <div className="mb-6">
           <label
-            htmlFor="kecamatan"
+            htmlFor="negara"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Kota/Kabupaten
+            Negara
           </label>
           <input
             type="text"
-            id="kecamatan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={isChecked ? patientCity : relativesCity}
-            required
+            id="negara_kerabat"
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Negara"
             disabled={!isEditing}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="kecamatan"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kecamatan
-          </label>
-          <input
-            type="text"
-            id="kecamatan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={isChecked ? patientSubdistrict : relativesSubdistrict}
             required
-            disabled={!isEditing}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="kelurahan"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kelurahan
-          </label>
-          <input
-            type="text"
-            id="kelurahan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={isChecked ? patientVillage : relativesVillage}
-            required
-            disabled={!isEditing}
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="pos"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Kode Pos
-          </label>
-          <input
-            type="text"
-            id="pos"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            defaultValue={isChecked ? patientPostalCode : relativesPostalCode}
-            required
-            disabled={!isEditing}
           />
         </div>
       </div>
@@ -692,7 +823,7 @@ export default function PatientData({
       {/* UBAH DATA */}
       {isEditing ? (
         // Tampilan tombol saat sedang dalam mode pengeditan
-        <div className="grid grid-cols-2 gap-x-4 text-center mt-8">
+        <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
           <button
             type="button"
             className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
@@ -710,7 +841,7 @@ export default function PatientData({
         </div>
       ) : (
         // Tampilan tombol saat tidak dalam mode pengeditan
-        <div className="col-span-2 text-center mt-8">
+        <div className="col-span-2 mt-8 text-center">
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
