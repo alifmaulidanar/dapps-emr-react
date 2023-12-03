@@ -3,12 +3,11 @@ import { useState } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
-import PatientList from "../../components/PatientList";
 import { AllPatient } from "../../data/patientData";
-import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
+import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import { useParams } from "react-router-dom";
 
-export default function PatientRecordList() {
+export default function PatientAppointment() {
   const { accountAddress } = useParams();
   const [chosenIndex, setChosenIndex] = useState(0);
 
@@ -42,32 +41,24 @@ export default function PatientRecordList() {
 
   return (
     <>
-      <NavbarController type={2} page="Daftar Rekam Medis" color="blue" />
-      <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
+      <NavbarController type={2} page="Appointment" color="blue" />
+      <div className="grid items-center justify-center w-1/2 grid-cols-3 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">
-            Daftar Rekam Medis
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </h5>
-        </div>
-        <div className="grid items-center col-span-2 h-fit">
-          <h5 className="text-xl font-semibold text-gray-900">
-            Daftar Pasien di Akun Anda
+            Daftar Apointment
             <hr className="h-px bg-gray-700 border-0"></hr>
           </h5>
         </div>
       </div>
-      <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
-        <div className="grid items-center grid-cols-1 col-span-3 h-fit">
-          <RecordControl search={"Cari rekam medis"} />
+      <div className="grid items-baseline justify-center w-1/2 grid-cols-2 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-y-4">
+        <div className="grid items-center grid-cols-1">
+          <MakeAppointmentButton buttonText={"Buat Appointment"} />
         </div>
-        <div className="grid items-center col-span-2 h-fit">
-          <div className="flex justify-end">
-            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
-          </div>
+        <div className="grid items-center grid-cols-1">
+          <RecordControl search={"Cari Appointment"} />
         </div>
       </div>
-      <div className="grid justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
+      <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
           {chosenPatient && (
             <RecordList
@@ -75,21 +66,6 @@ export default function PatientRecordList() {
               accountAddress={accountAddress}
             />
           )}
-        </div>
-        <div className="w-full col-span-2">
-          <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow">
-            <div className="flow-root">
-              <ul role="list" className="divide-y divide-gray-200">
-                {patientListProps.map((patient, index) => (
-                  <PatientList
-                    key={index}
-                    {...patient}
-                    onClick={() => handlePatientClick(index)}
-                  />
-                ))}
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
     </>

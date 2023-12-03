@@ -32,6 +32,11 @@ function NavbarController({ type, page, color }) {
         color: page === "Daftar Rekam Medis" ? color : defaultColor,
       },
       {
+        text: "Appointment",
+        linkToPage: `/patient/${id}/appointment`,
+        color: page === "Appointment" ? color : defaultColor,
+      },
+      {
         text: "Profil Pasien",
         linkToPage: `/patient/${id}/profile`,
         color: page === "Profil Pasien" ? color : defaultColor,
@@ -55,6 +60,11 @@ function NavbarController({ type, page, color }) {
         text: "Daftar Pasien",
         linkToPage: `/doctor/${id}/patient-list`,
         color: page === "Daftar Pasien" ? color : defaultColor,
+      },
+      {
+        text: "Appointment",
+        linkToPage: `/doctor/${id}/appointment`,
+        color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Dokter",

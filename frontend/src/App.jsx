@@ -4,20 +4,18 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import PatientRecordList from "./pages/patient/PatientRecordList";
 import PatientRecord from "./pages/patient/PatientRecord";
+import PatientAppointment from "./pages/patient/PatientAppointment";
 import PatientProfile from "./pages/patient/PatientProfile";
 import PatientAccount from "./pages/patient/PatientAccount";
 import DoctorPatientList from "./pages/doctor/DoctorPatientList";
 import DoctorProfile from "./pages/doctor/DoctorProdile";
 import DoctorAccount from "./pages/doctor/Doctor.Account";
 
-const accountAddress = "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D";
-const recordAddress = "";
-
 function App() {
   return (
     <>
       <Router>
-        <div className="w-full max-w-full mx-auto min-h-screen h-content shadow-lg shadow-primary/40 bg-white">
+        <div className="w-full max-w-full min-h-screen mx-auto bg-white shadow-lg h-content shadow-primary/40">
           <Routes>
             {/* Area Tamu */}
             <Route path="/" element={<Home />} />
@@ -46,37 +44,41 @@ function App() {
 
             {/* Area Pasien */}
             <Route
-              path={`/patient/${accountAddress}/record-list`}
+              path={`/patient/:accountAddress/record-list`}
               element={<PatientRecordList />}
             />
             <Route
-              path={`/patient/${accountAddress}/record-list/record/${recordAddress}`}
+              path={`/patient/:accountAddress/record-list/record/:recordAddress`}
               element={<PatientRecord />}
             />
             <Route
-              path={`/patient/${accountAddress}/profile`}
+              path={`/patient/:accountAddress/appointment`}
+              element={<PatientAppointment />}
+            />
+            <Route
+              path={`/patient/:accountAddress/profile`}
               element={<PatientProfile />}
             />
             <Route
-              path={`/patient/${accountAddress}/account`}
+              path={`/patient/:accountAddress/account`}
               element={<PatientAccount />}
             />
 
             {/* Area Dokter */}
             <Route
-              path={`/doctor/${accountAddress}/patient-list`}
+              path={`/doctor/:accountAddress/patient-list`}
               element={<DoctorPatientList />}
             />
             {/* <Route
-              path={`/doctor/${accountAddress}/record-list/record/${recordAddress}`}
+              path={`/doctor/:accountAddress/record-list/record/:recordAddress`}
               element={<PatientRecord />}
             /> */}
             <Route
-              path={`/doctor/${accountAddress}/profile`}
+              path={`/doctor/:accountAddress/profile`}
               element={<DoctorProfile />}
             />
             <Route
-              path={`/doctor/${accountAddress}/account`}
+              path={`/doctor/:accountAddress/account`}
               element={<DoctorAccount />}
             />
           </Routes>

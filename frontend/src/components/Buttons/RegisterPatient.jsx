@@ -1,10 +1,9 @@
 import { useState } from "react";
-import dayjs from "dayjs";
 import { DatePicker, Modal } from "antd";
 // import Datepicker from "../Datepicker";
 // import Datepicker from "../Datepicker";
 
-export default function RegisterPatientButton() {
+export default function RegisterPatientButton({buttonText}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -22,13 +21,20 @@ export default function RegisterPatientButton() {
   const dateFormat = "DD/MM/YYYY";
   const customFormat = (value) => `${value.format(dateFormat)}`;
 
+  // const Tab = () => (
+  //   <Segmented
+  //     options={["Identitas Pasien", "Identitas Bayi Baru Lahir"]}
+  //     block
+  //   />
+  // );
+
   return (
     <>
       <button
         onClick={showModal}
         className="px-2 py-2 bg-blue-700 text-white rounded-lg w-full max-w-[180px] hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 text-sm"
       >
-        Daftarkan Pasien Baru
+        {buttonText}
       </button>
 
       {/* MODAL ANT DESIGN */}
@@ -45,7 +51,10 @@ export default function RegisterPatientButton() {
       >
         <form className="col-span-2 p-8">
           <div className="grid grid-cols-2 gap-x-8">
-            <div className="col-span-2 text-gray-900 text-lg mb-6 font-medium">
+            {/* <div className="w-full">
+              <Tab />
+            </div> */}
+            <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
               Pendaftaran Pasien Baru
               <hr className="h-px bg-gray-700 border-0"></hr>
             </div>
@@ -69,10 +78,10 @@ export default function RegisterPatientButton() {
                 htmlFor="nomor_identitas"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Nomor Identitas (E-KTP, SIM, atau Paspor)
+                Nomor Identitas (NIK, SIM, atau Paspor)
               </label>
               <input
-                type="text"
+                type="number"
                 id="nomor_identitas"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor identitas"
@@ -102,9 +111,11 @@ export default function RegisterPatientButton() {
                 Tanggal Lahir
               </label>
               <DatePicker
-                className="text-gray-900 w-full h-auto"
+                id="tanggal_lahir"
+                className="w-full h-auto text-gray-900"
                 size="large"
                 format={customFormat}
+                required
               />
               {/* <Datepicker />
                   <div className="relative max-w-sm">
@@ -131,55 +142,37 @@ export default function RegisterPatientButton() {
             </div>
             <div className="mb-6">
               <label
-                htmlFor="jenis_kelamin"
+                htmlFor="nama_ibu"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nama Ibu Kandung
+              </label>
+              <input
+                type="text"
+                id="nama_ibu"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nama ibu kandung"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="gender"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Jenis Kelamin
               </label>
               <select
-                id="jenis_kelamin"
+                id="gender"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required
               >
                 <option>Pilih Jenis Kelamin</option>
-                <option value="Pria">Pria</option>
-                <option value="Wanita">Wanita</option>
-              </select>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="golongan_darah"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Golongan Darah
-              </label>
-              <select
-                id="golongan_darah"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required
-              >
-                <option>Pilih Golongan Darah</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="O">O</option>
-                <option value="AB">AB</option>
-              </select>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="status_perkawinan"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Status Perkawinan
-              </label>
-              <select
-                id="status_perkawinan"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required
-              >
-                <option>Pilih Status Perkawinan</option>
-                <option value="Menikah">Menikah</option>
-                <option value="Tidak/Belum Menikah">Tidak/Belum Menikah</option>
+                <option value="0">Tidak diketahui</option>
+                <option value="1">Laki-laki</option>
+                <option value="2">Perempuan</option>
+                <option value="3">Tidak dapat ditentukan</option>
+                <option value="4">Tidak mengisi</option>
               </select>
             </div>
             <div className="mb-6">
@@ -195,63 +188,102 @@ export default function RegisterPatientButton() {
                 required
               >
                 <option>Pilih Agama</option>
-                <option value="Budha">Budha</option>
-                <option value="Hindu">Hindu</option>
-                <option value="Islam">Islam</option>
-                <option value="Katolik">Kristen Katolik</option>
-                <option value="Protestan">Kristen Protestan</option>
-                <option value="Konghucu">Konghuchu</option>
+                <option value="1">Islam</option>
+                <option value="2">Kristen (Protestan)</option>
+                <option value="3">Katolik</option>
+                <option value="4">Hindu</option>
+                <option value="5">Budha</option>
+                <option value="6">Konghuchu</option>
+                <option value="7">Penghayat</option>
+                <option value="8">Lain-lain</option>
               </select>
             </div>
             <div className="mb-6">
               <label
-                htmlFor="pekerjaan"
+                htmlFor="suku"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Pekerjaan
+                Suku
+              </label>
+              <input
+                type="text"
+                id="suku"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Suku"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="bahasa"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Bahasa yang Dikuasai
+              </label>
+              <input
+                type="text"
+                id="bahasa"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Bahasa yang Dikuasai"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="darah"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Golongan Darah
               </label>
               <select
-                id="agama"
+                id="darah"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required
               >
-                <option>Pilih Pekerjaan</option>
-                <option value="irt">Ibu Rumah Tangga</option>
-                <option value="mahasiswa">Mahasiswa</option>
-                <option value="pns">Pegawai Negeri Sipil (PNS)</option>
-                <option value="pegawai">Pegawai Swasta</option>
-                <option value="lainnya">Lainnya</option>
+                <option>Pilih Agama</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">AB</option>
+                <option value="4">0</option>
+                <option value="5">A+</option>
+                <option value="6">A-</option>
+                <option value="7">B+</option>
+                <option value="8">B-</option>
+                <option value="9">AB+</option>
+                <option value="10">AB-</option>
+                <option value="11">O+</option>
+                <option value="12">O-</option>
+                <option value="7">B+</option>
+                <option value="13">Tidak tahu</option>
               </select>
             </div>
             <div className="mb-6">
               <label
-                htmlFor="kewarganegaraan"
+                htmlFor="tel"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Kewarganegaraan
-              </label>
-              <select
-                id="kewarganegaraan"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required
-              >
-                <option>Pilih Kewarganegaraan</option>
-                <option value="WNA">Warga Negara Asing (WNA)</option>
-                <option value="WNI">Warga Negara Indonesia (WNI)</option>
-              </select>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="nomor_telepon"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nomor Telepon
+                Nomor Telepon Rumah
               </label>
               <input
                 type="tel"
-                id="nomor_telepon"
+                id="telp_rumah"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon"
+                placeholder="Nomor telepon rumah"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="tel"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nomor Telepon Selular
+              </label>
+              <input
+                type="tel"
+                id="telp_selular"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nomor telepon selular"
                 required
               />
             </div>
@@ -270,14 +302,73 @@ export default function RegisterPatientButton() {
                 required
               />
             </div>
-            {/* TEMPAT TINGGAL */}
-            {/* <div className="col-span-2 text-gray-900 text-lg my-6">
-                Tempat Tinggal
-                <hr class="h-px bg-gray-700 border-0"></hr>
-              </div> */}
+            <div className="mb-6">
+              <label
+                htmlFor="pendidikan"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Pendidikan
+              </label>
+              <select
+                id="pendidikan"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
+              >
+                <option>Pilih Pendidikan</option>
+                <option value="0">Tidak sekolah</option>
+                <option value="1">SD</option>
+                <option value="2">SLTP sederajat</option>
+                <option value="3">SLTA sederajat</option>
+                <option value="4">D1-D3 sederajat</option>
+                <option value="5">D4</option>
+                <option value="6">S1</option>
+                <option value="7">S2</option>
+                <option value="8">S3</option>
+              </select>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="pekerjaan"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Pekerjaan
+              </label>
+              <select
+                id="pekerjaan"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
+              >
+                <option>Pilih Pekerjaan</option>
+                <option value="0">Tidak Bekerja</option>
+                <option value="1">PNS</option>
+                <option value="2">TNI/POLRI</option>
+                <option value="3">BUMN</option>
+                <option value="4">Pegawai Swasta/Wirausaha</option>
+                <option value="5">Lain-lain</option>
+              </select>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="pernikahan"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Status Pernikahan
+              </label>
+              <select
+                id="pernikahan"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
+              >
+                <option>Pilih Status Pernikahan</option>
+                <option value="1">Belum Kawin</option>
+                <option value="2">Kawin</option>
+                <option value="3">Cerai Hidup</option>
+                <option value="4">Cerai Mati</option>
+              </select>
+            </div>
             <div className="col-span-2 mb-6">
               <label
-                htmlFor="alamat"
+                htmlFor="address"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Alamat
@@ -292,69 +383,46 @@ export default function RegisterPatientButton() {
             </div>
             <div className="mb-6">
               <label
-                htmlFor="provinsi"
+                htmlFor="rt"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Provinsi
-              </label>
-              <select
-                id="provinsi"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required
-              >
-                <option>Pilih Provinsi</option>
-                <option value="Aceh">Aceh</option>
-                <option value="Bali">Bali</option>
-                <option value="Banten">Banten</option>
-                <option value="Bengkulu">Bengkulu</option>
-                <option value="DKI Jakarta">DKI Jakarta</option>
-                <option value="Daerah Istimewa Yogyakarta">
-                  Daerah Istimewa Yogyakarta
-                </option>
-                <option value="Gorontalo">Gorontalo</option>
-                <option value="Jambi">Jambi</option>
-                <option value="Jawa Barat">Jawa Barat</option>
-                <option value="Jawa Tengah">Jawa Tengah</option>
-                <option value="Jawa Timur">Jawa Timur</option>
-                <option value="Kalimantan Barat">Kalimantan Barat</option>
-                <option value="Kalimantan Selatan">Kalimantan Selatan</option>
-                <option value="Kalimantan Tengah">Kalimantan Tengah</option>
-                <option value="Kalimantan Timur">Kalimantan Timur</option>
-                <option value="Kalimantan Utara">Kalimantan Utara</option>
-                <option value="Kepulauan Bangka Belitung">
-                  Kepulauan Bangka Belitung
-                </option>
-                <option value="Kepulauan Riau">Kepulauan Riau</option>
-                <option value="Lampung">Lampung</option>
-                <option value="Maluku">Maluku</option>
-                <option value="Maluku Utara">Maluku Utara</option>
-                <option value="Nusa Tenggara Barat">Nusa Tenggara Barat</option>
-                <option value="Nusa Tenggara Timur">Nusa Tenggara Timur</option>
-                <option value="Papua">Papua</option>
-                <option value="Papua Barat">Papua Barat</option>
-                <option value="Riau">Riau</option>
-                <option value="Sulawesi Barat">Sulawesi Barat</option>
-                <option value="Sulawesi Selatan">Sulawesi Selatan</option>
-                <option value="Sulawesi Tengah">Sulawesi Tengah</option>
-                <option value="Sulawesi Tenggara">Sulawesi Tenggara</option>
-                <option value="Sulawesi Utara">Sulawesi Utara</option>
-                <option value="Sumatera Barat">Sumatera Barat</option>
-                <option value="sumatera_selatan">Sumatera Selatan</option>
-                <option value="Sumatera Utara">Sumatera Utara</option>
-              </select>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="kecamatan"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Kota/Kabupaten
+                Rukun Tetangga (RT)
               </label>
               <input
                 type="text"
-                id="kecamatan"
+                id="rt"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Kota/Kabupaten"
+                placeholder="Rukun Tetangga (RT)"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="rw"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Rukun Warga (RW)
+              </label>
+              <input
+                type="text"
+                id="rw"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Rukun Warga (RW)"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="kelurahan"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Kelurahan / Desa
+              </label>
+              <input
+                type="text"
+                id="kelurahan"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Kelurahan / Desa"
                 required
               />
             </div>
@@ -375,16 +443,16 @@ export default function RegisterPatientButton() {
             </div>
             <div className="mb-6">
               <label
-                htmlFor="kelurahan"
+                htmlFor="kota"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Kelurahan
+                Kota Madya / Kabupaten
               </label>
               <input
                 type="text"
-                id="kelurahan"
+                id="kota"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Kelurahan"
+                placeholder="Kota Madya / Kabupaten"
                 required
               />
             </div>
@@ -403,127 +471,6 @@ export default function RegisterPatientButton() {
                 required
               />
             </div>
-            {/* DATA PENANGGUNG JAWAB */}
-            <div className="col-span-2 text-gray-900 text-lg my-6">
-              Data Kerabat/Penanggung Jawab
-              <hr className="h-px bg-gray-700 border-0"></hr>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="nama_kerabat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nama Lengkap
-              </label>
-              <input
-                type="text"
-                id="nama_kerabat"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nama lengkap"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="nomor_identitas_kerabat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nomor Identitas (E-KTP, SIM, atau Paspor)
-              </label>
-              <input
-                type="text"
-                id="nomor_identitas_kerabat"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor identitas"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="jenis_kelamin"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Jenis Kelamin
-              </label>
-              <select
-                id="jenis_kelamin_kerabat"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                required
-              >
-                <option>Pilih Jenis Kelamin</option>
-                <option value="Pria">Pria</option>
-                <option value="Wanita">Wanita</option>
-              </select>
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="tanggal_lahir_kerabat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Tanggal Lahir
-              </label>
-              <DatePicker
-                className="text-gray-900 w-full h-auto text-sm"
-                size="large"
-                format={customFormat}
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="nomor_telepon_kerabat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nomor Telepon
-              </label>
-              <input
-                type="tel"
-                id="nomor_telepon_kerabat"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="kerabat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Hubungan dengan Pasien
-              </label>
-              <input
-                type="text"
-                id="kerabat"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Hubungan dengan pasien"
-                required
-              />
-            </div>
-            <div className="flex items-center mb-4">
-              <input
-                id="checkbox-alamat"
-                type="checkbox"
-                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-              />
-              <label
-                htmlFor="checkbox-2"
-                className="ml-2 text-sm font-medium text-gray-900"
-              >
-                Alamat sama dengan pasien.
-              </label>
-            </div>
-            <div className="col-span-2 mb-6">
-              <label
-                htmlFor="alamat"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Alamat
-              </label>
-              <textarea
-                id="alamat"
-                rows={4}
-                className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
             <div className="mb-6">
               <label
                 htmlFor="provinsi"
@@ -534,6 +481,7 @@ export default function RegisterPatientButton() {
               <select
                 id="provinsi"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
               >
                 <option>Pilih Provinsi</option>
                 <option value="Aceh">Aceh</option>
@@ -578,15 +526,190 @@ export default function RegisterPatientButton() {
             </div>
             <div className="mb-6">
               <label
-                htmlFor="kecamatan"
+                htmlFor="negara"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Kota/Kabupaten
+                Negara
               </label>
               <input
                 type="text"
-                id="kecamatan"
+                id="negara"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Negara"
+                required
+              />
+            </div>
+
+            {/* DATA PENANGGUNG JAWAB */}
+            <div className="col-span-2 my-6 text-lg text-gray-900">
+              Data Kerabat/Penanggung Jawab
+              <hr className="h-px bg-gray-700 border-0"></hr>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="name"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nama Lengkap
+              </label>
+              <input
+                type="text"
+                id="nama_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nama lengkap"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="nomor_identitas"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nomor Identitas (ENIK, SIM, atau Paspor)
+              </label>
+              <input
+                type="text"
+                id="nomor_identitas_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nomor identitas"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="tanggal_lahir_kerabat"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Tanggal Lahir
+              </label>
+              <DatePicker
+                id="tanggal_lahir_kerabat"
+                className="w-full h-auto text-sm text-gray-900"
+                size="large"
+                format={customFormat}
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="gender"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Jenis Kelamin
+              </label>
+              <select
+                id="gender_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
+              >
+                <option>Pilih Jenis Kelamin</option>
+                <option value="0">Tidak diketahui</option>
+                <option value="1">Laki-laki</option>
+                <option value="2">Perempuan</option>
+                <option value="3">Tidak dapat ditentukan</option>
+                <option value="4">Tidak mengisi</option>
+              </select>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="tel"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nomor Telepon
+              </label>
+              <input
+                type="tel"
+                id="tel_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nomor telepon selular"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="hubungan_kerabat"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Hubungan dengan Pasien
+              </label>
+              <input
+                type="text"
+                id="hubungan_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Hubungan dengan pasien"
+                required
+              />
+            </div>
+            <div className="flex items-center mb-4">
+              <input
+                id="checkbox-alamat"
+                type="checkbox"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label
+                htmlFor="checkbox-2"
+                className="ml-2 text-sm font-medium text-gray-900"
+              >
+                Alamat sama dengan pasien.
+              </label>
+            </div>
+            <div className="col-span-2 mb-6">
+              <label
+                htmlFor="address"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Alamat
+              </label>
+              <textarea
+                id="alamat_kerabat"
+                rows={4}
+                className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Alamat"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="rt"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Rukun Tetangga (RT)
+              </label>
+              <input
+                type="text"
+                id="rt_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Rukun Tetangga (RT)"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="rw"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Rukun Warga (RW)
+              </label>
+              <input
+                type="text"
+                id="rw_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Rukun Warga (RW)"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="kelurahan"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Kelurahan / Desa
+              </label>
+              <input
+                type="text"
+                id="kelurahan_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Kelurahan / Desa"
+                required
               />
             </div>
             <div className="mb-6">
@@ -598,21 +721,25 @@ export default function RegisterPatientButton() {
               </label>
               <input
                 type="text"
-                id="kecamatan"
+                id="kecamatan_kerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Kecamatan"
+                required
               />
             </div>
             <div className="mb-6">
               <label
-                htmlFor="kelurahan"
+                htmlFor="kota"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Kelurahan
+                Kota Madya / Kabupaten
               </label>
               <input
                 type="text"
-                id="kelurahan"
+                id="kota_kerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Kota Madya / Kabupaten"
+                required
               />
             </div>
             <div className="mb-6">
@@ -624,13 +751,83 @@ export default function RegisterPatientButton() {
               </label>
               <input
                 type="text"
-                id="pos"
+                id="pos_kerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Kode Pos"
+                required
+              />
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="provinsi"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Provinsi
+              </label>
+              <select
+                id="provinsi_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required
+              >
+                <option>Pilih Provinsi</option>
+                <option value="Aceh">Aceh</option>
+                <option value="Bali">Bali</option>
+                <option value="Banten">Banten</option>
+                <option value="Bengkulu">Bengkulu</option>
+                <option value="DKI Jakarta">DKI Jakarta</option>
+                <option value="Daerah Istimewa Yogyakarta">
+                  Daerah Istimewa Yogyakarta
+                </option>
+                <option value="Gorontalo">Gorontalo</option>
+                <option value="Jambi">Jambi</option>
+                <option value="Jawa Barat">Jawa Barat</option>
+                <option value="Jawa Tengah">Jawa Tengah</option>
+                <option value="Jawa Timur">Jawa Timur</option>
+                <option value="Kalimantan Barat">Kalimantan Barat</option>
+                <option value="Kalimantan Selatan">Kalimantan Selatan</option>
+                <option value="Kalimantan Tengah">Kalimantan Tengah</option>
+                <option value="Kalimantan Timur">Kalimantan Timur</option>
+                <option value="Kalimantan Utara">Kalimantan Utara</option>
+                <option value="Kepulauan Bangka Belitung">
+                  Kepulauan Bangka Belitung
+                </option>
+                <option value="Kepulauan Riau">Kepulauan Riau</option>
+                <option value="Lampung">Lampung</option>
+                <option value="Maluku">Maluku</option>
+                <option value="Maluku Utara">Maluku Utara</option>
+                <option value="Nusa Tenggara Barat">Nusa Tenggara Barat</option>
+                <option value="Nusa Tenggara Timur">Nusa Tenggara Timur</option>
+                <option value="Papua">Papua</option>
+                <option value="Papua Barat">Papua Barat</option>
+                <option value="Riau">Riau</option>
+                <option value="Sulawesi Barat">Sulawesi Barat</option>
+                <option value="Sulawesi Selatan">Sulawesi Selatan</option>
+                <option value="Sulawesi Tengah">Sulawesi Tengah</option>
+                <option value="Sulawesi Tenggara">Sulawesi Tenggara</option>
+                <option value="Sulawesi Utara">Sulawesi Utara</option>
+                <option value="Sumatera Barat">Sumatera Barat</option>
+                <option value="sumatera_selatan">Sumatera Selatan</option>
+                <option value="Sumatera Utara">Sumatera Utara</option>
+              </select>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="negara"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Negara
+              </label>
+              <input
+                type="text"
+                id="negara_kerabat"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Negara"
+                required
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-4 text-center mt-8">
+          <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
             <button
               type="button"
               onClick={handleCancel}

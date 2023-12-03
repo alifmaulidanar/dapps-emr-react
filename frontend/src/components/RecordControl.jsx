@@ -1,7 +1,7 @@
 import "./../index.css";
 
 // Komponen untuk bagian atas dashboard
-export default function RecordControl() {
+export default function RecordControl({search}) {
   return (
     <>
       {/* tombol akses dokter => ganti jadi grid-cols-2 kalo mau pake tombol ini */}
@@ -19,7 +19,7 @@ export default function RecordControl() {
             type="text"
             id="simple-search"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-60 p-2.5"
-            placeholder="Cari rekam medis"
+            placeholder={search}
           />
         </div>
         <button

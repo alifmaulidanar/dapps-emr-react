@@ -90,6 +90,8 @@ export default function SignInForm({ role, resetLink, signupLink }) {
 
             if (response.ok) {
               const data = await response.json();
+              const accountAddress = data.account.accountAddress;
+              console.log("alamat: ", accountAddress)
               console.log(data.message, data);
               setSpinning(false);
               Swal.fire({
@@ -98,11 +100,11 @@ export default function SignInForm({ role, resetLink, signupLink }) {
               }).then(() => {
                 if (roleLowerCase === "pasien") {
                   window.location.assign(
-                    `/patient/${selectedAccount}/record-list`
+                    `/patient/${accountAddress}/record-list`
                   );
                 } else if (roleLowerCase === "dokter") {
                   window.location.assign(
-                    `/doctor/${selectedAccount}/patient-list`
+                    `/doctor/${accountAddress}/patient-list`
                   );
                 }
               });
@@ -155,9 +157,9 @@ export default function SignInForm({ role, resetLink, signupLink }) {
   };
 
   return (
-    <div className="col-start-2 col-span-2 h-fit">
-      <div className="h-fit px-12 py-8 bg-white border border-gray-200 rounded-lg shadow">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
+    <div className="col-span-2 col-start-2 h-fit">
+      <div className="px-12 py-8 bg-white border border-gray-200 rounded-lg shadow h-fit">
+        <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
           Masuk sebagai {role}
         </h1>
         <Form
@@ -217,7 +219,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             <Button
               type="primary"
               htmlType="submit"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 text-center mt-4"
+              className="w-full px-5 mt-4 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
               onClick={showLoader}
             >
               Masuk
@@ -225,7 +227,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             <Spin spinning={spinning} fullscreen />
           </div>
         </Form>
-        <div className="flex mt-8 justify-evenly items-center text-center">
+        <div className="flex items-center mt-8 text-center justify-evenly">
           <div>
             <a href={resetLink}>
               <button
@@ -237,7 +239,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             </a>
           </div>
           <div>
-            <p className="text-l text-gray-900">atau</p>
+            <p className="text-gray-900 text-l">atau</p>
           </div>
           <div>
             <a href={signupLink}>

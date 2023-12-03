@@ -4,20 +4,21 @@ import NavbarController from "../../components/Navbar/NavbarController";
 // import PatientRecordDisplay from "../../components/PatientRecordData";
 import CopyIDButton from "../../components/Buttons/CopyIDButton";
 // import Card from "../../components/Cards/Card";
+import { useParams } from "react-router-dom";
 
 function PatientAccount() {
-  const userId = "0x1e6b98a582Fdd23614b58A4459C1C875C6705f55";
+  const { accountAddress } = useParams();
 
   return (
     <>
       <NavbarController type={2} page="Akun Pasien" color="blue" />
-      <div className="grid grid-cols-7 justify-center min-h-screen w-9/12 mx-auto px-4 py-24">
-        <div className="col-start-3 col-span-3">
-          <div className="grid grid-cols-1 gap-y-8 max-w-4xl items-center rounded h-fit mx-auto">
+      <div className="grid justify-center w-9/12 min-h-screen grid-cols-7 px-4 py-24 mx-auto">
+        <div className="col-span-3 col-start-3">
+          <div className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit">
             {/* ID Pengguna */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div className="flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +35,7 @@ function PatientAccount() {
                       />
                     </svg>
 
-                    <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                       ID Pengguna
                     </h5>
                   </div>
@@ -42,23 +43,23 @@ function PatientAccount() {
                     Nomor identitas akun pasien Anda.
                   </p>
                 </div>
-                <div className="flex flex-nowrap items-center gap-x-4">
+                <div className="flex items-center flex-nowrap gap-x-4">
                   <input
                     type="text"
-                    id="userId"
+                    id="accountAddress"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    value={userId}
+                    value={accountAddress}
                     disabled
                   />
-                  <CopyIDButton textToCopy={userId} />
+                  <CopyIDButton textToCopy={accountAddress} />
                 </div>
               </div>
             </div>
 
             {/* Nama Pengguna */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div className="flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +73,7 @@ function PatientAccount() {
                         d="M12.72 2.03A9.991 9.991 0 0 0 2.03 12.72C2.39 18.01 7.01 22 12.31 22H16c.55 0 1-.45 1-1s-.45-1-1-1h-3.67c-3.73 0-7.15-2.42-8.08-6.03c-1.49-5.8 3.91-11.21 9.71-9.71C17.58 5.18 20 8.6 20 12.33v1.1c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57v-1.25c0-2.51-1.78-4.77-4.26-5.12a5.008 5.008 0 0 0-5.66 5.87a4.996 4.996 0 0 0 3.72 3.94c1.84.43 3.59-.16 4.74-1.33c.89 1.22 2.67 1.86 4.3 1.21c1.34-.53 2.16-1.9 2.16-3.34v-1.09c0-5.31-3.99-9.93-9.28-10.29zM12 15c-1.66 0-3-1.34-3-3s1.34-3 3-3s3 1.34 3 3s-1.34 3-3 3z"
                       />
                     </svg>
-                    <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                       Nama Pengguna
                     </h5>
                   </div>
@@ -91,7 +92,7 @@ function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <button
                   type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                 >
                   Ganti Nama Pengguna
                 </button>
@@ -99,9 +100,9 @@ function PatientAccount() {
             </div>
 
             {/* EMAIL */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -116,7 +117,7 @@ function PatientAccount() {
                           d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-.4 4.25l-6.54 4.09c-.65.41-1.47.41-2.12 0L4.4 8.25a.85.85 0 1 1 .9-1.44L12 11l6.7-4.19a.85.85 0 1 1 .9 1.44z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Email
                       </h5>
                     </div>
@@ -138,7 +139,7 @@ function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <button
                   type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                 >
                   Ganti Email
                 </button>
@@ -146,9 +147,9 @@ function PatientAccount() {
             </div>
 
             {/* NOMOR TELEPON */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -166,7 +167,7 @@ function PatientAccount() {
                         />
                       </svg>
 
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Nomor Telepon
                       </h5>
                     </div>
@@ -188,7 +189,7 @@ function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <button
                   type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                 >
                   Ganti Nomor Telepon
                 </button>
@@ -196,9 +197,9 @@ function PatientAccount() {
             </div>
 
             {/* CHANGE PASSWORD */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -213,7 +214,7 @@ function PatientAccount() {
                           d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Ganti Kata Sandi
                       </h5>
                     </div>
@@ -279,7 +280,7 @@ function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <button
                   type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
                 >
                   Konfirmasi
                 </button>
@@ -287,9 +288,9 @@ function PatientAccount() {
             </div>
 
             {/* LOG OUT */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 items-center">
+                <div className="grid items-center grid-cols-1">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -308,7 +309,7 @@ function PatientAccount() {
                           d="M16.795 16.295c.39.39 1.02.39 1.41 0l3.588-3.588a1 1 0 0 0 0-1.414l-3.588-3.588a.999.999 0 0 0-1.411 1.411L18.67 11H10a1 1 0 0 0 0 2h8.67l-1.876 1.884a.999.999 0 0 0 .001 1.411z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Keluar
                       </h5>
                     </div>

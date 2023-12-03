@@ -14,11 +14,13 @@
     "@pinata/sdk": "^2.1.0",
     "antd": "^5.11.0",
     "dayjs": "^1.11.10",
+    "flatpickr": "^4.6.13",
     "flowbite": "^1.8.1",
     "joi": "^17.11.0",
     "react": "^18.2.0",
     "react-datepicker": "^4.20.0",
     "react-dom": "^18.2.0",
+    "react-flatpickr": "^3.10.13",
     "react-router-dom": "^6.18.0",
     "sweetalert2": "^11.9.0"
   },
