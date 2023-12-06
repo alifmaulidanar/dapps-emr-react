@@ -4,8 +4,9 @@ import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
 import PatientList from "../../components/PatientList";
-import { AllPatient } from "../../data/patientData";
+// import { AllPatient } from "../../data/patientData";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
+import { Empty } from "antd";
 import { useParams } from "react-router-dom";
 
 export default function PatientRecordList() {
@@ -18,7 +19,7 @@ export default function PatientRecordList() {
       accountAddress.charAt(0) +
       accountAddress.charAt(1) +
       accountAddress.substring(2).toUpperCase();
-    console.log(capitalizedAccountAddress);
+    console.log({ capitalizedAccountAddress });
 
     const fetchData = async () => {
       try {
@@ -39,21 +40,30 @@ export default function PatientRecordList() {
     fetchData();
   }, [accountAddress]);
 
-  // const accountData = patientData.account;
-  // const ipfsData = patientData.ipfs;
-
   const handlePatientClick = (index) => {
     setChosenIndex(index);
   };
 
   // Mengambil data pasien dari AllPatient
-  const patientListProps = AllPatient.map((patient, index) => ({
-    patientName: patient.patientName,
-    patientImage: patient.patientImage,
-    patientAddress: patient.patientAddress,
-    patientIsChosen: index === chosenIndex,
-    patientRecords: patient.patientRecords,
-  }));
+  // const patientListProps = AllPatient.map((patient, index) => ({
+  //   patientName: patient.patientName,
+  //   patientImage: patient.patientImage,
+  //   patientAddress: patient.patientAddress,
+  //   patientIsChosen: index === chosenIndex,
+  //   patientRecords: patient.patientRecords,
+  // }));
+
+  // Mengambil data pasien dari accountProfiles yang tersimpan di IPFS
+  const patientListProps =
+    patientData && patientData.ipfs.data.accountProfiles > 0
+      ? patientData.accountProfiles.map((patient, index) => ({
+          patientName: patient.patientName,
+          patientImage: patient.patientImage,
+          patientAddress: patient.patientAddress,
+          patientIsChosen: index === chosenIndex,
+          patientRecords: patient.patientRecords,
+        }))
+      : [];
 
   // Mencari pasien yang memiliki patientIsChosen bernilai true
   const chosenPatient = patientListProps.find(
@@ -99,25 +109,35 @@ export default function PatientRecordList() {
       </div>
       <div className="grid justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          {chosenPatient && (
-            <RecordList
-              recordItems={recordItems}
-              accountAddress={accountAddress}
-            />
+          {chosenPatient ? (
+            recordItems.length > 0 ? (
+              <RecordList
+                recordItems={recordItems}
+                accountAddress={accountAddress}
+              />
+            ) : (
+              <Empty description="Tidak ada rekam medis" />
+            )
+          ) : (
+            <Empty description="Pilih pasien untuk melihat rekam medis" />
           )}
         </div>
         <div className="w-full col-span-2">
           <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow">
             <div className="flow-root">
-              <ul role="list" className="divide-y divide-gray-200">
-                {patientListProps.map((patient, index) => (
-                  <PatientList
-                    key={index}
-                    {...patient}
-                    onClick={() => handlePatientClick(index)}
-                  />
-                ))}
-              </ul>
+              {patientListProps.length > 0 ? (
+                <ul role="list" className="divide-y divide-gray-200">
+                  {patientListProps.map((patient, index) => (
+                    <PatientList
+                      key={index}
+                      {...patient}
+                      onClick={() => handlePatientClick(index)}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <Empty description="Tidak ada pasien" />
+              )}
             </div>
           </div>
         </div>

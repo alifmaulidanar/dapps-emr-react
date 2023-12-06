@@ -13,21 +13,31 @@ const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 async function getUserAccountData(address) {
   try {
     const account = await contract.getUserAccountByAddress(address);
+    const ipfs = await contract.getIpfsByAddress(address);
+
     if (account.accountAddress === ethers.constants.AddressZero) {
       throw new Error("Account not found");
     }
-    const ipfs = await contract.getIpfsByAddress(address);
+
+    const getIpfs = await contract.getIpfsByAddress(address);
+    const cid = getIpfs.cid;
+
+    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
+    const ipfsGatewayUrl = `https://dapp-emr.infura-ipfs.io/ipfs/${cid}`;
+    const response = await fetch(ipfsGatewayUrl);
+    const ipfsData = await response.json();
 
     const responseData = {
-      message: "GET Succesful",
+      message: "GET User Data from IPFS Succesful",
       account: {
-        accountAddress: account.accountAddress,
-        email: account.email,
-        role: account.role,
+        accountAddress: ipfsData.accountAddress,
+        email: ipfsData.accountEmail,
+        role: ipfsData.accountRole,
       },
       ipfs: {
-        ipfsAddress: account.ipfsHash,
-        cid: ipfs.cid,
+        ipfsAddress: getIpfs.ipfsAddress,
+        cid: getIpfs.cid,
+        data: ipfsData,
       },
     };
 
