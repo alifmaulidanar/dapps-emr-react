@@ -13,7 +13,6 @@ const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 async function getUserAccountData(address) {
   try {
     const account = await contract.getUserAccountByAddress(address);
-    const ipfs = await contract.getIpfsByAddress(address);
 
     if (account.accountAddress === ethers.constants.AddressZero) {
       throw new Error("Account not found");
@@ -22,8 +21,8 @@ async function getUserAccountData(address) {
     const getIpfs = await contract.getIpfsByAddress(address);
     const cid = getIpfs.cid;
 
-    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `https://dapp-emr.infura-ipfs.io/ipfs/${cid}`;
+    // Fetch data dari Dedicated Gateway IPFS Desktop untuk mengakses data di IPFS
+    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
@@ -31,12 +30,12 @@ async function getUserAccountData(address) {
       message: "GET User Data from IPFS Succesful",
       account: {
         accountAddress: ipfsData.accountAddress,
-        email: ipfsData.accountEmail,
+        accountEmail: ipfsData.accountEmail,
         role: ipfsData.accountRole,
       },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
-        cid: getIpfs.cid,
+        cid: cid,
         data: ipfsData,
       },
     };
@@ -48,18 +47,4 @@ async function getUserAccountData(address) {
   }
 }
 
-router.get("/patient/:address/record-list", async (req, res) => {
-  try {
-    const address = req.params.address;
-    const data = await getUserAccountData(address);
-    console.log(data);
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Tinggal ambil data json dari IPFS pake cid
-// Lempar json ke frontend
-
-export default router;
+export { getUserAccountData };

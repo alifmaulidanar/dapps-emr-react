@@ -3,14 +3,26 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
-import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
+import {
+  API_KEY,
+  API_KEY_SECRET,
+  CONTRACT_ADDRESS,
+} from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 
 const contractAddress = CONTRACT_ADDRESS.toString();
+
+// Koneksi ke IPFS Infura
+const authorization =
+  "Basic " + Buffer.from(API_KEY + ":" + API_KEY_SECRET).toString("base64");
+
 const client = create({
-  host: "127.0.0.1",
+  host: "ipfs.infura.io",
   port: 5001,
-  protocol: "http",
+  protocol: "https",
+  headers: {
+    authorization: authorization,
+  },
 });
 
 const router = express.Router();
@@ -145,10 +157,9 @@ router.post("/:role/signup", async (req, res) => {
     // Menyimpan objek akun pasien ke IPFS
     const result = await client.add(JSON.stringify(newAccount));
     const cid = result.cid.toString();
-    await client.pin.add(cid);
 
-    // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
+    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
+    const ipfsGatewayUrl = `https://dapp-emr.infura-ipfs.io/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
@@ -176,7 +187,7 @@ router.post("/:role/signup", async (req, res) => {
       },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
+        cid: getIpfs.cid,
         size: result.size,
         data: ipfsData,
       },

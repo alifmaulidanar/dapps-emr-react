@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
 
 export default function PatientRecordList() {
   const { accountAddress } = useParams();
-  const [patientData, setPatientData] = useState(null);
+  const [patientAccountData, setPatientAccountData] = useState(null);
   const [chosenIndex, setChosenIndex] = useState(0);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function PatientRecordList() {
           }
         );
         const data = await response.json();
-        setPatientData(data);
+        setPatientAccountData(data);
         console.log(data);
       } catch (error) {
         console.error("Error fetching patient data:", error);
@@ -55,13 +55,15 @@ export default function PatientRecordList() {
 
   // Mengambil data pasien dari accountProfiles yang tersimpan di IPFS
   const patientListProps =
-    patientData && patientData.ipfs.data.accountProfiles > 0
-      ? patientData.accountProfiles.map((patient, index) => ({
-          patientName: patient.patientName,
-          patientImage: patient.patientImage,
-          patientAddress: patient.patientAddress,
+    patientAccountData &&
+    patientAccountData.ipfs &&
+    patientAccountData.ipfs.data.accountProfiles > 0
+      ? patientAccountData.accountProfiles.map((patient, index) => ({
+          patientName: patient.namaLengkap,
+          // patientImage: patient.patientImage,
+          patientAddress: patient.alamat,
           patientIsChosen: index === chosenIndex,
-          patientRecords: patient.patientRecords,
+          // patientRecords: patient.patientRecords,
         }))
       : [];
 
@@ -103,7 +105,10 @@ export default function PatientRecordList() {
         </div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
-            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
+            <RegisterPatientButton
+              buttonText={"Daftarkan Pasien Baru"}
+              patientAccountData={patientAccountData}
+            />
           </div>
         </div>
       </div>

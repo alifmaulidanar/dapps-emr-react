@@ -155,9 +155,9 @@ export default function SignUpForm({ role }) {
   };
 
   return (
-    <div className="w-90 h-fit grid col-start-2 col-span-2 pt-12 pb-8">
-      <div className="h-fit px-12 py-8 bg-white border border-gray-200 rounded-lg shadow">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8 text-center">
+    <div className="grid col-span-2 col-start-2 pt-12 pb-8 w-90 h-fit">
+      <div className="px-12 py-8 bg-white border border-gray-200 rounded-lg shadow h-fit">
+        <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
           Pendaftaran Akun {role}
         </h1>
         <Form
@@ -289,7 +289,7 @@ export default function SignUpForm({ role }) {
             <Button
               type="primary"
               htmlType="submit"
-              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 text-center mt-4"
+              className="w-full px-5 mt-4 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
               onClick={showLoader}
             >
               Daftarkan Akun

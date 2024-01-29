@@ -2,16 +2,14 @@ import Joi from "joi";
 import express from "express";
 import bcrypt from "bcryptjs";
 import { ethers } from "ethers";
-import { create } from "ipfs-http-client";
+import { createHelia } from 'helia'
+import { json } from '@helia/json'
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 
+const helia = await createHelia()
+const j = json(helia)
 const contractAddress = CONTRACT_ADDRESS.toString();
-const client = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
 
 const router = express.Router();
 router.use(express.json());
@@ -142,18 +140,12 @@ router.post("/:role/signup", async (req, res) => {
       accountProfiles: [],
     };
 
-    // Menyimpan objek akun pasien ke IPFS
-    const result = await client.add(JSON.stringify(newAccount));
-    const cid = result.cid.toString();
-    await client.pin.add(cid);
-
-    // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
-    const response = await fetch(ipfsGatewayUrl);
-    const ipfsData = await response.json();
+    // Menyimpan objek akun pasien ke IPFS menggunakan Helia
+  const cid = await j.add(newAccount);
+  const ipfsData = await j.get(cid);
 
     // Menambahkan CID dan detail akun ke Smart Contract
-    const ipfsTX = await contract.addIpfsAccount(cid);
+    const ipfsTX = await contract.addIpfsAccount(cid.toString());
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
 
@@ -176,8 +168,7 @@ router.post("/:role/signup", async (req, res) => {
       },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
-        size: result.size,
+        cid: getIpfs.cid,
         data: ipfsData,
       },
     };

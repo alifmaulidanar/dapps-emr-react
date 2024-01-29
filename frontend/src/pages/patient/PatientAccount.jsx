@@ -4,10 +4,62 @@ import NavbarController from "../../components/Navbar/NavbarController";
 // import PatientRecordDisplay from "../../components/PatientRecordData";
 import CopyIDButton from "../../components/Buttons/CopyIDButton";
 // import Card from "../../components/Cards/Card";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-function PatientAccount() {
+export default function PatientAccount() {
   const { accountAddress } = useParams();
+  const [patientAccountData, setPatientAccountData] = useState(null);
+
+  useEffect(() => {
+    const capitalizedAccountAddress =
+      accountAddress.charAt(0) +
+      accountAddress.charAt(1) +
+      accountAddress.substring(2).toUpperCase();
+    console.log({ capitalizedAccountAddress });
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/patient/${capitalizedAccountAddress}/account`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
+        setPatientAccountData(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+
+    fetchData();
+  }, [accountAddress]);
+
+  // const patientListProps =
+  //   patientAccountData && patientAccountData.ipfs.data.accountProfiles > 0
+  //     ? patientAccountData.accountProfiles.map((patient) => ({
+  //         patientName: patient.patientName,
+  //         patientImage: patient.patientImage,
+  //         patientAddress: patient.patientAddress,
+  //         patientRecords: patient.patientRecords,
+  //       }))
+  //     : [];
+
+  const accountData = patientAccountData
+    ? {
+        accountAddress: patientAccountData.account.accountAddress,
+        accountUsername: patientAccountData.ipfs.data.accountUsername,
+        accountEmail: patientAccountData.ipfs.data.accountEmail,
+        accountPhone: patientAccountData.ipfs.data.accountPhone,
+      }
+    : {
+        accountAddress: "",
+        accountUsername: "",
+        accountEmail: "",
+        accountPhone: "",
+      };
 
   return (
     <>
@@ -36,11 +88,11 @@ function PatientAccount() {
                     </svg>
 
                     <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
-                      ID Pengguna
+                      Alamat E-Wallet Pengguna
                     </h5>
                   </div>
                   <p className="my-2 text-md">
-                    Nomor identitas akun pasien Anda.
+                    Alamat e-wallet akun pasien Anda.
                   </p>
                 </div>
                 <div className="flex items-center flex-nowrap gap-x-4">
@@ -48,7 +100,7 @@ function PatientAccount() {
                     type="text"
                     id="accountAddress"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    value={accountAddress}
+                    value={accountData.accountAddress}
                     disabled
                   />
                   <CopyIDButton textToCopy={accountAddress} />
@@ -84,7 +136,7 @@ function PatientAccount() {
                     type="text"
                     id="username"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="Alif Maulidanar"
+                    value={accountData.accountUsername}
                     disabled
                   />
                 </div>
@@ -131,7 +183,7 @@ function PatientAccount() {
                     type="email"
                     id="userEmail"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="alifmaulidanr@gmail.com"
+                    value={accountData.accountEmail}
                     disabled
                   />
                 </div>
@@ -181,7 +233,7 @@ function PatientAccount() {
                     type="tel"
                     id="userPhone"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="alifmaulidanr@gmail.com"
+                    value={accountData.accountPhone}
                     disabled
                   />
                 </div>
@@ -332,5 +384,3 @@ function PatientAccount() {
     </>
   );
 }
-
-export default PatientAccount;

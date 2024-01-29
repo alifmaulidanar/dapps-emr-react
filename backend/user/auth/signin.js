@@ -76,8 +76,8 @@ router.post("/:role/signin", async (req, res) => {
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
     const cid = getIpfs.cid;
 
-    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `https://dapp-emr.infura-ipfs.io/ipfs/${cid}`;
+    // Fetch data dari IPFS Desktop
+    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
@@ -92,7 +92,7 @@ router.post("/:role/signin", async (req, res) => {
           error: "Akun Dokter tersebut belum terdaftar.",
         });
       }
-    };
+    }
 
     // Cek password
     const validPassword = await bcrypt.compare(
@@ -104,7 +104,7 @@ router.post("/:role/signin", async (req, res) => {
       return res.status(400).json({
         error: "Invalid password",
       });
-    };
+    }
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
@@ -116,7 +116,7 @@ router.post("/:role/signin", async (req, res) => {
       },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
-        cid: getIpfs.cid,
+        cid: cid,
         data: ipfsData,
       },
     };

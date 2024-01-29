@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { DatePicker, Modal } from "antd";
+import { useState, useCallback } from "react";
+import { DatePicker, Modal, Button } from "antd";
+import { ethers } from "ethers";
 // import Datepicker from "../Datepicker";
 // import Datepicker from "../Datepicker";
 
-export default function RegisterPatientButton({buttonText}) {
+export default function RegisterPatientButton({
+  buttonText,
+  patientAccountData,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -28,6 +33,135 @@ export default function RegisterPatientButton({buttonText}) {
   //   />
   // );
 
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: ["http://127.0.0.1:7545"],
+        },
+      ]);
+
+      const signer = provider.getSigner(selectedAccount);
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
+
+  const [patientData, setPatientData] = useState({
+    namaLengkap: "",
+    nomorIdentitas: "",
+    tempatLahir: "",
+    tanggalLahir: "",
+    namaIbu: "",
+    gender: "",
+    agama: "",
+    suku: "",
+    bahasa: "",
+    golonganDarah: "",
+    telpRumah: "",
+    telpSelular: "",
+    email: "",
+    pendidikan: "",
+    pekerjaan: "",
+    pernikahan: "",
+    alamat: "",
+    rt: "",
+    rw: "",
+    kelurahan: "",
+    kecamatan: "",
+    kota: "",
+    pos: "",
+    provinsi: "",
+    negara: "",
+    namaKerabat: "",
+    nomorIdentitasKerabat: "",
+    tanggalLahirKerabat: "",
+    genderKerabat: "",
+    telpKerabat: "",
+    hubunganKerabat: "",
+    alamatKerabat: "",
+    rtKerabat: "",
+    rwKerabat: "",
+    kelurahanKerabat: "",
+    kecamatanKerabat: "",
+    kotaKerabat: "",
+    posKerabat: "",
+    provinsiKerabat: "",
+    negaraKerabat: "",
+  });
+
+  // Menambahkan state untuk DatePicker
+  const [tanggalLahir, setTanggalLahir] = useState(null);
+  const [tanggalLahirKerabat, setTanggalLahirKerabat] = useState(null);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formattedPatientData = {
+      ...patientData,
+      tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
+      tanggalLahirKerabat: tanggalLahirKerabat
+        ? tanggalLahirKerabat.format(dateFormat)
+        : "",
+      patientAccountData: patientAccountData,
+    };
+
+    // Menandatangani data menggunakan signer
+    const signer = await getSigner();
+    const signature = await signer.signMessage(
+      JSON.stringify(formattedPatientData)
+    );
+    formattedPatientData.signature = signature;
+    console.log("Register Patient Profile Signature:", signature);
+    formattedPatientData.signature = signature;
+    formattedPatientData.role = patientAccountData.accountRole;
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/patient/add-profile",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formattedPatientData),
+        }
+      );
+      const responseData = await response.json();
+      console.log({ responseData });
+      if (response.ok) {
+        console.log("Patient data submitted:", responseData);
+        // Handle successful submission here
+      } else {
+        console.error("Error submitting patient data:", responseData);
+        // Handle errors here
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      // Handle network errors here
+    }
+  };
+
   return (
     <>
       <button
@@ -49,7 +183,7 @@ export default function RegisterPatientButton({buttonText}) {
         style={{ top: 20 }}
         footer={[]}
       >
-        <form className="col-span-2 p-8">
+        <form className="col-span-2 p-8" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-x-8">
             {/* <div className="w-full">
               <Tab />
@@ -67,9 +201,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="nama"
+                id="namaLengkap"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nama lengkap"
+                value={patientData.namaLengkap}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    namaLengkap: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -81,10 +222,17 @@ export default function RegisterPatientButton({buttonText}) {
                 Nomor Identitas (NIK, SIM, atau Paspor)
               </label>
               <input
-                type="number"
-                id="nomor_identitas"
+                type="text"
+                id="nomorIdentitas"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor identitas"
+                value={patientData.nomorIdentitas}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    nomorIdentitas: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -97,9 +245,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="tempat_lahir"
+                id="tempatLahir"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Tempat lahir"
+                value={patientData.tempatLahir}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    tempatLahir: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -111,34 +266,14 @@ export default function RegisterPatientButton({buttonText}) {
                 Tanggal Lahir
               </label>
               <DatePicker
-                id="tanggal_lahir"
+                id="tanggalLahir"
                 className="w-full h-auto text-gray-900"
                 size="large"
                 format={customFormat}
+                value={tanggalLahir}
+                onChange={setTanggalLahir}
                 required
               />
-              {/* <Datepicker />
-                  <div className="relative max-w-sm">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-500"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                      </svg>
-                    </div>
-                    <input
-                      datepicker
-                      datepicker-format="dd/mm/yyyy"
-                      datepicker-autohide="true"
-                      type="text"
-                      className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                      required
-                    />
-                  </div> */}
             </div>
             <div className="mb-6">
               <label
@@ -149,9 +284,13 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="nama_ibu"
+                id="namaIbu"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nama ibu kandung"
+                value={patientData.namaIbu}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, namaIbu: e.target.value })
+                }
                 required
               />
             </div>
@@ -165,6 +304,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="gender"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.gender}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, gender: e.target.value })
+                }
                 required
               >
                 <option>Pilih Jenis Kelamin</option>
@@ -185,6 +328,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="agama"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.agama}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, agama: e.target.value })
+                }
                 required
               >
                 <option>Pilih Agama</option>
@@ -210,6 +357,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="suku"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Suku"
+                value={patientData.suku}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, suku: e.target.value })
+                }
                 required
               />
             </div>
@@ -225,19 +376,30 @@ export default function RegisterPatientButton({buttonText}) {
                 id="bahasa"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Bahasa yang Dikuasai"
+                value={patientData.bahasa}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, bahasa: e.target.value })
+                }
                 required
               />
             </div>
             <div className="mb-6">
               <label
-                htmlFor="darah"
+                htmlFor="golonganDarah"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
                 Golongan Darah
               </label>
               <select
-                id="darah"
+                id="golonganDarah"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.golonganDarah}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    golonganDarah: e.target.value,
+                  })
+                }
                 required
               >
                 <option>Pilih Agama</option>
@@ -266,9 +428,13 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="tel"
-                id="telp_rumah"
+                id="telpRumah"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor telepon rumah"
+                value={patientData.telpRumah}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, telpRumah: e.target.value })
+                }
                 required
               />
             </div>
@@ -281,9 +447,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="tel"
-                id="telp_selular"
+                id="telpSelular"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor telepon selular"
+                value={patientData.telpSelular}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    telpSelular: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -299,6 +472,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="email"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Email"
+                value={patientData.email}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, email: e.target.value })
+                }
                 required
               />
             </div>
@@ -312,6 +489,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="pendidikan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.pendidikan}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, pendidikan: e.target.value })
+                }
                 required
               >
                 <option>Pilih Pendidikan</option>
@@ -336,6 +517,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="pekerjaan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.pekerjaan}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, pekerjaan: e.target.value })
+                }
                 required
               >
                 <option>Pilih Pekerjaan</option>
@@ -357,6 +542,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="pernikahan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.pernikahan}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, pernikahan: e.target.value })
+                }
                 required
               >
                 <option>Pilih Status Pernikahan</option>
@@ -378,6 +567,10 @@ export default function RegisterPatientButton({buttonText}) {
                 rows={4}
                 className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Alamat"
+                value={patientData.alamat}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, alamat: e.target.value })
+                }
                 required
               />
             </div>
@@ -393,6 +586,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="rt"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Rukun Tetangga (RT)"
+                value={patientData.rt}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, rt: e.target.value })
+                }
                 required
               />
             </div>
@@ -408,6 +605,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="rw"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Rukun Warga (RW)"
+                value={patientData.rw}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, rw: e.target.value })
+                }
                 required
               />
             </div>
@@ -423,6 +624,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="kelurahan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kelurahan / Desa"
+                value={patientData.kelurahan}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, kelurahan: e.target.value })
+                }
                 required
               />
             </div>
@@ -438,6 +643,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="kecamatan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kecamatan"
+                value={patientData.kecamatan}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, kecamatan: e.target.value })
+                }
                 required
               />
             </div>
@@ -453,6 +662,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="kota"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kota Madya / Kabupaten"
+                value={patientData.kota}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, kota: e.target.value })
+                }
                 required
               />
             </div>
@@ -468,6 +681,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="pos"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kode Pos"
+                value={patientData.pos}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, pos: e.target.value })
+                }
                 required
               />
             </div>
@@ -481,6 +698,10 @@ export default function RegisterPatientButton({buttonText}) {
               <select
                 id="provinsi"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.provinsi}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, provinsi: e.target.value })
+                }
                 required
               >
                 <option>Pilih Provinsi</option>
@@ -536,6 +757,10 @@ export default function RegisterPatientButton({buttonText}) {
                 id="negara"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Negara"
+                value={patientData.negara}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, negara: e.target.value })
+                }
                 required
               />
             </div>
@@ -554,9 +779,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="nama_kerabat"
+                id="namaKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nama lengkap"
+                value={patientData.namaKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    namaKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -569,9 +801,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="nomor_identitas_kerabat"
+                id="nomorIdentitasKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor identitas"
+                value={patientData.nomorIdentitasKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    nomorIdentitasKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -583,10 +822,12 @@ export default function RegisterPatientButton({buttonText}) {
                 Tanggal Lahir
               </label>
               <DatePicker
-                id="tanggal_lahir_kerabat"
+                id="tanggalLahirKerabat"
                 className="w-full h-auto text-sm text-gray-900"
                 size="large"
                 format={customFormat}
+                value={tanggalLahirKerabat}
+                onChange={setTanggalLahirKerabat}
               />
             </div>
             <div className="mb-6">
@@ -597,8 +838,15 @@ export default function RegisterPatientButton({buttonText}) {
                 Jenis Kelamin
               </label>
               <select
-                id="gender_kerabat"
+                id="genderKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.genderKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    genderKerabat: e.target.value,
+                  })
+                }
                 required
               >
                 <option>Pilih Jenis Kelamin</option>
@@ -618,9 +866,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="tel"
-                id="tel_kerabat"
+                id="telpKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon selular"
+                placeholder="Nomor telepon"
+                value={patientData.telpKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    telpKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -633,15 +888,22 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="hubungan_kerabat"
+                id="hubunganKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Hubungan dengan pasien"
+                value={patientData.hubunganKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    hubunganKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
             <div className="flex items-center mb-4">
               <input
-                id="checkbox-alamat"
+                id="checkboxAlamat"
                 type="checkbox"
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
               />
@@ -660,10 +922,17 @@ export default function RegisterPatientButton({buttonText}) {
                 Alamat
               </label>
               <textarea
-                id="alamat_kerabat"
+                id="alamatKerabat"
                 rows={4}
                 className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Alamat"
+                value={patientData.alamatKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    alamatKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -676,9 +945,13 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="rt_kerabat"
+                id="rtKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Rukun Tetangga (RT)"
+                value={patientData.rtKerabat}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, rtKerabat: e.target.value })
+                }
                 required
               />
             </div>
@@ -691,9 +964,13 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="rw_kerabat"
+                id="rwKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Rukun Warga (RW)"
+                value={patientData.rwKerabat}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, rwKerabat: e.target.value })
+                }
                 required
               />
             </div>
@@ -706,9 +983,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="kelurahan_kerabat"
+                id="kelurahanKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kelurahan / Desa"
+                value={patientData.kelurahanKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    kelurahanKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -721,9 +1005,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="kecamatan_kerabat"
+                id="kecamatanKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kecamatan"
+                value={patientData.kecamatanKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    kecamatanKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -736,9 +1027,16 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="kota_kerabat"
+                id="kotaKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kota Madya / Kabupaten"
+                value={patientData.kotaKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    kotaKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -751,9 +1049,13 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="pos_kerabat"
+                id="posKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kode Pos"
+                value={patientData.posKerabat}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, posKerabat: e.target.value })
+                }
                 required
               />
             </div>
@@ -765,8 +1067,15 @@ export default function RegisterPatientButton({buttonText}) {
                 Provinsi
               </label>
               <select
-                id="provinsi_kerabat"
+                id="provinsiKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.provinsiKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    provinsiKerabat: e.target.value,
+                  })
+                }
                 required
               >
                 <option>Pilih Provinsi</option>
@@ -819,28 +1128,36 @@ export default function RegisterPatientButton({buttonText}) {
               </label>
               <input
                 type="text"
-                id="negara_kerabat"
+                id="negaraKerabat"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Negara"
+                value={patientData.negaraKerabat}
+                onChange={(e) =>
+                  setPatientData({
+                    ...patientData,
+                    negaraKerabat: e.target.value,
+                  })
+                }
                 required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
-            <button
+            <Button
               type="button"
               onClick={handleCancel}
-              className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
+              className="px-5 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 w-fit sm:w-auto"
             >
               Batal
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
+              htmlType="submit"
+              className="px-5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 w-fit sm:w-auto"
             >
-              Simpan Perubahan
-            </button>
+              Simpan Data Pasien
+            </Button>
           </div>
         </form>
       </Modal>
