@@ -54,18 +54,21 @@ export default function PatientRecordList() {
   // }));
 
   // Mengambil data pasien dari accountProfiles yang tersimpan di IPFS
+  const accountProfiles = patientAccountData?.ipfs?.data?.accountProfiles;
   const patientListProps =
-    patientAccountData &&
-    patientAccountData.ipfs &&
-    patientAccountData.ipfs.data.accountProfiles > 0
-      ? patientAccountData.accountProfiles.map((patient, index) => ({
+    accountProfiles?.length > 0
+      ? accountProfiles.map((patient, index) => ({
           patientName: patient.namaLengkap,
+          patientIdentification: patient.nomorIdentitas,
           // patientImage: patient.patientImage,
-          patientAddress: patient.alamat,
+          // patientAddress: patient.alamat,
           patientIsChosen: index === chosenIndex,
           // patientRecords: patient.patientRecords,
         }))
       : [];
+
+  // console.log(patientAccountData.ipfs.data.accountProfiles);
+  console.log({ patientListProps });
 
   // Mencari pasien yang memiliki patientIsChosen bernilai true
   const chosenPatient = patientListProps.find(
@@ -73,14 +76,15 @@ export default function PatientRecordList() {
   );
 
   // Mendapatkan data rekam medis dari patientRecords pasien yang dipilih
-  const recordItems = chosenPatient
-    ? chosenPatient.patientRecords.flatMap((record) => ({
-        recordAddress: record.recordAddress,
-        recordTitle: record.recordTitle,
-        recordDate: record.recordDate,
-        recordDoctorName: record.recordDoctorName,
-      }))
-    : [];
+  const recordItems =
+    chosenPatient && Array.isArray(chosenPatient.patientRecords)
+      ? chosenPatient.patientRecords.flatMap((record) => ({
+          recordAddress: record.recordAddress,
+          recordTitle: record.recordTitle,
+          recordDate: record.recordDate,
+          recordDoctorName: record.recordDoctorName,
+        }))
+      : [];
 
   return (
     <>

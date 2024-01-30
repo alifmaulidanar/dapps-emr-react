@@ -3,8 +3,9 @@ import "./../index.css";
 // Komponen untuk informasi pasien
 export default function PatientList({
   patientName,
-  patientImage,
-  patientAddress,
+  patientIdentification,
+  // patientImage,
+  // patientAddress,
   patientIsChosen = false,
   onClick,
 }) {
@@ -16,7 +17,7 @@ export default function PatientList({
             className="w-8 h-8 rounded-full"
             width={500}
             height={500}
-            src={`${patientImage}`}
+            // src={`${patientImage}`}
             alt={`${patientName} image`}
           />
         </div>
@@ -26,7 +27,7 @@ export default function PatientList({
           </p>
           <div>
             <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-              {patientAddress}
+              {patientIdentification}
             </span>
           </div>
         </div>
