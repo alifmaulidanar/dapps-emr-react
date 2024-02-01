@@ -70,7 +70,12 @@ function PatientProfile() {
 
   return (
     <>
-      <NavbarController type={2} page="Profil Pasien" color="blue" />
+      <NavbarController
+        type={2}
+        page="Profil Pasien"
+        color="blue"
+        accountAddress={accountAddress}
+      />
       <div className="grid justify-center w-9/12 min-h-screen grid-cols-1 px-4 py-24 mx-auto">
         <div className="grid gap-y-4">
           <ProfileDropdown

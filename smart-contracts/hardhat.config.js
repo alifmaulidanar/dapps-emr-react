@@ -35,7 +35,11 @@ const config = {
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: [
-        "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
+        // windows
+        // "0xc0abcc13006c2ce19381eab5e168536a93041110c507b13537cf3450dbfb3b77",
+
+        // linux
+        "0xc3aa469ddbd8e3753f296b489af316c4e9acd38a307c693ca9adddc85da11d1f",
       ],
     },
   },

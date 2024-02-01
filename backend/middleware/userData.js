@@ -25,6 +25,7 @@ async function getUserAccountData(address) {
     const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
+    console.log(ipfsData);
 
     const responseData = {
       message: "GET User Data from IPFS Succesful",
