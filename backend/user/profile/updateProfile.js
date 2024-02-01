@@ -62,16 +62,16 @@ const patientSchema = Joi.object({
   patientAccountData: Joi.object().required(),
 });
 
-// Add Profile Patient
-router.post("/patient/add-profile", async (req, res) => {
+// Update Profile Patient
+router.patch("/patient/update-profile", async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
-      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-      negaraKerabat, patientAccountData, role,
+        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+        negaraKerabat, patientAccountData, role,
     } = req.body;
 
     // Validasi input menggunakan Joi
@@ -126,95 +126,60 @@ router.post("/patient/add-profile", async (req, res) => {
       recoveredSigner
     );
 
-    // Membuat objek data pasien
-    const patientData = {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
-      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat,
-    };
+    // Mengambil CID dari blockchain
+    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    const cidFromBlockchain = getIpfs.ipfsAddress;
 
-    // const earlyCid = patientAccountData.ipfs.cid;
+    // Mengambil data dari IPFS
+    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cidFromBlockchain}`;
+    const ipfsResponse = await fetch(ipfsGatewayUrl);
+    const ipfsData = await ipfsResponse.json();
 
-    // Fisrt fetch IPFS data to retrieve accountProfiles array value
-    // const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${earlyCid}`;
-    // const earlyResponse = await fetch(ipfsGatewayUrl);
-    // const earlyData = await earlyResponse.json();
-
-    const accountData = {
-      accountAddress: patientAccountData.account.accountAddress,
-      accountUsername: patientAccountData.ipfs.data.accountUsername,
-      accountEmail: patientAccountData.account.accountEmail,
-      // ipfsAddress: patientAccountData.ipfs.ipfsAddress,
-      // cid: patientAccountData.ipfs.cid,
-      accountPhone: patientAccountData.ipfs.data.accountPhone,
-      accountPassword: patientAccountData.ipfs.data.accountPassword,
-      accountRole: patientAccountData.account.role,
-      accountCreated: patientAccountData.ipfs.data.accountCreated,
-      accountProfiles: [
-        ...(patientAccountData.ipfs.data.accountProfiles || []),
-      ],
-    };
-
-    // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
-    const existingProfile = accountData.accountProfiles.findIndex(
-      (profile) => profile.nomorIdentitas === patientData.nomorIdentitas
+    // Mencari dan memperbarui profil pasien dalam array accountProfiles
+    const indexToUpdate = ipfsData.accountProfiles.findIndex(
+      (profile) => profile.nomorIdentitas === nomorIdentitas
     );
 
-    if (existingProfile !== -1) {
-      console.log(`Profile with ${nomorIdentitas} already exists`);
+    if (indexToUpdate !== -1) {
+      ipfsData.accountProfiles[indexToUpdate] = {
+        namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat,
+      };
     } else {
-      accountData.accountProfiles.push(patientData);
+      return res.status(404).json({ error: "Profile not found" });
     }
 
-    // Menyimpan data pasien ke IPFS
-    const result = await client.add(JSON.stringify(accountData));
-    const cid = result.cid.toString();
+    // Menyimpan data yang diperbarui ke IPFS
+    const updatedResult = await client.add(JSON.stringify(ipfsData));
+    const updatedCid = updatedResult.cid.toString();
+
     console.log({ cid });
 
-    // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
-    const response = await fetch(ipfsGatewayUrl);
-    const ipfsData = await response.json();
+    // Update CID di blockchain
+    // const updateIpfsTX = await contract.updateIpfsAccount(accountAddress, updatedCid);
+    // await updateIpfsTX.wait();
 
-    // Menambahkan CID dan detail akun ke Smart Contract
-    const ipfsTX = await contract.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    // Update user account di blockchain (Jika perlu)
+    // const updateUserAccountTX = await contract.updateUserAccount(...);
+    // await updateUserAccountTX.wait();
 
-    const accountTX = await contract.addUserAccount(
-      patientAccountData.account.accountEmail,
-      patientAccountData.account.role,
-      getIpfs.ipfsAddress
-    );
-    await accountTX.wait();
-    const getAccount = await contract.getUserAccountByAddress(accountAddress);
-
-    // Menyusun objek data yang ingin ditampilkan dalam response body
-    const responseData = {
-      message: `Patient Profile added successfully`,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-      },
+    // Response
+    res.status(200).json({
+      message: "Patient profile updated successfully",
       ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
-        size: result.size,
+        newCid: updatedCid,
+        size: updatedResult.size,
         data: ipfsData,
       },
-    };
-
-    console.log(responseData);
-    res.status(200).json(responseData);
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       error: error.message,
-      message: "Patient registration failed",
+      message: "Failed updating patient profile",
     });
   }
 });

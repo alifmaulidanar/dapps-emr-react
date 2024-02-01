@@ -121,8 +121,8 @@ export default function SignUpForm({ role }) {
             setSpinning(false);
             Swal.fire({
               icon: "error",
-              title: "Oops...",
-              text: "Terjadi kesalahan saat melakukan registrasi. Silakan coba lagi!",
+              title: "Terjadi kesalahan saat melakukan registrasi",
+              text: error,
             });
           }
         } else {

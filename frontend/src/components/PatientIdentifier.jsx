@@ -1,7 +1,7 @@
 export default function PatientIdentifier({
   patientName,
   patientImage,
-  patientAddress,
+  patientIdentification,
 }) {
   return (
     <div className="flex flex-col items-center p-8">
@@ -12,10 +12,10 @@ export default function PatientIdentifier({
         src={`${patientImage}`}
         alt={`${patientName} image`}
       />
-      <h5 className="text-xl font-medium text-gray-900 mb-1">{patientName}</h5>
+      <h5 className="mb-1 text-xl font-medium text-gray-900">{patientName}</h5>
       <div>
         <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-          {patientAddress}
+          {patientIdentification}
         </span>
       </div>
     </div>

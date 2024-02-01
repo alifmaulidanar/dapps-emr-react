@@ -1,6 +1,9 @@
-import { useState, useCallback } from "react";
-import { DatePicker, Modal, Button } from "antd";
+import React, { useState, useCallback } from "react";
+import { DatePicker, Modal, Button, Spin } from "antd";
 import { ethers } from "ethers";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+
 // import Datepicker from "../Datepicker";
 // import Datepicker from "../Datepicker";
 
@@ -10,6 +13,11 @@ export default function RegisterPatientButton({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [spinning, setSpinning] = React.useState(false);
+
+  const showLoader = () => {
+    setSpinning(true);
+  };
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -147,18 +155,36 @@ export default function RegisterPatientButton({
           body: JSON.stringify(formattedPatientData),
         }
       );
+
       const responseData = await response.json();
-      console.log({ responseData });
+
       if (response.ok) {
-        console.log("Patient data submitted:", responseData);
-        // Handle successful submission here
+        console.log({ responseData });
+        setSpinning(false);
+        Swal.fire({
+          icon: "success",
+          title: "Pendaftaran Profil Pasien Berhasil!",
+          text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
+        }).then(() => {
+          window.location.reload();
+        });
       } else {
-        console.error("Error submitting patient data:", responseData);
-        // Handle errors here
+        console.log(responseData.error, responseData.message);
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Pendaftaran Profil Pasien Gagal",
+          text: responseData.error,
+        });
       }
     } catch (error) {
-      console.error("Network error:", error);
-      // Handle network errors here
+      console.error("Terjadi kesalahan:", error);
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Terjadi kesalahan saat melakukan pendaftaran",
+        text: error,
+      });
     }
   };
 
@@ -1155,9 +1181,11 @@ export default function RegisterPatientButton({
               type="button"
               htmlType="submit"
               className="px-5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 w-fit sm:w-auto"
+              onClick={showLoader}
             >
               Simpan Data Pasien
             </Button>
+            <Spin spinning={spinning} fullscreen />
           </div>
         </form>
       </Modal>

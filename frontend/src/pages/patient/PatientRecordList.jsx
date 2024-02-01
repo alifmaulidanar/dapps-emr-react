@@ -68,7 +68,7 @@ export default function PatientRecordList() {
       : [];
 
   // console.log(patientAccountData.ipfs.data.accountProfiles);
-  console.log({ patientListProps });
+  // console.log({ patientListProps });
 
   // Mencari pasien yang memiliki patientIsChosen bernilai true
   const chosenPatient = patientListProps.find(

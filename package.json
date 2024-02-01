@@ -4,5 +4,7 @@
     "be": "cd backend && npm run dev",
     "sc": "cd smart-contracts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "moment": "^2.30.1"
+  }
 }

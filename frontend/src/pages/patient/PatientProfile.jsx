@@ -10,6 +10,7 @@ import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
 function PatientProfile() {
   const { accountAddress } = useParams();
   const [patients, setPatients] = useState([]);
+  const [patientAccountData, setPatientAccountData] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
 
   useEffect(() => {
@@ -17,7 +18,7 @@ function PatientProfile() {
       accountAddress.charAt(0) +
       accountAddress.charAt(1) +
       accountAddress.substring(2).toUpperCase();
-    console.log({ capitalizedAccountAddress });
+    // console.log({ capitalizedAccountAddress });
 
     const fetchData = async () => {
       try {
@@ -30,10 +31,19 @@ function PatientProfile() {
         const data = await response.json();
         const profiles =
           data.ipfs?.data?.accountProfiles?.map((profile) => ({
-            nomorIdentitas: profile.nomorIdentitas,
-            namaLengkap: profile.namaLengkap,
+            ...profile,
           })) || [];
         setPatients(profiles);
+        const accountData = {
+          accountAddress: data.ipfs.data.accountAddress,
+          accountEmail: data.ipfs.data.accountEmail,
+          accountPhone: data.ipfs.data.accountPhone,
+          accountRole: data.ipfs.data.accountRole,
+          accountUsername: data.ipfs.data.accountUsername,
+        };
+        setPatientAccountData(accountData);
+        // console.log({ profiles });
+        console.log({ accountData });
         if (profiles.length > 0) {
           setSelectedPatient(profiles[0]);
         }
@@ -41,7 +51,6 @@ function PatientProfile() {
         console.error("Error fetching patient data:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -68,6 +77,9 @@ function PatientProfile() {
       }
     : {};
 
+  // console.log({ patientIdentifierProps });
+  // console.log({ patientDataProps });
+
   return (
     <>
       <NavbarController type={2} page="Profil Pasien" color="blue" />
@@ -80,7 +92,10 @@ function PatientProfile() {
           />
           <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
             <PatientIdentifier {...patientIdentifierProps} />
-            <PatientData {...patientDataProps} />
+            <PatientData
+              patientDataProps={patientDataProps}
+              patientAccountData={patientAccountData}
+            />
           </div>
         </div>
       </div>

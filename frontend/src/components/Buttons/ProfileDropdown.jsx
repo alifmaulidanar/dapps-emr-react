@@ -3,7 +3,7 @@ import { Select } from "antd";
 function ProfileDropdown({ patients, onChange, defaultValue }) {
   return (
     <>
-      <div className="justify-self-end">
+      <div className="justify-self-end w-[150px]">
         <Select
           key={defaultValue}
           showSearch
