@@ -63,7 +63,12 @@ export default function PatientAccount() {
 
   return (
     <>
-      <NavbarController type={2} page="Akun Pasien" color="blue" />
+      <NavbarController
+        type={2}
+        page="Akun Pasien"
+        color="blue"
+        accountAddress={accountAddress}
+      />
       <div className="grid justify-center w-9/12 min-h-screen grid-cols-7 px-4 py-24 mx-auto">
         <div className="col-span-3 col-start-3">
           <div className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit">
