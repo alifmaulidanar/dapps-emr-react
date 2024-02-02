@@ -5,6 +5,8 @@
     "sc": "cd smart-contracts"
   },
   "dependencies": {
+    "antd": "^5.13.3",
+    "dayjs": "^1.11.10",
     "moment": "^2.30.1"
   }
 }
