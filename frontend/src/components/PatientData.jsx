@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Form, Input, Select, Checkbox, DatePicker, Spin } from "antd";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -16,27 +18,26 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
     setSpinning(true);
   };
 
-  // Menambahkan state untuk DatePicker
-  const [tanggalLahir, setTanggalLahir] = useState(null);
-  const [tanggalLahirKerabat, setTanggalLahirKerabat] = useState(null);
   const dateFormat = "DD/MM/YYYY";
-  const customFormat = (value) => `${value.format(dateFormat)}`;
+  // const customFormat = (value) => `${value.format(dateFormat)}`;
 
   useEffect(() => {
-    const transformedProps = {
+    form.setFieldsValue({
       ...patientDataProps,
       tanggalLahir: patientDataProps.tanggalLahir
-        ? moment(patientDataProps.tanggalLahir, "DD/MM/YYYY")
+        ? dayjs(patientDataProps.tanggalLahir, dateFormat)
         : null,
       tanggalLahirKerabat: patientDataProps.tanggalLahirKerabat
-        ? moment(patientDataProps.tanggalLahirKerabat, "DD/MM/YYYY")
+        ? dayjs(patientDataProps.tanggalLahirKerabat, dateFormat)
         : null,
-    };
-    form.setFieldsValue(transformedProps);
+    });
   }, [patientDataProps, form]);
 
   const handleEditClick = () => setIsEditing(true);
-  const handleCancelClick = () => setIsEditing(false);
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    form.resetFields();
+  };
 
   // const handleCheckboxChange = () => {
   //   setIsChecked(!isChecked);
@@ -82,9 +83,11 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
       try {
         const updatedValues = {
           ...values,
-          tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
-          tanggalLahirKerabat: tanggalLahirKerabat
-            ? tanggalLahirKerabat.format(dateFormat)
+          tanggalLahir: values.tanggalLahir
+            ? dayjs(values.tanggalLahir).format(dateFormat)
+            : "",
+          tanggalLahirKerabat: values.tanggalLahirKerabat
+            ? dayjs(values.tanggalLahirKerabat).format(dateFormat)
             : "",
           patientAccountData: patientAccountData,
         };
@@ -94,6 +97,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
         const signature = await signer.signMessage(
           JSON.stringify(updatedValues)
         );
+        console.log(signature);
         updatedValues.signature = signature;
         console.log(updatedValues);
 
@@ -140,6 +144,10 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
       }
     }
     setIsEditing(false);
+  };
+
+  const handleDateChange = (date, dateString, fieldName) => {
+    form.setFieldsValue({ [fieldName]: date });
   };
 
   const provinsiOptions = [
@@ -237,11 +245,17 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
         >
           <DatePicker
             id="tanggal_lahir"
+            // defaultValue={dayjs("2015/01/01", dateFormat)}
             className="w-full h-auto text-gray-900"
             style={inputStyling}
             size="large"
-            format={customFormat}
+            format={dateFormat}
             disabled={!isEditing}
+            onChange={(date, dateString) =>
+              handleDateChange(date, dateString, "tanggalLahir")
+            }
+            // onSelect={onSelectTanggalLahir}
+            // onChange={(value) => setTanggalLahir(value)}
             required
           />
         </Form.Item>
@@ -550,10 +564,16 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
         >
           <DatePicker
             id="tanggal_lahir_kerabat"
+            // defaultValue={parsedTanggalLahirKerabat}
             className="w-full h-auto text-gray-900"
             size="large"
-            format={customFormat}
+            format={dateFormat}
             disabled={!isEditing}
+            onChange={(date, dateString) =>
+              handleDateChange(date, dateString, "tanggalLahirKerabat")
+            }
+            // onSelect={onSelectTanggalLahirKerabat}
+            // onChange={(value) => setTanggalLahirKerabat(value)}
             required
           />
         </Form.Item>
