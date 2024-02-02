@@ -104,7 +104,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
         const response = await fetch(
           "http://localhost:3000/patient/update-profile",
           {
-            method: "PATCH",
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
@@ -119,8 +119,8 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
           setSpinning(false);
           Swal.fire({
             icon: "success",
-            title: "Pendaftaran Profil Pasien Berhasil!",
-            text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
+            title: "Profil Pasien Berhasil Diperbarui!",
+            text: "Periksa kembali informasi profil Anda.",
           }).then(() => {
             window.location.reload();
           });
@@ -129,7 +129,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
           setSpinning(false);
           Swal.fire({
             icon: "error",
-            title: "Pendaftaran Profil Pasien Gagal",
+            title: "Pembaruan Profil Pasien Gagal",
             text: responseData.error,
           });
         }
@@ -138,7 +138,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
         setSpinning(false);
         Swal.fire({
           icon: "error",
-          title: "Terjadi kesalahan saat melakukan pendaftaran",
+          title: "Terjadi kesalahan saat melakukan pembaruan profil",
           text: error,
         });
       }

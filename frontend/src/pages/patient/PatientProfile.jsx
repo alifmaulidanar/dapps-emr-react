@@ -23,7 +23,7 @@ function PatientProfile() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/patient/${capitalizedAccountAddress}/record-list`,
+          `http://localhost:3000/patient/${capitalizedAccountAddress}/account`,
           {
             method: "GET",
           }
