@@ -71,7 +71,7 @@ router.patch("/patient/update-profile", async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, patientAccountData, role,
+        negaraKerabat, patientAccountData, role, signature
     } = req.body;
 
     // Validasi input menggunakan Joi
@@ -81,7 +81,7 @@ router.patch("/patient/update-profile", async (req, res) => {
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-      negaraKerabat, patientAccountData,
+      negaraKerabat, patientAccountData
     });
 
     if (error) {
@@ -100,7 +100,7 @@ router.patch("/patient/update-profile", async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, patientAccountData, role,
+        negaraKerabat, patientAccountData, role
       }),
       signature
     );
@@ -128,7 +128,7 @@ router.patch("/patient/update-profile", async (req, res) => {
 
     // Mengambil CID dari blockchain
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const cidFromBlockchain = getIpfs.ipfsAddress;
+    const cidFromBlockchain = getIpfs.cid;
 
     // Mengambil data dari IPFS
     const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cidFromBlockchain}`;
@@ -155,8 +155,9 @@ router.patch("/patient/update-profile", async (req, res) => {
     // Menyimpan data yang diperbarui ke IPFS
     const updatedResult = await client.add(JSON.stringify(ipfsData));
     const updatedCid = updatedResult.cid.toString();
+    console.log({cidFromBlockchain});
+    console.log({updatedCid});
 
-    console.log({ cid });
 
     // Update CID di blockchain
     // const updateIpfsTX = await contract.updateIpfsAccount(accountAddress, updatedCid);

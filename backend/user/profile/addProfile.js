@@ -71,7 +71,7 @@ router.post("/patient/add-profile", async (req, res) => {
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-      negaraKerabat, patientAccountData, role,
+      negaraKerabat, patientAccountData, role, signature
     } = req.body;
 
     // Validasi input menggunakan Joi
