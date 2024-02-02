@@ -63,7 +63,7 @@ const patientSchema = Joi.object({
 });
 
 // Update Profile Patient
-router.patch("/patient/update-profile", async (req, res) => {
+router.post("/patient/update-profile", async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -155,29 +155,49 @@ router.patch("/patient/update-profile", async (req, res) => {
     // Menyimpan data yang diperbarui ke IPFS
     const updatedResult = await client.add(JSON.stringify(ipfsData));
     const updatedCid = updatedResult.cid.toString();
-    console.log({cidFromBlockchain});
-    console.log({updatedCid});
+    await client.pin.add(updatedCid);
 
+    // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
+    const newIpfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${updatedCid}`;
+    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+    const newIpfsData = await newIpfsResponse.json();
 
     // Update CID di blockchain
-    // const updateIpfsTX = await contract.updateIpfsAccount(accountAddress, updatedCid);
-    // await updateIpfsTX.wait();
-
+    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
+    await updateIpfsTX.wait();
+    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
+    
     // Update user account di blockchain (Jika perlu)
-    // const updateUserAccountTX = await contract.updateUserAccount(...);
-    // await updateUserAccountTX.wait();
+    const updateAccountTX = await contract.addUserAccount(
+      email,
+      role,
+      getUpdatedIpfs.ipfsAddress
+    );
+    await updateAccountTX.wait();
+    const getUpdatedAccount = await contract.getUserAccountByAddress(accountAddress);
 
     // Response
-    res.status(200).json({
-      message: "Patient profile updated successfully",
-      ipfs: {
-        newCid: updatedCid,
-        size: updatedResult.size,
-        data: ipfsData,
+    const responseData = {
+      message: `${role} Profile Updated`,
+      account: {
+        accountAddress: getUpdatedAccount.accountAddress,
+        email: getUpdatedAccount.email,
+        role: getUpdatedAccount.role,
+        ipfsHash: getUpdatedAccount.ipfsHash,
       },
-    });
+      ipfs: {
+        ipfsAddress: getUpdatedIpfs.ipfsAddress,
+        cid: updatedCid,
+        data: newIpfsData,
+      },
+    };
+
+    res.status(200).json(responseData);
+    console.log(responseData)
   } catch (error) {
     console.error(error);
+    const stackLines = error.stack.split("\n");
+    console.log("Error pada file dan baris:", stackLines[1].trim());
     res.status(500).json({
       error: error.message,
       message: "Failed updating patient profile",

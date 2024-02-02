@@ -16,7 +16,6 @@ const client = create({
 const router = express.Router();
 router.use(express.json());
 
-// Membuat format validasi menggunakan Joi
 const schema = Joi.object({
   username: Joi.string()
     .pattern(/^\S.*$/)
@@ -32,7 +31,6 @@ const schema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 });
 
-// Format Tanggal dan Waktu
 function formatDateTime(date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -142,17 +140,17 @@ router.post("/:role/signup", async (req, res) => {
       accountProfiles: [],
     };
 
-    // Menyimpan objek akun pasien ke IPFS
+    // add to ipfs
     const result = await client.add(JSON.stringify(newAccount));
     const cid = result.cid.toString();
     await client.pin.add(cid);
 
-    // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
+    // fetch dari ipfs
     const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // Menambahkan CID dan detail akun ke Smart Contract
+    // add to SC
     const ipfsTX = await contract.addIpfsAccount(cid);
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
@@ -177,7 +175,6 @@ router.post("/:role/signup", async (req, res) => {
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
-        size: result.size,
         data: ipfsData,
       },
     };
