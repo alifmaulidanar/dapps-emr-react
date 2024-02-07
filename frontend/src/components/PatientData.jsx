@@ -13,6 +13,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [spinning, setSpinning] = React.useState(false);
+  const [initialData, setInitialData] = useState({});
 
   const showLoader = () => {
     setSpinning(true);
@@ -22,7 +23,8 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
   // const customFormat = (value) => `${value.format(dateFormat)}`;
 
   useEffect(() => {
-    form.setFieldsValue({
+    // Simpan data awal ke state
+    const initialFormData = {
       ...patientDataProps,
       tanggalLahir: patientDataProps.tanggalLahir
         ? dayjs(patientDataProps.tanggalLahir, dateFormat)
@@ -30,13 +32,15 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
       tanggalLahirKerabat: patientDataProps.tanggalLahirKerabat
         ? dayjs(patientDataProps.tanggalLahirKerabat, dateFormat)
         : null,
-    });
+    };
+    setInitialData(initialFormData);
+    form.setFieldsValue(initialFormData);
   }, [patientDataProps, form]);
 
   const handleEditClick = () => setIsEditing(true);
   const handleCancelClick = () => {
     setIsEditing(false);
-    form.resetFields();
+    form.setFieldsValue(initialData);
   };
 
   // const handleCheckboxChange = () => {

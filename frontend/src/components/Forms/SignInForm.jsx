@@ -91,7 +91,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             if (response.ok) {
               const data = await response.json();
               const accountAddress = data.account.accountAddress;
-              console.log("alamat: ", accountAddress)
+              console.log("alamat: ", accountAddress);
               console.log(data.message, data);
               setSpinning(false);
               Swal.fire({
@@ -217,9 +217,10 @@ export default function SignInForm({ role, resetLink, signupLink }) {
           </div>
           <div className="text-right">
             <Button
+              size="large"
               type="primary"
               htmlType="submit"
-              className="w-full px-5 mt-4 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
+              className="px-12 text-sm text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
               onClick={showLoader}
             >
               Masuk
@@ -230,12 +231,9 @@ export default function SignInForm({ role, resetLink, signupLink }) {
         <div className="flex items-center mt-8 text-center justify-evenly">
           <div>
             <a href={resetLink}>
-              <button
-                type="submit"
-                className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2"
-              >
+              <Button id="to-lupa-password" size="large" danger>
                 Lupa Password
-              </button>
+              </Button>
             </a>
           </div>
           <div>
@@ -243,12 +241,9 @@ export default function SignInForm({ role, resetLink, signupLink }) {
           </div>
           <div>
             <a href={signupLink}>
-              <button
-                type="submit"
-                className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-2"
-              >
+              <Button id="to-daftar-baru" size="large" type="primary" ghost>
                 Daftar Baru
-              </button>
+              </Button>
             </a>
           </div>
         </div>

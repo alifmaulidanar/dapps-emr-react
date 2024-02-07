@@ -170,7 +170,7 @@ router.post("/patient/update-profile", async (req, res) => {
     // Update user account di blockchain (Jika perlu)
     const updateAccountTX = await contract.addUserAccount(
       email,
-      role,
+      patientAccountData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();

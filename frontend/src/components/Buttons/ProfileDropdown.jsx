@@ -6,7 +6,6 @@ function ProfileDropdown({ patients, onChange, defaultValue }) {
       <div className="justify-self-end w-[150px]">
         <Select
           key={defaultValue}
-          showSearch
           defaultValue={defaultValue}
           optionFilterProp="children"
           onChange={onChange}
