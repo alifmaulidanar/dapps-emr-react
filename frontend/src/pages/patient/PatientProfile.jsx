@@ -12,6 +12,12 @@ function PatientProfile() {
   const [patients, setPatients] = useState([]);
   const [patientAccountData, setPatientAccountData] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedImageBase64, setSelectedImageBase64] = useState(null);
+
+  // Handle Foto Profil Pasien dari PatientIdentifier
+  const handleImageChange = (base64Image) => {
+    setSelectedImageBase64(base64Image);
+  };
 
   useEffect(() => {
     const capitalizedAccountAddress =
@@ -97,7 +103,7 @@ function PatientProfile() {
             defaultValue={selectedPatient?.nomorIdentitas}
           />
           <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
-            <PatientIdentifier {...patientIdentifierProps} />
+            {/* <PatientIdentifier {...patientIdentifierProps} /> */}
             <PatientData
               patientDataProps={patientDataProps}
               patientAccountData={patientAccountData}

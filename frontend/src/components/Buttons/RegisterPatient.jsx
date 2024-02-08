@@ -429,7 +429,7 @@ export default function RegisterPatientButton({
                 }
                 required
               >
-                <option>Pilih Agama</option>
+                <option>Pilih Golongan Darah</option>
                 <option value="1">A</option>
                 <option value="2">B</option>
                 <option value="3">AB</option>

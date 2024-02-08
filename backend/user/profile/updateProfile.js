@@ -100,7 +100,7 @@ router.post("/patient/update-profile", async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, patientAccountData, role, foto
+        negaraKerabat, patientAccountData, role
       }),
       signature
     );
@@ -110,6 +110,8 @@ router.post("/patient/update-profile", async (req, res) => {
     const accountAddress = accounts.find(
       (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
     );
+
+    console.log({ accountAddress });
 
     if (!accountAddress) {
       return res.status(400).json({ error: "Account not found" });
@@ -146,7 +148,7 @@ router.post("/patient/update-profile", async (req, res) => {
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat,
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto
       };
     } else {
       return res.status(404).json({ error: "Profile not found" });

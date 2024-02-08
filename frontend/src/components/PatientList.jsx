@@ -11,20 +11,20 @@ export default function PatientList({
   onClick,
 }) {
   return (
-    <li onClick={onClick}>
-      <div className="flex items-center space-x-4">
+    <li onClick={onClick} className="py-2">
+      <div className="flex items-center px-4 space-x-4">
         <div className="flex-shrink-0">
           {patientImage ? (
             <img
-              className="w-8 h-8 rounded-full"
-              width={32}
-              height={32}
-              // src={`${patientImage}`}
+              className="w-16 h-16 rounded-full"
+              width={64}
+              height={64}
+              src={`http://127.0.0.1:8080/ipfs/${patientImage}`}
               alt={`${patientName} image`}
             />
           ) : (
             <Avatar
-              size={48}
+              size={64}
               style={{
                 backgroundColor: "#87d068",
               }}
