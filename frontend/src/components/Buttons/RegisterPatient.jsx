@@ -143,6 +143,7 @@ export default function RegisterPatientButton({
     console.log("Register Patient Profile Signature:", signature);
     formattedPatientData.signature = signature;
     formattedPatientData.role = patientAccountData.accountRole;
+    formattedPatientData.foto = null;
 
     try {
       const response = await fetch(

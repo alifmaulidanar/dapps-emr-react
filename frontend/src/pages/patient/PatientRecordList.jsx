@@ -60,7 +60,7 @@ export default function PatientRecordList() {
       ? accountProfiles.map((patient, index) => ({
           patientName: patient.namaLengkap,
           patientIdentification: patient.nomorIdentitas,
-          // patientImage: patient.patientImage,
+          patientImage: patient.foto,
           // patientAddress: patient.alamat,
           patientIsChosen: index === chosenIndex,
           // patientRecords: patient.patientRecords,
@@ -137,7 +137,7 @@ export default function PatientRecordList() {
           )}
         </div>
         <div className="w-full col-span-2">
-          <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow">
+          <div className="w-full px-4 py-4 bg-white border border-gray-200 rounded-lg shadow">
             <div className="flow-root">
               {patientListProps.length > 0 ? (
                 <ul role="list" className="divide-y divide-gray-200">

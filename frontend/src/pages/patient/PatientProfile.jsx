@@ -43,7 +43,7 @@ function PatientProfile() {
         };
         setPatientAccountData(accountData);
         // console.log({ profiles });
-        console.log({ accountData });
+        // console.log({ accountData });
         if (profiles.length > 0) {
           setSelectedPatient(profiles[0]);
         }
@@ -56,6 +56,7 @@ function PatientProfile() {
 
   // const accountProfiles = patients?.ipfs?.data?.accountProfiles;
   // console.log({ accountProfiles });
+  console.log({ patientAccountData });
 
   const handlePatientChange = (nomorIdentitas) => {
     const patient = patients.find((p) => p.nomorIdentitas === nomorIdentitas);
@@ -66,7 +67,7 @@ function PatientProfile() {
     ? {
         patientName: selectedPatient.namaLengkap,
         patientIdentification: selectedPatient.nomorIdentitas,
-        // patientImage: selectedPatient.patientImage,
+        patientImage: selectedPatient.foto,
         // patientAddress: selectedPatient.alamat,
       }
     : {};

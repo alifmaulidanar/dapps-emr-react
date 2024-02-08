@@ -71,7 +71,7 @@ router.post("/patient/update-profile", async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, patientAccountData, role, signature
+        negaraKerabat, patientAccountData, role, signature, foto
     } = req.body;
 
     // Validasi input menggunakan Joi
@@ -100,7 +100,7 @@ router.post("/patient/update-profile", async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, patientAccountData, role
+        negaraKerabat, patientAccountData, role, foto
       }),
       signature
     );

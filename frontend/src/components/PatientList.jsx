@@ -1,25 +1,36 @@
-import "./../index.css";
+import { Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 
 // Komponen untuk informasi pasien
 export default function PatientList({
   patientName,
   patientIdentification,
-  // patientImage,
+  patientImage,
   // patientAddress,
   patientIsChosen = false,
   onClick,
 }) {
   return (
-    <li className="py-3 sm:py-4" onClick={onClick}>
+    <li onClick={onClick}>
       <div className="flex items-center space-x-4">
         <div className="flex-shrink-0">
-          <img
-            className="w-8 h-8 rounded-full"
-            width={500}
-            height={500}
-            // src={`${patientImage}`}
-            alt={`${patientName} image`}
-          />
+          {patientImage ? (
+            <img
+              className="w-8 h-8 rounded-full"
+              width={32}
+              height={32}
+              // src={`${patientImage}`}
+              alt={`${patientName} image`}
+            />
+          ) : (
+            <Avatar
+              size={48}
+              style={{
+                backgroundColor: "#87d068",
+              }}
+              icon={<UserOutlined />}
+            />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">
