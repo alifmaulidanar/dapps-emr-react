@@ -1,5 +1,6 @@
 import "./../../index.css";
 import { Button } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import NavbarController from "../../components/Navbar/NavbarController";
 // import PatientRecordDisplay from "../../components/PatientRecordData";
 import CopyIDButton from "../../components/Buttons/CopyIDButton";
@@ -93,11 +94,11 @@ export default function PatientAccount() {
                     </svg>
 
                     <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
-                      Alamat E-Wallet Pengguna
+                      Alamat <span className="italic">E-Wallet</span>
                     </h5>
                   </div>
                   <p className="my-2 text-md">
-                    Alamat e-wallet akun pasien Anda.
+                    Alamat akun <span className="italic">e-wallet</span> Anda.
                   </p>
                 </div>
                 <div className="flex items-center flex-nowrap gap-x-4">
@@ -147,12 +148,13 @@ export default function PatientAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                <Button
+                  id="change-username-button"
+                  type="default"
+                  className="text-white bg-blue-600"
                 >
                   Ganti Nama Pengguna
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -179,7 +181,7 @@ export default function PatientAccount() {
                       </h5>
                     </div>
                     <p className="my-2 text-md">
-                      Gunakan alamat email untuk masuk atau memulihkan akun.
+                      Alamat email yang terdaftar untuk akun Anda.
                     </p>
                   </div>
                 </div>
@@ -194,12 +196,13 @@ export default function PatientAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                <Button
+                  id="change-email-button"
+                  type="default"
+                  className="text-white bg-blue-600"
                 >
                   Ganti Email
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -229,7 +232,7 @@ export default function PatientAccount() {
                       </h5>
                     </div>
                     <p className="my-2 text-md">
-                      Cantumkan nomor telepon yang aktif.
+                      Nomor telepon yang terdaftar untuk akun Anda.
                     </p>
                   </div>
                 </div>
@@ -244,12 +247,13 @@ export default function PatientAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                <Button
+                  id="change-phone-button"
+                  type="default"
+                  className="text-white bg-blue-600"
                 >
                   Ganti Nomor Telepon
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -335,12 +339,13 @@ export default function PatientAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                <Button
+                  id="change-password-button"
+                  type="default"
+                  className="text-white bg-blue-600"
                 >
                   Konfirmasi
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -379,7 +384,9 @@ export default function PatientAccount() {
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button type="primary" danger>
-                  Keluar
+                  <div className="flex gap-x-2">
+                    Keluar <LogoutOutlined />
+                  </div>
                 </Button>
               </div>
             </div>

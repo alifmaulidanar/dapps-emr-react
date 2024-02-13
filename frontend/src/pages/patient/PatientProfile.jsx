@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavbarController from "../../components/Navbar/NavbarController";
 import PatientData from "../../components/PatientData";
-import PatientIdentifier from "../../components/PatientIdentifier";
 // import { AllPatient } from "../../data/patientData";
 import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
 

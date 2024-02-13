@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
+import { UserOutlined, MenuOutlined } from "@ant-design/icons";
 // import MetaConnect from "./Buttons/MetamaskButton";
 
 function NavItem({ text, linkToPage, color }) {
@@ -42,7 +42,9 @@ function Navbar({ title, buttons, navItems }) {
                 id={button.id}
                 className={button.className}
               >
-                {button.text}
+                <div className="flex gap-x-2">
+                  {button.text} <UserOutlined />
+                </div>
               </Button>
             </a>
           ))}
