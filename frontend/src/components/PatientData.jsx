@@ -119,9 +119,11 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
             name: "ETH",
             symbol: "ETH",
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: ["http://103.175.217.196:8545"],
         },
       ]);
+
+      console.log("Connected to Ganache VPS");
 
       const signer = provider.getSigner(selectedAccount);
       return signer;
@@ -284,7 +286,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
             className="w-24 h-24 mb-3 rounded-full shadow-lg"
             width={96}
             height={96}
-            src={`http://127.0.0.1:8080/ipfs/${patientImage}`}
+            src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
             alt={`${patientName} image`}
           />
         ) : (

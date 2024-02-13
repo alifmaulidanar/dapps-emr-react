@@ -90,7 +90,7 @@ router.post("/patient/update-profile", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
+      "http://103.175.217.196:8545/"
     );
 
     const recoveredAddress = ethers.utils.verifyMessage(
@@ -133,7 +133,7 @@ router.post("/patient/update-profile", async (req, res) => {
     const cidFromBlockchain = getIpfs.cid;
 
     // Mengambil data dari IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cidFromBlockchain}`;
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cidFromBlockchain}`;
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
 

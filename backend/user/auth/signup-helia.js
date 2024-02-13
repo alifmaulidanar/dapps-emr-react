@@ -2,13 +2,13 @@ import Joi from "joi";
 import express from "express";
 import bcrypt from "bcryptjs";
 import { ethers } from "ethers";
-import { createHelia } from 'helia'
-import { json } from '@helia/json'
+import { createHelia } from "helia";
+import { json } from "@helia/json";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 
-const helia = await createHelia()
-const j = json(helia)
+const helia = await createHelia();
+const j = json(helia);
 const contractAddress = CONTRACT_ADDRESS.toString();
 
 const router = express.Router();
@@ -71,7 +71,7 @@ router.post("/:role/signup", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
+      "http://103.175.217.196:8545/"
     );
 
     // const signer = provider.getSigner();
@@ -141,8 +141,8 @@ router.post("/:role/signup", async (req, res) => {
     };
 
     // Menyimpan objek akun pasien ke IPFS menggunakan Helia
-  const cid = await j.add(newAccount);
-  const ipfsData = await j.get(cid);
+    const cid = await j.add(newAccount);
+    const ipfsData = await j.get(cid);
 
     // Menambahkan CID dan detail akun ke Smart Contract
     const ipfsTX = await contract.addIpfsAccount(cid.toString());

@@ -7,7 +7,9 @@ const router = express.Router();
 router.use(express.json());
 
 const contractAddress = CONTRACT_ADDRESS.toString();
-const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:7545/");
+const provider = new ethers.providers.JsonRpcProvider(
+  "http://103.175.217.196:8545/"
+);
 const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 
 async function getUserAccountData(address) {
@@ -22,10 +24,10 @@ async function getUserAccountData(address) {
     const cid = getIpfs.cid;
 
     // Fetch data dari Dedicated Gateway IPFS Desktop untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
-    console.log(ipfsData);
+    // console.log(ipfsData);
 
     const responseData = {
       message: "GET User Data from IPFS Succesful",

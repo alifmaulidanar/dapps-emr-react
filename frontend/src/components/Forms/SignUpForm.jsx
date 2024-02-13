@@ -37,8 +37,9 @@ export default function SignUpForm({ role }) {
           nativeCurrency: {
             name: "ETH",
             symbol: "ETH",
+            decimals: 18,
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: ["https://dnr11-ganache-vps.loca.lt:8545"],
         },
       ]);
 

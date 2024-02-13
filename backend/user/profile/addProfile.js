@@ -90,7 +90,7 @@ router.post("/patient/add-profile", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
+      "http://103.175.217.196:8545/"
     );
 
     const recoveredAddress = ethers.utils.verifyMessage(
@@ -174,7 +174,7 @@ router.post("/patient/add-profile", async (req, res) => {
     console.log({ cid });
 
     // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 

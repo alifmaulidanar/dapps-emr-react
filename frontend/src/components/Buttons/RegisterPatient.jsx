@@ -65,7 +65,7 @@ export default function RegisterPatientButton({
             name: "ETH",
             symbol: "ETH",
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: ["http://103.175.217.196:8545"],
         },
       ]);
 

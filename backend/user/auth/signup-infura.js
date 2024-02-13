@@ -85,7 +85,7 @@ router.post("/:role/signup", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
+      "http://103.175.217.196:8545/"
     );
 
     // const signer = provider.getSigner();
