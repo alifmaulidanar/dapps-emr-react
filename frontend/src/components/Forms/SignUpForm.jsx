@@ -14,6 +14,7 @@ export default function SignUpForm({ role }) {
     setSpinning(true);
   };
 
+  // Connect MetaMask to Ganache lokal
   const getSigner = useCallback(async () => {
     const win = window;
     if (!win.ethereum) {
@@ -48,6 +49,24 @@ export default function SignUpForm({ role }) {
       console.error("Error setting up Web3Provider:", error);
     }
   }, []);
+
+  // Connect MetaMask to Ganache VPS
+  // const getSigner = useCallback(async () => {
+  //   const win = window;
+  //   if (!win.ethereum) {
+  //     console.error("Metamask not detected");
+  //     return;
+  //   }
+
+  //   try {
+  //     await win.ethereum.request({ method: "eth_requestAccounts" });
+  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
+  //     const signer = provider.getSigner();
+  //     return signer;
+  //   } catch (error) {
+  //     console.error("Error setting up Web3Provider:", error);
+  //   }
+  // }, []);
 
   // Lakukan validasi formulir
   const handleSubmit = async (values) => {

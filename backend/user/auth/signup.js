@@ -71,7 +71,8 @@ router.post("/:role/signup", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/"
+      "http://127.0.0.1:7545/",        // Ganache lokal
+      // "http://103.175.217.196:8545/"   // Ganache VPS
     );
 
     // const signer = provider.getSigner();
@@ -91,6 +92,8 @@ router.post("/:role/signup", async (req, res) => {
     const accountAddress = accounts.find(
       (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
     );
+
+    console.log({ accountAddress });
 
     if (!accountAddress) {
       return res.status(400).json({ error: "Account not found" });
@@ -146,7 +149,7 @@ router.post("/:role/signup", async (req, res) => {
     await client.pin.add(cid);
 
     // fetch dari ipfs
-    const ipfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${cid}`;
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
@@ -161,17 +164,17 @@ router.post("/:role/signup", async (req, res) => {
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
-    const getAccount = await contract.getUserAccountByAddress(accountAddress);
+    // const getAccount = await contract.getUserAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `${role} Registration Successful`,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-      },
+      // account: {
+      //   accountAddress: getAccount.accountAddress,
+      //   email: getAccount.email,
+      //   role: getAccount.role,
+      //   ipfsHash: getAccount.ipfsHash,
+      // },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
@@ -183,6 +186,7 @@ router.post("/:role/signup", async (req, res) => {
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
+    console.log(error);
     res.status(500).json({
       error: error,
       message: `${role} Registration Failed`,

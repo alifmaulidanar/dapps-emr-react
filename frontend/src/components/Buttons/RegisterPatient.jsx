@@ -41,6 +41,7 @@ export default function RegisterPatientButton({
   //   />
   // );
 
+  // Connect MetaMask to Ganache lokal
   const getSigner = useCallback(async () => {
     const win = window;
     if (!win.ethereum) {
@@ -75,6 +76,24 @@ export default function RegisterPatientButton({
       console.error("Error setting up Web3Provider:", error);
     }
   }, []);
+
+  // Connect MetaMask to Ganache VPS
+  // const getSigner = useCallback(async () => {
+  //   const win = window;
+  //   if (!win.ethereum) {
+  //     console.error("Metamask not detected");
+  //     return;
+  //   }
+
+  //   try {
+  //     await win.ethereum.request({ method: "eth_requestAccounts" });
+  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
+  //     const signer = provider.getSigner();
+  //     return signer;
+  //   } catch (error) {
+  //     console.error("Error setting up Web3Provider:", error);
+  //   }
+  // }, []);
 
   const [patientData, setPatientData] = useState({
     namaLengkap: "",
@@ -191,12 +210,13 @@ export default function RegisterPatientButton({
 
   return (
     <>
-      <button
+      <Button
         onClick={showModal}
-        className="px-2 py-2 bg-blue-700 text-white rounded-lg w-full max-w-[180px] hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 text-sm"
+        className="text-white bg-blue-600"
+        id="add-profile-button"
       >
         {buttonText}
-      </button>
+      </Button>
 
       {/* MODAL ANT DESIGN */}
       {/* <Button type="primary" onClick={showModal}>

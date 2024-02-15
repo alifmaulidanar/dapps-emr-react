@@ -95,6 +95,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
   //   setIsChecked(!isChecked);
   // };
 
+  // Connect MetaMask to Ganache lokal
   const getSigner = useCallback(async () => {
     const win = window;
     if (!win.ethereum) {
@@ -130,6 +131,24 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
     }
   }, []);
 
+  // Connect MetaMask to Ganache VPS
+  // const getSigner = useCallback(async () => {
+  //   const win = window;
+  //   if (!win.ethereum) {
+  //     console.error("Metamask not detected");
+  //     return;
+  //   }
+
+  //   try {
+  //     await win.ethereum.request({ method: "eth_requestAccounts" });
+  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
+  //     const signer = provider.getSigner();
+  //     return signer;
+  //   } catch (error) {
+  //     console.error("Error setting up Web3Provider:", error);
+  //   }
+  // }, []);
+
   const handleFormSubmit = async (values) => {
     if (window.ethereum) {
       try {
@@ -157,7 +176,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
           patientAccountData: patientAccountData,
         };
 
-        console.log({ cid });
+        // console.log({ cid });
         // Menandatangani data menggunakan signer
         const signer = await getSigner();
         const signature = await signer.signMessage(
@@ -284,7 +303,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
             className="w-24 h-24 mb-3 rounded-full shadow-lg"
             width={96}
             height={96}
-            src={`http://127.0.0.1:8080/ipfs/${patientImage}`}
+            src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
             alt={`${patientName} image`}
           />
         ) : (

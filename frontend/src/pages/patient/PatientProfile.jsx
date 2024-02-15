@@ -1,6 +1,7 @@
 import "../../index.css";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Empty, Button } from "antd";
 import NavbarController from "../../components/Navbar/NavbarController";
 import PatientData from "../../components/PatientData";
 // import { AllPatient } from "../../data/patientData";
@@ -99,15 +100,27 @@ function PatientProfile() {
           <ProfileDropdown
             patients={patients}
             onChange={handlePatientChange}
-            defaultValue={selectedPatient?.nomorIdentitas}
+            defaultValue={selectedPatient?.nomorIdentitas || "Tidak ada pasien"}
           />
-          <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
-            {/* <PatientIdentifier {...patientIdentifierProps} /> */}
-            <PatientData
-              patientDataProps={patientDataProps}
-              patientAccountData={patientAccountData}
-            />
-          </div>
+          {patients.length > 0 ? (
+            <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
+              {/* <PatientIdentifier {...patientIdentifierProps} /> */}
+              <PatientData
+                patientDataProps={patientDataProps}
+                patientAccountData={patientAccountData}
+              />
+            </div>
+          ) : (
+            <Empty description="Tidak ada pasien">
+              <Button
+                type="primary"
+                className="text-white bg-blue-600"
+                id="add-profile-button"
+              >
+                Daftarkan Pasien Baru
+              </Button>
+            </Empty>
+          )}
         </div>
       </div>
     </>

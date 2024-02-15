@@ -19,7 +19,7 @@ export default function PatientList({
               className="w-16 h-16 rounded-full"
               width={64}
               height={64}
-              src={`http://127.0.0.1:8080/ipfs/${patientImage}`}
+              src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
               alt={`${patientName} image`}
             />
           ) : (
