@@ -6,6 +6,7 @@ import NavbarController from "../../components/Navbar/NavbarController";
 import PatientData from "../../components/PatientData";
 // import { AllPatient } from "../../data/patientData";
 import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
+import { CONN } from "../../../../enum-global";
 
 function PatientProfile() {
   const { accountAddress } = useParams();
@@ -29,7 +30,7 @@ function PatientProfile() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/patient/${capitalizedAccountAddress}/account`,
+          `${CONN.BACKEND_LOCAL}/patient/${capitalizedAccountAddress}/account`,
           {
             method: "GET",
           }

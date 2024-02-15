@@ -6,6 +6,7 @@ import { createHelia } from "helia";
 import { json } from "@helia/json";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
+import { CONN } from "../../../enum-global.js";
 
 const helia = await createHelia();
 const j = json(helia);
@@ -70,10 +71,7 @@ router.post("/:role/signup", async (req, res) => {
     }
 
     // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/",        // Ganache lokal
-      // "http://103.175.217.196:8545/"   // Ganache VPS
-    );
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
     // const signer = provider.getSigner();
     const recoveredAddress = ethers.utils.verifyMessage(

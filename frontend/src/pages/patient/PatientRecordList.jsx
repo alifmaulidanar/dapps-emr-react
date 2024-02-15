@@ -8,6 +8,7 @@ import PatientList from "../../components/PatientList";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
 import { Empty } from "antd";
 import { useParams } from "react-router-dom";
+import { CONN } from "../../../../enum-global";
 
 export default function PatientRecordList() {
   const { accountAddress } = useParams();
@@ -24,7 +25,7 @@ export default function PatientRecordList() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/patient/${capitalizedAccountAddress}/account`,
+          `${CONN.BACKEND_LOCAL}/patient/${capitalizedAccountAddress}/account`,
           {
             method: "GET",
           }

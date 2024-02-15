@@ -1,5 +1,6 @@
 import { Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { CONN } from "../../../enum-global";
 
 export default function PatientIdentifier({
   patientName,
@@ -13,7 +14,7 @@ export default function PatientIdentifier({
           className="w-24 h-24 mb-3 rounded-full shadow-lg"
           width={96}
           height={96}
-          src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
+          src={`${CONN.IPFS_LOCAL}/${patientImage}`}
           alt={`${patientName} image`}
         />
       ) : (

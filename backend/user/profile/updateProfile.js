@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
+import { CONN } from "../../../enum-global.js";
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const client = create({
@@ -89,10 +90,7 @@ router.post("/patient/update-profile", async (req, res) => {
     }
 
     // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/",        // Ganache lokal
-      // "http://103.175.217.196:8545/"   // Ganache VPS
-    );
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
@@ -132,7 +130,7 @@ router.post("/patient/update-profile", async (req, res) => {
     const cidFromBlockchain = getIpfs.cid;
 
     // Mengambil data dari IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cidFromBlockchain}`;
+    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
 
@@ -159,7 +157,7 @@ router.post("/patient/update-profile", async (req, res) => {
     await client.pin.add(updatedCid);
 
     // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
-    const newIpfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${updatedCid}`;
+    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
 

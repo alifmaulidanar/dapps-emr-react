@@ -3,6 +3,7 @@ import { DatePicker, Modal, Button, Spin } from "antd";
 import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { CONN } from "../../../../enum-global";
 
 // import Datepicker from "../Datepicker";
 // import Datepicker from "../Datepicker";
@@ -66,7 +67,7 @@ export default function RegisterPatientButton({
             name: "ETH",
             symbol: "ETH",
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: [CONN.GANACHE_LOCAL],
         },
       ]);
 
@@ -166,7 +167,7 @@ export default function RegisterPatientButton({
 
     try {
       const response = await fetch(
-        "http://localhost:3000/patient/add-profile",
+        `${CONN.BACKEND_LOCAL}/patient/add-profile`,
         {
           method: "POST",
           headers: {

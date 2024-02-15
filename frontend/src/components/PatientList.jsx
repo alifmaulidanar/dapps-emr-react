@@ -1,5 +1,6 @@
 import { Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { CONN } from "../../../enum-global";
 
 // Komponen untuk informasi pasien
 export default function PatientList({
@@ -19,7 +20,7 @@ export default function PatientList({
               className="w-16 h-16 rounded-full"
               width={64}
               height={64}
-              src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
+              src={`${CONN.IPFS_LOCAL}/${patientImage}`}
               alt={`${patientName} image`}
             />
           ) : (

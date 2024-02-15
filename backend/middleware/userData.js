@@ -2,15 +2,13 @@ import express from "express";
 import { ethers } from "ethers";
 import contractAbi from "./../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONTRACT_ADDRESS } from "../dotenvConfig.js";
+import { CONN } from "../../enum-global.js";
 
 const router = express.Router();
 router.use(express.json());
 
 const contractAddress = CONTRACT_ADDRESS.toString();
-const provider = new ethers.providers.JsonRpcProvider(
-  "http://127.0.0.1:7545/",          // Ganache lokal
-  // "http://103.175.217.196:8545/"     // Ganache VPS
-);
+const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 
 async function getUserAccountData(address) {
@@ -25,7 +23,7 @@ async function getUserAccountData(address) {
     const cid = getIpfs.cid;
 
     // Fetch data dari Dedicated Gateway IPFS Desktop untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;  // IPFS Desktop lokal
+    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
     // console.log(ipfsData);

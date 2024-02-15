@@ -4,6 +4,7 @@ import { Button, Form, Input, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import React, { useState, useCallback } from "react";
 import { ethers } from "ethers";
+import { CONN } from "../../../../enum-global";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
@@ -39,7 +40,7 @@ export default function SignUpForm({ role }) {
             name: "ETH",
             symbol: "ETH",
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: [CONN.GANACHE_LOCAL],
         },
       ]);
 
@@ -91,9 +92,9 @@ export default function SignUpForm({ role }) {
 
         let endpoint = "";
         if (roleLowerCase === "pasien") {
-          endpoint = "http://localhost:3000/patient/signup";
+          endpoint = `${CONN.BACKEND_LOCAL}/patient/signup`;
         } else if (roleLowerCase === "dokter") {
-          endpoint = "http://localhost:3000/doctor/signup";
+          endpoint = `${CONN.BACKEND_LOCAL}/doctor/signup`;
         }
 
         // Include the signature in the req.body

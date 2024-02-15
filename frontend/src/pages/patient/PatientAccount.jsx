@@ -7,6 +7,7 @@ import CopyIDButton from "../../components/Buttons/CopyIDButton";
 // import Card from "../../components/Cards/Card";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { CONN } from "../../../../enum-global";
 
 export default function PatientAccount() {
   const { accountAddress } = useParams();
@@ -22,7 +23,7 @@ export default function PatientAccount() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/patient/${capitalizedAccountAddress}/account`,
+          `${CONN.BACKEND_LOCAL}/patient/${capitalizedAccountAddress}/account`,
           {
             method: "GET",
           }

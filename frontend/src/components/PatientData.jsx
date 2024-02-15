@@ -19,6 +19,7 @@ import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { create } from "ipfs-http-client";
+import { CONN } from "../../../enum-global";
 
 // Membuat instance client IPFS
 const ipfsClient = create({
@@ -120,7 +121,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
             name: "ETH",
             symbol: "ETH",
           },
-          rpcUrls: ["http://127.0.0.1:7545"],
+          rpcUrls: [CONN.GANACHE_LOCAL],
         },
       ]);
 

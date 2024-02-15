@@ -2,12 +2,11 @@ import { ethers } from "ethers";
 import SimpleEMR_ABI from "./SimpleEMR.abi.json";
 import dotenv from "dotenv";
 dotenv.config();
+import { CONN } from "../../enum-global.js";
 
 export { SimpleEMR_ABI };
 
 export const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-export const GANACHE_RPC_URL = "http://127.0.0.1:7545"; // Ganache Lokal
-// export const GANACHE_RPC_URL = "http://103.175.217.196:8545"; // Ganache VPS
 
 export function getSimpleEMRContract(provider) {
   return new ethers.Contract(CONTRACT_ADDRESS, SimpleEMR_ABI, provider);
@@ -15,7 +14,7 @@ export function getSimpleEMRContract(provider) {
 
 export async function addPatientAccount(email, role, ipfsHash) {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const tx = await contract.addPatientAccount(email, role, ipfsHash);
     await tx.wait();
@@ -28,7 +27,7 @@ export async function addPatientAccount(email, role, ipfsHash) {
 
 export async function getPatientAccounts() {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const patientAccounts = await contract.getPatientAccounts();
     return patientAccounts;
@@ -40,7 +39,7 @@ export async function getPatientAccounts() {
 
 export async function getPatientAccountByEmail(email) {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const patientAccount = await contract.getPatientAccountByAddress(email);
     return patientAccount;
@@ -55,7 +54,7 @@ export async function getPatientAccountByEmail(email) {
 
 export async function getPatientAccountByAddress(address) {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const patientAccount = await contract.getPatientAccountByAddress(address);
     return patientAccount;
@@ -70,7 +69,7 @@ export async function getPatientAccountByAddress(address) {
 
 export async function getNumberOfPatients() {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const numberOfPatients = await contract.getNumberOfPatients();
     return numberOfPatients.toNumber();
@@ -82,7 +81,7 @@ export async function getNumberOfPatients() {
 
 export async function addIpfs(cid) {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const tx = await contract.addIpfs(cid);
     await tx.wait();
@@ -95,7 +94,7 @@ export async function addIpfs(cid) {
 
 export async function getIpfs() {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const ipfsRecords = await contract.getIpfs();
     return ipfsRecords;
@@ -107,7 +106,7 @@ export async function getIpfs() {
 
 export async function getIpfsByAddress(address) {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const ipfs = await contract.getIpfsByAddress(address);
     return ipfs;
@@ -119,7 +118,7 @@ export async function getIpfsByAddress(address) {
 
 export async function getNumberOfIpfs() {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(GANACHE_RPC_URL);
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = getSimpleEMRContract(provider);
     const numberOfIpfs = await contract.getNumberOfIpfs();
     return numberOfIpfs.toNumber();
