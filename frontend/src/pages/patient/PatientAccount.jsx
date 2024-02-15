@@ -150,7 +150,7 @@ export default function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
                   id="change-username-button"
-                  type="default"
+                  type="primary"
                   className="text-white bg-blue-600"
                 >
                   Ganti Nama Pengguna
@@ -198,7 +198,7 @@ export default function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
                   id="change-email-button"
-                  type="default"
+                  type="primary"
                   className="text-white bg-blue-600"
                 >
                   Ganti Email
@@ -249,7 +249,7 @@ export default function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
                   id="change-phone-button"
-                  type="default"
+                  type="primary"
                   className="text-white bg-blue-600"
                 >
                   Ganti Nomor Telepon
@@ -341,7 +341,7 @@ export default function PatientAccount() {
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
                   id="change-password-button"
-                  type="default"
+                  type="primary"
                   className="text-white bg-blue-600"
                 >
                   Konfirmasi

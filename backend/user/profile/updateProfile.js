@@ -158,9 +158,10 @@ router.post("/patient/update-profile", async (req, res) => {
     const updatedResult = await client.add(JSON.stringify(ipfsData));
     const updatedCid = updatedResult.cid.toString();
     await client.pin.add(updatedCid);
+    console.log({ updatedCid });
 
     // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
-    const newIpfsGatewayUrl = `http://127.0.0.1:8080/ipfs/${updatedCid}`;
+    const newIpfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${updatedCid}`;
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
 

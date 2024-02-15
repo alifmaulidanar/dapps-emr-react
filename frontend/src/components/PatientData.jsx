@@ -103,29 +103,9 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
     }
 
     try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
+      await win.ethereum.request({ method: "eth_requestAccounts" });
       const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: ["http://103.175.217.196:8545"],
-        },
-      ]);
-
-      console.log("Connected to Ganache VPS");
-
-      const signer = provider.getSigner(selectedAccount);
+      const signer = provider.getSigner();
       return signer;
     } catch (error) {
       console.error("Error setting up Web3Provider:", error);
@@ -159,7 +139,7 @@ export default function PatientData({ patientDataProps, patientAccountData }) {
           patientAccountData: patientAccountData,
         };
 
-        console.log({ cid });
+        // console.log({ cid });
         // Menandatangani data menggunakan signer
         const signer = await getSigner();
         const signature = await signer.signMessage(

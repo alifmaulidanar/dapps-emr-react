@@ -71,7 +71,8 @@ router.post("/:role/signup", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://103.175.217.196:8545/"
+      // "https://ganache-vps-dnr1145.loca.lt"
+      "http://103.175.217.196:8545"
     );
 
     // const signer = provider.getSigner();
@@ -168,12 +169,12 @@ router.post("/:role/signup", async (req, res) => {
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `${role} Registration Successful`,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-      },
+      // account: {
+      //   accountAddress: getAccount.accountAddress,
+      //   email: getAccount.email,
+      //   role: getAccount.role,
+      //   ipfsHash: getAccount.ipfsHash,
+      // },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
