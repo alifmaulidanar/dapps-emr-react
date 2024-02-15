@@ -7,9 +7,9 @@ const router = express.Router();
 router.use(express.json());
 
 const contractAddress = CONTRACT_ADDRESS.toString();
-const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:7545/"); // Ganache lokal
-const provider = new ethers.providers.JsonRpcProvider(                           // Ganache VPS
-  "http://103.175.217.196:8545/"
+const provider = new ethers.providers.JsonRpcProvider(
+  "http://127.0.0.1:7545/",          // Ganache lokal
+  // "http://103.175.217.196:8545/"     // Ganache VPS
 );
 const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 
