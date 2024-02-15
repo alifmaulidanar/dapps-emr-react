@@ -90,7 +90,8 @@ router.post("/patient/update-profile", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://103.175.217.196:8545/"
+      "http://127.0.0.1:7545/",        // Ganache lokal
+      // "http://103.175.217.196:8545/"   // Ganache VPS
     );
 
     const recoveredAddress = ethers.utils.verifyMessage(
@@ -110,8 +111,6 @@ router.post("/patient/update-profile", async (req, res) => {
     const accountAddress = accounts.find(
       (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
     );
-
-    console.log({ accountAddress });
 
     if (!accountAddress) {
       return res.status(400).json({ error: "Account not found" });
@@ -158,7 +157,6 @@ router.post("/patient/update-profile", async (req, res) => {
     const updatedResult = await client.add(JSON.stringify(ipfsData));
     const updatedCid = updatedResult.cid.toString();
     await client.pin.add(updatedCid);
-    console.log({ updatedCid });
 
     // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
     const newIpfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${updatedCid}`;
