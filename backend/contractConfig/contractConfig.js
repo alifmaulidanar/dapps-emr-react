@@ -7,7 +7,7 @@ export { SimpleEMR_ABI };
 
 export const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS; // Ganti dengan alamat smart contract Anda
 export const GANACHE_RPC_URL = "http://103.175.217.196:8545"; // Ganache VPS
-// export const GANACHE_RPC_URL = "http://127.0.0.1:8545"; // Ganache Lokal
+// export const GANACHE_RPC_URL = "http://127.0.0.1:7545"; // Ganache Lokal
 
 export function getSimpleEMRContract(provider) {
   return new ethers.Contract(CONTRACT_ADDRESS, SimpleEMR_ABI, provider);
