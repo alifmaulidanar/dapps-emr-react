@@ -8,8 +8,8 @@ router.use(express.json());
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const provider = new ethers.providers.JsonRpcProvider(
-  "http://127.0.0.1:7545/",          // Ganache lokal
-  // "http://103.175.217.196:8545/"     // Ganache VPS
+  // "http://127.0.0.1:7545/",          // Ganache lokal
+  "http://103.175.217.196:8545/" // Ganache VPS
 );
 const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 
@@ -25,7 +25,7 @@ async function getUserAccountData(address) {
     const cid = getIpfs.cid;
 
     // Fetch data dari Dedicated Gateway IPFS Desktop untuk mengakses data di IPFS
-    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;  // IPFS Desktop lokal
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`; // IPFS Desktop lokal
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
     // console.log(ipfsData);

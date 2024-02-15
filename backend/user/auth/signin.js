@@ -32,8 +32,8 @@ router.post("/:role/signin", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(
-      "http://127.0.0.1:7545/",        // Ganache lokal
-      // "http://103.175.217.196:8545/"   // Ganache VPS
+      // "http://127.0.0.1:7545/",        // Ganache lokal
+      "http://103.175.217.196:8545/" // Ganache VPS
     );
 
     // const signer = provider.getSigner();
@@ -78,7 +78,7 @@ router.post("/:role/signin", async (req, res) => {
     const cid = getIpfs.cid;
 
     // Fetch data dari IPFS Desktop
-    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`;    // IPFS Desktop lokal
+    const ipfsGatewayUrl = `http://127.0.0.1:8081/ipfs/${cid}`; // IPFS Desktop lokal
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 

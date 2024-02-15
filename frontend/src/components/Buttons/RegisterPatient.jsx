@@ -42,42 +42,6 @@ export default function RegisterPatientButton({
   // );
 
   // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: ["http://127.0.0.1:7545"],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
-
-  // Connect MetaMask to Ganache VPS
   // const getSigner = useCallback(async () => {
   //   const win = window;
   //   if (!win.ethereum) {
@@ -86,14 +50,50 @@ export default function RegisterPatientButton({
   //   }
 
   //   try {
-  //     await win.ethereum.request({ method: "eth_requestAccounts" });
+  //     const accounts = await win.ethereum.request({
+  //       method: "eth_requestAccounts",
+  //     });
+  //     const selectedAccount = accounts[0];
+  //     setSelectedAccount(selectedAccount);
+  //     console.log(selectedAccount);
+
   //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     const signer = provider.getSigner();
+  //     await provider.send("wallet_addEthereumChain", [
+  //       {
+  //         chainId: "0x539",
+  //         chainName: "Ganache",
+  //         nativeCurrency: {
+  //           name: "ETH",
+  //           symbol: "ETH",
+  //         },
+  //         rpcUrls: ["http://127.0.0.1:7545"],
+  //       },
+  //     ]);
+
+  //     const signer = provider.getSigner(selectedAccount);
   //     return signer;
   //   } catch (error) {
   //     console.error("Error setting up Web3Provider:", error);
   //   }
   // }, []);
+
+  // Connect MetaMask to Ganache VPS
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      await win.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      const signer = provider.getSigner();
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
 
   const [patientData, setPatientData] = useState({
     namaLengkap: "",
