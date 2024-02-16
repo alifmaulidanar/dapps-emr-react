@@ -30,6 +30,10 @@ contract SimpleEMR {
     uint private userAccountCounter = 1;
     uint private ipfsAccountCounter = 1;
 
+    // Fungsi addUserAccount tidak bisa digunakan untuk update email di blockchain karena masih dapat mengakses akun melalui email lama
+    // Solusinya, buat fungsi baru untuk memperbarui email sekaligus tambahkan field isActive = true
+    // sebelum membuat menyimpan akun user dengan email baru tersebut, simpan dulu akun email user lama dengan isActive = false
+    // Pada setiap pengambilan data dari blockchain harus validasi isActive = true
     function addUserAccount(
         string memory _email,
         string memory _role,

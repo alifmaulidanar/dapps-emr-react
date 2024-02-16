@@ -1,74 +1,24 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { Button, Form, Input, Spin } from "antd";
+import "./../../index.css";
+import { Button } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import NavbarController from "../../components/Navbar/NavbarController";
+// import PatientRecordDisplay from "../../components/PatientRecordData";
 import CopyIDButton from "../../components/Buttons/CopyIDButton";
-import { ethers } from "ethers";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
-import { create } from "ipfs-http-client";
+// import Card from "../../components/Cards/Card";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { CONN } from "../../../../enum-global";
 
 export default function PatientAccount() {
-  const [form] = Form.useForm();
   const { accountAddress } = useParams();
-  const [initialData, setInitialData] = useState({});
-  const [spinning, setSpinning] = React.useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [patientAccountData, setPatientAccountData] = useState({});
-  const [isEditing, setIsEditing] = useState({
-    username: false,
-    email: false,
-    phone: false,
-    password: false,
-  });
-
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
+  const [patientAccountData, setPatientAccountData] = useState(null);
 
   useEffect(() => {
     const capitalizedAccountAddress =
       accountAddress.charAt(0) +
       accountAddress.charAt(1) +
       accountAddress.substring(2).toUpperCase();
+    console.log({ capitalizedAccountAddress });
 
     const fetchData = async () => {
       try {
@@ -79,103 +29,39 @@ export default function PatientAccount() {
           }
         );
         const data = await response.json();
-        const { accountUsername, accountEmail, accountPhone } = data.ipfs.data;
-        const formattedData = {
-          address: accountAddress,
-          username: accountUsername,
-          email: accountEmail,
-          phone: accountPhone,
-        };
-        setInitialData(formattedData);
-        form.setFieldsValue(formattedData);
         setPatientAccountData(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }
     };
 
     fetchData();
-  }, [accountAddress, form]);
+  }, [accountAddress]);
 
-  console.log({ initialData });
+  // const patientListProps =
+  //   patientAccountData && patientAccountData.ipfs.data.accountProfiles > 0
+  //     ? patientAccountData.accountProfiles.map((patient) => ({
+  //         patientName: patient.patientName,
+  //         patientImage: patient.patientImage,
+  //         patientAddress: patient.patientAddress,
+  //         patientRecords: patient.patientRecords,
+  //       }))
+  //     : [];
 
-  const handleEditClick = (field) => {
-    setIsEditing({ ...isEditing, [field]: true });
-  };
-
-  const handleCancelClick = (field) => {
-    setIsEditing({ ...isEditing, [field]: false });
-    form.setFieldsValue({ [field]: initialData[field] });
-  };
-
-  const handleSaveClick = async (field) => {
-    showLoader();
-    if (window.ethereum) {
-      try {
-        const value = await form.getFieldValue(field);
-        const dataToSign = JSON.stringify({
-          field,
-          value,
-        });
-
-        const signer = await getSigner();
-        const signature = await signer.signMessage(dataToSign);
-        const updatedData = {
-          field,
-          value,
-          signature,
-        };
-
-        console.log({ updatedData });
-
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/patient/update-${field}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedData),
-          }
-        );
-
-        const responseData = await response.json();
-
-        if (response.ok) {
-          console.log({ responseData });
-          setSpinning(false);
-          Swal.fire({
-            icon: "success",
-            title: "Profil Pasien Berhasil Diperbarui!",
-            text: "Periksa kembali informasi profil Anda.",
-          }).then(() => {
-            window.location.reload();
-          });
-        } else {
-          console.log(responseData.error, responseData.message);
-          setSpinning(false);
-          Swal.fire({
-            icon: "error",
-            title: "Pembaruan Profil Pasien Gagal",
-            text: responseData.error,
-          });
-        }
-      } catch (error) {
-        console.error("Terjadi kesalahan:", error);
-        setSpinning(false);
-        Swal.fire({
-          icon: "error",
-          title: "Terjadi kesalahan saat melakukan pembaruan profil",
-          text: error,
-        });
+  const accountData = patientAccountData
+    ? {
+        accountAddress: patientAccountData.account.accountAddress,
+        accountUsername: patientAccountData.ipfs.data.accountUsername,
+        accountEmail: patientAccountData.ipfs.data.accountEmail,
+        accountPhone: patientAccountData.ipfs.data.accountPhone,
       }
-    }
-    setIsEditing({ ...isEditing, [field]: false });
-  };
-
-  // Placeholder function for logout action
-  const handleLogout = () => {
-    console.log("Logging out...");
-    // Implement your logout logic here, such as clearing user session or token
-  };
+    : {
+        accountAddress: "",
+        accountUsername: "",
+        accountEmail: "",
+        accountPhone: "",
+      };
 
   return (
     <>
@@ -187,11 +73,7 @@ export default function PatientAccount() {
       />
       <div className="grid justify-center w-9/12 min-h-screen grid-cols-7 px-4 py-24 mx-auto">
         <div className="col-span-3 col-start-3">
-          <Form
-            form={form}
-            layout="vertical"
-            className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit"
-          >
+          <div className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit">
             {/* ID Pengguna */}
             <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
@@ -220,17 +102,16 @@ export default function PatientAccount() {
                     Alamat akun <span className="italic">e-wallet</span> Anda.
                   </p>
                 </div>
-                <Form.Item name="address">
-                  <div className="flex items-center gap-x-2">
-                    <Input
-                      id="accountAddress"
-                      className="flex-1 bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                      disabled
-                      value={accountAddress}
-                    />
-                    <CopyIDButton textToCopy={accountAddress} />
-                  </div>
-                </Form.Item>
+                <div className="flex items-center flex-nowrap gap-x-4">
+                  <input
+                    type="text"
+                    id="accountAddress"
+                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    value={accountData.accountAddress}
+                    disabled
+                  />
+                  <CopyIDButton textToCopy={accountAddress} />
+                </div>
               </div>
             </div>
 
@@ -257,40 +138,24 @@ export default function PatientAccount() {
                   </div>
                   <p className="my-2 text-md">Nama pengguna akun Anda.</p>
                 </div>
-                <Form.Item name="username">
-                  <Input
+                <div>
+                  <input
+                    type="text"
                     id="username"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.username}
+                    value={accountData.accountUsername}
+                    disabled
                   />
-                </Form.Item>
+                </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.username ? (
-                  <div className="flex gap-x-4">
-                    <Button
-                      danger
-                      onClick={() => handleCancelClick("username")}
-                    >
-                      Batal
-                    </Button>
-                    <Button
-                      type="default"
-                      onClick={() => handleSaveClick("username")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    id="change-username-button"
-                    type="default"
-                    className="text-white bg-blue-600"
-                    onClick={() => handleEditClick("username")}
-                  >
-                    Ganti Nama Pengguna
-                  </Button>
-                )}
+                <Button
+                  id="change-username-button"
+                  type="primary"
+                  className="text-white bg-blue-600"
+                >
+                  Ganti Nama Pengguna
+                </Button>
               </div>
             </div>
 
@@ -321,37 +186,24 @@ export default function PatientAccount() {
                     </p>
                   </div>
                 </div>
-                <Form.Item name="email">
-                  <Input
-                    id="userEmail"
+                <div>
+                  <input
+                    type="email"
+                    id="email"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.email}
+                    value={accountData.accountEmail}
+                    disabled
                   />
-                </Form.Item>
+                </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.email ? (
-                  <div className="flex gap-x-4">
-                    <Button danger onClick={() => handleCancelClick("email")}>
-                      Batal
-                    </Button>
-                    <Button
-                      type="default"
-                      onClick={() => handleSaveClick("email")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    id="change-email-button"
-                    type="default"
-                    className="text-white bg-blue-600"
-                    onClick={() => handleEditClick("email")}
-                  >
-                    Ganti Email
-                  </Button>
-                )}
+                <Button
+                  id="change-email-button"
+                  type="primary"
+                  className="text-white bg-blue-600"
+                >
+                  Ganti Email
+                </Button>
               </div>
             </div>
 
@@ -385,37 +237,24 @@ export default function PatientAccount() {
                     </p>
                   </div>
                 </div>
-                <Form.Item name="phone">
-                  <Input
-                    id="userPhone"
+                <div>
+                  <input
+                    type="tel"
+                    id="phone"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.phone}
+                    value={accountData.accountPhone}
+                    disabled
                   />
-                </Form.Item>
+                </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.phone ? (
-                  <div className="flex gap-x-4">
-                    <Button danger onClick={() => handleCancelClick("phone")}>
-                      Batal
-                    </Button>
-                    <Button
-                      type="default"
-                      onClick={() => handleSaveClick("phone")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    id="change-phone-button"
-                    type="default"
-                    className="text-white bg-blue-600"
-                    onClick={() => handleEditClick("phone")}
-                  >
-                    Ganti Nomor Telepon
-                  </Button>
-                )}
+                <Button
+                  id="change-phone-button"
+                  type="primary"
+                  className="text-white bg-blue-600"
+                >
+                  Ganti Nomor Telepon
+                </Button>
               </div>
             </div>
 
@@ -446,36 +285,45 @@ export default function PatientAccount() {
                     </p>
                   </div>
                 </div>
-                <Form.Item
-                  name="oldPass"
-                  label="Kata Sandi Lama"
-                  className="mb-6"
-                >
-                  <Input.Password
+                <div className="mb-6">
+                  <label
+                    htmlFor="userOldPass"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Kata Sandi Lama
+                  </label>
+                  <input
+                    type="password"
                     id="userOldPass"
-                    placeholder="input password"
+                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   />
-                </Form.Item>
-                <Form.Item
-                  name="newPass"
-                  label="Kata Sandi Baru"
-                  className="mb-6"
-                >
-                  <Input.Password
+                </div>
+                <div className="mb-6">
+                  <label
+                    htmlFor="userNewPass"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Kata Sandi Baru
+                  </label>
+                  <input
+                    type="password"
                     id="userNewPass"
-                    placeholder="input password"
+                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   />
-                </Form.Item>
-                <Form.Item
-                  name="confirmPass"
-                  label="Konfirmasi Kata Sandi Baru"
-                  className="mb-6"
-                >
-                  <Input.Password
+                </div>
+                <div>
+                  <label
+                    htmlFor="confirmPass"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Konfirmasi Kata Sandi Baru
+                  </label>
+                  <input
+                    type="pass"
                     id="confirmPass"
-                    placeholder="input password"
+                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   />
-                </Form.Item>
+                </div>
                 <div className="flex items-center mt-4">
                   <input
                     id="showPassCheckBox"
@@ -543,8 +391,7 @@ export default function PatientAccount() {
                 </Button>
               </div>
             </div>
-            <Spin spinning={spinning} fullscreen />
-          </Form>
+          </div>
         </div>
       </div>
     </>

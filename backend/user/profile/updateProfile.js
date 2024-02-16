@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-// Import dependencies
 import Joi from "joi";
 import express from "express";
 import { ethers } from "ethers";
@@ -156,7 +155,7 @@ router.post("/patient/update-profile", async (req, res) => {
     const updatedCid = updatedResult.cid.toString();
     await client.pin.add(updatedCid);
 
-    // Fetch data dari IPFS Desktop untuk mengakses data di IPFS
+    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
     const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
