@@ -97,8 +97,6 @@ export default function PatientAccount() {
     fetchData();
   }, [accountAddress, form]);
 
-  console.log({ initialData });
-
   const handleEditClick = (field) => {
     setIsEditing({ ...isEditing, [field]: true });
   };
@@ -171,10 +169,79 @@ export default function PatientAccount() {
     setIsEditing({ ...isEditing, [field]: false });
   };
 
-  // Placeholder function for logout action
+  const handleChangePassword = async () => {
+    const oldPassword = await form.getFieldValue("oldPass");
+    const newPassword = await form.getFieldValue("newPass");
+    const confirmPassword = await form.getFieldValue("confirmPass");
+
+    if (newPassword !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Kata Sandi Tidak Cocok",
+        text: "Kata sandi baru dan konfirmasi kata sandi harus sama!",
+      });
+      return;
+    }
+
+    showLoader();
+    try {
+      const dataToSign = JSON.stringify({
+        oldPassword,
+        newPassword,
+      });
+
+      const signer = await getSigner();
+      const signature = await signer.signMessage(dataToSign);
+
+      const updatedData = {
+        oldPassword,
+        newPassword,
+        signature,
+      };
+
+      const response = await fetch(
+        `${CONN.BACKEND_LOCAL}/patient/update-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setSpinning(false);
+        Swal.fire({
+          icon: "success",
+          title: "Kata Sandi Berhasil Diperbarui!",
+          text: "Kata sandi Anda telah berhasil diperbarui.",
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Memperbarui Kata Sandi",
+          text:
+            responseData.error ||
+            "Terjadi kesalahan saat memperbarui kata sandi.",
+        });
+      }
+    } catch (error) {
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: error.toString(),
+      });
+      console.error("Terjadi kesalahan:", error);
+    }
+  };
+
   const handleLogout = () => {
     console.log("Logging out...");
-    // Implement your logout logic here, such as clearing user session or token
   };
 
   return (
@@ -450,6 +517,7 @@ export default function PatientAccount() {
                   name="oldPass"
                   label="Kata Sandi Lama"
                   className="mb-6"
+                  required
                 >
                   <Input.Password
                     id="userOldPass"
@@ -460,42 +528,32 @@ export default function PatientAccount() {
                   name="newPass"
                   label="Kata Sandi Baru"
                   className="mb-6"
+                  required
                 >
                   <Input.Password
                     id="userNewPass"
                     placeholder="input password"
+                    required
                   />
                 </Form.Item>
                 <Form.Item
                   name="confirmPass"
                   label="Konfirmasi Kata Sandi Baru"
                   className="mb-6"
+                  required
                 >
                   <Input.Password
                     id="confirmPass"
                     placeholder="input password"
                   />
                 </Form.Item>
-                <div className="flex items-center mt-4">
-                  <input
-                    id="showPassCheckBox"
-                    type="checkbox"
-                    defaultValue=""
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="showPassCheckBox"
-                    className="ml-2 text-sm font-medium text-gray-900"
-                  >
-                    Tampilkan kata sandi
-                  </label>
-                </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
                   id="change-password-button"
                   type="primary"
                   className="text-white bg-blue-600"
+                  onClick={handleChangePassword}
                 >
                   Konfirmasi
                 </Button>
