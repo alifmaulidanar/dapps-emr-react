@@ -5,6 +5,11 @@ contract SimpleEMR {
     event PatientAccountAdded(address indexed userAddress, string email);
     event DoctorAccountAdded(address indexed userAddress, string email);
     event IpfsAccountAdded(address indexed ipfsAddress, string cid);
+    event EmailUpdated(
+        address indexed userAddress,
+        string email,
+        string newEmail
+    );
 
     struct UserAccount {
         uint id;
@@ -12,6 +17,7 @@ contract SimpleEMR {
         string email;
         string role;
         address ipfsHash;
+        bool isActive;
     }
 
     struct IpfsAccount {
@@ -44,7 +50,8 @@ contract SimpleEMR {
             msg.sender,
             _email,
             _role,
-            _ipfsHash
+            _ipfsHash,
+            true
         );
         userAccounts.push(newUserAccount);
         userAccountsMap[msg.sender] = newUserAccount;
@@ -57,6 +64,24 @@ contract SimpleEMR {
         } else if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
             emit DoctorAccountAdded(msg.sender, _email);
         }
+    }
+
+    function updateUserEmail(string memory _newEmail) public {
+        UserAccount storage userAccount = userAccountsMap[msg.sender];
+        require(userAccount.accountAddress != address(0), "Account not found");
+        require(userAccount.isActive, "Account is not active");
+        require(
+            emailToAddressMap[_newEmail] == address(0),
+            "Email is already in use"
+        );
+
+        // Deactivate current account & delete email mapping
+        userAccount.isActive = false;
+        delete emailToAddressMap[userAccount.email];
+
+        addUserAccount(_newEmail, userAccount.role, userAccount.ipfsHash);
+        emailToAddressMap[_newEmail] = msg.sender;
+        emit EmailUpdated(msg.sender, userAccount.email, _newEmail);
     }
 
     function addIpfsAccount(string memory _cid) public {
@@ -140,33 +165,17 @@ contract SimpleEMR {
         string memory _email
     ) public view returns (UserAccount memory) {
         address userAddress = emailToAddressMap[_email];
-        if (userAddress == address(0)) {
-            return
-                UserAccount({
-                    id: 0,
-                    accountAddress: address(0),
-                    email: "",
-                    role: "",
-                    ipfsHash: address(0)
-                });
-        }
-        return userAccountsMap[userAddress];
+        UserAccount memory account = userAccountsMap[userAddress];
+        // require(account.isActive, "Account is not active or does not exist");
+        return account;
     }
 
     function getUserAccountByAddress(
         address _address
     ) public view returns (UserAccount memory) {
         UserAccount memory account = userAccountsMap[_address];
-        if (account.accountAddress == address(0)) {
-            return
-                UserAccount({
-                    id: 0,
-                    accountAddress: address(0),
-                    email: "",
-                    role: "",
-                    ipfsHash: address(0)
-                });
-        }
+        // require(account.accountAddress != address(0), "Account does not exist");
+        // require(account.isActive, "Account is not active");
         return account;
     }
 
