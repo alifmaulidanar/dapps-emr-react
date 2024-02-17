@@ -18,11 +18,10 @@ function NavbarController({ type, page, color, accountAddress }) {
 
     buttons = [
       {
-        id: "contact-us-button",
         text: "Hubungi Kami",
         href: "/contact",
         className:
-          "text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-4 text-center mr-3 md:mr-0",
+          "blue-button text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-4 text-center mr-3 md:mr-0",
       },
     ];
   } else if (type === 2) {
@@ -46,10 +45,9 @@ function NavbarController({ type, page, color, accountAddress }) {
 
     buttons = [
       {
-        id: "account-info-button",
         text: "Informasi Akun",
         href: `/patient/${id}/account`,
-        className: `${
+        className: `blue-button ${
           page === "Akun Pasien"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`

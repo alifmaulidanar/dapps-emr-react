@@ -7,7 +7,7 @@ import CopyIDButton from "../../components/Buttons/CopyIDButton";
 import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { create } from "ipfs-http-client";
+// import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 
 export default function PatientAccount() {
@@ -111,11 +111,36 @@ export default function PatientAccount() {
     if (window.ethereum) {
       try {
         const value = await form.getFieldValue(field);
+
+        let errorMessage;
+        if (!value.trim()) {
+          switch (field) {
+            case "username":
+              errorMessage = "Nama pengguna tidak boleh kosong";
+              break;
+            case "email":
+              errorMessage = "Email tidak boleh kosong";
+              break;
+            case "phone":
+              errorMessage = "Nomor telepon tidak boleh kosong";
+              break;
+            default:
+              errorMessage = "Field tidak boleh kosong";
+          }
+
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Pembaruan Gagal",
+            text: errorMessage,
+          });
+          return;
+        }
+
         const dataToSign = JSON.stringify({
           field,
           value,
         });
-
         const signer = await getSigner();
         const signature = await signer.signMessage(dataToSign);
         const updatedData = {
@@ -154,6 +179,8 @@ export default function PatientAccount() {
             icon: "error",
             title: "Pembaruan Profil Pasien Gagal",
             text: responseData.error,
+          }).then(() => {
+            window.location.reload();
           });
         }
       } catch (error) {
@@ -174,6 +201,15 @@ export default function PatientAccount() {
     const newPassword = await form.getFieldValue("newPass");
     const confirmPassword = await form.getFieldValue("confirmPass");
 
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Kesalahan Input",
+        text: "Tidak boleh ada kolom yang kosong",
+      });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       Swal.fire({
         icon: "error",
@@ -188,6 +224,7 @@ export default function PatientAccount() {
       const dataToSign = JSON.stringify({
         oldPassword,
         newPassword,
+        confirmPassword,
       });
 
       const signer = await getSigner();
@@ -196,6 +233,7 @@ export default function PatientAccount() {
       const updatedData = {
         oldPassword,
         newPassword,
+        confirmPassword,
         signature,
       };
 
@@ -342,7 +380,8 @@ export default function PatientAccount() {
                       Batal
                     </Button>
                     <Button
-                      type="default"
+                      type="primary"
+                      ghost
                       onClick={() => handleSaveClick("username")}
                     >
                       Simpan
@@ -350,9 +389,8 @@ export default function PatientAccount() {
                   </div>
                 ) : (
                   <Button
-                    id="change-username-button"
-                    type="default"
-                    className="text-white bg-blue-600"
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
                     onClick={() => handleEditClick("username")}
                   >
                     Ganti Nama Pengguna
@@ -403,7 +441,8 @@ export default function PatientAccount() {
                       Batal
                     </Button>
                     <Button
-                      type="default"
+                      type="primary"
+                      ghost
                       onClick={() => handleSaveClick("email")}
                     >
                       Simpan
@@ -411,9 +450,8 @@ export default function PatientAccount() {
                   </div>
                 ) : (
                   <Button
-                    id="change-email-button"
-                    type="default"
-                    className="text-white bg-blue-600"
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
                     onClick={() => handleEditClick("email")}
                   >
                     Ganti Email
@@ -467,7 +505,8 @@ export default function PatientAccount() {
                       Batal
                     </Button>
                     <Button
-                      type="default"
+                      type="primary"
+                      ghost
                       onClick={() => handleSaveClick("phone")}
                     >
                       Simpan
@@ -475,9 +514,8 @@ export default function PatientAccount() {
                   </div>
                 ) : (
                   <Button
-                    id="change-phone-button"
-                    type="default"
-                    className="text-white bg-blue-600"
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
                     onClick={() => handleEditClick("phone")}
                   >
                     Ganti Nomor Telepon
@@ -517,7 +555,6 @@ export default function PatientAccount() {
                   name="oldPass"
                   label="Kata Sandi Lama"
                   className="mb-6"
-                  required
                 >
                   <Input.Password
                     id="userOldPass"
@@ -528,19 +565,16 @@ export default function PatientAccount() {
                   name="newPass"
                   label="Kata Sandi Baru"
                   className="mb-6"
-                  required
                 >
                   <Input.Password
                     id="userNewPass"
                     placeholder="input password"
-                    required
                   />
                 </Form.Item>
                 <Form.Item
                   name="confirmPass"
                   label="Konfirmasi Kata Sandi Baru"
                   className="mb-6"
-                  required
                 >
                   <Input.Password
                     id="confirmPass"
@@ -550,9 +584,8 @@ export default function PatientAccount() {
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
                 <Button
-                  id="change-password-button"
                   type="primary"
-                  className="text-white bg-blue-600"
+                  className="text-white bg-blue-600 blue-button"
                   onClick={handleChangePassword}
                 >
                   Konfirmasi
@@ -594,7 +627,7 @@ export default function PatientAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <Button type="primary" danger>
+                <Button type="primary" danger className="red-button">
                   <div className="flex gap-x-2">
                     Keluar <LogoutOutlined />
                   </div>

@@ -115,8 +115,7 @@ function PatientProfile() {
             <Empty description="Tidak ada pasien">
               <Button
                 type="primary"
-                className="text-white bg-blue-600"
-                id="add-profile-button"
+                className="text-white bg-blue-600 blue-button"
               >
                 Daftarkan Pasien Baru
               </Button>

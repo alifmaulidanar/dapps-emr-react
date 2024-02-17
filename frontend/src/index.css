@@ -2,19 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-#to-daftar-baru:hover,
-#account-info-button:hover,
-#change-username-button:hover,
-#change-email-button:hover,
-#change-phone-button:hover,
-#change-password-button:hover,
-#add-profile-button:hover {
+.blue-button:hover {
   color: white;
   background-color: rgb(29 78 216) !important;
 }
 
-#to-lupa-password:hover {
-  color: white;
+#to-lupa-password:hover .red-button:hover {
+  color: white !important;
   background-color: rgb(200 30 30) !important;
 }
 

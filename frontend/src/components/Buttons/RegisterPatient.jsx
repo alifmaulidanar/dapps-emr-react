@@ -144,6 +144,7 @@ export default function RegisterPatientButton({
   const [tanggalLahirKerabat, setTanggalLahirKerabat] = useState(null);
 
   const handleSubmit = async (event) => {
+    showLoader();
     event.preventDefault();
     const formattedPatientData = {
       ...patientData,
@@ -213,8 +214,7 @@ export default function RegisterPatientButton({
     <>
       <Button
         onClick={showModal}
-        className="text-white bg-blue-600"
-        id="add-profile-button"
+        className="text-white bg-blue-600 blue-button"
       >
         {buttonText}
       </Button>
@@ -1203,7 +1203,6 @@ export default function RegisterPatientButton({
               type="button"
               htmlType="submit"
               className="px-5 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 w-fit sm:w-auto"
-              onClick={showLoader}
             >
               Simpan Data Pasien
             </Button>

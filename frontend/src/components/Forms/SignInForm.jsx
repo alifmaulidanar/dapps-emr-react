@@ -71,9 +71,20 @@ export default function SignInForm({ role, resetLink, signupLink }) {
 
   // Lakukan validasi formulir
   const handleSubmit = async (values) => {
+    showLoader();
     if (window.ethereum) {
       try {
         const roleLowerCase = role.toLowerCase();
+
+        if (!values) {
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Email dan password harus diisi!",
+          });
+          return;
+        }
 
         // Buat objek data pasien dari formulir
         const newPatient = {
@@ -237,11 +248,9 @@ export default function SignInForm({ role, resetLink, signupLink }) {
           </div>
           <div className="text-right">
             <Button
-              size="large"
               type="primary"
               htmlType="submit"
-              className="px-12 text-sm text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
-              onClick={showLoader}
+              className="px-6 mr-3 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
             >
               Masuk
             </Button>
@@ -251,7 +260,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
         <div className="flex items-center mt-8 text-center justify-evenly">
           <div>
             <a href={resetLink}>
-              <Button id="to-lupa-password" size="large" danger>
+              <Button type="primary" danger className="font-medium red-button">
                 Lupa Password
               </Button>
             </a>
@@ -261,7 +270,10 @@ export default function SignInForm({ role, resetLink, signupLink }) {
           </div>
           <div>
             <a href={signupLink}>
-              <Button id="to-daftar-baru" size="large" type="primary" ghost>
+              <Button
+                type="primary"
+                className="px-6 mr-3 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
+              >
                 Daftar Baru
               </Button>
             </a>
