@@ -112,6 +112,8 @@ router.post("/:role/signin", async (req, res) => {
         accountAddress: ipfsData.accountAddress,
         email: ipfsData.accountEmail,
         role: ipfsData.accountRole,
+        ipfsHash: getAccountByEmail.ipfsHash,
+        isActive: getAccountByEmail.isActive,
       },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,

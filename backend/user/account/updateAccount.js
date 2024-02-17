@@ -202,11 +202,7 @@ router.post("/patient/update-email", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
     // Update user account di blockchain
-    const updateAccountTX = await contract.addUserAccount(
-      value,
-      ipfsData.accountRole,
-      getUpdatedIpfs.ipfsAddress
-    );
+    const updateAccountTX = await contract.updateUserEmail(value);
     await updateAccountTX.wait();
     const getUpdatedAccount = await contract.getUserAccountByAddress(
       accountAddress
@@ -356,11 +352,14 @@ router.post("/patient/update-phone", async (req, res) => {
 // Endpoint untuk memperbarui kata sandi
 router.post("/patient/update-password", async (req, res) => {
   try {
-    const { oldPassword, newPassword, signature } = req.body;
+    const { oldPassword, newPassword, confirmPassword, signature } = req.body;
 
     const { error } = Joi.object({
       oldPassword: Joi.string().required(),
-      newPassword: Joi.string().required(),
+      newPassword: Joi.string()
+        .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"))
+        .required(),
+      confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
       signature: Joi.string().required(),
     }).validate({ oldPassword, newPassword, signature });
 

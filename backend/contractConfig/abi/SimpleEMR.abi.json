@@ -24,6 +24,31 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newEmail",
+        "type": "string"
+      }
+    ],
+    "name": "EmailUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "ipfsAddress",
         "type": "address"
       },
@@ -122,6 +147,11 @@
             "internalType": "address",
             "name": "ipfsHash",
             "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
           }
         ],
         "internalType": "struct SimpleEMR.UserAccount[]",
@@ -267,6 +297,11 @@
             "internalType": "address",
             "name": "ipfsHash",
             "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
           }
         ],
         "internalType": "struct SimpleEMR.UserAccount[]",
@@ -313,6 +348,11 @@
             "internalType": "address",
             "name": "ipfsHash",
             "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
           }
         ],
         "internalType": "struct SimpleEMR.UserAccount",
@@ -359,6 +399,11 @@
             "internalType": "address",
             "name": "ipfsHash",
             "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
           }
         ],
         "internalType": "struct SimpleEMR.UserAccount",
@@ -401,6 +446,19 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_newEmail",
+        "type": "string"
+      }
+    ],
+    "name": "updateUserEmail",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -432,6 +490,11 @@
         "internalType": "address",
         "name": "ipfsHash",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

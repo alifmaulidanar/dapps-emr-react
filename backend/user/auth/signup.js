@@ -91,8 +91,6 @@ router.post("/:role/signup", async (req, res) => {
       (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
     );
 
-    console.log({ accountAddress });
-
     if (!accountAddress) {
       return res.status(400).json({ error: "Account not found" });
     }
@@ -117,17 +115,17 @@ router.post("/:role/signup", async (req, res) => {
     }
 
     // Pengecekan apakah address dari signature sudah terdaftar dengan email lain
-    // const getAccountByAddress = await contract.getUserAccountByAddress(
-    //   recoveredAddress
-    // );
-    // if (
-    //   getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
-    //   getAccountByAddress.email !== email
-    // ) {
-    //   return res.status(400).json({
-    //     error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
-    //   });
-    // }
+    const getAccountByAddress = await contract.getUserAccountByAddress(
+      recoveredAddress
+    );
+    if (
+      getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
+      getAccountByAddress.email !== email
+    ) {
+      return res.status(400).json({
+        error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
+      });
+    }
 
     // Membuat objek untuk akun pasien
     const newAccount = {
@@ -162,17 +160,18 @@ router.post("/:role/signup", async (req, res) => {
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
-    // const getAccount = await contract.getUserAccountByAddress(accountAddress);
+    const getAccount = await contract.getUserAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `${role} Registration Successful`,
-      // account: {
-      //   accountAddress: getAccount.accountAddress,
-      //   email: getAccount.email,
-      //   role: getAccount.role,
-      //   ipfsHash: getAccount.ipfsHash,
-      // },
+      account: {
+        accountAddress: getAccount.accountAddress,
+        email: getAccount.email,
+        role: getAccount.role,
+        ipfsHash: getAccount.ipfsHash,
+        isActive: getAccount.isActive,
+      },
       ipfs: {
         ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
