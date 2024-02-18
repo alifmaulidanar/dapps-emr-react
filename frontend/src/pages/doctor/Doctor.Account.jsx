@@ -1,21 +1,306 @@
-import "./../../index.css";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { Button, Form, Input, Spin } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import NavbarController from "../../components/Navbar/NavbarController";
 import CopyIDButton from "../../components/Buttons/CopyIDButton";
-// import Card from "../../components/Cards/Card";
+import { ethers } from "ethers";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+// import { create } from "ipfs-http-client";
+import { CONN } from "../../../../enum-global";
 
-function DoctorAccount() {
-  const doctorId = "0x66E167fDd23614b58A4459C1C875C6705f550ED6";
+export default function DoctorAccount() {
+  const [form] = Form.useForm();
+  const { accountAddress } = useParams();
+  const [initialData, setInitialData] = useState({});
+  const [spinning, setSpinning] = React.useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [doctorAccountData, setDoctorAccountData] = useState({});
+  const [isEditing, setIsEditing] = useState({
+    username: false,
+    email: false,
+    phone: false,
+    password: false,
+  });
+
+  const showLoader = () => {
+    setSpinning(true);
+  };
+
+  // Connect MetaMask to Ganache lokal
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: [CONN.GANACHE_LOCAL],
+        },
+      ]);
+
+      const signer = provider.getSigner(selectedAccount);
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const capitalizedAccountAddress =
+      accountAddress.charAt(0) +
+      accountAddress.charAt(1) +
+      accountAddress.substring(2).toUpperCase();
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `${CONN.BACKEND_LOCAL}/doctor/${capitalizedAccountAddress}/account`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
+        const { accountUsername, accountEmail, accountPhone } = data.ipfs.data;
+        const formattedData = {
+          address: accountAddress,
+          username: accountUsername,
+          email: accountEmail,
+          phone: accountPhone,
+        };
+        setInitialData(formattedData);
+        form.setFieldsValue(formattedData);
+        setDAccountData(data);
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      }
+    };
+
+    fetchData();
+  }, [accountAddress, form]);
+
+  const handleEditClick = (field) => {
+    setIsEditing({ ...isEditing, [field]: true });
+  };
+
+  const handleCancelClick = (field) => {
+    setIsEditing({ ...isEditing, [field]: false });
+    form.setFieldsValue({ [field]: initialData[field] });
+  };
+
+  const handleSaveClick = async (field) => {
+    showLoader();
+    if (window.ethereum) {
+      try {
+        const value = await form.getFieldValue(field);
+
+        let errorMessage;
+        if (!value.trim()) {
+          switch (field) {
+            case "username":
+              errorMessage = "Nama pengguna tidak boleh kosong";
+              break;
+            case "email":
+              errorMessage = "Email tidak boleh kosong";
+              break;
+            case "phone":
+              errorMessage = "Nomor telepon tidak boleh kosong";
+              break;
+            default:
+              errorMessage = "Field tidak boleh kosong";
+          }
+
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Pembaruan Gagal",
+            text: errorMessage,
+          });
+          return;
+        }
+
+        const dataToSign = JSON.stringify({
+          field,
+          value,
+        });
+        const signer = await getSigner();
+        const signature = await signer.signMessage(dataToSign);
+        const updatedData = {
+          field,
+          value,
+          signature,
+        };
+
+        console.log({ updatedData });
+
+        const response = await fetch(
+          `${CONN.BACKEND_LOCAL}/doctor/update-${field}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData),
+          }
+        );
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          console.log({ responseData });
+          setSpinning(false);
+          Swal.fire({
+            icon: "success",
+            title: "Profil Pasien Berhasil Diperbarui!",
+            text: "Periksa kembali informasi profil Anda.",
+          }).then(() => {
+            window.location.reload();
+          });
+        } else {
+          console.log(responseData.error, responseData.message);
+          setSpinning(false);
+          Swal.fire({
+            icon: "error",
+            title: "Pembaruan Profil Pasien Gagal",
+            text: responseData.error,
+          }).then(() => {
+            window.location.reload();
+          });
+        }
+      } catch (error) {
+        console.error("Terjadi kesalahan:", error);
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Terjadi kesalahan saat melakukan pembaruan profil",
+          text: error,
+        });
+      }
+    }
+    setIsEditing({ ...isEditing, [field]: false });
+  };
+
+  const handleChangePassword = async () => {
+    const oldPassword = await form.getFieldValue("oldPass");
+    const newPassword = await form.getFieldValue("newPass");
+    const confirmPassword = await form.getFieldValue("confirmPass");
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Kesalahan Input",
+        text: "Tidak boleh ada kolom yang kosong",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Kata Sandi Tidak Cocok",
+        text: "Kata sandi baru dan konfirmasi kata sandi harus sama!",
+      });
+      return;
+    }
+
+    showLoader();
+    try {
+      const dataToSign = JSON.stringify({
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      const signer = await getSigner();
+      const signature = await signer.signMessage(dataToSign);
+
+      const updatedData = {
+        oldPassword,
+        newPassword,
+        confirmPassword,
+        signature,
+      };
+
+      const response = await fetch(
+        `${CONN.BACKEND_LOCAL}/doctor/update-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setSpinning(false);
+        Swal.fire({
+          icon: "success",
+          title: "Kata Sandi Berhasil Diperbarui!",
+          text: "Kata sandi Anda telah berhasil diperbarui.",
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Memperbarui Kata Sandi",
+          text:
+            responseData.error ||
+            "Terjadi kesalahan saat memperbarui kata sandi.",
+        });
+      }
+    } catch (error) {
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Terjadi Kesalahan",
+        text: error.toString(),
+      });
+      console.error("Terjadi kesalahan:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+  };
 
   return (
     <>
-      <NavbarController type={3} page="Akun Dokter" color="blue" />
-      <div className="grid grid-cols-7 justify-center min-h-screen w-9/12 mx-auto px-4 py-24">
-        <div className="col-start-3 col-span-3">
-          <div className="grid grid-cols-1 gap-y-8 max-w-4xl items-center rounded h-fit mx-auto">
+      <NavbarController
+        type={4}
+        page="Akun Dokter"
+        color="blue"
+        accountAddress={accountAddress}
+      />
+      <div className="grid justify-center w-9/12 min-h-screen grid-cols-7 px-4 py-24 mx-auto">
+        <div className="col-span-3 col-start-3">
+          <Form
+            form={form}
+            layout="vertical"
+            className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit"
+          >
             {/* ID Pengguna */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div className="flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -32,31 +317,32 @@ function DoctorAccount() {
                       />
                     </svg>
 
-                    <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
-                      ID Dokter
+                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
+                      Alamat <span className="italic">E-Wallet</span>
                     </h5>
                   </div>
                   <p className="my-2 text-md">
-                    Nomor identitas akun dokter Anda.
+                    Alamat akun <span className="italic">e-wallet</span> Anda.
                   </p>
                 </div>
-                <div className="flex flex-nowrap items-center gap-x-4">
-                  <input
-                    type="text"
-                    id="doctorId"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                    value={doctorId}
-                    disabled
-                  />
-                  <CopyIDButton textToCopy={doctorId} />
-                </div>
+                <Form.Item name="address">
+                  <div className="flex items-center gap-x-2">
+                    <Input
+                      id="accountAddress"
+                      className="flex-1 bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                      disabled
+                      value={accountAddress}
+                    />
+                    <CopyIDButton textToCopy={accountAddress} />
+                  </div>
+                </Form.Item>
               </div>
             </div>
 
             {/* Nama Pengguna */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div className="flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -70,36 +356,53 @@ function DoctorAccount() {
                         d="M12.72 2.03A9.991 9.991 0 0 0 2.03 12.72C2.39 18.01 7.01 22 12.31 22H16c.55 0 1-.45 1-1s-.45-1-1-1h-3.67c-3.73 0-7.15-2.42-8.08-6.03c-1.49-5.8 3.91-11.21 9.71-9.71C17.58 5.18 20 8.6 20 12.33v1.1c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57v-1.25c0-2.51-1.78-4.77-4.26-5.12a5.008 5.008 0 0 0-5.66 5.87a4.996 4.996 0 0 0 3.72 3.94c1.84.43 3.59-.16 4.74-1.33c.89 1.22 2.67 1.86 4.3 1.21c1.34-.53 2.16-1.9 2.16-3.34v-1.09c0-5.31-3.99-9.93-9.28-10.29zM12 15c-1.66 0-3-1.34-3-3s1.34-3 3-3s3 1.34 3 3s-1.34 3-3 3z"
                       />
                     </svg>
-                    <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                       Nama Pengguna
                     </h5>
                   </div>
                   <p className="my-2 text-md">Nama pengguna akun Anda.</p>
                 </div>
-                <div>
-                  <input
-                    type="text"
-                    id="doctorUsername"
+                <Form.Item name="username">
+                  <Input
+                    id="username"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="Alif Maulidanar"
-                    disabled
+                    disabled={!isEditing.username}
                   />
-                </div>
+                </Form.Item>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
-                >
-                  Ganti Nama Pengguna
-                </button>
+                {isEditing.username ? (
+                  <div className="flex gap-x-4">
+                    <Button
+                      danger
+                      onClick={() => handleCancelClick("username")}
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      type="primary"
+                      ghost
+                      onClick={() => handleSaveClick("username")}
+                    >
+                      Simpan
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
+                    onClick={() => handleEditClick("username")}
+                  >
+                    Ganti Nama Pengguna
+                  </Button>
+                )}
               </div>
             </div>
 
             {/* EMAIL */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -114,39 +417,53 @@ function DoctorAccount() {
                           d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-.4 4.25l-6.54 4.09c-.65.41-1.47.41-2.12 0L4.4 8.25a.85.85 0 1 1 .9-1.44L12 11l6.7-4.19a.85.85 0 1 1 .9 1.44z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Email
                       </h5>
                     </div>
                     <p className="my-2 text-md">
-                      Gunakan alamat email untuk masuk atau memulihkan akun.
+                      Alamat email yang terdaftar untuk akun Anda.
                     </p>
                   </div>
                 </div>
-                <div>
-                  <input
-                    type="email"
-                    id="doctorEmail"
+                <Form.Item name="email">
+                  <Input
+                    id="userEmail"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="alifmaulidanr@gmail.com"
-                    disabled
+                    disabled={!isEditing.email}
                   />
-                </div>
+                </Form.Item>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
-                >
-                  Ganti Email
-                </button>
+                {isEditing.email ? (
+                  <div className="flex gap-x-4">
+                    <Button danger onClick={() => handleCancelClick("email")}>
+                      Batal
+                    </Button>
+                    <Button
+                      type="primary"
+                      ghost
+                      onClick={() => handleSaveClick("email")}
+                    >
+                      Simpan
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
+                    onClick={() => handleEditClick("email")}
+                  >
+                    Ganti Email
+                  </Button>
+                )}
               </div>
             </div>
 
             {/* NOMOR TELEPON */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -164,39 +481,53 @@ function DoctorAccount() {
                         />
                       </svg>
 
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Nomor Telepon
                       </h5>
                     </div>
                     <p className="my-2 text-md">
-                      Cantumkan nomor telepon yang aktif.
+                      Nomor telepon yang terdaftar untuk akun Anda.
                     </p>
                   </div>
                 </div>
-                <div>
-                  <input
-                    type="tel"
-                    id="doctorPhone"
+                <Form.Item name="phone">
+                  <Input
+                    id="userPhone"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    value="alifmaulidanr@gmail.com"
-                    disabled
+                    disabled={!isEditing.phone}
                   />
-                </div>
+                </Form.Item>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
-                >
-                  Ganti Nomor Telepon
-                </button>
+                {isEditing.phone ? (
+                  <div className="flex gap-x-4">
+                    <Button danger onClick={() => handleCancelClick("phone")}>
+                      Batal
+                    </Button>
+                    <Button
+                      type="primary"
+                      ghost
+                      onClick={() => handleSaveClick("phone")}
+                    >
+                      Simpan
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="primary"
+                    className="text-white bg-blue-600 blue-button"
+                    onClick={() => handleEditClick("phone")}
+                  >
+                    Ganti Nomor Telepon
+                  </Button>
+                )}
               </div>
             </div>
 
             {/* CHANGE PASSWORD */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 mb-4 items-center">
+                <div className="grid items-center grid-cols-1 mb-4">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -211,7 +542,7 @@ function DoctorAccount() {
                           d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Ganti Kata Sandi
                       </h5>
                     </div>
@@ -220,74 +551,52 @@ function DoctorAccount() {
                     </p>
                   </div>
                 </div>
-                <div className="mb-6">
-                  <label
-                    htmlFor="doctorOldPass"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Kata Sandi Lama
-                  </label>
-                  <input
-                    type="password"
-                    id="doctorOldPass"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                <Form.Item
+                  name="oldPass"
+                  label="Kata Sandi Lama"
+                  className="mb-6"
+                >
+                  <Input.Password
+                    id="userOldPass"
+                    placeholder="input password"
                   />
-                </div>
-                <div className="mb-6">
-                  <label
-                    htmlFor="doctorNewPass"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Kata Sandi Baru
-                  </label>
-                  <input
-                    type="password"
-                    id="doctorNewPass"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                </Form.Item>
+                <Form.Item
+                  name="newPass"
+                  label="Kata Sandi Baru"
+                  className="mb-6"
+                >
+                  <Input.Password
+                    id="userNewPass"
+                    placeholder="input password"
                   />
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirmPass"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Konfirmasi Kata Sandi Baru
-                  </label>
-                  <input
-                    type="pass"
+                </Form.Item>
+                <Form.Item
+                  name="confirmPass"
+                  label="Konfirmasi Kata Sandi Baru"
+                  className="mb-6"
+                >
+                  <Input.Password
                     id="confirmPass"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    placeholder="input password"
                   />
-                </div>
-                <div className="flex items-center mt-4">
-                  <input
-                    id="showPassCheckBox"
-                    type="checkbox"
-                    defaultValue=""
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <label
-                    htmlFor="showPassCheckBox"
-                    className="ml-2 text-sm font-medium text-gray-900"
-                  >
-                    Tampilkan kata sandi
-                  </label>
-                </div>
+                </Form.Item>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <button
-                  type="button"
-                  className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
+                <Button
+                  type="primary"
+                  className="text-white bg-blue-600 blue-button"
+                  onClick={handleChangePassword}
                 >
                   Konfirmasi
-                </button>
+                </Button>
               </div>
             </div>
 
             {/* LOG OUT */}
-            <div className="grid grid-cols-1 divide-y max-w-full w-full pb-0 bg-white border border-gray-200 rounded-xl shadow md:min-h-full md:max-w-full">
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
-                <div className="grid grid-cols-1 items-center">
+                <div className="grid items-center grid-cols-1">
                   <div>
                     <div className="flex items-center">
                       <svg
@@ -306,7 +615,7 @@ function DoctorAccount() {
                           d="M16.795 16.295c.39.39 1.02.39 1.41 0l3.588-3.588a1 1 0 0 0 0-1.414l-3.588-3.588a.999.999 0 0 0-1.411 1.411L18.67 11H10a1 1 0 0 0 0 2h8.67l-1.876 1.884a.999.999 0 0 0 .001 1.411z"
                         />
                       </svg>
-                      <h5 className="ml-2 text-md font-bold tracking-tight text-gray-900">
+                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Keluar
                       </h5>
                     </div>
@@ -318,21 +627,17 @@ function DoctorAccount() {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <a href="/">
-                  <button
-                    type="button"
-                    className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none"
-                  >
-                    Keluar
-                  </button>
-                </a>
+                <Button type="primary" danger className="red-button">
+                  <div className="flex gap-x-2">
+                    Keluar <LogoutOutlined />
+                  </div>
+                </Button>
               </div>
             </div>
-          </div>
+            <Spin spinning={spinning} fullscreen />
+          </Form>
         </div>
       </div>
     </>
   );
 }
-
-export default DoctorAccount;

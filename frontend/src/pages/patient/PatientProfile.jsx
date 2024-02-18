@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Empty, Button } from "antd";
 import NavbarController from "../../components/Navbar/NavbarController";
-import PatientData from "../../components/PatientData";
+import UserData from "../../data/UserData";
 // import { AllPatient } from "../../data/patientData";
 import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
 import { CONN } from "../../../../enum-global";
@@ -63,7 +63,7 @@ function PatientProfile() {
 
   // const accountProfiles = patients?.ipfs?.data?.accountProfiles;
   // console.log({ accountProfiles });
-  console.log({ patientAccountData });
+  // console.log({ patientAccountData });
 
   const handlePatientChange = (nomorIdentitas) => {
     const patient = patients.find((p) => p.nomorIdentitas === nomorIdentitas);
@@ -91,7 +91,7 @@ function PatientProfile() {
   return (
     <>
       <NavbarController
-        type={2}
+        type={1}
         page="Profil Pasien"
         color="blue"
         accountAddress={accountAddress}
@@ -106,9 +106,9 @@ function PatientProfile() {
           {patients.length > 0 ? (
             <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
               {/* <PatientIdentifier {...patientIdentifierProps} /> */}
-              <PatientData
-                patientDataProps={patientDataProps}
-                patientAccountData={patientAccountData}
+              <UserData
+                userDataProps={patientDataProps}
+                userAccountData={patientAccountData}
               />
             </div>
           ) : (

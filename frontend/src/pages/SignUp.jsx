@@ -4,8 +4,8 @@ import SignUpForm from "../components/Forms/SignUpForm";
 function SignUp({ role, resetLink, signupLink }) {
   return (
     <>
-      <NavbarController type={1} page="Sign In" color="blue" />
-      <div className="grid grid-cols-4 justify-center items-center min-h-screen w-full min-w-screen mx-auto px-20 pt-12">
+      <NavbarController type={0} page="Sign In" color="blue" />
+      <div className="grid items-center justify-center w-full min-h-screen grid-cols-4 px-20 pt-12 mx-auto min-w-screen">
         <SignUpForm role={role} resetLink={resetLink} signupLink={signupLink} />
       </div>
     </>

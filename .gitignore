@@ -24,8 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 
-notes.txt
-
 # frontend
 /frontend/dist
 

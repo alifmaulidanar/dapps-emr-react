@@ -1,0 +1,55 @@
+📃SMART CONTRACT📃
+17/02/24
+✅ Fungsi addUserAccount tidak bisa digunakan untuk update email di blockchain karena masih dapat mengakses akun melalui email lama --> fixed pakai mapping jadi email baru menggantikan email lama di map
+✅ Solusinya, buat fungsi baru untuk memperbarui email sekaligus tambahkan field isActive = true ❌ tidak jadi pakai isActive untuk verifikasi email yang aktif karena bisa error
+✅ Sebelum membuat menyimpan akun user dengan email baru tersebut, simpan dulu akun email user lama dengan isActive = false --> meskipun tetap dilakukan penggantian nilai isActive, pengecekan akun dengan email yg aktif tetap dilakukan dengan mengecek mapping email to address, isActive hanya tanda
+
+18/02/24
+✅ bikin role lengkap untuk pasien, petugas pendaftaran, perawat, dan dokter
+✅ get jumlah akun by role sudah benar
+✅ get seluruh akun by role sudah benar
+✅ penanganan akun di smart contract sudah aman:
+    1. email pada mapping akan terganti jika email mengganti email --> user tidak bisa signin dengan email lama
+    2. satu address ewallet hanya dimapping kepada satu email --> harus dibuat peringatan bahwa email sudah pernah digunakan (handle dari backend)
+    3. bisa menampilkan seluruh informasi akun by role (getAccountsByRole) dan jumlah akun by role (getNumberOfAccountsByRole) --> hanya menampilkan akun yang aktif berdasarkan mapping, bukan isActive
+✅ bisa signup & signin dokter
+
+next:
+- pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
+
+===================================================================================================
+===================================================================================================
+
+🖼️Frontend🖼️
+17/02/24
+✅ Semua input belum ada validasi jika input kosong (untuk fitur update akun: username, email, phone, pass)
+✅ Terkait penggantian email berhubungan dengan smart contract
+
+18/02/24
+✅ bikin tampilan informasi akun dan profil dokter
+✅ frontend navbar routing
+
+next:
+- urusin tampilan role staff dan perawat (dashboard utama, profil, akun)
+- pendaftaran rawat jalan (appointment) pasien
+
+===================================================================================================
+===================================================================================================
+
+🔨Backend🔨
+17/02/24
+❌ persiapan bikin auth
+❌ perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
+
+18/02/24
+✅ endpoint untuk signup & signin untuk pasien dan dokter
+✅ dokter udah bisa update informasi akun dan menambah serta memperbarui profil dokter
+✅ penyesuaian di API account, add-profile, dan update-profile agar lebih fleksibel terhadap banyak role
+
+next:
+- perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
+- endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
+- endpoint appointment sisi dokter dan perawat
+
+bisa nanti, tapi harus dipikirin juga dari sekarang:
+- persiapan bikin auth

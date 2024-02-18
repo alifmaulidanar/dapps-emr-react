@@ -71,6 +71,7 @@ export default function SignUpForm({ role }) {
 
   // Lakukan validasi formulir
   const handleSubmit = async (values) => {
+    showLoader();
     if (window.ethereum) {
       try {
         const roleLowerCase = role.toLowerCase();
@@ -310,7 +311,6 @@ export default function SignUpForm({ role }) {
               type="primary"
               htmlType="submit"
               className="w-full px-5 mt-4 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
-              onClick={showLoader}
             >
               Daftarkan Akun
             </Button>

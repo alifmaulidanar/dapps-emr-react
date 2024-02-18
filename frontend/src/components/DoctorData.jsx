@@ -42,7 +42,7 @@ export default function DoctorData({
   return (
     <form className="col-span-2 p-8">
       <div className="grid grid-cols-2 gap-x-8">
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           Data Dokter
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
@@ -409,7 +409,7 @@ export default function DoctorData({
       {/* UBAH DATA */}
       {isEditing ? (
         // Tampilan tombol saat sedang dalam mode pengeditan
-        <div className="grid grid-cols-2 gap-x-4 text-center mt-8">
+        <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
           <button
             type="button"
             className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
@@ -427,7 +427,7 @@ export default function DoctorData({
         </div>
       ) : (
         // Tampilan tombol saat tidak dalam mode pengeditan
-        <div className="col-span-2 text-center mt-8">
+        <div className="col-span-2 mt-8 text-center">
           <button
             type="button"
             className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"

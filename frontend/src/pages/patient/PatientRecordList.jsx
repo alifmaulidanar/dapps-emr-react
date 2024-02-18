@@ -1,5 +1,6 @@
 import "./../../index.css";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
@@ -7,7 +8,6 @@ import PatientList from "../../components/PatientList";
 // import { AllPatient } from "../../data/patientData";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
 import { Empty } from "antd";
-import { useParams } from "react-router-dom";
 import { CONN } from "../../../../enum-global";
 
 export default function PatientRecordList() {
@@ -20,7 +20,7 @@ export default function PatientRecordList() {
       accountAddress.charAt(0) +
       accountAddress.charAt(1) +
       accountAddress.substring(2).toUpperCase();
-    console.log({ capitalizedAccountAddress });
+    // console.log({ capitalizedAccountAddress });
 
     const fetchData = async () => {
       try {
@@ -32,7 +32,7 @@ export default function PatientRecordList() {
         );
         const data = await response.json();
         setPatientAccountData(data);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.error("Error fetching patient data:", error);
       }
@@ -90,7 +90,7 @@ export default function PatientRecordList() {
   return (
     <>
       <NavbarController
-        type={2}
+        type={1}
         page="Daftar Rekam Medis"
         color="blue"
         accountAddress={accountAddress}

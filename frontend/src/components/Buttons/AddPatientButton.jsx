@@ -33,7 +33,7 @@ export default function AddPatientButton() {
         <div className="fixed flex justify-center items-center w-full h-full bg-black/50 top-0 left-0 z-[999]">
           <div
             ref={modalComponent}
-            className="bg-white w-full max-w-lg h-auto rounded-2xl p-5"
+            className="w-full h-auto max-w-lg p-5 bg-white rounded-2xl"
           >
             <button
               onClick={handleModal}

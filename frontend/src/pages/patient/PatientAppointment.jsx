@@ -42,7 +42,7 @@ export default function PatientAppointment() {
   return (
     <>
       <NavbarController
-        type={2}
+        type={1}
         page="Appointment"
         color="blue"
         accountAddress={accountAddress}

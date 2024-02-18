@@ -26,7 +26,7 @@ function Home() {
 
   return (
     <>
-      <NavbarController type={1} page="Beranda" color="blue" />
+      <NavbarController type={0} page="Beranda" color="blue" />
       <Jumbotron {...jumbotronProps} />
     </>
   );

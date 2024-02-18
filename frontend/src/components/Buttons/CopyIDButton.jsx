@@ -18,7 +18,7 @@ const CopyIDButton = ({ textToCopy }) => {
     <Tooltip
       placement="top"
       title="Alamat Tersalin!"
-      visible={showTooltip}
+      open={showTooltip}
       onClick={handleCopyClick}
     >
       <Button

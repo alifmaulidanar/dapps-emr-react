@@ -8,7 +8,7 @@ import PatientAppointment from "./pages/patient/PatientAppointment";
 import PatientProfile from "./pages/patient/PatientProfile";
 import PatientAccount from "./pages/patient/PatientAccount";
 import DoctorPatientList from "./pages/doctor/DoctorPatientList";
-import DoctorProfile from "./pages/doctor/DoctorProdile";
+import DoctorProfile from "./pages/doctor/DoctorProfile";
 import DoctorAccount from "./pages/doctor/Doctor.Account";
 
 function App() {

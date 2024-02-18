@@ -66,7 +66,7 @@ export default function PatientAccount() {
   return (
     <>
       <NavbarController
-        type={2}
+        type={1}
         page="Akun Pasien"
         color="blue"
         accountAddress={accountAddress}
