@@ -4,7 +4,7 @@ import { getUserAccountData } from "../../middleware/userData.js";
 const router = express.Router();
 router.use(express.json());
 
-router.get("/patient/:address/account", async (req, res) => {
+router.get("/:role/:address/account", async (req, res) => {
   try {
     const address = req.params.address;
     const data = await getUserAccountData(address);
