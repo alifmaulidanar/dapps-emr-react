@@ -96,7 +96,7 @@ router.post("/patient/update-username", async (req, res) => {
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getUserAccountByAddress(
+    const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
 
@@ -204,7 +204,7 @@ router.post("/patient/update-email", async (req, res) => {
     // Update user account di blockchain
     const updateAccountTX = await contract.updateUserEmail(value);
     await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getUserAccountByAddress(
+    const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
 
@@ -316,7 +316,7 @@ router.post("/patient/update-phone", async (req, res) => {
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getUserAccountByAddress(
+    const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
 
@@ -437,7 +437,7 @@ router.post("/patient/update-password", async (req, res) => {
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getUserAccountByAddress(
+    const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
 

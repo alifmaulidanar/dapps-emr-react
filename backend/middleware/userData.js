@@ -13,7 +13,7 @@ const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 
 async function getUserAccountData(address) {
   try {
-    const account = await contract.getUserAccountByAddress(address);
+    const account = await contract.getAccountByAddress(address);
 
     if (account.accountAddress === ethers.constants.AddressZero) {
       throw new Error("Account not found");

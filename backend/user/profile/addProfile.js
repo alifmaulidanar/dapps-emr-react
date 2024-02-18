@@ -188,7 +188,7 @@ router.post("/patient/add-profile", async (req, res) => {
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
-    const getAccount = await contract.getUserAccountByAddress(accountAddress);
+    const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {

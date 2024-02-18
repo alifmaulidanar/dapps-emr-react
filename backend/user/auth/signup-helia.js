@@ -107,7 +107,7 @@ router.post("/:role/signup", async (req, res) => {
     );
 
     // Pengecekan apakah email sudah terdaftar
-    const getAccountByEmail = await contract.getUserAccountByEmail(email);
+    const getAccountByEmail = await contract.getAccountByEmail(email);
     if (getAccountByEmail.accountAddress !== ethers.constants.AddressZero) {
       return res.status(400).json({
         error: `Akun dengan email ${email} sudah terdaftar.`,
@@ -115,7 +115,7 @@ router.post("/:role/signup", async (req, res) => {
     }
 
     // Pengecekan apakah address dari signature sudah terdaftar dengan email lain
-    // const getAccountByAddress = await contract.getUserAccountByAddress(
+    // const getAccountByAddress = await contract.getAccountByAddress(
     //   recoveredAddress
     // );
     // if (
@@ -154,7 +154,7 @@ router.post("/:role/signup", async (req, res) => {
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
-    const getAccount = await contract.getUserAccountByAddress(accountAddress);
+    const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {

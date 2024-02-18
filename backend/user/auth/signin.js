@@ -65,7 +65,7 @@ router.post("/:role/signin", async (req, res) => {
     );
 
     // Pengecekan apakah email sudah terdaftar
-    const getAccountByEmail = await contract.getUserAccountByEmail(email);
+    const getAccountByEmail = await contract.getAccountByEmail(email);
     if (getAccountByEmail.accountAddress === ethers.constants.AddressZero) {
       return res.status(404).json({
         error: `Account with email ${email} not found`,

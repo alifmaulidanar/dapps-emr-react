@@ -172,7 +172,7 @@ router.post("/patient/update-profile", async (req, res) => {
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getUserAccountByAddress(accountAddress);
+    const getUpdatedAccount = await contract.getAccountByAddress(accountAddress);
 
     // Response
     const responseData = {
