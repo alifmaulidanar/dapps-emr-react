@@ -1,6 +1,6 @@
 import { Select } from "antd";
 
-function ProfileDropdown({ patients, onChange, defaultValue }) {
+function ProfileDropdown({ users, onChange, defaultValue }) {
   return (
     <>
       <div className="justify-self-end w-[150px]">
@@ -9,7 +9,7 @@ function ProfileDropdown({ patients, onChange, defaultValue }) {
           defaultValue={defaultValue}
           optionFilterProp="children"
           onChange={onChange}
-          options={patients.map((patient) => ({
+          options={users.map((patient) => ({
             value: patient.nomorIdentitas,
             label: patient.namaLengkap,
           }))}

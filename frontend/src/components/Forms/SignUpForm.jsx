@@ -11,6 +11,22 @@ export default function SignUpForm({ role }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
 
+  let displayRole;
+  switch (role) {
+    case "patient":
+      displayRole = "Pasien";
+      break;
+    case "doctor":
+      displayRole = "Dokter";
+      break;
+    case "staff":
+      displayRole = "Staff";
+      break;
+    case "nurse":
+      displayRole = "Perawat";
+      break;
+  }
+
   const showLoader = () => {
     setSpinning(true);
   };
@@ -74,9 +90,6 @@ export default function SignUpForm({ role }) {
     showLoader();
     if (window.ethereum) {
       try {
-        const roleLowerCase = role.toLowerCase();
-
-        // Buat objek data pasien dari formulir
         const newPatient = {
           username: values.username,
           email: values.email,
@@ -85,32 +98,25 @@ export default function SignUpForm({ role }) {
           confirmPassword: values.confirmPassword,
         };
 
-        // Menandatangani data menggunakan signer
+        // Menandatangani data
         const signer = await getSigner();
         const signature = await signer.signMessage(JSON.stringify(newPatient));
         newPatient.signature = signature;
         console.log("Signature:", signature);
-
-        let endpoint = "";
-        if (roleLowerCase === "pasien") {
-          endpoint = `${CONN.BACKEND_LOCAL}/patient/signup`;
-        } else if (roleLowerCase === "dokter") {
-          endpoint = `${CONN.BACKEND_LOCAL}/doctor/signup`;
-        }
-
-        // Include the signature in the req.body
         newPatient.signature = signature;
 
-        // Kirim permintaan POST ke endpoint yang sesuai
-        if (endpoint) {
+        if (role) {
           try {
-            const response = await fetch(endpoint, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newPatient),
-            });
+            const response = await fetch(
+              `${CONN.BACKEND_LOCAL}/${role}/signup`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newPatient),
+              }
+            );
 
             if (response.ok) {
               const data = await response.json();
@@ -121,11 +127,7 @@ export default function SignUpForm({ role }) {
                 title: "Registrasi Akun Berhasil!",
                 text: "Gunakan Email dan Password untuk melakukan Sign In.",
               }).then(() => {
-                if (roleLowerCase === "pasien") {
-                  window.location.assign("/patient/signin");
-                } else if (roleLowerCase === "dokter") {
-                  window.location.assign("/doctor/signin");
-                }
+                window.location.assign(`/${role}/signin`);
               });
             } else {
               const data = await response.json();
@@ -179,7 +181,7 @@ export default function SignUpForm({ role }) {
     <div className="grid col-span-2 col-start-2 pt-12 pb-8 w-90 h-fit">
       <div className="px-12 py-8 bg-white border border-gray-200 rounded-lg shadow h-fit">
         <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
-          Pendaftaran Akun {role}
+          Pendaftaran Akun {displayRole}
         </h1>
         <Form
           form={form}

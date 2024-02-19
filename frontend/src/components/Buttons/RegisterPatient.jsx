@@ -5,9 +5,6 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
-// import Datepicker from "../Datepicker";
-// import Datepicker from "../Datepicker";
-
 export default function RegisterPatientButton({
   buttonText,
   patientAccountData,

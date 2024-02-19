@@ -132,7 +132,7 @@ export default function RegisterDoctorButton({
       JSON.stringify(formattedDoctorData)
     );
     formattedDoctorData.signature = signature;
-    console.log("Register Doctor Profile Signature:", signature);
+    console.log({ signature });
     formattedDoctorData.signature = signature;
     formattedDoctorData.role = doctorAccountData.accountRole;
     formattedDoctorData.foto = null;

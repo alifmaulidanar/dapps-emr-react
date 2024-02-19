@@ -2,21 +2,20 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Button, Form, Input, Spin } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
-import NavbarController from "../../components/Navbar/NavbarController";
-import CopyIDButton from "../../components/Buttons/CopyIDButton";
+import NavbarController from "../components/Navbar/NavbarController";
+import CopyIDButton from "../components/Buttons/CopyIDButton";
 import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-// import { create } from "ipfs-http-client";
-import { CONN } from "../../../../enum-global";
+import { CONN } from "../../../enum-global";
 
-export default function PatientAccount() {
+export default function UserAccount({ role }) {
   const [form] = Form.useForm();
   const { accountAddress } = useParams();
   const [initialData, setInitialData] = useState({});
   const [spinning, setSpinning] = React.useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const [patientAccountData, setPatientAccountData] = useState({});
+  const [userAccountData, setUserAccountData] = useState({});
   const [isEditing, setIsEditing] = useState({
     username: false,
     email: false,
@@ -73,7 +72,7 @@ export default function PatientAccount() {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/patient/${capitalizedAccountAddress}/account`,
+          `${CONN.BACKEND_LOCAL}/${role}/${capitalizedAccountAddress}/account`,
           {
             method: "GET",
           }
@@ -88,9 +87,9 @@ export default function PatientAccount() {
         };
         setInitialData(formattedData);
         form.setFieldsValue(formattedData);
-        setPatientAccountData(data);
+        setUserAccountData(data);
       } catch (error) {
-        console.error("Error fetching patient data:", error);
+        console.error(`Error fetching ${role} data:`, error);
       }
     };
 
@@ -152,7 +151,7 @@ export default function PatientAccount() {
         console.log({ updatedData });
 
         const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/patient/update-${field}`,
+          `${CONN.BACKEND_LOCAL}/${role}/update-${field}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -238,7 +237,7 @@ export default function PatientAccount() {
       };
 
       const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/patient/update-password`,
+        `${CONN.BACKEND_LOCAL}/${role}/update-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -282,11 +281,27 @@ export default function PatientAccount() {
     console.log("Logging out...");
   };
 
+  let type;
+  switch (role) {
+    case "patient":
+      type = 1;
+      break;
+    case "staff":
+      type = 2;
+      break;
+    case "nurse":
+      type = 3;
+      break;
+    case "doctor":
+      type = 4;
+      break;
+  }
+
   return (
     <>
       <NavbarController
-        type={1}
-        page="Akun Pasien"
+        type={type}
+        page={`${role}-account`}
         color="blue"
         accountAddress={accountAddress}
       />

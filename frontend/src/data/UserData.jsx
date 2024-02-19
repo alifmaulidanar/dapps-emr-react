@@ -54,10 +54,10 @@ export default function UserData({ userDataProps, userAccountData }) {
       break;
   }
 
-  // patient identifier
-  const patientName = userDataProps.namaLengkap;
-  const patientIdentification = userDataProps.nomorIdentitas;
-  const patientImage = userDataProps.foto;
+  // user identifier
+  const userName = userDataProps.namaLengkap;
+  const userIdentification = userDataProps.nomorIdentitas;
+  const userImage = userDataProps.foto;
 
   const handleFileChange = async (info) => {
     if (info.file.status === "done") {
@@ -202,13 +202,13 @@ export default function UserData({ userDataProps, userAccountData }) {
         updatedValues.signature = signature;
 
         if (!cid) {
-          updatedValues.foto = patientImage;
+          updatedValues.foto = userImage;
         } else {
           updatedValues.foto = cid;
         }
 
         const response = await fetch(
-          `http://localhost:3000/${userAccountData.accountRole}/update-profile`,
+          `${CONN.BACKEND_LOCAL}/${userAccountData.accountRole}/update-profile`,
           {
             method: "POST",
             headers: {
@@ -312,13 +312,13 @@ export default function UserData({ userDataProps, userAccountData }) {
   return (
     <>
       <div className="flex flex-col items-center p-8">
-        {patientImage ? (
+        {userImage ? (
           <img
             className="w-24 h-24 mb-3 rounded-full shadow-lg"
             width={96}
             height={96}
-            src={`http://127.0.0.1:8081/ipfs/${patientImage}`}
-            alt={`${patientName} image`}
+            src={`${CONN.IPFS_LOCAL}/${userImage}`}
+            alt={`${userName} image`}
           />
         ) : (
           <Avatar
@@ -333,12 +333,10 @@ export default function UserData({ userDataProps, userAccountData }) {
           />
         )}
         {renderUploadButton()}
-        <h5 className="mb-1 text-xl font-medium text-gray-900">
-          {patientName}
-        </h5>
+        <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
         <div>
           <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-            {patientIdentification}
+            {userIdentification}
           </span>
         </div>
       </div>

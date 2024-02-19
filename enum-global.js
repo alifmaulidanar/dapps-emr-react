@@ -6,7 +6,7 @@ const CONN = Object.freeze({
   BACKEND_LOCAL: "http://localhost:3000",
   FRONTEND_LOCAL: "http://localhost:5173",
   IPFS_LOCAL: "http://127.0.0.1:8081/ipfs",
-  // IPFS_VPS: "http://103.175.217.196:8081",
+  IPFS_VPS: "http://103.175.217.196:8081",
   IPFS_INFURA: "https://dapp-emr.infura-ipfs.io/ipfs", // deprecated
 });
 

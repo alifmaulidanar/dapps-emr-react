@@ -14,7 +14,11 @@
     3. bisa menampilkan seluruh informasi akun by role (getAccountsByRole) dan jumlah akun by role (getNumberOfAccountsByRole) --> hanya menampilkan akun yang aktif berdasarkan mapping, bukan isActive
 ✅ bisa signup & signin dokter
 
+19/02/24
+❌ ga nyentuh smart contract
+
 next:
+- handle update mapping di SC biar akun ga numpuk kalo pada addUserAccount akan numpuk. periksa di backend terkait penambahan profil, update profil, edit akun, dan soon to be data EMR1️🔴🔴🔴
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
 ===================================================================================================
@@ -29,8 +33,22 @@ next:
 ✅ bikin tampilan informasi akun dan profil dokter
 ✅ frontend navbar routing
 
+19/02/24
+✅ delete file yang tidak digunakan lagi:
+    1. PatientData && DoctorData ==> UserData
+    2. PatientIdentifier && DoctorIdentifier ==> tergabung di UserData
+    3. PatientAccount && DoctorAccount ==> Account (global)
+    4. PatientProfile && DoctorProfile ==> Profile (global)
+    5. DoctorPatientList ==> NakesPatientList karena digunakan oleh doctor, nurse, dan staff
+    6. backup-patient-account -> udah tidak relevan karena ada Account
+✅ profile & account udah disatuin untuk semua user (jadi termasuk halaman global sekarang)
+✅ halaman signup & signin semua role
+✅ urusin tampilan role staff dan perawat (dashboard utama, profil, akun)
+✅ patient                  == daftar rekam medis
+   staff && nurse && doctor == daftar pasien
+
 next:
-- urusin tampilan role staff dan perawat (dashboard utama, profil, akun)
+- fix handle auth dengan jwt kalo backend udah selesai🟢🟢
 - pendaftaran rawat jalan (appointment) pasien
 
 ===================================================================================================
@@ -46,10 +64,12 @@ next:
 ✅ dokter udah bisa update informasi akun dan menambah serta memperbarui profil dokter
 ✅ penyesuaian di API account, add-profile, dan update-profile agar lebih fleksibel terhadap banyak role
 
+19/02/24
+✅ persiapan file auth-middleware
+
+
 next:
+- persiapan bikin auth pake jwt🟡🟡🟡
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
-
-bisa nanti, tapi harus dipikirin juga dari sekarang:
-- persiapan bikin auth

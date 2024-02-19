@@ -11,10 +11,26 @@ function NavbarController({ type, page, color, accountAddress }) {
   // type 0 = home, type 1 = patient, type 2 = staff, type 3 = nurse, type 4 = doctor
   if (type === 0) {
     navItems = [
-      { text: "Beranda", color: page === "Beranda" ? color : defaultColor },
-      { text: "Layanan", color: page === "Layanan" ? color : defaultColor },
-      { text: "Informasi", color: page === "Informasi" ? color : defaultColor },
-      { text: "Artikel", color: page === "Artikel" ? color : defaultColor },
+      {
+        text: "Beranda",
+        linkToPage: "/",
+        color: page === "Beranda" ? color : defaultColor,
+      },
+      {
+        text: "Layanan",
+        linkToPage: "/services",
+        color: page === "Layanan" ? color : defaultColor,
+      },
+      {
+        text: "Informasi",
+        linkToPage: "/informations",
+        color: page === "Informasi" ? color : defaultColor,
+      },
+      {
+        text: "Artikel",
+        linkToPage: "/articles",
+        color: page === "Artikel" ? color : defaultColor,
+      },
     ];
 
     buttons = [
@@ -49,7 +65,7 @@ function NavbarController({ type, page, color, accountAddress }) {
         text: "Akun Pasien",
         href: `/patient/${id}/account`,
         className: `blue-button ${
-          page === "Akun Pasien"
+          page === "patient-account"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`
         } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
@@ -58,9 +74,9 @@ function NavbarController({ type, page, color, accountAddress }) {
   } else if (type === 2) {
     navItems = [
       {
-        text: "Daftar Rekam Medis",
+        text: "Daftar Pasien",
         linkToPage: `/patient/${id}/record-list`,
-        color: page === "Daftar Rekam Medis" ? color : defaultColor,
+        color: page === "staff" ? color : defaultColor,
       },
       {
         text: "Appointment",
@@ -79,7 +95,7 @@ function NavbarController({ type, page, color, accountAddress }) {
         text: "Akun Staff",
         href: `/patient/${id}/account`,
         className: `blue-button ${
-          page === "Akun Pasien"
+          page === "staff-account"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`
         } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
@@ -88,28 +104,28 @@ function NavbarController({ type, page, color, accountAddress }) {
   } else if (type === 3) {
     navItems = [
       {
-        text: "Daftar Rekam Medis",
-        linkToPage: `/patient/${id}/record-list`,
-        color: page === "Daftar Rekam Medis" ? color : defaultColor,
+        text: "Daftar Pasien",
+        linkToPage: `/nurse/${id}/record-list`,
+        color: page === "nurse" ? color : defaultColor,
       },
       {
         text: "Appointment",
-        linkToPage: `/patient/${id}/appointment`,
+        linkToPage: `/nurse/${id}/appointment`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Pasien",
-        linkToPage: `/patient/${id}/profile`,
+        linkToPage: `/nurse/${id}/profile`,
         color: page === "Profil Pasien" ? color : defaultColor,
       },
     ];
 
     buttons = [
       {
-        text: "Akun Nurse",
-        href: `/patient/${id}/account`,
+        text: "Akun Perawat",
+        href: `/nurse/${id}/account`,
         className: `blue-button ${
-          page === "Akun Pasien"
+          page === "nurse-account"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`
         } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
@@ -120,7 +136,7 @@ function NavbarController({ type, page, color, accountAddress }) {
       {
         text: "Daftar Pasien",
         linkToPage: `/doctor/${id}/patient-list`,
-        color: page === "Daftar Pasien" ? color : defaultColor,
+        color: page === "doctor" ? color : defaultColor,
       },
       {
         text: "Appointment",
@@ -139,7 +155,7 @@ function NavbarController({ type, page, color, accountAddress }) {
         text: "Akun Dokter",
         href: `/doctor/${id}/account`,
         className: `blue-button ${
-          page === "Akun Dokter"
+          page === "doctor-account"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`
         } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,

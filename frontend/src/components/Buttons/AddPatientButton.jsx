@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Button } from "antd";
 
 export default function AddPatientButton() {
   // Modal State
@@ -107,12 +108,14 @@ export default function AddPatientButton() {
         </div>
       )}
 
-      <button
+      <Button
+        type="primary"
         onClick={handleModal}
-        className="px-2 py-2 bg-blue-700 text-white rounded-lg w-full max-w-[150px] hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium"
+        className="text-white bg-blue-600 blue-button w-full max-w-[150px]"
+        // className="px-2 py-2 bg-blue-700 text-white rounded-lg w-full max-w-[150px] hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium"
       >
         Pasien Baru
-      </button>
+      </Button>
     </>
   );
 }

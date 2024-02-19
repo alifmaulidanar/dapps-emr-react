@@ -11,6 +11,22 @@ export default function SignInForm({ role, resetLink, signupLink }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
 
+  let displayRole;
+  switch (role) {
+    case "patient":
+      displayRole = "Pasien";
+      break;
+    case "doctor":
+      displayRole = "Dokter";
+      break;
+    case "staff":
+      displayRole = "Staff";
+      break;
+    case "nurse":
+      displayRole = "Perawat";
+      break;
+  }
+
   const showLoader = () => {
     setSpinning(true);
   };
@@ -74,8 +90,6 @@ export default function SignInForm({ role, resetLink, signupLink }) {
     showLoader();
     if (window.ethereum) {
       try {
-        const roleLowerCase = role.toLowerCase();
-
         if (!values) {
           setSpinning(false);
           Swal.fire({
@@ -97,27 +111,21 @@ export default function SignInForm({ role, resetLink, signupLink }) {
         const signature = await signer.signMessage(JSON.stringify(newPatient));
         newPatient.signature = signature;
         console.log("Signature:", signature);
-
-        let endpoint = "";
-        if (roleLowerCase === "pasien") {
-          endpoint = `${CONN.BACKEND_LOCAL}/patient/signin`;
-        } else if (roleLowerCase === "dokter") {
-          endpoint = `${CONN.BACKEND_LOCAL}/doctor/signin`;
-        }
-
-        // Include the signature in the req.body
         newPatient.signature = signature;
 
         // Kirim permintaan POST ke endpoint yang sesuai
-        if (endpoint) {
+        if (role) {
           try {
-            const response = await fetch(endpoint, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(newPatient),
-            });
+            const response = await fetch(
+              `${CONN.BACKEND_LOCAL}/${role}/signin`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newPatient),
+              }
+            );
 
             if (response.ok) {
               const data = await response.json();
@@ -129,11 +137,20 @@ export default function SignInForm({ role, resetLink, signupLink }) {
                 icon: "success",
                 title: "Sign In Successful!",
               }).then(() => {
-                if (roleLowerCase === "pasien") {
+                // nanti mendingan samain first page setiap role, misalnya, home atau dashboard
+                if (role === "patient") {
                   window.location.assign(
                     `/patient/${accountAddress}/record-list`
                   );
-                } else if (roleLowerCase === "dokter") {
+                } else if (role === "staff") {
+                  window.location.assign(
+                    `/doctor/${accountAddress}/record-list`
+                  );
+                } else if (role === "doctor") {
+                  window.location.assign(
+                    `/doctor/${accountAddress}/patient-list`
+                  );
+                } else if (role === "nurse") {
                   window.location.assign(
                     `/doctor/${accountAddress}/patient-list`
                   );
@@ -191,7 +208,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
     <div className="col-span-2 col-start-2 h-fit">
       <div className="px-12 py-8 bg-white border border-gray-200 rounded-lg shadow h-fit">
         <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
-          Masuk sebagai {role}
+          Masuk sebagai {displayRole}
         </h1>
         <Form
           form={form}
