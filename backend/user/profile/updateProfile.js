@@ -63,7 +63,7 @@ const patientSchema = Joi.object({
 });
 
 // Skema validasi Joi untuk data dokter
-const doctorSchema = Joi.object({
+const userSchema = Joi.object({
   namaLengkap: Joi.string().required(),
   nomorIdentitas: Joi.string().required(),
   tempatLahir: Joi.string().required(),
@@ -196,9 +196,8 @@ router.post("/patient/update-profile", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
     
     // Update user account di blockchain (Jika perlu)
-    const updateAccountTX = await contract.addUserAccount(
+    const updateAccountTX = await contract.updateIpfsHash(
       userAccountData.accountEmail,
-      userAccountData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
@@ -233,8 +232,8 @@ router.post("/patient/update-profile", async (req, res) => {
   }
 });
 
-// Update Profile Doctor
-router.post("/doctor/update-profile", async (req, res) => {
+// Update Profile Doctor/Nurse/Staff
+router.post("/:role/update-profile", async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -243,7 +242,7 @@ router.post("/doctor/update-profile", async (req, res) => {
     } = req.body;
 
     // Validasi input menggunakan Joi
-    const { error } = doctorSchema.validate({
+    const { error } = userSchema.validate({
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
@@ -326,9 +325,8 @@ router.post("/doctor/update-profile", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
     
     // Update user account di blockchain (Jika perlu)
-    const updateAccountTX = await contract.addUserAccount(
+    const updateAccountTX = await contract.updateIpfsHash(
       userAccountData.accountEmail,
-      userAccountData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();

@@ -64,7 +64,7 @@ const patientSchema = Joi.object({
 });
 
 // Skema validasi Joi untuk data dokter
-const doctorSchema = Joi.object({
+const userSchema = Joi.object({
   namaLengkap: Joi.string().required(),
   nomorIdentitas: Joi.string().required(),
   tempatLahir: Joi.string().required(),
@@ -90,7 +90,7 @@ const doctorSchema = Joi.object({
   pos: Joi.string().required(),
   provinsi: Joi.string().required(),
   negara: Joi.string().required(),
-  doctorAccountData: Joi.object().required(),
+  userAccountData: Joi.object().required(),
 });
 
 // Add Profile Patient
@@ -212,9 +212,8 @@ router.post("/patient/add-profile", async (req, res) => {
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
 
-    const accountTX = await contract.addUserAccount(
+    const accountTX = await contract.updateIpfsHash(
       patientAccountData.account.accountEmail,
-      patientAccountData.account.role,
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
@@ -248,20 +247,20 @@ router.post("/patient/add-profile", async (req, res) => {
   }
 });
 
-// Add Profile Doctor
-router.post("/doctor/add-profile", async (req, res) => {
+// Add Profile Doctor/Nurse/Staff
+router.post("/:role/add-profile", async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-      kelurahan, kecamatan, kota, pos, provinsi, negara, doctorAccountData, role, signature, foto
+      kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData, role, signature, foto
     } = req.body;
 
     // Validasi input menggunakan Joi
-    const { error } = doctorSchema.validate({
+    const { error } = userSchema.validate({
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-      kelurahan, kecamatan, kota, pos, provinsi, negara, doctorAccountData,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData,
     });
 
     if (error) {
@@ -275,7 +274,7 @@ router.post("/doctor/add-profile", async (req, res) => {
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-        kelurahan, kecamatan, kota, pos, provinsi, negara, doctorAccountData
+        kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
       }),
       signature
     );
@@ -301,14 +300,14 @@ router.post("/doctor/add-profile", async (req, res) => {
       recoveredSigner
     );
 
-    // Membuat objek data pasien
-    const doctorData = {
+    // Membuat objek data
+    const userData = {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, foto
     };
 
-    // const earlyCid = doctorAccountData.ipfs.cid;
+    // const earlyCid = userAccountData.ipfs.cid;
 
     // Fisrt fetch IPFS data to retrieve accountProfiles array value
     // const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/ipfs/${earlyCid}`;
@@ -316,29 +315,29 @@ router.post("/doctor/add-profile", async (req, res) => {
     // const earlyData = await earlyResponse.json();
 
     const accountData = {
-      accountAddress: doctorAccountData.accountAddress,
-      accountUsername: doctorAccountData.accountUsername,
-      accountEmail: doctorAccountData.accountEmail,
-      // ipfsAddress: doctorAccountData.ipfs.ipfsAddress,
-      // cid: doctorAccountData.ipfs.cid,
-      accountPhone: doctorAccountData.accountPhone,
-      accountRole: doctorAccountData.accountRole,
+      accountAddress: userAccountData.accountAddress,
+      accountUsername: userAccountData.accountUsername,
+      accountEmail: userAccountData.accountEmail,
+      // ipfsAddress: userAccountData.ipfs.ipfsAddress,
+      // cid: userAccountData.ipfs.cid,
+      accountPhone: userAccountData.accountPhone,
+      accountRole: userAccountData.accountRole,
       accountProfiles: [
-        ...(doctorAccountData.accountProfiles || []),
+        ...(userAccountData.accountProfiles || []),
       ],
     };
 
-    accountData.accountProfiles.push(doctorData);
+    accountData.accountProfiles.push(userData);
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
     // const existingProfile = accountData.accountProfiles.findIndex(
-    //   (profile) => profile.nomorIdentitas === doctorData.nomorIdentitas
+    //   (profile) => profile.nomorIdentitas === userData.nomorIdentitas
     // );
 
     // if (existingProfile !== -1) {
     //   console.log(`Profile with ${nomorIdentitas} already exists`);
     // } else {
-    //   accountData.accountProfiles.push(doctorData);
+    //   accountData.accountProfiles.push(userData);
     // }
 
     // Menyimpan data pasien ke IPFS
@@ -356,9 +355,8 @@ router.post("/doctor/add-profile", async (req, res) => {
     await ipfsTX.wait();
     const getIpfs = await contract.getIpfsByAddress(accountAddress);
 
-    const accountTX = await contract.addUserAccount(
-      doctorAccountData.accountEmail,
-      doctorAccountData.accountRole,
+    const accountTX = await contract.updateIpfsHash(
+      userAccountData.accountEmail,
       getIpfs.ipfsAddress
     );
     await accountTX.wait();
@@ -366,7 +364,7 @@ router.post("/doctor/add-profile", async (req, res) => {
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
-      message: `Doctor Profile added successfully`,
+      message: `User Profile added successfully`,
       account: {
         accountAddress: getAccount.accountAddress,
         email: getAccount.email,
@@ -387,7 +385,7 @@ router.post("/doctor/add-profile", async (req, res) => {
     console.error(error);
     res.status(500).json({
       error: error.message,
-      message: "Doctor registration failed",
+      message: "User registration failed",
     });
   }
 });

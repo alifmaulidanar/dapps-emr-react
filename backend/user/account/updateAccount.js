@@ -18,7 +18,7 @@ const router = express.Router();
 router.use(express.json());
 
 // Endpoint untuk memperbarui username
-router.post("/patient/update-username", async (req, res) => {
+router.post("/:role/update-username", async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -90,9 +90,8 @@ router.post("/patient/update-username", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
     // Update user account di blockchain
-    const updateAccountTX = await contract.addUserAccount(
+    const updateAccountTX = await contract.updateIpfsHash(
       ipfsData.accountEmail,
-      ipfsData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
@@ -130,7 +129,7 @@ router.post("/patient/update-username", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui email
-router.post("/patient/update-email", async (req, res) => {
+router.post("/:role/update-email", async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -238,7 +237,7 @@ router.post("/patient/update-email", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui nomor telepon
-router.post("/patient/update-phone", async (req, res) => {
+router.post("/:role/update-phone", async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -310,9 +309,8 @@ router.post("/patient/update-phone", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
     // Update user account di blockchain
-    const updateAccountTX = await contract.addUserAccount(
+    const updateAccountTX = await contract.updateIpfsHash(
       ipfsData.accountEmail,
-      ipfsData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
@@ -350,7 +348,7 @@ router.post("/patient/update-phone", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui kata sandi
-router.post("/patient/update-password", async (req, res) => {
+router.post("/:role/update-password", async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword, signature } = req.body;
 
@@ -359,9 +357,9 @@ router.post("/patient/update-password", async (req, res) => {
       newPassword: Joi.string()
         .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"))
         .required(),
-      confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
+      confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
       signature: Joi.string().required(),
-    }).validate({ oldPassword, newPassword, signature });
+    }).validate({ oldPassword, newPassword, confirmPassword, signature });
 
     if (error) return res.status(400).json({ error: error.details[0].message });
 
@@ -370,6 +368,7 @@ router.post("/patient/update-password", async (req, res) => {
       JSON.stringify({
         oldPassword,
         newPassword,
+        confirmPassword,
       }),
       signature
     );
@@ -431,9 +430,8 @@ router.post("/patient/update-password", async (req, res) => {
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
     // Update user account di blockchain
-    const updateAccountTX = await contract.addUserAccount(
+    const updateAccountTX = await contract.updateIpfsHash(
       ipfsData.accountEmail,
-      ipfsData.accountRole,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();

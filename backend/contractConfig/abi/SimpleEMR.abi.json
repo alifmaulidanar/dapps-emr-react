@@ -76,6 +76,31 @@
         "internalType": "string",
         "name": "email",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newIpfsHash",
+        "type": "address"
+      }
+    ],
+    "name": "IpfsHashUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
       }
     ],
     "name": "NurseAccountAdded",
@@ -433,6 +458,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_email",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_newIpfsHash",
+        "type": "address"
+      }
+    ],
+    "name": "updateIpfsHash",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
