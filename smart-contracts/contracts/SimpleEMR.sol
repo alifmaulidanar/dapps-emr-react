@@ -12,6 +12,11 @@ contract SimpleEMR {
         string email,
         string newEmail
     );
+    event IpfsHashUpdated(
+        address indexed userAddress,
+        string email,
+        address newIpfsHash
+    );
 
     struct UserAccount {
         uint id;
@@ -38,6 +43,7 @@ contract SimpleEMR {
     uint private userAccountCounter = 1;
     uint private ipfsAccountCounter = 1;
 
+    // POST Add New User Account
     function addUserAccount(
         string memory _email,
         string memory _role,
@@ -56,7 +62,6 @@ contract SimpleEMR {
         emailToAddressMap[_email] = msg.sender;
         userAccountCounter++;
 
-        // Emit event sesuai dengan role
         if (keccak256(bytes(_role)) == keccak256(bytes("patient"))) {
             emit PatientAccountAdded(msg.sender, _email);
         } else if (keccak256(bytes(_role)) == keccak256(bytes("staff"))) {
@@ -68,6 +73,20 @@ contract SimpleEMR {
         }
     }
 
+    // POST Add New IPFS
+    function addIpfsAccount(string memory _cid) public {
+        IpfsAccount memory newIpfsAccount = IpfsAccount(
+            ipfsAccountCounter,
+            msg.sender,
+            _cid
+        );
+        ipfsAccounts.push(newIpfsAccount);
+        ipfsAccountMap[msg.sender] = newIpfsAccount;
+        ipfsAccountCounter++;
+        emit IpfsAccountAdded(msg.sender, _cid);
+    }
+
+    // POST Update User Email
     function updateUserEmail(string memory _newEmail) public {
         UserAccount storage userAccount = userAccountsMap[msg.sender];
         require(userAccount.accountAddress != address(0), "Account not found");
@@ -86,129 +105,33 @@ contract SimpleEMR {
         emit EmailUpdated(msg.sender, userAccount.email, _newEmail);
     }
 
-    function addIpfsAccount(string memory _cid) public {
-        IpfsAccount memory newIpfsAccount = IpfsAccount(
-            ipfsAccountCounter,
-            msg.sender,
-            _cid
+    // POST Update IPFS Hash
+    function updateIpfsHash(string memory _email, address _newIpfsHash) public {
+        require(
+            emailToAddressMap[_email] != address(0),
+            "Email not registered."
         );
-        ipfsAccounts.push(newIpfsAccount);
-        ipfsAccountMap[msg.sender] = newIpfsAccount;
-        ipfsAccountCounter++;
+        address userAddress = emailToAddressMap[_email];
+        require(userAddress == msg.sender, "Caller is not the account owner.");
 
-        emit IpfsAccountAdded(msg.sender, _cid);
-    }
+        // Update ipfsHash di UserAccount mapping
+        UserAccount storage account = userAccountsMap[userAddress];
+        account.ipfsHash = _newIpfsHash;
 
-    function getIpfs() public view returns (IpfsAccount[] memory) {
-        return ipfsAccounts;
-    }
-
-    function getIpfsByAddress(
-        address _address
-    ) public view returns (IpfsAccount memory) {
-        return ipfsAccountMap[_address];
-    }
-
-    function getNumberOfIpfs() public view returns (uint) {
-        return ipfsAccounts.length;
-    }
-
-    // get akun pasien dari mapping
-    function getPatientAccounts() public view returns (UserAccount[] memory) {
-        uint count = 0;
+        // Update ipfsHash di UserAccount array
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (
-                keccak256(abi.encodePacked(userAccounts[i].role)) ==
-                keccak256(abi.encodePacked("patient")) &&
-                emailToAddressMap[userAccounts[i].email] != address(0)
-            ) {
-                count++;
+            if (userAccounts[i].accountAddress == userAddress) {
+                userAccounts[i].ipfsHash = _newIpfsHash;
+                break;
             }
         }
-
-        UserAccount[] memory activePatients = new UserAccount[](count);
-        uint index = 0;
-
-        for (uint i = 0; i < userAccounts.length; i++) {
-            if (
-                keccak256(abi.encodePacked(userAccounts[i].role)) ==
-                keccak256(abi.encodePacked("patient")) &&
-                emailToAddressMap[userAccounts[i].email] != address(0)
-            ) {
-                activePatients[index] = userAccounts[i];
-                index++;
-            }
-        }
-        return activePatients;
+        emit IpfsHashUpdated(userAddress, _email, _newIpfsHash);
     }
 
-    // get akun petugas pendaftaran dari mapping
-    // function getStaffAccounts() public view returns (UserAccount[] memory) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("staff")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             count++;
-    //         }
-    //     }
-
-    //     UserAccount[] memory activeStaffs = new UserAccount[](count);
-    //     uint index = 0;
-
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("staff")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             activeStaffs[index] = userAccounts[i];
-    //             index++;
-    //         }
-    //     }
-    //     return activeStaffs;
-    // }
-
-    // get akun perawat dari mapping
-    // function getNurseAccounts() public view returns (UserAccount[] memory) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("nurse")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             count++;
-    //         }
-    //     }
-
-    //     UserAccount[] memory activeNurses = new UserAccount[](count);
-    //     uint index = 0;
-
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("nurse")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             activeNurses[index] = userAccounts[i];
-    //             index++;
-    //         }
-    //     }
-    //     return activeNurses;
-    // }
-
-    // get akun dokter dari mapping
-    // function getDoctorAccounts() public view returns (UserAccount[] memory) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("doctor")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             count++;
-    //         }
-    //     }
-
-    //     UserAccount[] memory activeDoctors = new UserAccount[](count);
-    //     uint index = 0;
-
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked("doctor")) && emailToAddressMap[userAccounts[i].email] != address(0)) {
-    //             activeDoctors[index] = userAccounts[i];
-    //             index++;
-    //         }
-    //     }
-    //     return activeDoctors;
-    // }
-
+    // GET Accounts by Role
     function getAccountsByRole(
         string memory role
     ) public view returns (UserAccount[] memory) {
-        // belum terpakai di backend
         uint count = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
             if (
@@ -236,6 +159,7 @@ contract SimpleEMR {
         return activeAccounts;
     }
 
+    // GET Account by Email
     function getAccountByEmail(
         string memory _email
     ) public view returns (UserAccount memory) {
@@ -245,6 +169,7 @@ contract SimpleEMR {
         return account;
     }
 
+    // GET Account by Address
     function getAccountByAddress(
         address _address
     ) public view returns (UserAccount memory) {
@@ -254,11 +179,22 @@ contract SimpleEMR {
         return account;
     }
 
-    // Fungsi untuk mendapatkan jumlah akun aktif berdasarkan role
+    // GET All IPFS
+    function getIpfs() public view returns (IpfsAccount[] memory) {
+        return ipfsAccounts;
+    }
+
+    // GET IPFS by Address
+    function getIpfsByAddress(
+        address _address
+    ) public view returns (IpfsAccount memory) {
+        return ipfsAccountMap[_address];
+    }
+
+    // GET Number of Account by Role
     function getNumberOfAccountsByRole(
         string memory role
     ) public view returns (uint) {
-        // belum terpakai di backend
         uint count = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
             if (
@@ -271,51 +207,8 @@ contract SimpleEMR {
         return count;
     }
 
-    // get jumlah akun pasien yang aktif dari mapping
-    // function getNumberOfPatientAccounts() public view returns (uint) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if(emailToAddressMap[userAccounts[i].email] != address(0) &&
-    //         keccak256(bytes(userAccounts[i].role)) == keccak256(bytes("patient"))) {
-    //             count++;
-    //         }
-    //     }
-    //     return count;
-    // }
-
-    // get jumlah akun petugas pendaftaran yang aktif dari mapping
-    // function getNumberOfStaffAccounts() public view returns (uint) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if(emailToAddressMap[userAccounts[i].email] != address(0) &&
-    //         keccak256(bytes(userAccounts[i].role)) == keccak256(bytes("staff"))) {
-    //             count++;
-    //         }
-    //     }
-    //     return count;
-    // }
-
-    // get jumlah akun perawat yang aktif dari mapping
-    // function getNumberOfNurseAccounts() public view returns (uint) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if(emailToAddressMap[userAccounts[i].email] != address(0) &&
-    //         keccak256(bytes(userAccounts[i].role)) == keccak256(bytes("nurse"))) {
-    //             count++;
-    //         }
-    //     }
-    //     return count;
-    // }
-
-    // get jumlah akun dokter yang aktif dari mapping
-    // function getNumberOfDoctorAccounts() public view returns (uint) {
-    //     uint count = 0;
-    //     for (uint i = 0; i < userAccounts.length; i++) {
-    //         if(emailToAddressMap[userAccounts[i].email] != address(0) &&
-    //         keccak256(bytes(userAccounts[i].role)) == keccak256(bytes("doctor"))) {
-    //             count++;
-    //         }
-    //     }
-    //     return count;
-    // }
+    // GET Number of IPFS
+    function getNumberOfIpfs() public view returns (uint) {
+        return ipfsAccounts.length;
+    }
 }
