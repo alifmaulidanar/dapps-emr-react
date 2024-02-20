@@ -106,7 +106,7 @@ export default function UserProfile({ role }) {
               />
             </div>
           ) : (
-            <Empty description="Tidak ada pasien">
+            <Empty description="Tidak ada data profil">
               {role === "patient" ? (
                 <Button
                   type="primary"
@@ -117,7 +117,7 @@ export default function UserProfile({ role }) {
               ) : (
                 <RegisterDoctorButton
                   buttonText={"Lengkapi Profil"}
-                  doctorAccountData={userAccountData}
+                  userAccountData={userAccountData}
                 />
               )}
             </Empty>

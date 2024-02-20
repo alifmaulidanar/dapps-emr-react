@@ -5,10 +5,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
-export default function RegisterDoctorButton({
-  buttonText,
-  doctorAccountData,
-}) {
+export default function RegisterDoctorButton({ buttonText, userAccountData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
@@ -123,7 +120,7 @@ export default function RegisterDoctorButton({
     const formattedDoctorData = {
       ...doctorData,
       tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
-      doctorAccountData: doctorAccountData,
+      userAccountData: userAccountData,
     };
 
     // Menandatangani data menggunakan signer
@@ -134,7 +131,7 @@ export default function RegisterDoctorButton({
     formattedDoctorData.signature = signature;
     console.log({ signature });
     formattedDoctorData.signature = signature;
-    formattedDoctorData.role = doctorAccountData.accountRole;
+    formattedDoctorData.role = userAccountData.accountRole;
     formattedDoctorData.foto = null;
 
     try {
@@ -423,7 +420,7 @@ export default function RegisterDoctorButton({
                 <option value="1">A</option>
                 <option value="2">B</option>
                 <option value="3">AB</option>
-                <option value="4">0</option>
+                <option value="4">O</option>
                 <option value="5">A+</option>
                 <option value="6">A-</option>
                 <option value="7">B+</option>

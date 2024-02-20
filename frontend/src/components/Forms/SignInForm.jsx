@@ -144,7 +144,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
                   );
                 } else if (role === "staff") {
                   window.location.assign(
-                    `/doctor/${accountAddress}/record-list`
+                    `/staff/${accountAddress}/record-list`
                   );
                 } else if (role === "doctor") {
                   window.location.assign(
@@ -152,7 +152,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
                   );
                 } else if (role === "nurse") {
                   window.location.assign(
-                    `/doctor/${accountAddress}/patient-list`
+                    `/nurse/${accountAddress}/patient-list`
                   );
                 }
               });
