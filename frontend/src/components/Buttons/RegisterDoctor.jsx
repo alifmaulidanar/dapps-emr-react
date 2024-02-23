@@ -6,6 +6,8 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
 export default function RegisterDoctorButton({ buttonText, userAccountData }) {
+  const token = sessionStorage.getItem("userToken");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
@@ -123,6 +125,8 @@ export default function RegisterDoctorButton({ buttonText, userAccountData }) {
       userAccountData: userAccountData,
     };
 
+    console.log({ formattedDoctorData });
+
     // Menandatangani data menggunakan signer
     const signer = await getSigner();
     const signature = await signer.signMessage(
@@ -139,6 +143,7 @@ export default function RegisterDoctorButton({ buttonText, userAccountData }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
         },
         body: JSON.stringify(formattedDoctorData),
       });

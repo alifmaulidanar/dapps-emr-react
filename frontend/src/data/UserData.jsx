@@ -29,6 +29,8 @@ const ipfsClient = create({
 });
 
 export default function UserData({ userDataProps, userAccountData }) {
+  const token = sessionStorage.getItem("userToken");
+
   const [form] = Form.useForm();
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -213,6 +215,7 @@ export default function UserData({ userDataProps, userAccountData }) {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
             },
             body: JSON.stringify(updatedValues),
           }

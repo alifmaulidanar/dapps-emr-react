@@ -1,45 +1,48 @@
 import "./../../index.css";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
 import PatientList from "../../components/PatientList";
-// import { AllPatient } from "../../data/patientData";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
 import { Empty } from "antd";
 import { CONN } from "../../../../enum-global";
 
 export default function PatientRecordList() {
-  const { accountAddress } = useParams();
+  const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
+
+  if (!token || !accountAddress) {
+    window.location.assign(`/patient/signin`);
+  }
+
   const [patientAccountData, setPatientAccountData] = useState(null);
   const [chosenIndex, setChosenIndex] = useState(0);
 
   useEffect(() => {
-    const capitalizedAccountAddress =
-      accountAddress.charAt(0) +
-      accountAddress.charAt(1) +
-      accountAddress.substring(2).toUpperCase();
-    // console.log({ capitalizedAccountAddress });
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/patient/${capitalizedAccountAddress}/account`,
-          {
-            method: "GET",
-          }
-        );
-        const data = await response.json();
-        setPatientAccountData(data);
-        // console.log(data);
-      } catch (error) {
-        console.error("Error fetching patient data:", error);
-      }
-    };
-
-    fetchData();
-  }, [accountAddress]);
+    if (token && accountAddress) {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `${CONN.BACKEND_LOCAL}/patient/account`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          const data = await response.json();
+          setPatientAccountData(data);
+          // console.log(data);
+        } catch (error) {
+          console.error("Error fetching patient data:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [token, accountAddress]);
 
   const handlePatientClick = (index) => {
     setChosenIndex(index);
@@ -89,12 +92,7 @@ export default function PatientRecordList() {
 
   return (
     <>
-      <NavbarController
-        type={1}
-        page="Daftar Rekam Medis"
-        color="blue"
-        accountAddress={accountAddress}
-      />
+      <NavbarController type={1} page="Daftar Rekam Medis" color="blue" />
       <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">

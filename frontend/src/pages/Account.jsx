@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Spin } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import NavbarController from "../components/Navbar/NavbarController";
@@ -10,8 +10,15 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../enum-global";
 
 export default function UserAccount({ role }) {
+  const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
+  const navigate = useNavigate();
+
+  if (!token || !accountAddress) {
+    window.location.assign(`/${role}/signin`);
+  }
+
   const [form] = Form.useForm();
-  const { accountAddress } = useParams();
   const [initialData, setInitialData] = useState({});
   const [spinning, setSpinning] = React.useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -64,37 +71,38 @@ export default function UserAccount({ role }) {
   }, []);
 
   useEffect(() => {
-    const capitalizedAccountAddress =
-      accountAddress.charAt(0) +
-      accountAddress.charAt(1) +
-      accountAddress.substring(2).toUpperCase();
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/${role}/${capitalizedAccountAddress}/account`,
-          {
-            method: "GET",
-          }
-        );
-        const data = await response.json();
-        const { accountUsername, accountEmail, accountPhone } = data.ipfs.data;
-        const formattedData = {
-          address: accountAddress,
-          username: accountUsername,
-          email: accountEmail,
-          phone: accountPhone,
-        };
-        setInitialData(formattedData);
-        form.setFieldsValue(formattedData);
-        setUserAccountData(data);
-      } catch (error) {
-        console.error(`Error fetching ${role} data:`, error);
-      }
-    };
-
-    fetchData();
-  }, [accountAddress, form]);
+    if (token && accountAddress) {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `${CONN.BACKEND_LOCAL}/${role}/account`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          const data = await response.json();
+          const { accountUsername, accountEmail, accountPhone } =
+            data.ipfs.data;
+          const formattedData = {
+            address: accountAddress,
+            username: accountUsername,
+            email: accountEmail,
+            phone: accountPhone,
+          };
+          setInitialData(formattedData);
+          form.setFieldsValue(formattedData);
+          setUserAccountData(data);
+        } catch (error) {
+          console.error(`Error fetching ${role} data:`, error);
+        }
+      };
+      fetchData();
+    }
+  }, [token, accountAddress, form]);
 
   const handleEditClick = (field) => {
     setIsEditing({ ...isEditing, [field]: true });
@@ -148,13 +156,14 @@ export default function UserAccount({ role }) {
           signature,
         };
 
-        console.log({ updatedData });
-
         const response = await fetch(
           `${CONN.BACKEND_LOCAL}/${role}/update-${field}`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
             body: JSON.stringify(updatedData),
           }
         );
@@ -240,7 +249,10 @@ export default function UserAccount({ role }) {
         `${CONN.BACKEND_LOCAL}/${role}/update-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
           body: JSON.stringify(updatedData),
         }
       );
@@ -278,7 +290,23 @@ export default function UserAccount({ role }) {
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    Swal.fire({
+      title: "Apakah Anda yakin ingin keluar?",
+      text: "Anda akan dikembalikan ke halaman masuk.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, keluar!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        sessionStorage.removeItem("userToken");
+        sessionStorage.removeItem("accountAddress");
+        navigate(`/${role}/signin`, { replace: true });
+        Swal.fire("Logged Out!", "Anda telah berhasil keluar.", "success");
+      }
+    });
   };
 
   let type;
@@ -642,7 +670,12 @@ export default function UserAccount({ role }) {
                 </div>
               </div>
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <Button type="primary" danger className="red-button">
+                <Button
+                  type="primary"
+                  danger
+                  className="red-button"
+                  onClick={handleLogout}
+                >
                   <div className="flex gap-x-2">
                     Keluar <LogoutOutlined />
                   </div>

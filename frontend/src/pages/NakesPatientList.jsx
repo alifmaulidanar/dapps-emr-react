@@ -10,7 +10,13 @@ import { UserOutlined } from "@ant-design/icons";
 import { CONN } from "../../../enum-global";
 
 export default function NakesPatientList({ role }) {
-  const { accountAddress } = useParams();
+  const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
+
+  if (!token || !accountAddress) {
+    window.location.assign(`/${role}/signin`);
+  }
+
   const [patientAccountData, setPatientAccountData] = useState(null);
   const [chosenIndex, setChosenIndex] = useState(0);
 
@@ -32,12 +38,7 @@ export default function NakesPatientList({ role }) {
 
   return (
     <>
-      <NavbarController
-        type={type}
-        page={role}
-        color="blue"
-        accountAddress={accountAddress}
-      />
+      <NavbarController type={type} page={role} color="blue" />
       <div>
         <div className="grid items-center justify-center w-1/2 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="grid items-center grid-cols-2 h-fit">

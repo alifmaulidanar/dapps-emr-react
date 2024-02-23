@@ -130,8 +130,9 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             if (response.ok) {
               const data = await response.json();
               const accountAddress = data.account.accountAddress;
-              console.log("alamat: ", accountAddress);
               console.log(data.message, data);
+              sessionStorage.setItem("userToken", data.token);
+              sessionStorage.setItem("accountAddress", accountAddress);
               setSpinning(false);
               Swal.fire({
                 icon: "success",
@@ -139,21 +140,13 @@ export default function SignInForm({ role, resetLink, signupLink }) {
               }).then(() => {
                 // nanti mendingan samain first page setiap role, misalnya, home atau dashboard
                 if (role === "patient") {
-                  window.location.assign(
-                    `/patient/${accountAddress}/record-list`
-                  );
+                  window.location.assign(`/patient/record-list`);
                 } else if (role === "staff") {
-                  window.location.assign(
-                    `/staff/${accountAddress}/record-list`
-                  );
+                  window.location.assign(`/staff/record-list`);
                 } else if (role === "doctor") {
-                  window.location.assign(
-                    `/doctor/${accountAddress}/patient-list`
-                  );
+                  window.location.assign(`/doctor/patient-list`);
                 } else if (role === "nurse") {
-                  window.location.assign(
-                    `/nurse/${accountAddress}/patient-list`
-                  );
+                  window.location.assign(`/nurse/patient-list`);
                 }
               });
             } else {

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import { RequireAuth } from "./components/Utils/RequireAuth";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
@@ -12,13 +13,6 @@ import UserProfile from "./pages/Profile";
 import NakesPatientList from "./pages/NakesPatientList";
 
 function App() {
-  const role = {
-    patient: "patient",
-    doctor: "doctor",
-    staff: "staff",
-    nurse: "nurse",
-  };
-
   return (
     <>
       <Router>
@@ -79,23 +73,23 @@ function App() {
             {/* Routing Patient */}
             <>
               <Route
-                path={`/patient/:accountAddress/record-list`}
+                path={`/patient/record-list`}
                 element={<PatientRecordList />}
               />
               <Route
-                path={`/patient/:accountAddress/record-list/record/:recordAddress`}
+                path={`/patient/record-list/record/:recordAddress`}
                 element={<PatientRecord />}
               />
               <Route
-                path={`/patient/:accountAddress/appointment`}
+                path={`/patient/appointment`}
                 element={<PatientAppointment />}
               />
               <Route
-                path={`/patient/:accountAddress/profile`}
+                path={`/patient/profile`}
                 element={<UserProfile role="patient" />}
               />
               <Route
-                path={`/patient/:accountAddress/account`}
+                path={`/patient/account`}
                 element={<UserAccount role="patient" />}
               />
             </>
@@ -103,19 +97,19 @@ function App() {
             {/* Routing Doctor */}
             <>
               <Route
-                path={`/doctor/:accountAddress/patient-list`}
+                path={`/doctor/patient-list`}
                 element={<NakesPatientList role="doctor" />}
               />
               {/* <Route
-              path={`/doctor/:accountAddress/record-list/record/:recordAddress`}
+              path={`/doctor/record-list/record/:recordAddress`}
               element={<PatientRecord />}
             /> */}
               <Route
-                path={`/doctor/:accountAddress/profile`}
+                path={`/doctor/profile`}
                 element={<UserProfile role="doctor" />}
               />
               <Route
-                path={`/doctor/:accountAddress/account`}
+                path={`/doctor/account`}
                 element={<UserAccount role="doctor" />}
               />
             </>
@@ -123,23 +117,23 @@ function App() {
             {/* Routing Nurse */}
             <>
               <Route
-                path={`/nurse/:accountAddress/patient-list`}
+                path={`/nurse/patient-list`}
                 element={<NakesPatientList role="nurse" />}
               />
               <Route
-                path={`/nurse/:accountAddress/record-list/record/:recordAddress`}
+                path={`/nurse/record-list/record/:recordAddress`}
                 element={<PatientRecord />}
               />
               <Route
-                path={`/nurse/:accountAddress/appointment`}
+                path={`/nurse/appointment`}
                 element={<PatientAppointment />}
               />
               <Route
-                path={`/nurse/:accountAddress/profile`}
+                path={`/nurse/profile`}
                 element={<UserProfile role="nurse" />}
               />
               <Route
-                path={`/nurse/:accountAddress/account`}
+                path={`/nurse/account`}
                 element={<UserAccount role="nurse" />}
               />
             </>
@@ -147,19 +141,19 @@ function App() {
             {/* Routing Staff */}
             <>
               <Route
-                path={`/staff/:accountAddress/record-list`}
+                path={`/staff/record-list`}
                 element={<NakesPatientList role="staff" />}
               />
               <Route
-                path={`/staff/:accountAddress/appointment`}
+                path={`/staff/appointment`}
                 element={<PatientAppointment />}
               />
               <Route
-                path={`/staff/:accountAddress/profile`}
+                path={`/staff/profile`}
                 element={<UserProfile role="staff" />}
               />
               <Route
-                path={`/staff/:accountAddress/account`}
+                path={`/staff/account`}
                 element={<UserAccount role="staff" />}
               />
             </>

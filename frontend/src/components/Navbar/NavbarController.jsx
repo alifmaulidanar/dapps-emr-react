@@ -45,17 +45,17 @@ function NavbarController({ type, page, color, accountAddress }) {
     navItems = [
       {
         text: "Daftar Rekam Medis",
-        linkToPage: `/patient/${id}/record-list`,
+        linkToPage: `/patient/record-list`,
         color: page === "Daftar Rekam Medis" ? color : defaultColor,
       },
       {
         text: "Appointment",
-        linkToPage: `/patient/${id}/appointment`,
+        linkToPage: `/patient/appointment`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Pasien",
-        linkToPage: `/patient/${id}/profile`,
+        linkToPage: `/patient/profile`,
         color: page === "Profil Pasien" ? color : defaultColor,
       },
     ];
@@ -63,7 +63,7 @@ function NavbarController({ type, page, color, accountAddress }) {
     buttons = [
       {
         text: "Akun Pasien",
-        href: `/patient/${id}/account`,
+        href: `/patient/account`,
         className: `blue-button ${
           page === "patient-account"
             ? `text-white bg-${color}-600`
@@ -75,17 +75,17 @@ function NavbarController({ type, page, color, accountAddress }) {
     navItems = [
       {
         text: "Daftar Pasien",
-        linkToPage: `/patient/${id}/record-list`,
+        linkToPage: `/patient/record-list`,
         color: page === "staff" ? color : defaultColor,
       },
       {
         text: "Appointment",
-        linkToPage: `/patient/${id}/appointment`,
+        linkToPage: `/patient/appointment`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Pasien",
-        linkToPage: `/patient/${id}/profile`,
+        linkToPage: `/patient/profile`,
         color: page === "Profil Pasien" ? color : defaultColor,
       },
     ];
@@ -93,7 +93,7 @@ function NavbarController({ type, page, color, accountAddress }) {
     buttons = [
       {
         text: "Akun Staff",
-        href: `/patient/${id}/account`,
+        href: `/patient/account`,
         className: `blue-button ${
           page === "staff-account"
             ? `text-white bg-${color}-600`
@@ -105,17 +105,17 @@ function NavbarController({ type, page, color, accountAddress }) {
     navItems = [
       {
         text: "Daftar Pasien",
-        linkToPage: `/nurse/${id}/record-list`,
+        linkToPage: `/nurse/record-list`,
         color: page === "nurse" ? color : defaultColor,
       },
       {
         text: "Appointment",
-        linkToPage: `/nurse/${id}/appointment`,
+        linkToPage: `/nurse/appointment`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Pasien",
-        linkToPage: `/nurse/${id}/profile`,
+        linkToPage: `/nurse/profile`,
         color: page === "Profil Pasien" ? color : defaultColor,
       },
     ];
@@ -123,7 +123,7 @@ function NavbarController({ type, page, color, accountAddress }) {
     buttons = [
       {
         text: "Akun Perawat",
-        href: `/nurse/${id}/account`,
+        href: `/nurse/account`,
         className: `blue-button ${
           page === "nurse-account"
             ? `text-white bg-${color}-600`
@@ -135,17 +135,17 @@ function NavbarController({ type, page, color, accountAddress }) {
     navItems = [
       {
         text: "Daftar Pasien",
-        linkToPage: `/doctor/${id}/patient-list`,
+        linkToPage: `/doctor/patient-list`,
         color: page === "doctor" ? color : defaultColor,
       },
       {
         text: "Appointment",
-        linkToPage: `/doctor/${id}/appointment`,
+        linkToPage: `/doctor/appointment`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Dokter",
-        linkToPage: `/doctor/${id}/profile`,
+        linkToPage: `/doctor/profile`,
         color: page === "Profil Dokter" ? color : defaultColor,
       },
     ];
@@ -153,7 +153,7 @@ function NavbarController({ type, page, color, accountAddress }) {
     buttons = [
       {
         text: "Akun Dokter",
-        href: `/doctor/${id}/account`,
+        href: `/doctor/account`,
         className: `blue-button ${
           page === "doctor-account"
             ? `text-white bg-${color}-600`

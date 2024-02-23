@@ -1,6 +1,5 @@
 import "../index.css";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import { Empty, Button } from "antd";
 import NavbarController from "../components/Navbar/NavbarController";
 import UserData from "../data/UserData";
@@ -9,48 +8,57 @@ import { CONN } from "../../../enum-global";
 import RegisterDoctorButton from "../components/Buttons/RegisterDoctor";
 
 export default function UserProfile({ role }) {
-  const { accountAddress } = useParams();
+  const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
+
+  if (!token || !accountAddress) {
+    window.location.assign(`/${role}/signin`);
+  }
+
   const [users, setUsers] = useState([]);
   const [userAccountData, setUserAccountData] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    const capitalizedAccountAddress =
-      accountAddress.charAt(0) +
-      accountAddress.charAt(1) +
-      accountAddress.substring(2).toUpperCase();
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/${role}/${capitalizedAccountAddress}/account`,
-          {
-            method: "GET",
+    if (token && accountAddress) {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `${CONN.BACKEND_LOCAL}/${role}/account`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          const data = await response.json();
+          const profiles =
+            data.ipfs?.data?.accountProfiles?.map((profile) => ({
+              ...profile,
+            })) || [];
+          setUsers(profiles);
+          const accountData = {
+            accountAddress: data.ipfs.data.accountAddress,
+            accountEmail: data.ipfs.data.accountEmail,
+            accountPhone: data.ipfs.data.accountPhone,
+            accountPassword: data.ipfs.data.accountPassword,
+            accountCreated: data.ipfs.data.accountCreated,
+            accountRole: data.ipfs.data.accountRole,
+            accountUsername: data.ipfs.data.accountUsername,
+          };
+          setUserAccountData(accountData);
+          if (profiles.length > 0) {
+            setSelectedUser(profiles[0]);
           }
-        );
-        const data = await response.json();
-        const profiles =
-          data.ipfs?.data?.accountProfiles?.map((profile) => ({
-            ...profile,
-          })) || [];
-        setUsers(profiles);
-        const accountData = {
-          accountAddress: data.ipfs.data.accountAddress,
-          accountEmail: data.ipfs.data.accountEmail,
-          accountPhone: data.ipfs.data.accountPhone,
-          accountRole: data.ipfs.data.accountRole,
-          accountUsername: data.ipfs.data.accountUsername,
-        };
-        setUserAccountData(accountData);
-        if (profiles.length > 0) {
-          setSelectedUser(profiles[0]);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+      };
+      fetchData();
+    }
+  }, [token, accountAddress]);
 
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);

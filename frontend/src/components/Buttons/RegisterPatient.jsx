@@ -9,6 +9,8 @@ export default function RegisterPatientButton({
   buttonText,
   patientAccountData,
 }) {
+  const token = sessionStorage.getItem("userToken");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
@@ -170,6 +172,7 @@ export default function RegisterPatientButton({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
           },
           body: JSON.stringify(formattedPatientData),
         }

@@ -17,8 +17,10 @@
 19/02/24
 ❌ ga nyentuh smart contract
 
+20/02/24
+✅ handle update mapping di SC biar akun ga numpuk kalo pada addUserAccount akan numpuk. periksa di backend terkait penambahan profil, update profil, edit akun, dan soon to be data EMR1️
+
 next:
-- handle update mapping di SC biar akun ga numpuk kalo pada addUserAccount akan numpuk. periksa di backend terkait penambahan profil, update profil, edit akun, dan soon to be data EMR1️🔴🔴🔴
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
 ===================================================================================================
@@ -47,8 +49,16 @@ next:
 ✅ patient                  == daftar rekam medis
    staff && nurse && doctor == daftar pasien
 
+23/02/24
+✅ fix handle auth dengan jwt kalo backend udah selesai
+✅ persiapan bikin auth pake jwt --> handle session di frontend pakai sessionStorage
+✅ validasi token di frontend
+✅ auth pasien dan dokter udah aman untuk endpoint frontend: record-list, patient-list, profile, account
+✅ bisa logout
+
 next:
-- fix handle auth dengan jwt kalo backend udah selesai🟢🟢
+- cek auth untuk nurse dan staff
+- handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
 
 ===================================================================================================
@@ -68,8 +78,18 @@ next:
 ✅ persiapan file auth-middleware
 
 
+20/02/24
+✅ Endpoint sementara udah jalan semua untuk setiap role --> cek notion untuk daftar API
+
+23/02./24
+✅ auth dan auth-middleware sudah ada dan pada JWT token membawa address, email, dan role user
+✅ bikin validasi/verifikasi jwt token
+✅ auth untuk user udah aman --> validasi token di backend saat fetch
+✅ endpoint backend yang sudah pakai authMiddleware: /account, /add-profile, /update-profile, dan seluruh update account
+
 next:
-- persiapan bikin auth pake jwt🟡🟡🟡
+- cek auth untuk nurse dan staff
+- perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
