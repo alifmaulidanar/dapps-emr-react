@@ -6,6 +6,7 @@ import { create } from "ipfs-http-client";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
+import authMiddleware from "../../middleware/auth-middleware.js";
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const client = create({
@@ -18,7 +19,7 @@ const router = express.Router();
 router.use(express.json());
 
 // Endpoint untuk memperbarui username
-router.post("/:role/update-username", async (req, res) => {
+router.post("/:role/update-username", authMiddleware, async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -129,7 +130,7 @@ router.post("/:role/update-username", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui email
-router.post("/:role/update-email", async (req, res) => {
+router.post("/:role/update-email", authMiddleware, async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -237,7 +238,7 @@ router.post("/:role/update-email", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui nomor telepon
-router.post("/:role/update-phone", async (req, res) => {
+router.post("/:role/update-phone", authMiddleware, async (req, res) => {
   try {
     const { field, value, signature } = req.body;
 
@@ -348,7 +349,7 @@ router.post("/:role/update-phone", async (req, res) => {
 });
 
 // Endpoint untuk memperbarui kata sandi
-router.post("/:role/update-password", async (req, res) => {
+router.post("/:role/update-password", authMiddleware, async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword, signature } = req.body;
 

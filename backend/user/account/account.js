@@ -1,12 +1,13 @@
 import express from "express";
 import { getUserAccountData } from "../../middleware/userData.js";
+import authMiddleware from "../../middleware/auth-middleware.js";
 
 const router = express.Router();
 router.use(express.json());
 
-router.get("/:role/:address/account", async (req, res) => {
+router.get("/:role/account", authMiddleware, async (req, res) => {
   try {
-    const address = req.params.address;
+    const address = req.auth.address;
     const data = await getUserAccountData(address);
     console.log({ data });
     res.status(200).json(data);

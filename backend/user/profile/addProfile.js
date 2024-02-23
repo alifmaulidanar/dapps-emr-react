@@ -7,6 +7,7 @@ import { create } from "ipfs-http-client";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
+import authMiddleware from "../../middleware/auth-middleware.js";
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const client = create({
@@ -94,7 +95,7 @@ const userSchema = Joi.object({
 });
 
 // Add Profile Patient
-router.post("/patient/add-profile", async (req, res) => {
+router.post("/patient/add-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -248,7 +249,7 @@ router.post("/patient/add-profile", async (req, res) => {
 });
 
 // Add Profile Doctor/Nurse/Staff
-router.post("/:role/add-profile", async (req, res) => {
+router.post("/:role/add-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -321,7 +322,9 @@ router.post("/:role/add-profile", async (req, res) => {
       // ipfsAddress: userAccountData.ipfs.ipfsAddress,
       // cid: userAccountData.ipfs.cid,
       accountPhone: userAccountData.accountPhone,
+      accountPassword: userAccountData.accountPassword,
       accountRole: userAccountData.accountRole,
+      accountCreated: userAccountData.accountCreated,
       accountProfiles: [
         ...(userAccountData.accountProfiles || []),
       ],

@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
+import { generateToken } from "../../middleware/auth.js";
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const router = express.Router();
@@ -80,6 +81,8 @@ router.post("/:role/signin", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
+    console.log({ ipfsData });
+
     // Cek accountRole
     if (role !== ipfsData.accountRole) {
       if (role === "patient") {
@@ -105,9 +108,16 @@ router.post("/:role/signin", async (req, res) => {
       });
     }
 
+    const token = generateToken({
+      address: ipfsData.accountAddress,
+      email: ipfsData.accountEmail,
+      role: ipfsData.accountRole,
+    });
+
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: "Sign In Succesful",
+      token: token,
       account: {
         accountAddress: ipfsData.accountAddress,
         email: ipfsData.accountEmail,

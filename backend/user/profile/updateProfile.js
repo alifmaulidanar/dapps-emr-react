@@ -6,6 +6,7 @@ import { create } from "ipfs-http-client";
 import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
 import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
+import authMiddleware from "../../middleware/auth-middleware.js";
 
 const contractAddress = CONTRACT_ADDRESS.toString();
 const client = create({
@@ -93,7 +94,7 @@ const userSchema = Joi.object({
 });
 
 // Update Profile Patient
-router.post("/patient/update-profile", async (req, res) => {
+router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -233,7 +234,7 @@ router.post("/patient/update-profile", async (req, res) => {
 });
 
 // Update Profile Doctor/Nurse/Staff
-router.post("/:role/update-profile", async (req, res) => {
+router.post("/:role/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
