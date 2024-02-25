@@ -32,4 +32,4 @@ dist-ssr
 # smart contract
 /smart-contracts/cache
 /smart-contracts/artifacts
-/smart-contracts/hardhat.config.js
+# /smart-contracts/hardhat.config.js

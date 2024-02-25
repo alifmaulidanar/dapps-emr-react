@@ -5,6 +5,7 @@
     "contract:deploy": "hardhat run scripts/deploy.js",
     "contract:deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
     "contract:deploy:ganache": "hardhat run scripts/deploy.js --network ganache",
+    "contract:deploy:quorum": "hardhat run scripts/deploy.js --network quorum",
     "contract:test": "hardhat test"
   },
   "devDependencies": {
