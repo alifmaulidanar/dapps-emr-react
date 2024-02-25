@@ -63,6 +63,8 @@ router.post("/:role/signup", async (req, res) => {
   try {
     const { username, email, phone, password, confirmPassword, signature } =
       req.body;
+
+    // Enkripsi password menggunakan bcrypt.js
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     // Validasi input menggunakan Joi
@@ -80,7 +82,32 @@ router.post("/:role/signup", async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+
+    // const signer = provider.getSigner();
+    // const recoveredAddress = ethers.utils.verifyMessage(
+    //   JSON.stringify({
+    //     username,
+    //     email,
+    //     phone,
+    //     password,
+    //     confirmPassword,
+    //   }),
+    //   signature
+    // );
+
+    // const recoveredSigner = provider.getSigner(recoveredAddress);
     const accountList = await provider.listAccounts();
+    // const accountAddress = accounts.find(
+    //   (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
+    // );
+
+    // if (!accountAddress) {
+    //   return res.status(400).json({ error: "Account not found" });
+    // }
+
+    // if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
+    //   return res.status(400).json({ error: "Invalid signature" });
+    // }
 
     // Koneksi ke Smart Contract
     const contract = new ethers.Contract(
@@ -88,6 +115,27 @@ router.post("/:role/signup", async (req, res) => {
       contractAbi,
       provider
     );
+
+    // Pengecekan apakah email sudah terdaftar
+    // const getAccountByEmail = await contract.getAccountByEmail(email);
+    // if (getAccountByEmail.accountAddress !== ethers.constants.AddressZero) {
+    //   return res.status(400).json({
+    //     error: `Akun dengan email ${email} sudah terdaftar.`,
+    //   });
+    // }
+
+    // Pengecekan apakah address dari signature sudah terdaftar dengan email lain
+    // const getAccountByAddress = await contract.getAccountByAddress(
+    //   recoveredAddress
+    // );
+    // if (
+    //   getAccountByAddress.accountAddress !== ethers.constants.AddressZero &&
+    //   getAccountByAddress.email !== email
+    // ) {
+    //   return res.status(400).json({
+    //     error: `Akun wallet MetaMask ini sudah terdaftar dengan email yang berbeda.`,
+    //   });
+    // }
 
     // Cek email sudah terdaftar atau belum
     const emailRegistered = await contract.getAccountByEmail(email);
