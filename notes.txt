@@ -21,6 +21,8 @@
 ✅ handle update mapping di SC biar akun ga numpuk kalo pada addUserAccount akan numpuk. periksa di backend terkait penambahan profil, update profil, edit akun, dan soon to be data EMR1️
 
 next:
+- admin, bisa add akun dokter, nurse, staff
+- pertimbangkan apakah perlu function baru di SC untuk role baru ini (admin)
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
 ===================================================================================================
@@ -56,8 +58,19 @@ next:
 ✅ auth pasien dan dokter udah aman untuk endpoint frontend: record-list, patient-list, profile, account
 ✅ bisa logout
 
+25/02/24
+✅ hilangkan signature metamask saat signup untuk mendukung pemilihan akun otomatis dari backend
+✅ signup di frontend hanya kirim informasi dari form ke backend
+✅ respon dari backend berupa informasi akun dan ditampilkan sebagai modal agar user bisa salin private key
+
+26/02/24
+✅ di signin bikin tombol modal untuk tutorial install ekstensi metamask sampai impor akun (InstallMetaMask)
+✅ bikin tombol connect to ganache untuk metamask (MetaConnect)
+
 next:
 - cek auth untuk nurse dan staff
+- bikin dashboard admin sederhana, admin bisa daftarin akun dokter, nurse, staf
+- dokter, nurse, staf nanti tinggal signin akunnya sudah dibuatkan dari admin
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
 
@@ -87,8 +100,16 @@ next:
 ✅ auth untuk user udah aman --> validasi token di backend saat fetch
 ✅ endpoint backend yang sudah pakai authMiddleware: /account, /add-profile, /update-profile, dan seluruh update account
 
+25/02/24
+✅ logika signup baru agar dapat pilih akun ganache untuk user baru secara otomatis
+✅ data akun disimpan di accounts.json
+✅ mengembalikan private key agar user bisa impor akun ke metamask
+✅ tetap ada pengecekan apakah email sudah pernah terdaftar atau akun telah digunakan sebelumnya
+✅ pakai workspace ganache baru isi 100 akun new-dapp-emr
+
 next:
 - cek auth untuk nurse dan staff
+- bikin logika admin CRUD untuk akun dokter, nurse, staf -> interaksi dengan smart contract
 - perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random

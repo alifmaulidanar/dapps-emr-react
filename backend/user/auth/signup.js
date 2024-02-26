@@ -49,7 +49,6 @@ function formatDateTime(date) {
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
   const seconds = String(date.getSeconds()).padStart(2, "0");
-
   return `${hours}:${minutes}:${seconds}_${day}-${month}-${year}`;
 }
 
@@ -61,8 +60,7 @@ router.post("/:role/signup", async (req, res) => {
   const { role } = req.params;
 
   try {
-    const { username, email, phone, password, confirmPassword, signature } =
-      req.body;
+    const { username, email, phone, password, confirmPassword } = req.body;
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     // Validasi input menggunakan Joi
@@ -103,12 +101,6 @@ router.post("/:role/signup", async (req, res) => {
         selectedAccountAddress = account;
         break;
       }
-    }
-
-    if (!selectedAccountAddress) {
-      return res
-        .status(400)
-        .json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
     }
 
     const privateKey = accounts[selectedAccountAddress];

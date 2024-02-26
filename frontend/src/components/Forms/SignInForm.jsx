@@ -1,3 +1,5 @@
+import MetaConnect from "../Buttons/MetaMaskButton";
+import InstallMetaMask from "../Buttons/InstallMetaMask";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input, Spin } from "antd";
@@ -200,9 +202,13 @@ export default function SignInForm({ role, resetLink, signupLink }) {
   return (
     <div className="col-span-2 col-start-2 h-fit">
       <div className="px-12 py-8 bg-white border border-gray-200 rounded-lg shadow h-fit">
-        <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
+        <h1 className="text-2xl font-semibold text-center text-gray-900">
           Masuk sebagai {displayRole}
         </h1>
+        <div className="flex justify-center w-full my-8 gap-x-2">
+          <InstallMetaMask />
+          <MetaConnect />
+        </div>
         <Form
           form={form}
           className="grid grid-cols-1 gap-x-12"
