@@ -37,11 +37,7 @@ function Navbar({ title, buttons, navItems }) {
           {/* INFORMASI ACCOUNT BUTTON */}
           {buttons.map((button, index) => (
             <a key={index} href={button.href}>
-              <Button
-                type="primary"
-                id={button.id}
-                className={button.className}
-              >
+              <Button type="button" id={button.id} className={button.className}>
                 <div className="flex gap-x-2">
                   {button.text} <UserOutlined />
                 </div>

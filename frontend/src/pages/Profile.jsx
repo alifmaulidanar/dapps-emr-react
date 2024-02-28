@@ -76,13 +76,13 @@ export default function UserProfile({ role }) {
     case "patient":
       type = 1;
       break;
-    case "staff":
+    case "doctor":
       type = 2;
       break;
     case "nurse":
       type = 3;
       break;
-    case "doctor":
+    case "staff":
       type = 4;
       break;
   }

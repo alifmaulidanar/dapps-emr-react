@@ -20,8 +20,14 @@
 20/02/24
 ✅ handle update mapping di SC biar akun ga numpuk kalo pada addUserAccount akan numpuk. periksa di backend terkait penambahan profil, update profil, edit akun, dan soon to be data EMR1️
 
+28/02/24
+✅ admin, bisa add akun dokter, nurse, staff
+✅ smart contract -> bikin function untuk get all account semua role, get all per role dan hapus akun dari array
+✅ bermasalah update account info -> cek semua update username, phone, email, pass. kayanya masalah di smart contract updateuserusername [SOLVED]
+
 next:
-- admin, bisa add akun dokter, nurse, staff
+- periksa function updateIpfsHash -> kalo admin update info akun dari dashboard suka ga keupdate
+- handle delete akun belum bisa
 - pertimbangkan apakah perlu function baru di SC untuk role baru ini (admin)
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
@@ -67,10 +73,18 @@ next:
 ✅ di signin bikin tombol modal untuk tutorial install ekstensi metamask sampai impor akun (InstallMetaMask)
 ✅ bikin tombol connect to ganache untuk metamask (MetaConnect)
 
+27/02/24
+✅ auth untuk nurse dan staff
+
+28/02/24
+✅ halaman admin (signin, dashboard, modal add new account)
+✅ bikin dashboard admin sederhana, admin bisa daftarin akun dokter, nurse, staf
+✅ dokter, nurse, staf nanti tinggal signin akunnya sudah dibuatkan dari admin
+✅ session admin localStorage
+✅ modal untuk update info akun setiap user (tapi ada bug, berkaitan sama ipfsHash)
+
 next:
-- cek auth untuk nurse dan staff
-- bikin dashboard admin sederhana, admin bisa daftarin akun dokter, nurse, staf
-- dokter, nurse, staf nanti tinggal signin akunnya sudah dibuatkan dari admin
+- handle delete akun belum bisa
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
 
@@ -107,10 +121,49 @@ next:
 ✅ tetap ada pengecekan apakah email sudah pernah terdaftar atau akun telah digunakan sebelumnya
 ✅ pakai workspace ganache baru isi 100 akun new-dapp-emr
 
+27/02/24
+✅ auth untuk nurse dan staff aman
+
+28/02/24
+✅ update interaksi function smart contract (penambahan parameter)
+✅ admin bisa login dan logout
+✅ admin bisa add new account
+✅ bikin logika admin CRUD untuk akun dokter, nurse, staf -> interaksi dengan smart contract
+✅ endpoint semua admin udah ada di admin.js
+✅ kalo admin butuh yang perlu signature, bisa pake private key di backend
+
 next:
-- cek auth untuk nurse dan staff
-- bikin logika admin CRUD untuk akun dokter, nurse, staf -> interaksi dengan smart contract
+- handle update info account dari admin masih error (cid di dalam ipfsHash ga keupdate)
+- handle delete akun belum bisa
 - perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
+
+
+
+✨✨ KNOWN BUGS ✨✨
+
+A. Handle update account information dari sisi admin (frontend dan backend)
+   problems:
+   1. di modal edit informasi akun user, belum terimplementasi dengan baik validasi semua input
+   2. handle bagaimana jika ada input field yang tidak ingin user ganti -> saat ini masih null, tapi jadi tidak efektif di bagian vallidasi menggunakan Joi
+   3. saat melakukan update, misalnya username, data baru yang tersimpan hanyalah yang di ipfs. tapi ipfsHash itu sendiri tidak terupdate di blockchain dan username di blockchain juga tidak terupdate
+   4. handle delete akun belum berfungsi
+   5. berikan validasi lagi jika ingin edit atau delete akun user oleh admin -> misalnya, butuh input password atau kode khusus
+
+   opsi solusi:
+   1. periksa validasi input, pengolahan data baru, dan interaksi dengan function smart contract karena mungkin ada kesalahan teknis (backend)
+   2. ganti pakai input form dari halaman akun user -> update masing2 per field, bisa gunakan endpoint updateAccount yang udah ada (frontend & backend)
+   3. buat function baru untuk dapat mengupdate informasi akun secara langsung dalam 1 function (smart contract & backend)
+
+
+B. localStorage bahaya kalo lagi test multitab login
+   problem:
+   localStorage menyimpan token JWT di cache browser jadi token akan bentrok dengan token lain jika melakukan login berkali2 di beberapa tab yang akan mengakibatkan token tertukar dan data yang tersimpan ke ipfs dan blockchain akan salah
+
+   solusi:
+   gunakan sessionStorage karena akan menyimpan cache per tab selama tab tersebut tidak tertutup atau tidak melakukan logout. bisa mengatasi masalah token yang tertukar karena multitab login
+
+
+C. smart contract butuh function untuk update UserAccount

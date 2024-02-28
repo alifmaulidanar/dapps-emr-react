@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",
-    "antd": "5.13.3",
+    "antd": "5.14.2",
     "dayjs": "^1.11.10",
     "flatpickr": "^4.6.13",
     "flowbite": "^1.8.1",

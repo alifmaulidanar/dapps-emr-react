@@ -25,13 +25,13 @@ export default function NakesPatientList({ role }) {
 
   let type;
   switch (role) {
-    case "staff":
+    case "doctor":
       type = 2;
       break;
     case "nurse":
       type = 3;
       break;
-    case "doctor":
+    case "staff":
       type = 4;
       break;
   }

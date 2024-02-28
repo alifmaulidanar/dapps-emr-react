@@ -1,15 +1,16 @@
 import Navbar from "./Navbar";
 
-function NavbarController({ type, page, color, accountAddress }) {
+function NavbarController({ type, page, color, accountAddress = null }) {
   const id = accountAddress;
-  const title = "Siloam Hospitals Mampang";
+  const title = "Hospital";
   let navItems = [];
   let buttons = [];
   const defaultColor = "gray";
 
   // Tentukan tipe navbar berdasarkan nilai prop 'type'
-  // type 0 = home, type 1 = patient, type 2 = staff, type 3 = nurse, type 4 = doctor
+  // type 0 = home, type 1 = patient, type 2 = doctor, type 3 = nurse, type 4 = staff
   if (type === 0) {
+    // home
     navItems = [
       {
         text: "Beranda",
@@ -38,10 +39,11 @@ function NavbarController({ type, page, color, accountAddress }) {
         text: "Hubungi Kami",
         href: "/contact",
         className:
-          "blue-button text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-4 text-center mr-3 md:mr-0",
+          "text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium text-sm px-4 text-center mr-3 md:mr-0",
       },
     ];
   } else if (type === 1) {
+    // patient
     navItems = [
       {
         text: "Daftar Rekam Medis",
@@ -72,66 +74,7 @@ function NavbarController({ type, page, color, accountAddress }) {
       },
     ];
   } else if (type === 2) {
-    navItems = [
-      {
-        text: "Daftar Pasien",
-        linkToPage: `/patient/record-list`,
-        color: page === "staff" ? color : defaultColor,
-      },
-      {
-        text: "Appointment",
-        linkToPage: `/patient/appointment`,
-        color: page === "Appointment" ? color : defaultColor,
-      },
-      {
-        text: "Profil Pasien",
-        linkToPage: `/patient/profile`,
-        color: page === "Profil Pasien" ? color : defaultColor,
-      },
-    ];
-
-    buttons = [
-      {
-        text: "Akun Staff",
-        href: `/patient/account`,
-        className: `blue-button ${
-          page === "staff-account"
-            ? `text-white bg-${color}-600`
-            : `text-${color}-700 bg-transparent hover:bg-${color}-700`
-        } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
-      },
-    ];
-  } else if (type === 3) {
-    navItems = [
-      {
-        text: "Daftar Pasien",
-        linkToPage: `/nurse/record-list`,
-        color: page === "nurse" ? color : defaultColor,
-      },
-      {
-        text: "Appointment",
-        linkToPage: `/nurse/appointment`,
-        color: page === "Appointment" ? color : defaultColor,
-      },
-      {
-        text: "Profil Pasien",
-        linkToPage: `/nurse/profile`,
-        color: page === "Profil Pasien" ? color : defaultColor,
-      },
-    ];
-
-    buttons = [
-      {
-        text: "Akun Perawat",
-        href: `/nurse/account`,
-        className: `blue-button ${
-          page === "nurse-account"
-            ? `text-white bg-${color}-600`
-            : `text-${color}-700 bg-transparent hover:bg-${color}-700`
-        } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
-      },
-    ];
-  } else if (type === 4) {
+    // doctor
     navItems = [
       {
         text: "Daftar Pasien",
@@ -156,6 +99,68 @@ function NavbarController({ type, page, color, accountAddress }) {
         href: `/doctor/account`,
         className: `blue-button ${
           page === "doctor-account"
+            ? `text-white bg-${color}-600`
+            : `text-${color}-700 bg-transparent hover:bg-${color}-700`
+        } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
+      },
+    ];
+  } else if (type === 3) {
+    // nurse
+    navItems = [
+      {
+        text: "Daftar Pasien",
+        linkToPage: `/nurse/record-list`,
+        color: page === "nurse" ? color : defaultColor,
+      },
+      {
+        text: "Appointment",
+        linkToPage: `/nurse/appointment`,
+        color: page === "Appointment" ? color : defaultColor,
+      },
+      {
+        text: "Profil Perawat",
+        linkToPage: `/nurse/profile`,
+        color: page === "Profil Perawat" ? color : defaultColor,
+      },
+    ];
+
+    buttons = [
+      {
+        text: "Akun Perawat",
+        href: `/nurse/account`,
+        className: `blue-button ${
+          page === "nurse-account"
+            ? `text-white bg-${color}-600`
+            : `text-${color}-700 bg-transparent hover:bg-${color}-700`
+        } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,
+      },
+    ];
+  } else if (type === 4) {
+    // staff
+    navItems = [
+      {
+        text: "Daftar Pasien",
+        linkToPage: `/staff/patient-list`,
+        color: page === "staff" ? color : defaultColor,
+      },
+      {
+        text: "Appointment",
+        linkToPage: `/staff/appointment`,
+        color: page === "Appointment" ? color : defaultColor,
+      },
+      {
+        text: "Profil Staff",
+        linkToPage: `/staff/profile`,
+        color: page === "Profil Staff" ? color : defaultColor,
+      },
+    ];
+
+    buttons = [
+      {
+        text: "Akun Staff",
+        href: `/staff/account`,
+        className: `blue-button ${
+          page === "staff-account"
             ? `text-white bg-${color}-600`
             : `text-${color}-700 bg-transparent hover:bg-${color}-700`
         } border border-1 border-${color}-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-${color}-300 font-medium text-sm px-4 text-center mr-3 md:mr-0`,

@@ -2,8 +2,7 @@
 /* eslint-disable react/jsx-key */
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { Button, Form, Input, Spin, Modal } from "antd";
-const { TextArea } = Input;
+import { Button, Form, Input, Spin, Modal, Card, Alert, message } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import React, { useState } from "react";
 import { CONN } from "../../../../enum-global";
@@ -19,8 +18,16 @@ export default function SignUpForm({ role }) {
   const hideModal = () => setOpen(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(document.getElementById("accountData").value);
-    setCopySuccess(true);
+    const accountInfo = `Email: ${accountData.email}\nAddress: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
+    navigator.clipboard.writeText(accountInfo).then(
+      () => {
+        setCopySuccess(true);
+        message.success("Account information copied to clipboard!");
+      },
+      () => {
+        message.error("Failed to copy account information.");
+      }
+    );
   };
 
   const onConfirmAndClose = () => {
@@ -44,10 +51,7 @@ export default function SignUpForm({ role }) {
       break;
   }
 
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
+  const showLoader = () => setSpinning(true);
   const handleSubmit = async (values) => {
     showLoader();
     try {
@@ -71,9 +75,12 @@ export default function SignUpForm({ role }) {
               text: "Gunakan Email dan Password untuk melakukan Sign In.",
             }).then((result) => {
               if (result.isConfirmed) {
-                setAccountData(
-                  `Email: ${data.email}\nAddress: ${data.publicKey}\nPrivate Key: ${data.privateKey}`
-                );
+                setAccountData({
+                  email: data.email,
+                  publicKey: data.publicKey,
+                  privateKey: data.privateKey,
+                });
+                console.log(data);
                 showModal();
               }
               // window.location.assign(`/${role}/signin`);
@@ -264,7 +271,7 @@ export default function SignUpForm({ role }) {
           centered
           open={open}
           onOk={hideModal}
-          width={650}
+          width={700}
           footer={[
             <div className="flex flex-col items-center pt-4 gap-y-4">
               <Button
@@ -272,6 +279,7 @@ export default function SignUpForm({ role }) {
                 key="copy"
                 onClick={copyToClipboard}
                 className="flex items-stretch justify-center w-1/2 gap-x-2"
+                disabled={!accountData}
               >
                 <p>Salin informasi akun</p>
                 <svg
@@ -306,14 +314,18 @@ export default function SignUpForm({ role }) {
               Salin dan simpan data akun Anda berikut ini di tempat yang aman
               dan mudah diakses.
             </p>
-            <TextArea
-              id="accountData"
-              value={accountData}
-              disabled
-              style={{
-                height: 80,
-                resize: "none",
-              }}
+            <Card className="w-full">
+              <p>Email: {accountData?.email}</p>
+              <p>Address: {accountData?.publicKey}</p>
+              <p>Private Key: {accountData?.privateKey}</p>
+            </Card>
+            <Alert
+              message="Private Key akan digunakan untuk konfirmasi saat Sign In menggunakan e-wallet MetaMask"
+              type="warning"
+            />
+            <Alert
+              message="Jangan berikan Private Key ke orang lain"
+              type="error"
             />
           </div>
         </Modal>

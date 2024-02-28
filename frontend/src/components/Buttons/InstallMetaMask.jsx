@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Modal, Steps } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, LinkOutlined } from "@ant-design/icons";
 
 const steps = [
   {
@@ -111,6 +111,72 @@ const steps = [
       </div>
     ),
   },
+  {
+    title: "Informasi Lebih Lanjut",
+    content: (
+      <div className="flex flex-col gap-y-4">
+        <div>
+          <p>
+            Untuk informasi lebih lanjut mengenai pemasangan dan penggunaan
+            MetaMask, silakan mengunjungi beberapa tautan berikut.
+          </p>
+          <ol>
+            <li>
+              1.{" "}
+              <a
+                href="https://support.metamask.io/hc/en-us/articles/360015489531-Getting-started-with-MetaMask"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Mulai Menggunakan MetaMask <LinkOutlined />
+              </a>
+            </li>
+            <li>
+              2.{" "}
+              <a
+                href="https://support.metamask.io/hc/en-us/articles/360015489331-How-to-import-an-account"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Cara Impor Akun ke MetaMask <LinkOutlined />
+              </a>
+            </li>
+            <li>
+              3.{" "}
+              <a
+                href="https://support.metamask.io/hc/en-us/articles/4404722782107-User-Guide-Secret-Recovery-Phrase-password-and-private-keys"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Panduan Pengguna: Secret Recovery Phrase, password, and private
+                keys <LinkOutlined />
+              </a>
+            </li>
+            <li>
+              4.{" "}
+              <a
+                href="https://support.metamask.io/hc/en-us/articles/360039616872-How-can-I-reset-my-password"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Atur Ulang Kata Sandi <LinkOutlined />
+              </a>
+            </li>
+            <li>
+              5.{" "}
+              <a
+                href="https://support.metamask.io/hc/en-us/articles/360058230211-What-are-MetaMask-s-official-support-channels"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Dukungan Pengguna <LinkOutlined />
+              </a>
+            </li>
+          </ol>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 const InstallMetaMask = () => {
@@ -158,7 +224,12 @@ const InstallMetaMask = () => {
         width={1000}
         centered
       >
-        <Steps current={current} size="small" className="my-8">
+        <Steps
+          current={current}
+          size="small"
+          className="my-8"
+          labelPlacement="vertical"
+        >
           {steps.map((item) => (
             <Steps.Step key={item.title} title={item.title} />
           ))}
