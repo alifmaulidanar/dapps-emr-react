@@ -96,6 +96,12 @@ router.post("/:role/update-username", authMiddleware, async (req, res) => {
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
+
+    const updateUsernameTX = await contract.updateUserUsername(
+      ipfsData.accountEmail,
+      value
+    );
+    await updateUsernameTX.wait();
     const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
@@ -201,9 +207,18 @@ router.post("/:role/update-email", authMiddleware, async (req, res) => {
     await updateIpfsTX.wait();
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
-    // Update user account di blockchain
-    const updateAccountTX = await contract.updateUserEmail(value);
+    // Update IPFS Hash di blockchain
+    const updateAccountTX = await contract.updateIpfsHash(
+      ipfsData.accountEmail,
+      getUpdatedIpfs.ipfsAddress
+    );
     await updateAccountTX.wait();
+
+    const updateEmailTX = await contract.updateUserEmail(
+      ipfsData.accountEmail,
+      value
+    );
+    await updateEmailTX.wait();
     const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );
@@ -309,12 +324,18 @@ router.post("/:role/update-phone", authMiddleware, async (req, res) => {
     await updateIpfsTX.wait();
     const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
 
-    // Update user account di blockchain
+    // Update IPFS Hash di blockchain
     const updateAccountTX = await contract.updateIpfsHash(
       ipfsData.accountEmail,
       getUpdatedIpfs.ipfsAddress
     );
     await updateAccountTX.wait();
+
+    const updatePhoneTX = await contract.updateUserPhone(
+      ipfsData.accountEmail,
+      value
+    );
+    await updatePhoneTX.wait();
     const getUpdatedAccount = await contract.getAccountByAddress(
       accountAddress
     );

@@ -139,9 +139,59 @@
         "internalType": "string",
         "name": "email",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newPhone",
+        "type": "string"
+      }
+    ],
+    "name": "PhoneUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
       }
     ],
     "name": "StaffAccountAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newUsername",
+        "type": "string"
+      }
+    ],
+    "name": "UsernameUpdated",
     "type": "event"
   },
   {
@@ -161,12 +211,22 @@
     "inputs": [
       {
         "internalType": "string",
+        "name": "_username",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
         "name": "_email",
         "type": "string"
       },
       {
         "internalType": "string",
         "name": "_role",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_phone",
         "type": "string"
       },
       {
@@ -204,6 +264,11 @@
           },
           {
             "internalType": "string",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
             "name": "email",
             "type": "string"
           },
@@ -211,6 +276,16 @@
             "internalType": "string",
             "name": "role",
             "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -255,6 +330,11 @@
           },
           {
             "internalType": "string",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
             "name": "email",
             "type": "string"
           },
@@ -262,6 +342,16 @@
             "internalType": "string",
             "name": "role",
             "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -306,6 +396,11 @@
           },
           {
             "internalType": "string",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
             "name": "email",
             "type": "string"
           },
@@ -313,6 +408,76 @@
             "internalType": "string",
             "name": "role",
             "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "ipfsHash",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct SimpleEMR.UserAccount[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllAccounts",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "accountAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "role",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "phone",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -482,11 +647,52 @@
     "inputs": [
       {
         "internalType": "string",
+        "name": "_oldEmail",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
         "name": "_newEmail",
         "type": "string"
       }
     ],
     "name": "updateUserEmail",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_email",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newPhone",
+        "type": "string"
+      }
+    ],
+    "name": "updateUserPhone",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_email",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newUsername",
+        "type": "string"
+      }
+    ],
+    "name": "updateUserUsername",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -513,6 +719,11 @@
       },
       {
         "internalType": "string",
+        "name": "username",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
         "name": "email",
         "type": "string"
       },
@@ -520,6 +731,16 @@
         "internalType": "string",
         "name": "role",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "phone",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "createdAt",
+        "type": "uint256"
       },
       {
         "internalType": "address",

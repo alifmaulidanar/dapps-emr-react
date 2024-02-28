@@ -57,10 +57,9 @@ const formattedDateTime = formatDateTime(currentDateTime);
 
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
-  const { role } = req.params;
-
   try {
     const { username, email, phone, password, confirmPassword } = req.body;
+    const { role } = req.params;
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     // Validasi input menggunakan Joi
@@ -142,8 +141,10 @@ router.post("/:role/signup", async (req, res) => {
     );
 
     const accountTX = await contractWithSigner.addUserAccount(
+      username,
       email,
       role,
+      phone,
       getIpfs.ipfsAddress
     );
     await accountTX.wait();

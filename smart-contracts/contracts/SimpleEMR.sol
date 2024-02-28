@@ -7,6 +7,16 @@ contract SimpleEMR {
     event NurseAccountAdded(address indexed userAddress, string email);
     event DoctorAccountAdded(address indexed userAddress, string email);
     event IpfsAccountAdded(address indexed ipfsAddress, string cid);
+    event UsernameUpdated(
+        address indexed userAddress,
+        string email,
+        string newUsername
+    );
+    event PhoneUpdated(
+        address indexed userAddress,
+        string email,
+        string newPhone
+    );
     event EmailUpdated(
         address indexed userAddress,
         string email,
@@ -21,8 +31,11 @@ contract SimpleEMR {
     struct UserAccount {
         uint id;
         address accountAddress;
+        string username;
         string email;
         string role;
+        string phone;
+        uint createdAt;
         address ipfsHash;
         bool isActive;
     }
@@ -45,15 +58,20 @@ contract SimpleEMR {
 
     // POST Add New User Account
     function addUserAccount(
+        string memory _username,
         string memory _email,
         string memory _role,
+        string memory _phone,
         address _ipfsHash
     ) public {
         UserAccount memory newUserAccount = UserAccount(
             userAccountCounter,
             msg.sender,
+            _username,
             _email,
             _role,
+            _phone,
+            block.timestamp,
             _ipfsHash,
             true
         );
@@ -86,23 +104,80 @@ contract SimpleEMR {
         emit IpfsAccountAdded(msg.sender, _cid);
     }
 
-    // POST Update User Email
-    function updateUserEmail(string memory _newEmail) public {
-        UserAccount storage userAccount = userAccountsMap[msg.sender];
-        require(userAccount.accountAddress != address(0), "Account not found");
-        require(userAccount.isActive, "Account is not active");
+    // POST Update User Username
+    function updateUserUsername(string memory _email, string memory _newUsername) public {
         require(
-            emailToAddressMap[_newEmail] == address(0),
-            "Email is already in use"
+            emailToAddressMap[_email] != address(0),
+            "Email not registered."
+        );
+        address userAddress = emailToAddressMap[_email];
+        require(userAddress == msg.sender, "Caller is not the account owner.");
+
+        UserAccount storage account = userAccountsMap[userAddress];
+        account.username = _newUsername;
+
+        for (uint i = 0; i < userAccounts.length; i++) {
+            if (userAccounts[i].accountAddress == userAddress) {
+                userAccounts[i].username = _newUsername;
+                break;
+            }
+        }
+        emit UsernameUpdated(userAddress, _email, _newUsername);
+    }
+
+    // POST Update User Phone
+    function updateUserPhone(string memory _email, string memory _newPhone) public {
+        require(
+            emailToAddressMap[_email] != address(0),
+            "Email not registered."
+        );
+        address userAddress = emailToAddressMap[_email];
+        require(userAddress == msg.sender, "Caller is not the account owner.");
+
+        UserAccount storage account = userAccountsMap[userAddress];
+        account.phone = _newPhone;
+
+        for (uint i = 0; i < userAccounts.length; i++) {
+            if (userAccounts[i].accountAddress == userAddress) {
+                userAccounts[i].phone = _newPhone;
+                break;
+            }
+        }
+        emit UsernameUpdated(userAddress, _email, _newPhone);
+    }
+
+    // POST Update User Email
+    function updateUserEmail(string memory _oldEmail, string memory _newEmail) public {
+        require(emailToAddressMap[_oldEmail] == msg.sender, "Caller is not the account owner.");
+        require(emailToAddressMap[_newEmail] == address(0), "New email is already in use");
+
+        UserAccount storage oldAccount = userAccountsMap[msg.sender];
+        require(oldAccount.isActive, "Account is not active");
+        oldAccount.isActive = false;
+        delete emailToAddressMap[_oldEmail];
+
+        UserAccount memory newAccount = UserAccount(
+            oldAccount.id,
+            msg.sender,
+            oldAccount.username,
+            _newEmail,
+            oldAccount.role,
+            oldAccount.phone,
+            oldAccount.createdAt,
+            oldAccount.ipfsHash,
+            true
         );
 
-        // Deactivate current account & delete email mapping
-        userAccount.isActive = false;
-        delete emailToAddressMap[userAccount.email];
+        for(uint i = 0; i < userAccounts.length; i++) {
+            if(userAccounts[i].accountAddress == msg.sender) {
+                userAccounts[i] = newAccount;
+                break;
+            }
+        }
 
-        addUserAccount(_newEmail, userAccount.role, userAccount.ipfsHash);
+        userAccountsMap[msg.sender] = newAccount;
         emailToAddressMap[_newEmail] = msg.sender;
-        emit EmailUpdated(msg.sender, userAccount.email, _newEmail);
+        emit EmailUpdated(msg.sender, _oldEmail, _newEmail);
     }
 
     // POST Update IPFS Hash
@@ -126,6 +201,11 @@ contract SimpleEMR {
             }
         }
         emit IpfsHashUpdated(userAddress, _email, _newIpfsHash);
+    }
+
+    // GET All Acounts
+    function getAllAccounts() public view returns (UserAccount[] memory) {
+        return userAccounts;
     }
 
     // GET Accounts by Role
