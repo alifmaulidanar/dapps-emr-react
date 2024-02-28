@@ -8,6 +8,7 @@ import updateAccount from "./user/account/updateAccount.js";
 import addProfile from "./user/profile/addProfile.js";
 import updateProfile from "./user/profile/updateProfile.js";
 
+import adminRouter from "./admin/admin.js";
 import { CONN } from "../enum-global.js";
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
+app.use("/admin", adminRouter);
 app.use(
   "/",
   signupRouter,

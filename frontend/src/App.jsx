@@ -11,6 +11,7 @@ import PatientAppointment from "./pages/patient/PatientAppointment";
 import UserAccount from "./pages/Account";
 import UserProfile from "./pages/Profile";
 import NakesPatientList from "./pages/NakesPatientList";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function App() {
   return (
@@ -47,17 +48,6 @@ function App() {
               />
               <Route path="/doctor/signup" element={<SignUp role="doctor" />} />
               <Route
-                path="/staff/signin"
-                element={
-                  <SignIn
-                    role="staff"
-                    resetLink="/staff/reset-password"
-                    signupLink="/staff/signup"
-                  />
-                }
-              />
-              <Route path="/staff/signup" element={<SignUp role="staff" />} />
-              <Route
                 path="/nurse/signin"
                 element={
                   <SignIn
@@ -68,6 +58,29 @@ function App() {
                 }
               />
               <Route path="/nurse/signup" element={<SignUp role="nurse" />} />
+              <Route
+                path="/staff/signin"
+                element={
+                  <SignIn
+                    role="staff"
+                    resetLink="/staff/reset-password"
+                    signupLink="/staff/signup"
+                  />
+                }
+              />
+              <Route path="/staff/signup" element={<SignUp role="staff" />} />
+
+              {/* Admin */}
+              <Route
+                path="/admin/signin"
+                element={
+                  <SignIn
+                    role="admin"
+                    resetLink="/patient/reset-password"
+                    signupLink="/patient/signup"
+                  />
+                }
+              />
             </>
 
             {/* Routing Patient */}
@@ -141,8 +154,28 @@ function App() {
             {/* Routing Staff */}
             <>
               <Route
-                path={`/staff/record-list`}
+                path={`/staff/patient-list`}
                 element={<NakesPatientList role="staff" />}
+              />
+              <Route
+                path={`/staff/appointment`}
+                element={<PatientAppointment />}
+              />
+              <Route
+                path={`/staff/profile`}
+                element={<UserProfile role="staff" />}
+              />
+              <Route
+                path={`/staff/account`}
+                element={<UserAccount role="staff" />}
+              />
+            </>
+
+            {/* Routing Admin */}
+            <>
+              <Route
+                path={`/admin/dashboard`}
+                element={<AdminDashboard role="staff" />}
               />
               <Route
                 path={`/staff/appointment`}
