@@ -190,41 +190,30 @@ router.post("/:role/signup", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // add to SC
-    const ipfsTX = await contractWithSigner.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contractWithSigner.getIpfsByAddress(
-      selectedAccountAddress
-    );
-
     const accountTX = await contractWithSigner.addUserAccount(
+      username,
       email,
       role,
-      getIpfs.ipfsAddress
+      phone,
+      cid
     );
     await accountTX.wait();
     const getAccount = await contractWithSigner.getAccountByAddress(
       selectedAccountAddress
     );
 
-    // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `${role} Registration Successful`,
-      email: email,
+      role,
+      username,
+      email,
+      phone,
+      password,
+      createdAt: getAccount.createdAt,
       publicKey: selectedAccountAddress,
-      privateKey: privateKey,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-        isActive: getAccount.isActive,
-      },
-      ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
-        data: ipfsData,
-      },
+      privateKey,
+      cid,
+      data: ipfsData,
     };
 
     console.log(responseData);

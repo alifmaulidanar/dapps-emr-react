@@ -30,7 +30,6 @@ const ipfsClient = create({
 
 export default function UserData({ userDataProps, userAccountData }) {
   const token = sessionStorage.getItem("userToken");
-
   const [form] = Form.useForm();
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isEditing, setIsEditing] = useState(false);

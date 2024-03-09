@@ -151,6 +151,7 @@ export default function AdminDashboard() {
   };
 
   const handleSubmitEdit = async (values) => {
+    console.log({ values });
     showLoader();
     const dataToSend = {
       address: values.address,
@@ -169,9 +170,11 @@ export default function AdminDashboard() {
       delete dataToSend.confirmPass;
     }
 
+    console.log({ dataToSend });
+
     try {
       const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/update`, {
-        method: "POST",
+        // method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -298,41 +301,6 @@ export default function AdminDashboard() {
           </Dropdown>
         </Space>
       ),
-    },
-  ];
-
-  const extras = [
-    {
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.antgroup.com"
-        >
-          1st menu item
-        </a>
-      ),
-      key: "0",
-    },
-    {
-      label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-        >
-          2nd menu item
-        </a>
-      ),
-      key: "1",
-    },
-    {
-      type: "divider",
-    },
-    {
-      label: "3rd menu item（disabled）",
-      key: "3",
-      disabled: true,
     },
   ];
 
@@ -670,7 +638,7 @@ export default function AdminDashboard() {
         >
           <div className="grid w-full">
             <h3 className="mx-auto my-8 text-xl font-bold">
-              Edit Informasi Akun
+              Ubah Informasi Akun
             </h3>
             <Form
               form={editableForm}

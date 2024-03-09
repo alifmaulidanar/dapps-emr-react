@@ -19,16 +19,12 @@ export default function UserAccount({ role }) {
   }
 
   const [form] = Form.useForm();
-  const [initialData, setInitialData] = useState({});
+  const [fetchData, setFetchData] = useState([]);
   const [spinning, setSpinning] = React.useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [userAccountData, setUserAccountData] = useState({});
-  const [isEditing, setIsEditing] = useState({
-    username: false,
-    email: false,
-    phone: false,
-    password: false,
-  });
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const showLoader = () => {
     setSpinning(true);
@@ -72,7 +68,7 @@ export default function UserAccount({ role }) {
 
   useEffect(() => {
     if (token && accountAddress) {
-      const fetchData = async () => {
+      const fetchDataAsync = async () => {
         try {
           const response = await fetch(
             `${CONN.BACKEND_LOCAL}/${role}/account`,
@@ -93,199 +89,78 @@ export default function UserAccount({ role }) {
             email: accountEmail,
             phone: accountPhone,
           };
-          setInitialData(formattedData);
+          setFetchData(formattedData);
           form.setFieldsValue(formattedData);
           setUserAccountData(data);
         } catch (error) {
           console.error(`Error fetching ${role} data:`, error);
         }
       };
-      fetchData();
+      fetchDataAsync();
     }
   }, [token, accountAddress, form]);
 
-  const handleEditClick = (field) => {
-    setIsEditing({ ...isEditing, [field]: true });
+  const toggleEdit = () => setIsEditing(!isEditing);
+  const handleCancel = () => {
+    form.setFieldsValue(fetchData);
+    setIsEditing(false);
   };
 
-  const handleCancelClick = (field) => {
-    setIsEditing({ ...isEditing, [field]: false });
-    form.setFieldsValue({ [field]: initialData[field] });
-  };
-
-  const handleSaveClick = async (field) => {
+  const onFinish = async (values) => {
     showLoader();
-    if (window.ethereum) {
-      try {
-        const value = await form.getFieldValue(field);
+    let dataToSend = values;
 
-        let errorMessage;
-        if (!value.trim()) {
-          switch (field) {
-            case "username":
-              errorMessage = "Nama pengguna tidak boleh kosong";
-              break;
-            case "email":
-              errorMessage = "Email tidak boleh kosong";
-              break;
-            case "phone":
-              errorMessage = "Nomor telepon tidak boleh kosong";
-              break;
-            default:
-              errorMessage = "Field tidak boleh kosong";
-          }
-
-          setSpinning(false);
-          Swal.fire({
-            icon: "error",
-            title: "Pembaruan Gagal",
-            text: errorMessage,
-          });
-          return;
-        }
-
-        const dataToSign = JSON.stringify({
-          field,
-          value,
-        });
-        const signer = await getSigner();
-        const signature = await signer.signMessage(dataToSign);
-        const updatedData = {
-          field,
-          value,
-          signature,
-        };
-
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/${role}/update-${field}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify(updatedData),
-          }
-        );
-
-        const responseData = await response.json();
-
-        if (response.ok) {
-          console.log({ responseData });
-          setSpinning(false);
-          Swal.fire({
-            icon: "success",
-            title: "Profil Pasien Berhasil Diperbarui!",
-            text: "Periksa kembali informasi profil Anda.",
-          }).then(() => {
-            window.location.reload();
-          });
-        } else {
-          console.log(responseData.error, responseData.message);
-          setSpinning(false);
-          Swal.fire({
-            icon: "error",
-            title: "Pembaruan Profil Pasien Gagal",
-            text: responseData.error,
-          }).then(() => {
-            window.location.reload();
-          });
-        }
-      } catch (error) {
-        console.error("Terjadi kesalahan:", error);
-        setSpinning(false);
-        Swal.fire({
-          icon: "error",
-          title: "Terjadi kesalahan saat melakukan pembaruan profil",
-          text: error,
-        });
-      }
-    }
-    setIsEditing({ ...isEditing, [field]: false });
-  };
-
-  const handleChangePassword = async () => {
-    const oldPassword = await form.getFieldValue("oldPass");
-    const newPassword = await form.getFieldValue("newPass");
-    const confirmPassword = await form.getFieldValue("confirmPass");
-
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Kesalahan Input",
-        text: "Tidak boleh ada kolom yang kosong",
-      });
-      return;
+    if (!values.newPass && !values.confirmPass) {
+      dataToSend.oldPass = null;
+      dataToSend.newPass = null;
+      dataToSend.confirmPass = null;
     }
 
-    if (newPassword !== confirmPassword) {
-      Swal.fire({
-        icon: "error",
-        title: "Kata Sandi Tidak Cocok",
-        text: "Kata sandi baru dan konfirmasi kata sandi harus sama!",
-      });
-      return;
-    }
+    const signer = await getSigner();
+    const signature = await signer.signMessage(JSON.stringify(dataToSend));
+    dataToSend.signature = signature;
+    console.log("Register Patient Profile Signature:", signature);
+    console.log({ dataToSend });
 
-    showLoader();
     try {
-      const dataToSign = JSON.stringify({
-        oldPassword,
-        newPassword,
-        confirmPassword,
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/${role}/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(values),
       });
-
-      const signer = await getSigner();
-      const signature = await signer.signMessage(dataToSign);
-
-      const updatedData = {
-        oldPassword,
-        newPassword,
-        confirmPassword,
-        signature,
-      };
-
-      const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/${role}/update-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
-
-      const responseData = await response.json();
 
       if (response.ok) {
         setSpinning(false);
         Swal.fire({
           icon: "success",
-          title: "Kata Sandi Berhasil Diperbarui!",
-          text: "Kata sandi Anda telah berhasil diperbarui.",
-        }).then(() => {
-          window.location.reload();
+          title: "Informasi Akun Berhasil Diperbarui!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setIsEditModalOpen(false);
+            window.location.reload();
+          }
         });
       } else {
+        const data = await response.json();
         setSpinning(false);
         Swal.fire({
           icon: "error",
-          title: "Gagal Memperbarui Kata Sandi",
-          text:
-            responseData.error ||
-            "Terjadi kesalahan saat memperbarui kata sandi.",
+          title: "Registrasi Gagal",
+          text: data.error,
         });
       }
+      setIsEditing(false);
     } catch (error) {
+      console.error("Terjadi kesalahan:", error);
       setSpinning(false);
       Swal.fire({
         icon: "error",
-        title: "Terjadi Kesalahan",
-        text: error.toString(),
+        title: "Terjadi kesalahan saat melakukan registrasi",
+        text: error,
       });
-      console.error("Terjadi kesalahan:", error);
     }
   };
 
@@ -339,6 +214,7 @@ export default function UserAccount({ role }) {
             form={form}
             layout="vertical"
             className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit"
+            onFinish={onFinish}
           >
             {/* ID Pengguna */}
             <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
@@ -384,6 +260,7 @@ export default function UserAccount({ role }) {
 
             {/* Nama Pengguna */}
             <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
+              {/* username */}
               <div className="p-8">
                 <div className="grid items-center grid-cols-1 mb-4">
                   <div className="flex items-center">
@@ -405,45 +282,22 @@ export default function UserAccount({ role }) {
                   </div>
                   <p className="my-2 text-md">Nama pengguna akun Anda.</p>
                 </div>
-                <Form.Item name="username">
+                <Form.Item
+                  name="username"
+                  rules={[
+                    { required: true, message: "Mohon isi nama pengguna" },
+                  ]}
+                >
                   <Input
-                    id="username"
+                    type="text"
+                    name="username"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.username}
+                    disabled={!isEditing}
                   />
                 </Form.Item>
               </div>
-              <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.username ? (
-                  <div className="flex gap-x-4">
-                    <Button
-                      danger
-                      onClick={() => handleCancelClick("username")}
-                    >
-                      Batal
-                    </Button>
-                    <Button
-                      type="primary"
-                      ghost
-                      onClick={() => handleSaveClick("username")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    type="primary"
-                    className="text-white bg-blue-600 blue-button"
-                    onClick={() => handleEditClick("username")}
-                  >
-                    Ganti Nama Pengguna
-                  </Button>
-                )}
-              </div>
-            </div>
 
-            {/* EMAIL */}
-            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
+              {/* email */}
               <div className="p-8">
                 <div className="grid items-center grid-cols-1 mb-4">
                   <div>
@@ -469,42 +323,22 @@ export default function UserAccount({ role }) {
                     </p>
                   </div>
                 </div>
-                <Form.Item name="email">
+                <Form.Item
+                  name="email"
+                  rules={[
+                    { required: true, message: "Mohon isi email pengguna" },
+                  ]}
+                >
                   <Input
-                    id="userEmail"
+                    type="email"
+                    name="email"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.email}
+                    disabled={!isEditing}
                   />
                 </Form.Item>
               </div>
-              <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.email ? (
-                  <div className="flex gap-x-4">
-                    <Button danger onClick={() => handleCancelClick("email")}>
-                      Batal
-                    </Button>
-                    <Button
-                      type="primary"
-                      ghost
-                      onClick={() => handleSaveClick("email")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    type="primary"
-                    className="text-white bg-blue-600 blue-button"
-                    onClick={() => handleEditClick("email")}
-                  >
-                    Ganti Email
-                  </Button>
-                )}
-              </div>
-            </div>
 
-            {/* NOMOR TELEPON */}
-            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
+              {/* phone */}
               <div className="p-8">
                 <div className="grid items-center grid-cols-1 mb-4">
                   <div>
@@ -523,7 +357,6 @@ export default function UserAccount({ role }) {
                           d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
                         />
                       </svg>
-
                       <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
                         Nomor Telepon
                       </h5>
@@ -533,42 +366,25 @@ export default function UserAccount({ role }) {
                     </p>
                   </div>
                 </div>
-                <Form.Item name="phone">
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Mohon isi nomor telepon pengguna",
+                    },
+                  ]}
+                >
                   <Input
-                    id="userPhone"
+                    type="tel"
+                    name="phone"
                     className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing.phone}
+                    disabled={!isEditing}
                   />
                 </Form.Item>
               </div>
-              <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                {isEditing.phone ? (
-                  <div className="flex gap-x-4">
-                    <Button danger onClick={() => handleCancelClick("phone")}>
-                      Batal
-                    </Button>
-                    <Button
-                      type="primary"
-                      ghost
-                      onClick={() => handleSaveClick("phone")}
-                    >
-                      Simpan
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    type="primary"
-                    className="text-white bg-blue-600 blue-button"
-                    onClick={() => handleEditClick("phone")}
-                  >
-                    Ganti Nomor Telepon
-                  </Button>
-                )}
-              </div>
-            </div>
 
-            {/* CHANGE PASSWORD */}
-            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
+              {/* password */}
               <div className="p-8">
                 <div className="grid items-center grid-cols-1 mb-4">
                   <div>
@@ -600,8 +416,10 @@ export default function UserAccount({ role }) {
                   className="mb-6"
                 >
                   <Input.Password
-                    id="userOldPass"
+                    type="password"
+                    name="password"
                     placeholder="input password"
+                    disabled={!isEditing}
                   />
                 </Form.Item>
                 <Form.Item
@@ -610,8 +428,10 @@ export default function UserAccount({ role }) {
                   className="mb-6"
                 >
                   <Input.Password
-                    id="userNewPass"
+                    type="password"
+                    name="password"
                     placeholder="input password"
+                    disabled={!isEditing}
                   />
                 </Form.Item>
                 <Form.Item
@@ -620,19 +440,40 @@ export default function UserAccount({ role }) {
                   className="mb-6"
                 >
                   <Input.Password
-                    id="confirmPass"
+                    type="password"
+                    name="confirmPassword"
                     placeholder="input password"
+                    disabled={!isEditing}
                   />
                 </Form.Item>
               </div>
+
+              {/* edit button */}
               <div className="grid justify-end bg-[#FBFBFB] py-2 px-8">
-                <Button
-                  type="primary"
-                  className="text-white bg-blue-600 blue-button"
-                  onClick={handleChangePassword}
-                >
-                  Konfirmasi
-                </Button>
+                <div className="flex gap-x-4">
+                  {isEditing ? (
+                    <>
+                      <Button onClick={handleCancel} danger>
+                        Cancel
+                      </Button>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        className="text-white bg-blue-600 blue-button"
+                      >
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={toggleEdit}
+                      type="primary"
+                      className="text-white bg-blue-600 blue-button"
+                    >
+                      Edit Information
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
 

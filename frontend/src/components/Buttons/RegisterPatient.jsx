@@ -161,7 +161,6 @@ export default function RegisterPatientButton({
     );
     formattedPatientData.signature = signature;
     console.log("Register Patient Profile Signature:", signature);
-    formattedPatientData.signature = signature;
     formattedPatientData.role = patientAccountData.accountRole;
     formattedPatientData.foto = null;
 
