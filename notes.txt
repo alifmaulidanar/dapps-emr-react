@@ -25,9 +25,14 @@
 ✅ smart contract -> bikin function untuk get all account semua role, get all per role dan hapus akun dari array
 ✅ bermasalah update account info -> cek semua update username, phone, email, pass. kayanya masalah di smart contract updateuserusername [SOLVED]
 
+09/03/24
+✅ bikin updateUserAccount untuk update info akun secara keseluruhan
+✅ UserAccount sekarang pakai CID bukan ipfsHash
+✅ hapus updateUsername, updatePhone, updateEmail, updatePassword
+✅ hapus ipfsAccount mapping dan array
+
 next:
-- periksa function updateIpfsHash -> kalo admin update info akun dari dashboard suka ga keupdate
-- handle delete akun belum bisa
+- handle delete akun belum bisa, buat function deleteAccount🔴🔴🔴
 - pertimbangkan apakah perlu function baru di SC untuk role baru ini (admin)
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
@@ -83,8 +88,13 @@ next:
 ✅ session admin localStorage
 ✅ modal untuk update info akun setiap user (tapi ada bug, berkaitan sama ipfsHash)
 
+09/03/24
+✅ admin udah bisa add new dan edit user dengan baik
+✅ data update dari admin sudah sama dengan dari user
+✅ bikin single submit form untuk update akun user
+
 next:
-- handle delete akun belum bisa
+- handle delete akun belum bisa (admin)🔴🔴
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
 
@@ -132,10 +142,15 @@ next:
 ✅ endpoint semua admin udah ada di admin.js
 ✅ kalo admin butuh yang perlu signature, bisa pake private key di backend
 
+09/03/24
+✅ ganti fungsi untuk update akun, pakai fungsi smart contract updateUserAccount
+✅ hilangkan semua kode dengan fungsi getIpfsByAddress, ipfsAccount, dan ipfsHash
+✅ single action update account di admin
+✅ single action update account di user
+
 next:
-- handle update info account dari admin masih error (cid di dalam ipfsHash ga keupdate)
-- handle delete akun belum bisa
-- perbagus validasi authMiddleware untuk semua endpoint backend
+- handle delete akun belum bisa🔴🔴
+- perbagus validasi authMiddleware untuk semua endpoint backend🟡🟡🟡
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
@@ -147,23 +162,19 @@ next:
 A. Handle update account information dari sisi admin (frontend dan backend)
    problems:
    1. di modal edit informasi akun user, belum terimplementasi dengan baik validasi semua input
-   2. handle bagaimana jika ada input field yang tidak ingin user ganti -> saat ini masih null, tapi jadi tidak efektif di bagian vallidasi menggunakan Joi
-   3. saat melakukan update, misalnya username, data baru yang tersimpan hanyalah yang di ipfs. tapi ipfsHash itu sendiri tidak terupdate di blockchain dan username di blockchain juga tidak terupdate
+   ✅ 2. handle bagaimana jika ada input field yang tidak ingin user ganti -> saat ini masih null, tapi jadi tidak efektif di bagian vallidasi menggunakan Joi
+   ✅ 3. saat melakukan update, misalnya username, data baru yang tersimpan hanyalah yang di ipfs. tapi ipfsHash itu sendiri tidak terupdate di blockchain dan username di blockchain juga tidak terupdate
    4. handle delete akun belum berfungsi
    5. berikan validasi lagi jika ingin edit atau delete akun user oleh admin -> misalnya, butuh input password atau kode khusus
 
    opsi solusi:
    1. periksa validasi input, pengolahan data baru, dan interaksi dengan function smart contract karena mungkin ada kesalahan teknis (backend)
    2. ganti pakai input form dari halaman akun user -> update masing2 per field, bisa gunakan endpoint updateAccount yang udah ada (frontend & backend)
-   3. buat function baru untuk dapat mengupdate informasi akun secara langsung dalam 1 function (smart contract & backend)
+   🎯3. buat function baru untuk dapat mengupdate informasi akun secara langsung dalam 1 function (smart contract & backend)
+
+   spot:
+   - masalah di updateIpfsHash() -> di admin entah kenapa kaya ga jalan, tapi kalo di update dari user bisa aman
+   ✅- opsi, hilangkan addIpfsAccount, ganti menjadi cid saja langsung
 
 
-B. localStorage bahaya kalo lagi test multitab login
-   problem:
-   localStorage menyimpan token JWT di cache browser jadi token akan bentrok dengan token lain jika melakukan login berkali2 di beberapa tab yang akan mengakibatkan token tertukar dan data yang tersimpan ke ipfs dan blockchain akan salah
-
-   solusi:
-   gunakan sessionStorage karena akan menyimpan cache per tab selama tab tersebut tidak tertutup atau tidak melakukan logout. bisa mengatasi masalah token yang tertukar karena multitab login
-
-
-C. smart contract butuh function untuk update UserAccount
+abis ini ngapain:
