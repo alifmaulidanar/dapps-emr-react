@@ -95,7 +95,7 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       };
     });
     console.log(data);
-    res.json({ data });
+    res.status(200).json({ data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -188,19 +188,12 @@ router.post("/new", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // add to SC
-    const ipfsTX = await contractWithSigner.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contractWithSigner.getIpfsByAddress(
-      selectedAccountAddress
-    );
-
     const accountTX = await contractWithSigner.addUserAccount(
       username,
       email,
       role,
       phone,
-      getIpfs.ipfsAddress
+      cid
     );
     await accountTX.wait();
     const getAccount = await contractWithSigner.getAccountByAddress(
@@ -217,7 +210,7 @@ router.post("/new", async (req, res) => {
       publicKey: selectedAccountAddress,
       privateKey,
       cid,
-      account: getAccount,
+      data: ipfsData,
     };
 
     console.log(responseData);
@@ -233,9 +226,9 @@ router.post("/update", async (req, res) => {
   try {
     const {
       address,
-      username = null,
-      email = null,
-      phone = null,
+      username,
+      email,
+      phone,
       oldPass = null,
       newPass = null,
       confirmPass = null,
@@ -308,13 +301,28 @@ router.post("/update", async (req, res) => {
       walletWithProvider
     );
 
-    const getIpfs = await contractWithSigner.getIpfsByAddress(accountAddress);
+    const getIpfs = await contractWithSigner.getAccountByAddress(
+      accountAddress
+    );
     const cidFromBlockchain = getIpfs.cid;
 
     // data awal yang ada di ipfs
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
+
+    // Update email, username, phone, password, and store new cid
+    // const emailRegistered = await contractWithSigner.getAccountByEmail(email);
+    // if (emailRegistered.accountAddress !== ethers.constants.AddressZero) {
+    //   return res.status(400).json({ error: `Email ${email} sudah digunakan.` });
+    // }
+
+    let updatedData = {
+      ...ipfsData,
+      accountEmail: email,
+      accountUsername: username,
+      accountPhone: phone,
+    };
 
     // update password
     if (confirmPass && newPass && oldPass) {
@@ -327,146 +335,51 @@ router.post("/update", async (req, res) => {
         encryptedPassword = await bcrypt.hash(newPass, 10);
       }
 
-      const updatedData = {
-        ...ipfsData,
+      updatedData = {
+        ...updatedData,
         accountPassword: encryptedPassword,
       };
-
-      const updatedResult = await client.add(JSON.stringify(updatedData));
-      const updatedCid = updatedResult.cid.toString();
-      await client.pin.add(updatedCid);
-
-      const updateIpfsTX = await contractWithSigner.addIpfsAccount(updatedCid);
-      await updateIpfsTX.wait();
-      const getUpdatedIpfs = await contractWithSigner.getIpfsByAddress(
-        accountAddress
-      );
-
-      const updateAccountTX = await contractWithSigner.updateIpfsHash(
-        ipfsData.accountEmail,
-        getUpdatedIpfs.ipfsAddress
-      );
-      await updateAccountTX.wait();
     }
 
-    // update email
-    if (email && email !== ipfsData.accountEmail) {
-      const updatedData = {
-        ...ipfsData,
-        accountEmail: email,
+    const updatedResult = await client.add(JSON.stringify(updatedData));
+    const updatedCid = updatedResult.cid.toString();
+    await client.pin.add(updatedCid);
+
+    // Update account details
+    try {
+      const tx = await contractWithSigner.updateUserAccount(
+        getIpfs.email,
+        username,
+        email,
+        phone,
+        updatedCid
+      );
+      await tx.wait();
+
+      // cek data baru di ipfs
+      const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
+      const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+      const newIpfsData = await newIpfsResponse.json();
+
+      // cek data baru di blockchain
+      const getUpdatedAccount = await contractWithSigner.getAccountByAddress(
+        address
+      );
+
+      const responseData = {
+        account: getUpdatedAccount,
+        ipfsData: newIpfsData,
       };
 
-      const emailRegistered = await contractWithSigner.getAccountByEmail(email);
-      if (emailRegistered.accountAddress !== ethers.constants.AddressZero) {
-        return res
-          .status(400)
-          .json({ error: `Email ${email} sudah digunakan.` });
+      console.log({ responseData });
+      res.status(200).json({ responseData });
+    } catch (error) {
+      let message = "Transaction failed for an unknown reason";
+      if (error.code === "UNPREDICTABLE_GAS_LIMIT") {
+        message = "New email is already in use";
       }
-
-      const updatedResult = await client.add(JSON.stringify(updatedData));
-      const updatedCid = updatedResult.cid.toString();
-      await client.pin.add(updatedCid);
-
-      const updateIpfsTX = await contractWithSigner.addIpfsAccount(updatedCid);
-      await updateIpfsTX.wait();
-
-      const getUpdatedIpfs = await contractWithSigner.getIpfsByAddress(
-        accountAddress
-      );
-      const updateAccountTX = await contractWithSigner.updateIpfsHash(
-        ipfsData.accountEmail,
-        getUpdatedIpfs.ipfsAddress
-      );
-      await updateAccountTX.wait();
-
-      const updateEmailTX = await contractWithSigner.updateUserEmail(
-        ipfsData.accountEmail,
-        email
-      );
-      await updateEmailTX.wait();
+      res.status(400).json({ error: message });
     }
-
-    // update username
-    if (username) {
-      const updatedData = {
-        ...ipfsData,
-        accountUsername: username,
-      };
-
-      const updatedResult = await client.add(JSON.stringify(updatedData));
-      const updatedCid = updatedResult.cid.toString();
-      await client.pin.add(updatedCid);
-
-      const updateIpfsTX = await contractWithSigner.addIpfsAccount(updatedCid);
-      await updateIpfsTX.wait();
-
-      const getUpdatedIpfs = await contractWithSigner.getIpfsByAddress(
-        accountAddress
-      );
-      const updateAccountTX = await contractWithSigner.updateIpfsHash(
-        ipfsData.accountEmail,
-        getUpdatedIpfs.ipfsAddress
-      );
-      await updateAccountTX.wait();
-
-      const updateUsernameTX = await contractWithSigner.updateUserUsername(
-        ipfsData.accountEmail,
-        username
-      );
-      await updateUsernameTX.wait();
-    }
-
-    // update phone
-    if (phone) {
-      const updatedData = {
-        ...ipfsData,
-        accountPhone: phone,
-      };
-
-      const updatedResult = await client.add(JSON.stringify(updatedData));
-      const updatedCid = updatedResult.cid.toString();
-      await client.pin.add(updatedCid);
-
-      const updateIpfsTX = await contractWithSigner.addIpfsAccount(updatedCid);
-      await updateIpfsTX.wait();
-
-      const getUpdatedIpfs = await contractWithSigner.getIpfsByAddress(
-        accountAddress
-      );
-      const updateAccountTX = await contractWithSigner.updateIpfsHash(
-        ipfsData.accountEmail,
-        getUpdatedIpfs.ipfsAddress
-      );
-      await updateAccountTX.wait();
-
-      const updatePhoneTX = await contractWithSigner.updateUserPhone(
-        ipfsData.accountEmail,
-        phone
-      );
-      await updatePhoneTX.wait();
-    }
-
-    // cek data baru di ipfs
-    const getData = await contractWithSigner.getIpfsByAddress(address);
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${getData.cid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
-
-    // cek data baru di blockchain
-    const getUpdatedAccount = await contractWithSigner.getAccountByAddress(
-      address
-    );
-
-    const responseData = {
-      address: getUpdatedAccount.accountAddress,
-      username: newIpfsData.accountUsername,
-      email: newIpfsData.accountEmail,
-      phone: newIpfsData.accountPhone,
-      password: newIpfsData.accountPassword,
-    };
-
-    console.log({ responseData });
-    res.json({ responseData });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ error: error.message });

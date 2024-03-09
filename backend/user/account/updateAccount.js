@@ -18,379 +18,59 @@ const client = create({
 const router = express.Router();
 router.use(express.json());
 
-// Endpoint untuk memperbarui username
-router.post("/:role/update-username", authMiddleware, async (req, res) => {
+router.post("/:role/update", async (req, res) => {
   try {
-    const { field, value, signature } = req.body;
+    const {
+      address,
+      username,
+      email,
+      phone,
+      oldPass,
+      newPass,
+      confirmPass,
+      signature,
+    } = req.body;
 
-    const { error } = Joi.object({
-      field: Joi.string().required(),
-      value: Joi.string().required(),
-      signature: Joi.string().required(),
-    }).validate({ field, value, signature });
-
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-    const recoveredAddress = ethers.utils.verifyMessage(
-      JSON.stringify({
-        field,
-        value,
-      }),
-      signature
-    );
-
-    const recoveredSigner = provider.getSigner(recoveredAddress);
-    const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
-
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-
-    // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const cidFromBlockchain = getIpfs.cid;
-
-    // Mengambil data dari IPFS
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
-
-    const updatedData = {
-      ...ipfsData,
-      accountUsername: value,
-    };
-
-    // Menyimpan data yang diperbarui ke IPFS
-    const updatedResult = await client.add(JSON.stringify(updatedData));
-    const updatedCid = updatedResult.cid.toString();
-    await client.pin.add(updatedCid);
-
-    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
-
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
-
-    // Update user account di blockchain
-    const updateAccountTX = await contract.updateIpfsHash(
-      ipfsData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
-    );
-    await updateAccountTX.wait();
-
-    const updateUsernameTX = await contract.updateUserUsername(
-      ipfsData.accountEmail,
-      value
-    );
-    await updateUsernameTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(
-      accountAddress
-    );
-
-    // Response
-    const responseData = {
-      message: `Account Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
-    };
-
-    res.status(200).json(responseData);
-    console.log(responseData);
-  } catch (error) {
-    console.error(error);
-    const stackLines = error.stack.split("\n");
-    console.log("Error pada file dan baris:", stackLines[1].trim());
-    res.status(500).json({
-      error: error.message,
-      message: "Failed updating patient profile",
-    });
-  }
-});
-
-// Endpoint untuk memperbarui email
-router.post("/:role/update-email", authMiddleware, async (req, res) => {
-  try {
-    const { field, value, signature } = req.body;
-
-    const { error } = Joi.object({
-      field: Joi.string().required(),
-      value: Joi.string().required(),
-      signature: Joi.string().required(),
-    }).validate({ field, value, signature });
-
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-    const recoveredAddress = ethers.utils.verifyMessage(
-      JSON.stringify({
-        field,
-        value,
-      }),
-      signature
-    );
-
-    const recoveredSigner = provider.getSigner(recoveredAddress);
-    const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
-
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-
-    // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const cidFromBlockchain = getIpfs.cid;
-
-    // Mengambil data dari IPFS
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
-
-    const updatedData = {
-      ...ipfsData,
-      accountEmail: value,
-    };
-
-    // Menyimpan data yang diperbarui ke IPFS
-    const updatedResult = await client.add(JSON.stringify(updatedData));
-    const updatedCid = updatedResult.cid.toString();
-    await client.pin.add(updatedCid);
-
-    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
-
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
-
-    // Update IPFS Hash di blockchain
-    const updateAccountTX = await contract.updateIpfsHash(
-      ipfsData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
-    );
-    await updateAccountTX.wait();
-
-    const updateEmailTX = await contract.updateUserEmail(
-      ipfsData.accountEmail,
-      value
-    );
-    await updateEmailTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(
-      accountAddress
-    );
-
-    // Response
-    const responseData = {
-      message: `Account Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
-    };
-
-    res.status(200).json(responseData);
-    console.log(responseData);
-  } catch (error) {
-    console.error(error);
-    const stackLines = error.stack.split("\n");
-    console.log("Error pada file dan baris:", stackLines[1].trim());
-    res.status(500).json({
-      error: error.message,
-      message: "Failed updating patient profile",
-    });
-  }
-});
-
-// Endpoint untuk memperbarui nomor telepon
-router.post("/:role/update-phone", authMiddleware, async (req, res) => {
-  try {
-    const { field, value, signature } = req.body;
-
-    const { error } = Joi.object({
-      field: Joi.string().required(),
-      value: Joi.string().required(),
-      signature: Joi.string().required(),
-    }).validate({ field, value, signature });
-
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-    const recoveredAddress = ethers.utils.verifyMessage(
-      JSON.stringify({
-        field,
-        value,
-      }),
-      signature
-    );
-
-    const recoveredSigner = provider.getSigner(recoveredAddress);
-    const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
-
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-
-    // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const cidFromBlockchain = getIpfs.cid;
-
-    // Mengambil data dari IPFS
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
-
-    const updatedData = {
-      ...ipfsData,
-      accountPhone: value,
-    };
-
-    // Menyimpan data yang diperbarui ke IPFS
-    const updatedResult = await client.add(JSON.stringify(updatedData));
-    const updatedCid = updatedResult.cid.toString();
-    await client.pin.add(updatedCid);
-
-    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
-
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
-
-    // Update IPFS Hash di blockchain
-    const updateAccountTX = await contract.updateIpfsHash(
-      ipfsData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
-    );
-    await updateAccountTX.wait();
-
-    const updatePhoneTX = await contract.updateUserPhone(
-      ipfsData.accountEmail,
-      value
-    );
-    await updatePhoneTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(
-      accountAddress
-    );
-
-    // Response
-    const responseData = {
-      message: `Account Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
-    };
-
-    res.status(200).json(responseData);
-    console.log(responseData);
-  } catch (error) {
-    console.error(error);
-    const stackLines = error.stack.split("\n");
-    console.log("Error pada file dan baris:", stackLines[1].trim());
-    res.status(500).json({
-      error: error.message,
-      message: "Failed updating patient profile",
-    });
-  }
-});
-
-// Endpoint untuk memperbarui kata sandi
-router.post("/:role/update-password", authMiddleware, async (req, res) => {
-  try {
-    const { oldPassword, newPassword, confirmPassword, signature } = req.body;
-
-    const { error } = Joi.object({
-      oldPassword: Joi.string().required(),
-      newPassword: Joi.string()
+    const schema = Joi.object({
+      username: Joi.string()
+        .pattern(/^\S.*$/)
+        .alphanum()
+        .min(3)
+        .max(50)
+        .required(),
+      email: Joi.string().email().required(),
+      phone: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).required(),
+      oldPass: Joi.string().required(),
+      newPass: Joi.string()
         .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"))
         .required(),
-      confirmPassword: Joi.string().valid(Joi.ref("newPassword")).required(),
-      signature: Joi.string().required(),
-    }).validate({ oldPassword, newPassword, confirmPassword, signature });
+      confirmPass: Joi.string().valid(Joi.ref("newPass")).required(),
+    });
 
-    if (error) return res.status(400).json({ error: error.details[0].message });
+    if (username && email && phone && oldPass && newPass && confirmPass) {
+      const { error } = schema.validate({
+        username,
+        email,
+        phone,
+        oldPass,
+        newPass,
+        confirmPass,
+      });
+
+      if (error)
+        return res.status(400).json({ error: error.details[0].message });
+    }
 
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        oldPassword,
-        newPassword,
-        confirmPassword,
+        address,
+        username,
+        email,
+        phone,
+        oldPass,
+        newPass,
+        confirmPass,
       }),
       signature
     );
@@ -416,77 +96,84 @@ router.post("/:role/update-password", authMiddleware, async (req, res) => {
       recoveredSigner
     );
 
-    // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    const getIpfs = await contract.getAccountByAddress(accountAddress);
     const cidFromBlockchain = getIpfs.cid;
 
-    // Mengambil data dari IPFS
+    // data awal yang ada di ipfs
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
-    const isMatch = await bcrypt.compare(oldPassword, ipfsData.accountPassword);
 
-    if (!isMatch) {
-      return res.status(400).json({ error: "Invalid old password" });
-    }
+    // Update email, username, phone, password, and store new cid
+    // const emailRegistered = await contract.getAccountByEmail(email);
+    // if (emailRegistered.accountAddress !== ethers.constants.AddressZero) {
+    //   return res.status(400).json({ error: `Email ${email} sudah digunakan.` });
+    // }
 
-    const encryptedPassword = await bcrypt.hash(newPassword, 10);
-    const updatedData = {
+    let updatedData = {
       ...ipfsData,
-      accountPassword: encryptedPassword,
+      accountEmail: email,
+      accountUsername: username,
+      accountPhone: phone,
     };
 
-    // Menyimpan data yang diperbarui ke IPFS
+    // update password
+    if (confirmPass && newPass && oldPass) {
+      let encryptedPassword;
+      if (oldPass && newPass && confirmPass) {
+        const isMatch = await bcrypt.compare(oldPass, ipfsData.accountPassword);
+        if (!isMatch) {
+          return res.status(400).json({ error: "Invalid old password" });
+        }
+        encryptedPassword = await bcrypt.hash(newPass, 10);
+      }
+
+      updatedData = {
+        ...updatedData,
+        accountPassword: encryptedPassword,
+      };
+    }
+
     const updatedResult = await client.add(JSON.stringify(updatedData));
     const updatedCid = updatedResult.cid.toString();
     await client.pin.add(updatedCid);
 
-    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
+    // Update account details
+    try {
+      const tx = await contract.updateUserAccount(
+        getIpfs.email,
+        username,
+        email,
+        phone,
+        updatedCid
+      );
+      await tx.wait();
 
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
+      // cek data baru di ipfs
+      const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
+      const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+      const newIpfsData = await newIpfsResponse.json();
 
-    // Update user account di blockchain
-    const updateAccountTX = await contract.updateIpfsHash(
-      ipfsData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
-    );
-    await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(
-      accountAddress
-    );
+      // cek data baru di blockchain
+      const getUpdatedAccount = await contract.getAccountByAddress(address);
 
-    // Response
-    const responseData = {
-      message: `Account Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
-    };
+      const responseData = {
+        account: getUpdatedAccount,
+        ipfsData: newIpfsData,
+      };
 
-    res.status(200).json(responseData);
-    console.log(responseData);
+      console.log({ responseData });
+      res.status(200).json({ responseData });
+    } catch (error) {
+      let message = "Transaction failed for an unknown reason";
+      if (error.code === "UNPREDICTABLE_GAS_LIMIT") {
+        message = "New email is already in use";
+      }
+      res.status(400).json({ error: message });
+    }
   } catch (error) {
-    console.error(error);
-    const stackLines = error.stack.split("\n");
-    console.log("Error pada file dan baris:", stackLines[1].trim());
-    res.status(500).json({
-      error: error.message,
-      message: "Failed updating patient profile",
-    });
+    console.log(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 

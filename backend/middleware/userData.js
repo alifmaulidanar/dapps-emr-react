@@ -14,20 +14,16 @@ const contract = new ethers.Contract(contractAddress, contractAbi, provider);
 async function getUserAccountData(address) {
   try {
     const account = await contract.getAccountByAddress(address);
+    const cid = account.cid;
 
     if (account.accountAddress === ethers.constants.AddressZero) {
       throw new Error("Account not found");
     }
 
-    const getIpfs = await contract.getIpfsByAddress(address);
-    const cid = getIpfs.cid;
-
     // Fetch data dari Dedicated Gateway IPFS Desktop untuk mengakses data di IPFS
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
-    // console.log(ipfsData);
-
     const responseData = {
       message: "GET User Data from IPFS Succesful",
       account: {
@@ -36,12 +32,10 @@ async function getUserAccountData(address) {
         role: ipfsData.accountRole,
       },
       ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
         data: ipfsData,
       },
     };
-
     return responseData;
   } catch (error) {
     console.error(error);

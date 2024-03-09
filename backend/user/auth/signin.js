@@ -73,15 +73,11 @@ router.post("/:role/signin", async (req, res) => {
       });
     }
 
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-    const cid = getIpfs.cid;
-
     // Fetch data dari IPFS Desktop
+    const cid = getAccountByEmail.cid;
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
-
-    console.log({ ipfsData });
 
     // Cek accountRole
     if (role !== ipfsData.accountRole) {
@@ -122,11 +118,10 @@ router.post("/:role/signin", async (req, res) => {
         accountAddress: ipfsData.accountAddress,
         email: ipfsData.accountEmail,
         role: ipfsData.accountRole,
-        ipfsHash: getAccountByEmail.ipfsHash,
+        cid: getAccountByEmail.cid,
         isActive: getAccountByEmail.isActive,
       },
       ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
         data: ipfsData,
       },

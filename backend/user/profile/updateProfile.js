@@ -156,7 +156,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     );
 
     // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    const getIpfs = await contract.getAccountByAddress(accountAddress);
     const cidFromBlockchain = getIpfs.cid;
 
     // Mengambil data dari IPFS
@@ -191,37 +191,24 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
 
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
-    
-    // Update user account di blockchain (Jika perlu)
-    const updateAccountTX = await contract.updateIpfsHash(
-      userAccountData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
+    const tx = await contract.updateUserAccount(
+      getIpfs.email,
+      getIpfs.username,
+      getIpfs.email,
+      getIpfs.phone,
+      updatedCid
     );
-    await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(accountAddress);
+    await tx.wait();
+    const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Response
     const responseData = {
       message: `${role} Profile Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
+      account: getAccount,
+      ipfs: newIpfsData,
     };
-
-    res.status(200).json(responseData);
     console.log(responseData)
+    res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
     const stackLines = error.stack.split("\n");
@@ -287,7 +274,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     );
 
     // Mengambil CID dari blockchain
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
+    const getIpfs = await contract.getAccountByAddress(accountAddress);
     const cidFromBlockchain = getIpfs.cid;
 
     // Mengambil data dari IPFS
@@ -319,34 +306,23 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
-
-    // Update CID di blockchain
-    const updateIpfsTX = await contract.addIpfsAccount(updatedCid);
-    await updateIpfsTX.wait();
-    const getUpdatedIpfs = await contract.getIpfsByAddress(accountAddress);
     
     // Update user account di blockchain (Jika perlu)
-    const updateAccountTX = await contract.updateIpfsHash(
-      userAccountData.accountEmail,
-      getUpdatedIpfs.ipfsAddress
+    const tx = await contract.updateUserAccount(
+      getIpfs.email,
+      getIpfs.username,
+      getIpfs.email,
+      getIpfs.phone,
+      updatedCid
     );
-    await updateAccountTX.wait();
-    const getUpdatedAccount = await contract.getAccountByAddress(accountAddress);
+    await tx.wait();
+    const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Response
     const responseData = {
       message: `${userAccountData.accountRole.charAt(0).toUpperCase() + userAccountData.accountRole.slice(1)} Profile Updated`,
-      account: {
-        accountAddress: getUpdatedAccount.accountAddress,
-        email: getUpdatedAccount.email,
-        role: getUpdatedAccount.role,
-        ipfsHash: getUpdatedAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getUpdatedIpfs.ipfsAddress,
-        cid: updatedCid,
-        data: newIpfsData,
-      },
+      account: getAccount,
+      ipfs: newIpfsData,
     };
 
     res.status(200).json(responseData);

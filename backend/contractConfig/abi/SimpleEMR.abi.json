@@ -49,50 +49,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "ipfsAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "cid",
-        "type": "string"
-      }
-    ],
-    "name": "IpfsAccountAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "userAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "email",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newIpfsHash",
-        "type": "address"
-      }
-    ],
-    "name": "IpfsHashUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "userAddress",
         "type": "address"
       },
@@ -183,6 +139,25 @@
         "internalType": "string",
         "name": "email",
         "type": "string"
+      }
+    ],
+    "name": "UserAccountUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
       },
       {
         "indexed": false,
@@ -193,19 +168,6 @@
     ],
     "name": "UsernameUpdated",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_cid",
-        "type": "string"
-      }
-    ],
-    "name": "addIpfsAccount",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [
@@ -230,9 +192,9 @@
         "type": "string"
       },
       {
-        "internalType": "address",
-        "name": "_ipfsHash",
-        "type": "address"
+        "internalType": "string",
+        "name": "_cid",
+        "type": "string"
       }
     ],
     "name": "addUserAccount",
@@ -288,9 +250,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "ipfsHash",
-            "type": "address"
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
           },
           {
             "internalType": "bool",
@@ -354,9 +316,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "ipfsHash",
-            "type": "address"
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
           },
           {
             "internalType": "bool",
@@ -420,9 +382,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "ipfsHash",
-            "type": "address"
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
           },
           {
             "internalType": "bool",
@@ -480,9 +442,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "ipfsHash",
-            "type": "address"
+            "internalType": "string",
+            "name": "cid",
+            "type": "string"
           },
           {
             "internalType": "bool",
@@ -493,72 +455,6 @@
         "internalType": "struct SimpleEMR.UserAccount[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getIpfs",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "ipfsAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "cid",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct SimpleEMR.IpfsAccount[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "getIpfsByAddress",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "ipfsAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "cid",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct SimpleEMR.IpfsAccount",
-        "name": "",
-        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -584,102 +480,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getNumberOfIpfs",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "ipfsAccounts",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "ipfsAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "cid",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_email",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_newIpfsHash",
-        "type": "address"
-      }
-    ],
-    "name": "updateIpfsHash",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_oldEmail",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_newEmail",
-        "type": "string"
-      }
-    ],
-    "name": "updateUserEmail",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_email",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_newPhone",
-        "type": "string"
-      }
-    ],
-    "name": "updateUserPhone",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "string",
@@ -690,9 +490,24 @@
         "internalType": "string",
         "name": "_newUsername",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newEmail",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newPhone",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newCid",
+        "type": "string"
       }
     ],
-    "name": "updateUserUsername",
+    "name": "updateUserAccount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -743,9 +558,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "ipfsHash",
-        "type": "address"
+        "internalType": "string",
+        "name": "cid",
+        "type": "string"
       },
       {
         "internalType": "bool",

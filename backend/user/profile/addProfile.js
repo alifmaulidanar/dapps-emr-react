@@ -122,7 +122,6 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -201,40 +200,27 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     // Menyimpan data pasien ke IPFS
     const result = await client.add(JSON.stringify(accountData));
     const cid = result.cid.toString();
-    console.log({ cid });
 
     // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // Menambahkan CID dan detail akun ke Smart Contract
-    const ipfsTX = await contract.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-
-    const accountTX = await contract.updateIpfsHash(
+    const tx = await contract.updateUserAccount(
       patientAccountData.account.accountEmail,
-      getIpfs.ipfsAddress
+      patientAccountData.ipfs.data.accountUsername,
+      patientAccountData.account.accountEmail,
+      patientAccountData.ipfs.data.accountPhone,
+      cid
     );
-    await accountTX.wait();
+    await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `Patient Profile added successfully`,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
-        size: result.size,
-        data: ipfsData,
-      },
+      account: getAccount,
+      ipfs: ipfsData,
     };
 
     console.log(responseData);
@@ -270,7 +256,6 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -333,55 +318,41 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     accountData.accountProfiles.push(userData);
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
-    // const existingProfile = accountData.accountProfiles.findIndex(
-    //   (profile) => profile.nomorIdentitas === userData.nomorIdentitas
-    // );
+    const existingProfile = accountData.accountProfiles.findIndex(
+      (profile) => profile.nomorIdentitas === userData.nomorIdentitas
+    );
 
-    // if (existingProfile !== -1) {
-    //   console.log(`Profile with ${nomorIdentitas} already exists`);
-    // } else {
-    //   accountData.accountProfiles.push(userData);
-    // }
+    if (existingProfile !== -1) {
+      console.log(`Profile with ${nomorIdentitas} already exists`);
+    } else {
+      accountData.accountProfiles.push(userData);
+    }
 
     // Menyimpan data pasien ke IPFS
     const result = await client.add(JSON.stringify(accountData));
     const cid = result.cid.toString();
-    console.log({ cid });
 
     // Fetch data dari Dedicated Gateway IPFS Infura untuk mengakses data di IPFS
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // Menambahkan CID dan detail akun ke Smart Contract
-    const ipfsTX = await contract.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contract.getIpfsByAddress(accountAddress);
-
-    const accountTX = await contract.updateIpfsHash(
+    const tx = await contract.updateUserAccount(
       userAccountData.accountEmail,
-      getIpfs.ipfsAddress
+      userAccountData.accountUsername,
+      userAccountData.accountEmail,
+      userAccountData.accountPhone,
+      cid
     );
-    await accountTX.wait();
+    await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
       message: `User Profile added successfully`,
-      account: {
-        accountAddress: getAccount.accountAddress,
-        email: getAccount.email,
-        role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
-      },
-      ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
-        cid: cid,
-        size: result.size,
-        data: ipfsData,
-      },
+      account: getAccount,
+      ipfs: ipfsData,
     };
-
     console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {

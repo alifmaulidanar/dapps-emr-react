@@ -57,9 +57,9 @@ const formattedDateTime = formatDateTime(currentDateTime);
 
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {
+  const { role } = req.params;
   try {
     const { username, email, phone, password, confirmPassword } = req.body;
-    const { role } = req.params;
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     // Validasi input menggunakan Joi
@@ -133,19 +133,12 @@ router.post("/:role/signup", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    // add to SC
-    const ipfsTX = await contractWithSigner.addIpfsAccount(cid);
-    await ipfsTX.wait();
-    const getIpfs = await contractWithSigner.getIpfsByAddress(
-      selectedAccountAddress
-    );
-
     const accountTX = await contractWithSigner.addUserAccount(
       username,
       email,
       role,
       phone,
-      getIpfs.ipfsAddress
+      cid
     );
     await accountTX.wait();
     const getAccount = await contractWithSigner.getAccountByAddress(
@@ -162,11 +155,10 @@ router.post("/:role/signup", async (req, res) => {
         accountAddress: getAccount.accountAddress,
         email: getAccount.email,
         role: getAccount.role,
-        ipfsHash: getAccount.ipfsHash,
+        cid: getAccount.cid,
         isActive: getAccount.isActive,
       },
       ipfs: {
-        ipfsAddress: getIpfs.ipfsAddress,
         cid: cid,
         data: ipfsData,
       },

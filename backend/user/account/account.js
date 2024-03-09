@@ -9,7 +9,6 @@ router.get("/:role/account", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const data = await getUserAccountData(address);
-    console.log({ data });
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
