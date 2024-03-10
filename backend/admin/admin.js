@@ -27,6 +27,7 @@ const client = create({
 // signin admin
 import { adminData } from "../db/adminData.js";
 import { generateToken } from "../middleware/auth.js";
+import { get } from "http";
 
 const router = express.Router();
 router.use(express.json());
@@ -99,11 +100,58 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
 
 // Admin Sign In
 router.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
-  if (email !== adminData.email && password !== adminData.password) {
-    return res.status(400).json({ error: "Invalid email or password" });
+  try {
+    const { username, password, signature } = req.body;
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+    const recoveredAddress = ethers.utils.verifyMessage(
+      JSON.stringify({
+        username,
+        password,
+      }),
+      signature
+    );
+
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find(
+      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
+    );
+
+    if (!accountAddress) {
+      return res.status(400).json({ error: "Account not found" });
+    }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
+      return res.status(400).json({ error: "Invalid signature" });
+    }
+
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      recoveredSigner
+    );
+
+    const getAccountByEmail = await contract.getAdminByAddress(accountAddress);
+    if (getAccountByEmail.accountAddress === ethers.constants.AddressZero) {
+      return res.status(404).json({
+        error: `Admin account with address ${getAccountByEmail.address} not found`,
+      });
+    }
+
+    const validPassword = await bcrypt.compare(
+      password,
+      getAccountByEmail.password
+    );
+    if (!validPassword) {
+      return res.status(400).json({ error: "Invalid password" });
+    }
+
+    res.status(200).json({
+      token: generateToken({ address: accountAddress, username }),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
-  return res.status(200).json({ token: generateToken({ email }) });
 });
 
 // Add New Account
