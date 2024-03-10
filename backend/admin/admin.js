@@ -65,25 +65,21 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const token = req.headers.authorization;
     const role = req.query.role;
-
     if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = new ethers.Contract(
       CONTRACT_ADDRESS,
       contractAbi,
       provider
     );
-
     let accounts = [];
     if (role === "all") {
-      accounts = await contract.getAllAccounts();
+      accounts = await contract.getAllActiveAccounts();
     } else {
       accounts = await contract.getAccountsByRole(role);
     }
-
     const data = accounts.map((account) => {
       return {
         address: account.accountAddress,
@@ -94,7 +90,6 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
         createdAt: new Date(account.createdAt * 1000).toISOString(),
       };
     });
-    console.log(data);
     res.status(200).json({ data });
   } catch (error) {
     console.error(error);
@@ -383,6 +378,57 @@ router.post("/update", async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete Account
+router.post("/delete", async (req, res) => {
+  try {
+    const { address, email } = req.body;
+
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      contractAbi,
+      provider
+    );
+
+    const accountList = await provider.listAccounts();
+    const accountAddress = accountList.find(
+      (account) => account.toLowerCase() === address.toLowerCase()
+    );
+    if (!accountAddress) {
+      return res.status(400).json({ error: "Account not found" });
+    }
+    let selectedAccountAddress;
+    for (let account of accountList) {
+      const accountByAddress = await contract.getAccountByAddress(account);
+      if (accountByAddress.accountAddress === address) {
+        selectedAccountAddress = account;
+        break;
+      }
+    }
+
+    if (!selectedAccountAddress) {
+      return res.status(404).json({ error: "Akun tidak ditemukan." });
+    }
+
+    const privateKey = accounts[selectedAccountAddress];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      walletWithProvider
+    );
+
+    const deleteTx = await contractWithSigner.deactivateAccount();
+    await deleteTx.wait();
+
+    res.status(200).json({ address, email });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 });
 
