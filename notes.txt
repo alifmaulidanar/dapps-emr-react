@@ -34,9 +34,17 @@
 10/03/24
 ✅ ada fungsi baru deactivateAccount() untuk delete akun
 ✅ delete hanya berupa soft delete --> isActive == false
+✅ refactor SC agar tidak formatting otomatis
+✅ bikin struct, array, dan mapping akun admin
+✅ bikin rencana untuk penampungan doctor schedules
+✅ array baru di smart contract untuk DoctorAccount()
+✅ array baru di smart contract untuk NurseAccount()
+✅ array baru di smart contract untuk StaffAccount()
+✅ array baru di smart contract untuk AdminAccount()
+✅ array baru untuk admin
 
 next:
-- pertimbangkan apakah perlu function baru di SC untuk role baru ini (admin)
+- simpan doctor schedules di ipfs lalu simpan cid di blockchain
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
 ===================================================================================================
@@ -98,8 +106,12 @@ next:
 
 10/03/24
 ✅ handle delete udah bisa, yg tampil di dashboard admin hanya isActive == true
+✅ sign in admin pakai metamask connect ke SC baru yang nyimpen akun admin
+✅ side menu untuk dahsboard dan jadwal dokter
+✅ tabel jadwal dokter
 
 next:
+- upload jadwal dokter
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
@@ -156,8 +168,11 @@ next:
 
 10/03/24
 ✅ ada endpoint baru /delete untuk soft delete di admin
+✅ update endpoint sign in admin agar interaksi dengan SC menggunakan signature karena akun admin sudah lewat SC
 
 next:
+- endpoint handle upload jadwal dokter
+- simpan jadwal dokter ke ipfs, lalu simpan cid ke blockchain
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
 - perbagus validasi authMiddleware untuk semua endpoint backend🟡🟡🟡
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
@@ -187,5 +202,6 @@ A. Handle update account information dari sisi admin (frontend dan backend)
 
 
 abis ini ngapain:
-- delete udah bisa, tampilin di dashboard admin untuk akun yang aktif dan tidak aktif
-- lanjut ke appointment
+- tombol upload doctor schedules
+- api untuk doctor schedules
+- test function SC doctor schedules
