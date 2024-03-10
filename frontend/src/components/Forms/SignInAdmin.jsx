@@ -1,52 +1,98 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { Button, Form, Input, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
+import { ethers } from "ethers";
 import { CONN } from "../../../../enum-global";
 
 export default function AdminSignIn() {
   const [form] = useForm();
   const [spinning, setSpinning] = React.useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   const showLoader = () => {
     setSpinning(true);
   };
 
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: [CONN.GANACHE_LOCAL],
+        },
+      ]);
+
+      const signer = provider.getSigner(selectedAccount);
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
+
   const handleSubmit = async (values) => {
     showLoader();
-    try {
-      if (!values) {
-        setSpinning(false);
-        console.error("Form data tidak ditemukan");
-        return;
-      }
+    if (window.ethereum) {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/signin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data.message, data);
-          sessionStorage.setItem("adminToken", data.token);
+        if (!values) {
           setSpinning(false);
-          console.log("Sign In Successful!");
-          window.location.assign(`/admin/dashboard`);
-        } else {
-          const data = await response.json();
-          console.log(data.error, data.message);
+          console.error("Form data tidak ditemukan");
+          return;
+        }
+        const admin = {
+          username: values.username,
+          password: values.password,
+        };
+        const signer = await getSigner();
+        const signature = await signer.signMessage(JSON.stringify(admin));
+        admin.signature = signature;
+        try {
+          const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/signin`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(admin),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // console.log(data.message, data);
+            sessionStorage.setItem("adminToken", data.token);
+            setSpinning(false);
+            // console.log("Sign In Successful!");
+            window.location.assign(`/admin/dashboard`);
+          } else {
+            const data = await response.json();
+            console.log(data.error, data.message);
+            setSpinning(false);
+          }
+        } catch (error) {
+          console.error("Terjadi kesalahan:", error);
           setSpinning(false);
         }
       } catch (error) {
-        console.error("Terjadi kesalahan:", error);
+        console.error(error);
         setSpinning(false);
       }
-    } catch (error) {
-      console.error(error);
-      setSpinning(false);
     }
   };
 
@@ -66,21 +112,21 @@ export default function AdminSignIn() {
               htmlFor="name"
               className="block mb-2 text-sm font-medium text-gray-900"
             >
-              Email
+              Username
             </label>
             <Form.Item
-              name="email"
+              name="username"
               rules={[
                 {
                   required: true,
-                  message: "Harap isi Email.",
+                  message: "Harap isi username.",
                 },
               ]}
             >
               <Input
-                type="email"
-                name="email"
-                placeholder="Email"
+                type="text"
+                name="username"
+                placeholder="Username"
                 className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
               />
             </Form.Item>

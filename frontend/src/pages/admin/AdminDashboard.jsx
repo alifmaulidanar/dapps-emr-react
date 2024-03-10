@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-key */
 import "../../index.css";
 import Swal from "sweetalert2";
+import { jwtDecode } from "jwt-decode";
 import "sweetalert2/dist/sweetalert2.min.css";
 import React, { useState, useEffect } from "react";
 // prettier-ignore
@@ -13,6 +14,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { CONN } from "../../../../enum-global";
+import DoctorSchedule from "./DoctorSchedule";
 
 export default function AdminDashboard() {
   const [form] = Form.useForm();
@@ -27,10 +29,12 @@ export default function AdminDashboard() {
   const [finishModalOpen, setFinishModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [activeMenu, setActiveMenu] = useState("dashboard");
 
   if (!token) {
     window.location.assign("/admin/signin");
   }
+  const decodedToken = jwtDecode(token);
 
   useEffect(() => {
     const fetchDataAsync = async () => {
@@ -301,7 +305,7 @@ export default function AdminDashboard() {
     </Menu>
   );
 
-  const adminName = "Admin";
+  // const adminName = "Admin";
   const columns = [
     {
       title: "No.",
@@ -363,6 +367,15 @@ export default function AdminDashboard() {
     },
   ];
 
+  function getItem(label, key, icon, children, type) {
+    return {
+      key,
+      children,
+      label,
+      type,
+    };
+  }
+
   const handleLogout = () => {
     const isConfirmed = window.confirm(
       "Apakah Anda yakin ingin keluar? Anda akan dikembalikan ke halaman masuk."
@@ -373,12 +386,30 @@ export default function AdminDashboard() {
     }
   };
 
+  const sideMenuItems = [
+    {
+      label: "Dashboard",
+      key: "dashboard",
+      // icon: <DashboardOutlined />,
+      onClick: () => setActiveMenu("dashboard"),
+    },
+    {
+      label: "Jadwal Dokter",
+      key: "doctorSchedule",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("doctorSchedule"),
+    },
+  ];
+
   return (
     <>
       <div className="grid justify-center w-9/12 max-h-screen grid-cols-1 px-4 py-24 mx-auto">
-        <div className="grid gap-y-8">
+        <div className="grid w-full gap-y-8">
           <div className="flex items-stretch justify-between">
-            <h1 className="text-2xl font-bold">Halo, {adminName}</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold">
+              Halo, {decodedToken.username}{" "}
+              <Tag color="cyan">{decodedToken.address}</Tag>
+            </h1>
             <Button
               type="primary"
               danger
@@ -390,45 +421,65 @@ export default function AdminDashboard() {
               </div>
             </Button>
           </div>
-          <div className="flex justify-between">
-            <div className="justify-self-start">
-              <Button type="default" onClick={showModal}>
-                Add New
-              </Button>
-            </div>
-            {/* <div>
-              <Search
-                placeholder="input search text"
-                // onSearch={onSearch}
-                style={{
-                  width: 200,
-                }}
-              />
-            </div> */}
+          <div className="flex w-full flex-nowrap gap-x-8">
+            <Menu
+              style={{
+                width: 256,
+              }}
+              defaultSelectedKeys={"dashboard"}
+              mode="inline"
+              items={sideMenuItems.map((item) => ({
+                key: item.key,
+                icon: item.icon,
+                label: item.label,
+                onClick: item.onClick,
+              }))}
+            />
+            {activeMenu === "dashboard" && (
+              <div className="grid w-full gap-y-4">
+                <div className="flex justify-between">
+                  <div className="justify-self-start">
+                    <Button type="default" onClick={showModal}>
+                      Add New
+                    </Button>
+                  </div>
+                  {/* <div>
+                  <Search
+                    placeholder="input search text"
+                    // onSearch={onSearch}
+                    style={{
+                      width: 200,
+                    }}
+                  />
+                </div> */}
 
-            {/* Tampilkan berdasarkan role */}
-            <div className="justify-self-end w-[150px]">
-              <Select
-                defaultValue="all"
-                onChange={handleRoleChange}
-                options={[
-                  { value: "all", label: "Semua role" },
-                  { value: "patient", label: "Pasien" },
-                  { value: "doctor", label: "Dokter" },
-                  { value: "nurse", label: "Perawat" },
-                  { value: "staff", label: "Staf" },
-                ]}
-                style={{ width: "100%" }}
-              />
-            </div>
+                  {/* Tampilkan berdasarkan role */}
+                  <div className="justify-self-end w-[150px]">
+                    <Select
+                      defaultValue="all"
+                      onChange={handleRoleChange}
+                      options={[
+                        { value: "all", label: "Semua role" },
+                        { value: "patient", label: "Pasien" },
+                        { value: "doctor", label: "Dokter" },
+                        { value: "nurse", label: "Perawat" },
+                        { value: "staff", label: "Staf" },
+                      ]}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                </div>
+                <Table
+                  columns={columns}
+                  dataSource={fetchData}
+                  rowKey="address"
+                  loading={spinning}
+                  size="middle"
+                />
+              </div>
+            )}
+            {activeMenu === "doctorSchedule" && <DoctorSchedule />}
           </div>
-          <Table
-            columns={columns}
-            dataSource={fetchData}
-            rowKey="address"
-            loading={spinning}
-            size="middle"
-          />
         </div>
         <Modal
           // title="Daftarkan Akun Baru"

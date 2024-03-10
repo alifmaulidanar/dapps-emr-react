@@ -10,8 +10,8 @@ import { CONN } from "../../../../enum-global";
 
 export default function SignInForm({ role, resetLink, signupLink }) {
   const [form] = useForm();
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
 
   let displayRole;
   switch (role) {
