@@ -22,6 +22,7 @@ contract SimpleEMR {
         string email,
         string newEmail
     );
+    event AccountDeactivated(address indexed userAddress);
 
     struct UserAccount {
         uint id;
@@ -121,8 +122,31 @@ contract SimpleEMR {
                 break;
             }
         }
-
         emit UserAccountUpdated(userAddress, _newEmail);
+    }
+
+    // PATCH Delete/Deactivate User Account
+    function deactivateAccount() public {
+        require(
+            emailToAddressMap[userAccountsMap[msg.sender].email] != address(0),
+            "Account does not exist."
+        );
+        require(
+            userAccountsMap[msg.sender].accountAddress == msg.sender,
+            "Unauthorized."
+        );
+
+        // Update isActive status in the mapping
+        userAccountsMap[msg.sender].isActive = false;
+
+        // Find and update isActive status in the userAccounts array
+        for (uint i = 0; i < userAccounts.length; i++) {
+            if (userAccounts[i].accountAddress == msg.sender) {
+                userAccounts[i].isActive = false;
+                break; // Stop the loop once the account is found and updated
+            }
+        }
+        emit AccountDeactivated(msg.sender);
     }
 
     // GET All Acounts
@@ -130,35 +154,32 @@ contract SimpleEMR {
         return userAccounts;
     }
 
-    // GET Accounts by Role
-    function getAccountsByRole(
-        string memory role
-    ) public view returns (UserAccount[] memory) {
-        uint count = 0;
+    function getAllActiveAccounts() public view returns (UserAccount[] memory) {
+        uint activeCount = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (
-                keccak256(abi.encodePacked(userAccounts[i].role)) ==
-                keccak256(abi.encodePacked(role)) &&
-                emailToAddressMap[userAccounts[i].email] != address(0)
-            ) {
-                count++;
+            if (userAccounts[i].isActive) {
+                activeCount++;
             }
         }
-
-        UserAccount[] memory activeAccounts = new UserAccount[](count);
-        uint index = 0;
-
+        UserAccount[] memory activeAccounts = new UserAccount[](activeCount);
+        uint j = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (
-                keccak256(abi.encodePacked(userAccounts[i].role)) ==
-                keccak256(abi.encodePacked(role)) &&
-                emailToAddressMap[userAccounts[i].email] != address(0)
-            ) {
-                activeAccounts[index] = userAccounts[i];
-                index++;
+            if (userAccounts[i].isActive) {
+                activeAccounts[j] = userAccounts[i];
+                j++;
             }
         }
         return activeAccounts;
+    }
+
+    // GET Account by Address
+    function getAccountByAddress(
+        address _address
+    ) public view returns (UserAccount memory) {
+        UserAccount memory account = userAccountsMap[_address];
+        // require(account.accountAddress != address(0), "Account does not exist");
+        // require(account.isActive, "Account is not active");
+        return account;
     }
 
     // GET Account by Email
@@ -171,14 +192,33 @@ contract SimpleEMR {
         return account;
     }
 
-    // GET Account by Address
-    function getAccountByAddress(
-        address _address
-    ) public view returns (UserAccount memory) {
-        UserAccount memory account = userAccountsMap[_address];
-        // require(account.accountAddress != address(0), "Account does not exist");
-        // require(account.isActive, "Account is not active");
-        return account;
+    // GET Accounts by Role
+    function getAccountsByRole(
+        string memory role
+    ) public view returns (UserAccount[] memory) {
+        uint activeCount = 0;
+        for (uint i = 0; i < userAccounts.length; i++) {
+            if (
+                keccak256(abi.encodePacked(userAccounts[i].role)) ==
+                keccak256(abi.encodePacked(role)) &&
+                userAccounts[i].isActive
+            ) {
+                activeCount++;
+            }
+        }
+        UserAccount[] memory activeAccounts = new UserAccount[](activeCount);
+        uint index = 0;
+        for (uint i = 0; i < userAccounts.length; i++) {
+            if (
+                keccak256(abi.encodePacked(userAccounts[i].role)) ==
+                keccak256(abi.encodePacked(role)) &&
+                userAccounts[i].isActive
+            ) {
+                activeAccounts[index] = userAccounts[i];
+                index++;
+            }
+        }
+        return activeAccounts;
     }
 
     // GET Number of Account by Role
