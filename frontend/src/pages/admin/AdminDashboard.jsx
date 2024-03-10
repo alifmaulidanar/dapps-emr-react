@@ -92,10 +92,6 @@ export default function AdminDashboard() {
     window.location.reload();
   };
 
-  // const testHandle = async (values) => {
-  //   console.log(values);
-  // };
-
   const handleSubmit = async (values) => {
     showLoader();
     try {
@@ -174,7 +170,7 @@ export default function AdminDashboard() {
 
     try {
       const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/update`, {
-        // method: "POST",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -219,21 +215,84 @@ export default function AdminDashboard() {
     setCurrent(0);
   };
 
-  const handleMenuClick = (record, e) => {
+  const handleEdit = (record, e) => {
+    setIsEditModalOpen(true);
     editableForm.setFieldsValue(record);
-    console.log("menu item clicked", e.key, record);
+    console.log(e.key, record);
+  };
+
+  const confirmDelete = (record) => {
+    console.log({ record });
+    Swal.fire({
+      title: `Apakah yakin ingin menghapus akun dengan email ${record.email}?`,
+      text: "Akun pengguna tersebut akan dinyatakan tidak aktif.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(record);
+      }
+    });
+  };
+
+  const handleDelete = async (record) => {
+    showLoader();
+    try {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(record),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSpinning(false);
+        Swal.fire({
+          icon: "success",
+          title: `Akun dengan email ${data.email} berhasil dihapus!`,
+          text: `Akun pengguna ${data.address} telah dinyatakan tidak aktif.`,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setIsEditModalOpen(false);
+            window.location.reload();
+          }
+        });
+      } else {
+        const data = await response.json();
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Registrasi Gagal",
+          text: data.error,
+        });
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Terjadi kesalahan saat melakukan registrasi",
+        text: error,
+      });
+    }
   };
 
   const dropdownMenu = (record) => (
-    <Menu onClick={(e) => handleMenuClick(record, e)}>
-      <Menu.Item key="edit" onClick={setIsEditModalOpen}>
+    <Menu>
+      <Menu.Item key="edit" onClick={(e) => handleEdit(record, e)}>
         <div className="flex gap-x-2">
           <EditOutlined />
           <p>Edit</p>
         </div>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="delete" danger>
+      <Menu.Item key="delete" danger onClick={(e) => confirmDelete(record)}>
         <div className="flex gap-x-2">
           <DeleteOutlined />
           <p>Delete</p>
