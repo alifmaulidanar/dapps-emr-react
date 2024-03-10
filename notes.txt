@@ -31,8 +31,11 @@
 ✅ hapus updateUsername, updatePhone, updateEmail, updatePassword
 ✅ hapus ipfsAccount mapping dan array
 
+10/03/24
+✅ ada fungsi baru deactivateAccount() untuk delete akun
+✅ delete hanya berupa soft delete --> isActive == false
+
 next:
-- handle delete akun belum bisa, buat function deleteAccount🔴🔴🔴
 - pertimbangkan apakah perlu function baru di SC untuk role baru ini (admin)
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
@@ -93,8 +96,11 @@ next:
 ✅ data update dari admin sudah sama dengan dari user
 ✅ bikin single submit form untuk update akun user
 
+10/03/24
+✅ handle delete udah bisa, yg tampil di dashboard admin hanya isActive == true
+
 next:
-- handle delete akun belum bisa (admin)🔴🔴
+- buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
 
@@ -148,8 +154,11 @@ next:
 ✅ single action update account di admin
 ✅ single action update account di user
 
+10/03/24
+✅ ada endpoint baru /delete untuk soft delete di admin
+
 next:
-- handle delete akun belum bisa🔴🔴
+- buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
 - perbagus validasi authMiddleware untuk semua endpoint backend🟡🟡🟡
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
@@ -178,3 +187,5 @@ A. Handle update account information dari sisi admin (frontend dan backend)
 
 
 abis ini ngapain:
+- delete udah bisa, tampilin di dashboard admin untuk akun yang aktif dan tidak aktif
+- lanjut ke appointment
