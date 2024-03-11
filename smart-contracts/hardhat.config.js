@@ -43,7 +43,7 @@ const config = {
       url: "http://127.0.0.1:7545",
       accounts: [
         // windows --> VPS dan lokal sama
-        "0xe5ec0f87ce6786c29f2dea2374da267abb3f09252a097ceeaf83f3e4d9a8fd83",
+        "0xad44c6613c71be716aea9e6e0233e0f4d4e535c7f0f6ea4209d66545df0b1a2e",
 
         // linux
         // "0xc3aa469ddbd8e3753f296b489af316c4e9acd38a307c693ca9adddc85da11d1f",
