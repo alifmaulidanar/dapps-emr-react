@@ -20,7 +20,8 @@ export default function AdminDashboard() {
   const [form] = Form.useForm();
   const [editableForm] = Form.useForm();
   const token = sessionStorage.getItem("adminToken");
-  const [fetchData, setFetchData] = useState([]);
+  const [accountsData, setAccountsData] = useState([]);
+  const [schedulesData, setSchedulesData] = useState([]);
   const [role, setRole] = useState("all");
   const [accountData, setAccountData] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -44,26 +45,38 @@ export default function AdminDashboard() {
       }
       setSpinning(true);
       try {
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/admin/dashboard?role=${role}`,
-          {
+        let url = `${CONN.BACKEND_LOCAL}/admin/dashboard`;
+        if (activeMenu === "dashboard") {
+          url += `?accounts=true&role=${role}`;
+          const response = await fetch(url, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-          }
-        );
-        const data = await response.json();
-        setFetchData(data.data);
+          });
+          const { data } = await response.json();
+          setAccountsData(data);
+        } else if (activeMenu === "doctorSchedule") {
+          url += `?schedules=true`;
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const schedules = await response.json();
+          setSchedulesData(schedules);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setSpinning(false);
       }
     };
-    fetchDataAsync();
-  }, [role, token]);
+    fetchDataAsync(activeMenu);
+  }, [role, token, activeMenu]);
 
   const showLoader = () => setSpinning(true);
   const showModal = () => setIsModalOpen(true);
@@ -156,9 +169,9 @@ export default function AdminDashboard() {
     const dataToSend = {
       address: values.address,
       username:
-        values.username !== fetchData?.username ? values.username : null,
-      email: values.email !== fetchData?.email ? values.email : null,
-      phone: values.phone !== fetchData?.phone ? values.phone : null,
+        values.username !== accountsData?.username ? values.username : null,
+      email: values.email !== accountsData?.email ? values.email : null,
+      phone: values.phone !== accountsData?.phone ? values.phone : null,
       oldPass: values.oldPass ? values.oldPass : null,
       newPass: values.newPass ? values.newPass : null,
       confirmPass: values.confirmPass ? values.confirmPass : null,
@@ -471,14 +484,16 @@ export default function AdminDashboard() {
                 </div>
                 <Table
                   columns={columns}
-                  dataSource={fetchData}
+                  dataSource={accountsData}
                   rowKey="address"
                   loading={spinning}
                   size="middle"
                 />
               </div>
             )}
-            {activeMenu === "doctorSchedule" && <DoctorSchedule />}
+            {activeMenu === "doctorSchedule" && (
+              <DoctorSchedule schedulesData={schedulesData} />
+            )}
           </div>
         </div>
         <Modal

@@ -66,32 +66,41 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const token = req.headers.authorization;
     const role = req.query.role;
+
     if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
     }
+
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const contract = new ethers.Contract(
       CONTRACT_ADDRESS,
       contractAbi,
       provider
     );
-    let accounts = [];
-    if (role === "all") {
-      accounts = await contract.getAllActiveAccounts();
-    } else {
-      accounts = await contract.getAccountsByRole(role);
+
+    if (req.query.accounts === "true") {
+      let accounts = [];
+      if (role === "all") {
+        accounts = await contract.getAllActiveAccounts();
+      } else {
+        accounts = await contract.getAccountsByRole(role);
+      }
+      const data = accounts.map((account) => {
+        return {
+          address: account.accountAddress,
+          username: account.username,
+          email: account.email,
+          phone: account.phone,
+          role: account.role,
+          createdAt: new Date(account.createdAt * 1000).toISOString(),
+        };
+      });
+      res.status(200).json({ data });
+    } else if (req.query.schedules === "true") {
+      const schedules = await contract.getAllActiveDoctorSchedules();
+      const scheduleCid = schedules[schedules.length - 1].cid;
+      res.status(200).json({ scheduleCid });
     }
-    const data = accounts.map((account) => {
-      return {
-        address: account.accountAddress,
-        username: account.username,
-        email: account.email,
-        phone: account.phone,
-        role: account.role,
-        createdAt: new Date(account.createdAt * 1000).toISOString(),
-      };
-    });
-    res.status(200).json({ data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
