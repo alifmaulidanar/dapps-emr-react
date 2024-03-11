@@ -43,8 +43,10 @@
 ✅ array baru di smart contract untuk AdminAccount()
 ✅ array baru untuk admin
 
+11/03/24
+✅ simpan doctor schedules di ipfs lalu simpan cid di blockchain (dari admin pakai akun admin)
+
 next:
-- simpan doctor schedules di ipfs lalu simpan cid di blockchain
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
 ===================================================================================================
@@ -108,10 +110,14 @@ next:
 ✅ handle delete udah bisa, yg tampil di dashboard admin hanya isActive == true
 ✅ sign in admin pakai metamask connect ke SC baru yang nyimpen akun admin
 ✅ side menu untuk dahsboard dan jadwal dokter
+
+11/03/24
 ✅ tabel jadwal dokter
+✅ upload jadwal dokter (JSON)
+✅ side menu dipisahkan menjadi parameter accounts dan schedules
+✅ tampilkan data jadwal dokter menggunakan cid lalu ambil data dari ipfs di frontend
 
 next:
-- upload jadwal dokter
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
@@ -170,11 +176,16 @@ next:
 ✅ ada endpoint baru /delete untuk soft delete di admin
 ✅ update endpoint sign in admin agar interaksi dengan SC menggunakan signature karena akun admin sudah lewat SC
 
+11/03/24
+✅ endpoint handle upload jadwal dokter
+✅ simpan jadwal dokter ke ipfs, lalu simpan cid ke blockchain (JSON)
+✅ hapus endpoint /schedule, sekarang pakai query parameter /dashboard?accounts=true dan /dashboard?schedules?true
+✅ ambil jadwal dokter dengan getAllActiveDoctorSchedules()
+
 next:
-- endpoint handle upload jadwal dokter
-- simpan jadwal dokter ke ipfs, lalu simpan cid ke blockchain
+- appointment
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
-- perbagus validasi authMiddleware untuk semua endpoint backend🟡🟡🟡
+- perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
@@ -202,6 +213,3 @@ A. Handle update account information dari sisi admin (frontend dan backend)
 
 
 abis ini ngapain:
-- tombol upload doctor schedules
-- api untuk doctor schedules
-- test function SC doctor schedules
