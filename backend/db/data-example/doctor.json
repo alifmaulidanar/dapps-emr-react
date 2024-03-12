@@ -1,0 +1,39 @@
+{
+  "accountAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+  "accountUsername": "dokter123",
+  "accountEmail": "doctor123@gmail.com",
+  "accountPhone": "098765431234",
+  "accountPassword": "$2a$10$1u929VPjSduw7qO3Wj0pEuNFgDXxGF3WMlHWMh6MIo5/h1hndDITK",
+  "accountRole": "doctor",
+  "accountCreated": "21:44:19_12-03-2024",
+  "accountProfiles": [
+    {
+      "namaLengkap": "dr. Budi",
+      "nomorIdentitas": "1113613151531577",
+      "tempatLahir": "Bekasi",
+      "tanggalLahir": "19/03/2024",
+      "namaIbu": "Yaya",
+      "gender": "1",
+      "agama": "3",
+      "suku": "Betawi",
+      "bahasa": "Indonesia",
+      "golonganDarah": "3",
+      "telpRumah": "0218976543",
+      "telpSelular": "098765431234",
+      "email": "doctor123@gmail.com",
+      "pendidikan": "1",
+      "pekerjaan": "1",
+      "pernikahan": "2",
+      "alamat": "axanxi",
+      "rt": "008",
+      "rw": "02",
+      "kelurahan": "Suka Maju",
+      "kecamatan": "Cisarua",
+      "kota": "Bogor",
+      "pos": "12345",
+      "provinsi": "Banten",
+      "negara": "USA",
+      "foto": null
+    }
+  ]
+}
