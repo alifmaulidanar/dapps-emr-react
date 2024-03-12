@@ -1,6 +1,8 @@
 import Joi from "joi";
 import express from "express";
 import bcrypt from "bcryptjs";
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
 import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONTRACT_ADDRESS } from "../dotenvConfig.js";
@@ -25,9 +27,9 @@ const client = create({
 });
 
 // signin admin
-import { adminData } from "../db/adminData.js";
+// import { adminData } from "../db/adminData.js";
 import { generateToken } from "../middleware/auth.js";
-import { get } from "http";
+// import { get } from "http";
 
 const router = express.Router();
 router.use(express.json());
@@ -490,9 +492,18 @@ router.post("/delete", async (req, res) => {
 });
 
 // Add Doctor Schedule
-router.post("/schedule", async (req, res) => {
+router.post("/schedule", upload.single("file"), async (req, res) => {
   try {
-    const { cid } = req.body;
+    const file = req.file;
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    const ipfsResponse = await client.add({
+      path: file.originalname,
+      content: fs.createReadStream(file.path),
+    });
+    const cid = ipfsResponse.cid.toString();
+    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const privateKey = accounts["admin"];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
@@ -507,9 +518,7 @@ router.post("/schedule", async (req, res) => {
     res.json({ cid });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Failed to add doctor schedule", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
