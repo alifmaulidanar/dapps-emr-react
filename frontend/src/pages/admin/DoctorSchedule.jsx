@@ -1,6 +1,6 @@
 import React from "react";
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, message, Upload } from "antd";
+import { Button, message, Upload, Tag } from "antd";
 import { useState, useEffect } from "react";
 import { Table } from "antd";
 import { create } from "ipfs-http-client";
@@ -13,11 +13,21 @@ const ipfsClient = create({
   protocol: "http",
 });
 
+// Nurse tag color
+const getTagColor = (address) => {
+  const colorToAddress = {
+    "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "green",
+    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "blue",
+    "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "red",
+  };
+  return colorToAddress[address];
+};
+
 function DoctorSchedule({ schedulesData }) {
   const [spinning, setSpinning] = React.useState(false);
   const [cid, setCid] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [scheduleData, setScheduleData] = useState([]);
+  const [dataSource, setDataSource] = useState([]);
 
   useEffect(() => {
     const fetchScheduleData = async () => {
@@ -28,9 +38,20 @@ function DoctorSchedule({ schedulesData }) {
         const ipfsResponse = await fetch(ipfsGatewayUrl);
         if (!ipfsResponse.ok) throw new Error("Failed to fetch from IPFS");
         const { doctors } = await ipfsResponse.json();
-        if (!Array.isArray(doctors))
-          throw new Error("Data format is incorrect");
-        setScheduleData(doctors);
+        let flattenedData = [];
+        doctors.forEach((doctor) => {
+          doctor.schedules.forEach((schedule, index) => {
+            flattenedData.push({
+              key: `${doctor.address}-${index}`,
+              address: doctor.address,
+              day: schedule.day,
+              time: schedule.time,
+              nurse: schedule.nurse,
+              rowSpan: index === 0 ? doctor.schedules.length : 0,
+            });
+          });
+        });
+        setDataSource(flattenedData);
       } catch (error) {
         console.error("Error fetching schedule data from IPFS:", error);
         message.error("Failed to fetch schedule data from IPFS.");
@@ -47,32 +68,36 @@ function DoctorSchedule({ schedulesData }) {
 
   const columns = [
     {
-      title: "No.",
-      dataIndex: "key",
-      key: "no",
-      render: (text, record, index) => index + 1,
-    },
-    {
       title: "Address",
       dataIndex: "address",
       key: "address",
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        };
+        return obj;
+      },
     },
     {
-      title: "Schedules",
-      dataIndex: "schedules",
-      key: "schedules",
-      render: (schedules) =>
-        schedules.map((schedule, index) => (
-          <div key={index}>{`${schedule.day}: ${schedule.time}`}</div>
-        )),
+      title: "Day",
+      dataIndex: "day",
+      key: "day",
+    },
+    {
+      title: "Time",
+      dataIndex: "time",
+      key: "time",
+    },
+    {
+      title: "Nurse",
+      dataIndex: "nurse",
+      key: "nurse",
+      render: (nurse) => <Tag color={getTagColor(nurse)}>{nurse}</Tag>,
     },
   ];
-
-  const dataSource = scheduleData.map((doc, index) => ({
-    key: index,
-    address: doc.address,
-    schedules: doc.schedules,
-  }));
 
   // handle upload
   const handleUpload = async (file) => {
