@@ -1,0 +1,69 @@
+{
+  "doctors": [
+    {
+      "address": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+      "schedules": [
+        {
+          "day": "Monday",
+          "time": "08:00 - 12:00",
+          "nurse": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1"
+        },
+        {
+          "day": "Wednesday",
+          "time": "14:00 - 18:00",
+          "nurse": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C"
+        },
+        {
+          "day": "Friday",
+          "time": "09:00 - 13:00",
+          "nurse": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C"
+        }
+      ]
+    },
+    {
+      "address": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+      "schedules": [
+        {
+          "day": "Tuesday",
+          "time": "10:00 - 14:00",
+          "nurse": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1"
+        },
+        {
+          "day": "Thursday",
+          "time": "15:00 - 19:00",
+          "nurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169"
+        },
+        {
+          "day": "Saturday",
+          "time": "10:00 - 14:00",
+          "nurse": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C"
+        }
+      ]
+    },
+    {
+      "address": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+      "schedules": [
+        {
+          "day": "Monday",
+          "time": "09:00 - 12:00",
+          "nurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169"
+        },
+        {
+          "day": "Wednesday",
+          "time": "13:00 - 17:00",
+          "nurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169"
+        },
+        {
+          "day": "Friday",
+          "time": "08:00 - 12:00",
+          "nurse": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1"
+        },
+        {
+          "day": "Saturday",
+          "time": "13:00 - 16:00",
+          "nurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169"
+        }
+      ]
+    }
+  ]
+}
