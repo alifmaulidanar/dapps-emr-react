@@ -50,7 +50,14 @@
 ✅ getLatestActiveDoctorSchedule() -> untuk sementara selalu ambil doctor schedule yang terbaru
 
 next:
-- pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
+- implement OutpatientData struct dan beberapa function pendukung seperti di chatgpt
+- logika:
+    - data appointment punya struct, array, dan mapping masing-masing
+    - di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
+    - bisa dipanggil dari masing-masing role
+    - harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
+    - selesaikan proses penyimpanan data appointment dahulu, baru lanjut ke rekam medis elektronik
+    - di appointment terkait, hanya akan menyimpan cid rekam medis elektronik
 
 ===================================================================================================
 ===================================================================================================
@@ -124,6 +131,9 @@ next:
 ✅ tabel jadwal dokter di admin sudah bagus (minimal sudah terbaca)
 
 next:
+- lanjut ke appointment -> modal buat appointment baru
+- tampilkan jadwal praktik dokter di modal buat appointment baru
+- kirim tanggal yang dipilih dengan benar
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
@@ -189,7 +199,9 @@ next:
 ✅ ambil jadwal dokter dengan getAllActiveDoctorSchedules()
 
 next:
-- appointment
+- endpoint unduh add new appointment dari modal frontend
+- koneksi ke smart contract addNewAppointment(), terhubung ke dokter dan perawat terkait
+- tampilkan data appointment yang telah dibuat
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
 - perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
