@@ -244,6 +244,17 @@ contract SimpleEMR {
         return doctorSchedules[id - 1];
     }
 
+    // GET Latest Active Doctor Schedule
+    function getLatestActiveDoctorSchedule() public view returns (DoctorSchedule memory) {
+        for (uint i = doctorSchedules.length; i > 0; i--) {
+            DoctorSchedule memory currentSchedule = doctorSchedules[i - 1];
+            if (currentSchedule.isActive) {
+                return currentSchedule;
+            }
+        }
+        return DoctorSchedule(0, "", 0, false);
+    }
+
     // GET All Active Schedules
     function getAllActiveDoctorSchedules() public view returns (DoctorSchedule[] memory) {
         uint activeCount = 0;
