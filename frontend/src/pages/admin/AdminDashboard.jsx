@@ -78,6 +78,13 @@ export default function AdminDashboard() {
     fetchDataAsync(activeMenu);
   }, [role, token, activeMenu]);
 
+  const handleScheduleCidUpdate = (newCid) => {
+    setSchedulesData((prevData) => ({
+      ...prevData,
+      scheduleCid: newCid,
+    }));
+  };
+
   const showLoader = () => setSpinning(true);
   const showModal = () => setIsModalOpen(true);
   const hideModal = () => setFinishModalOpen(false);
@@ -380,15 +387,6 @@ export default function AdminDashboard() {
     },
   ];
 
-  function getItem(label, key, icon, children, type) {
-    return {
-      key,
-      children,
-      label,
-      type,
-    };
-  }
-
   const handleLogout = () => {
     const isConfirmed = window.confirm(
       "Apakah Anda yakin ingin keluar? Anda akan dikembalikan ke halaman masuk."
@@ -492,7 +490,10 @@ export default function AdminDashboard() {
               </div>
             )}
             {activeMenu === "doctorSchedule" && (
-              <DoctorSchedule schedulesData={schedulesData} />
+              <DoctorSchedule
+                schedulesData={schedulesData}
+                onScheduleCidUpdate={handleScheduleCidUpdate}
+              />
             )}
           </div>
         </div>

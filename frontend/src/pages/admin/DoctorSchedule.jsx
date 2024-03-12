@@ -6,13 +6,6 @@ import { Table } from "antd";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 
-// Membuat instance client IPFS
-const ipfsClient = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
-
 // Nurse tag color
 const getTagColor = (address) => {
   const colorToAddress = {
@@ -23,52 +16,63 @@ const getTagColor = (address) => {
   return colorToAddress[address];
 };
 
-function DoctorSchedule({ schedulesData }) {
+function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
   const [spinning, setSpinning] = React.useState(false);
-  const [cid, setCid] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataSource, setDataSource] = useState([]);
 
-  useEffect(() => {
-    const fetchScheduleData = async () => {
-      setSpinning(true);
-      try {
-        const cid = schedulesData.scheduleCid;
-        const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-        const ipfsResponse = await fetch(ipfsGatewayUrl);
-        if (!ipfsResponse.ok) throw new Error("Failed to fetch from IPFS");
-        const { doctors } = await ipfsResponse.json();
-        let flattenedData = [];
-        doctors.forEach((doctor) => {
-          doctor.schedules.forEach((schedule, index) => {
-            flattenedData.push({
-              key: `${doctor.address}-${index}`,
-              address: doctor.address,
-              day: schedule.day,
-              time: schedule.time,
-              nurse: schedule.nurse,
-              rowSpan: index === 0 ? doctor.schedules.length : 0,
-            });
+  // Fetch and update doctor schedules
+  const fetchDoctorSchedules = async () => {
+    try {
+      const cid = schedulesData.scheduleCid;
+      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+      const ipfsResponse = await fetch(ipfsGatewayUrl);
+      if (!ipfsResponse.ok) throw new Error("Failed to fetch from IPFS");
+      const { doctors } = await ipfsResponse.json();
+      if (!Array.isArray(doctors)) throw new Error("Data format is incorrect");
+      let flattenedData = [];
+      doctors.forEach((doctor) => {
+        doctor.schedules.forEach((schedule, index) => {
+          flattenedData.push({
+            key: doctor.doctor_id,
+            address: doctor.address,
+            day: schedule.day,
+            time: schedule.time,
+            nurse: schedule.nurse,
+            rowSpan: index === 0 ? doctor.schedules.length : 0,
           });
         });
-        setDataSource(flattenedData);
-      } catch (error) {
-        console.error("Error fetching schedule data from IPFS:", error);
-        message.error("Failed to fetch schedule data from IPFS.");
-      }
-    };
+      });
+      setDataSource(flattenedData);
+    } catch (error) {
+      console.error("Error fetching schedule data from IPFS:", error);
+      message.error("Failed to fetch schedule data from IPFS.");
+    }
+  };
 
+  useEffect(() => {
     if (schedulesData && schedulesData.scheduleCid) {
-      fetchScheduleData();
+      fetchDoctorSchedules();
     }
     setSpinning(false);
   }, [schedulesData]);
 
-  const showModal = () => setIsModalOpen(true);
-
   const columns = [
     {
-      title: "Address",
+      title: "No.",
+      dataIndex: "key",
+      key: "key",
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        };
+        return obj;
+      },
+    },
+    {
+      title: "Alamat Dokter",
       dataIndex: "address",
       key: "address",
       render: (value, row, index) => {
@@ -82,17 +86,17 @@ function DoctorSchedule({ schedulesData }) {
       },
     },
     {
-      title: "Day",
+      title: "Hari",
       dataIndex: "day",
       key: "day",
     },
     {
-      title: "Time",
+      title: "Jam",
       dataIndex: "time",
       key: "time",
     },
     {
-      title: "Nurse",
+      title: "Perawat",
       dataIndex: "nurse",
       key: "nurse",
       render: (nurse) => <Tag color={getTagColor(nurse)}>{nurse}</Tag>,
@@ -106,13 +110,26 @@ function DoctorSchedule({ schedulesData }) {
         message.error("Hanya file JSON yang diperbolehkan.");
         return;
       }
-      const added = await ipfsClient.add(file);
-      setCid(added.path);
-      await sendCidToBackend(cid);
-      message.success(`${file.name} file uploaded successfully`);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/schedule`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const { cid } = await response.json();
+        message.success(`${file.name} file uploaded successfully`);
+        onScheduleCidUpdate(cid);
+        fetchDoctorSchedules();
+      } else {
+        message.error(`${file.name} file upload failed.`);
+      }
     } catch (error) {
       message.error(`${file.name} file upload failed.`);
-      console.error("Error uploading file: ", error);
+      console.log({ error });
     }
   };
 
@@ -127,36 +144,12 @@ function DoctorSchedule({ schedulesData }) {
     accept: ".json",
   };
 
-  const sendCidToBackend = async (cid) => {
-    try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/schedule`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cid }),
-      });
-      if (response.ok) {
-        message.success("CID successfully sent to backend");
-      } else {
-        message.error("Failed to send CID to backend");
-      }
-    } catch (error) {
-      console.error("Error sending CID to backend:", error);
-      message.error("Error sending CID to backend");
-    }
-  };
-
   return (
     <div className="grid w-full gap-y-4">
       <div className="flex justify-between">
         <div className="justify-self-start">
           <Upload {...uploadProps}>
-            <Button
-              type="default"
-              onClick={showModal}
-              icon={<UploadOutlined />}
-            >
+            <Button type="default" icon={<UploadOutlined />}>
               Unggah Jadwal Dokter
             </Button>
           </Upload>
