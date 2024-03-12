@@ -97,8 +97,8 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       });
       res.status(200).json({ data });
     } else if (req.query.schedules === "true") {
-      const schedules = await contract.getAllActiveDoctorSchedules();
-      const scheduleCid = schedules[schedules.length - 1].cid;
+      const schedules = await contract.getLatestActiveDoctorSchedule();
+      const scheduleCid = schedules.cid;
       res.status(200).json({ scheduleCid });
     }
   } catch (error) {
@@ -486,6 +486,30 @@ router.post("/delete", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Add Doctor Schedule
+router.post("/schedule", async (req, res) => {
+  try {
+    const { cid } = req.body;
+    const privateKey = accounts["admin"];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(
+      contractAddress,
+      contractAbi,
+      walletWithProvider
+    );
+    const tx = await contractWithSigner.addDoctorSchedule(cid);
+    await tx.wait();
+    console.log({ cid });
+    res.json({ cid });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Failed to add doctor schedule", error: error.message });
   }
 });
 
