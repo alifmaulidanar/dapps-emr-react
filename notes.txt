@@ -46,6 +46,9 @@
 11/03/24
 ✅ simpan doctor schedules di ipfs lalu simpan cid di blockchain (dari admin pakai akun admin)
 
+12/03/24
+✅ getLatestActiveDoctorSchedule() -> untuk sementara selalu ambil doctor schedule yang terbaru
+
 next:
 - pikirin appointment, apakah langsung di ipfs atau perlu store di blockchain sendiri
 
@@ -116,6 +119,9 @@ next:
 ✅ upload jadwal dokter (JSON)
 ✅ side menu dipisahkan menjadi parameter accounts dan schedules
 ✅ tampilkan data jadwal dokter menggunakan cid lalu ambil data dari ipfs di frontend
+
+12/03/24
+✅ tabel jadwal dokter di admin sudah bagus (minimal sudah terbaca)
 
 next:
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
@@ -213,3 +219,6 @@ A. Handle update account information dari sisi admin (frontend dan backend)
 
 
 abis ini ngapain:
+- struktur data appointment
+- appointment relasi dengan doctor_data dan doctor_schedules
+- penyimpanan jadwal appointment di patient dan doctor
