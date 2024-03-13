@@ -49,6 +49,9 @@
 12/03/24
 ✅ getLatestActiveDoctorSchedule() -> untuk sementara selalu ambil doctor schedule yang terbaru
 
+13/03/24
+❌ ga nyentuh smart contract
+
 next:
 - implement OutpatientData struct dan beberapa function pendukung seperti di chatgpt
 - logika:
@@ -130,10 +133,16 @@ next:
 12/03/24
 ✅ tabel jadwal dokter di admin sudah bagus (minimal sudah terbaca)
 
+13/03/24
+✅ tampilkan jadwal praktik dokter di modal buat appointment baru
+⚒️ modal make new appointment on progres (pilih spesialisasi✅, pilih dokter✅, date & time picker✅)
+
+
 next:
 - lanjut ke appointment -> modal buat appointment baru
-- tampilkan jadwal praktik dokter di modal buat appointment baru
-- kirim tanggal yang dipilih dengan benar
+- modal step pilih jadwal dokter: kurang di bagian pilih rumah sakit -> lalu cek lagi semuanya
+- next step modal pilih pasien: ambil pasien yang dibawa dari PatientAppointment.jsx
+- kirim tanggal dan waktu appointment yang dipilih dengan benar
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 - pendaftaran rawat jalan (appointment) pasien
@@ -198,8 +207,11 @@ next:
 ✅ hapus endpoint /schedule, sekarang pakai query parameter /dashboard?accounts=true dan /dashboard?schedules?true
 ✅ ambil jadwal dokter dengan getAllActiveDoctorSchedules()
 
+13/03/24
+✅ endpoint get doctor schedule untuk pasien -> di halaman appointment (modal)
+
 next:
-- endpoint unduh add new appointment dari modal frontend
+- endpoint untuk add new appointment dari modal frontend
 - koneksi ke smart contract addNewAppointment(), terhubung ke dokter dan perawat terkait
 - tampilkan data appointment yang telah dibuat
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
