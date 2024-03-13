@@ -3,7 +3,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload, Tag } from "antd";
 import { useState, useEffect } from "react";
 import { Table } from "antd";
-import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 
 // Nurse tag color
@@ -34,10 +33,14 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
         doctor.schedules.forEach((schedule, index) => {
           flattenedData.push({
             key: doctor.doctor_id,
-            address: doctor.address,
+            doctor_address: doctor.doctor_address,
+            doctor_name: doctor.doctor_name,
+            specialization: doctor.specialization,
+            location: doctor.location,
             day: schedule.day,
             time: schedule.time,
-            nurse: schedule.nurse,
+            nurse_address: schedule.nurse_address,
+            nurse_name: schedule.nurse_name,
             rowSpan: index === 0 ? doctor.schedules.length : 0,
           });
         });
@@ -72,9 +75,51 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       },
     },
     {
+      title: "Nama",
+      dataIndex: "doctor_name",
+      key: "doctor_name",
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        };
+        return obj;
+      },
+    },
+    {
       title: "Alamat Dokter",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "doctor_address",
+      key: "doctor_address",
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        };
+        return obj;
+      },
+    },
+    {
+      title: "Lokasi",
+      dataIndex: "location",
+      key: "location",
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {
+            rowSpan: row.rowSpan,
+          },
+        };
+        return obj;
+      },
+    },
+    {
+      title: "Spesialis",
+      dataIndex: "specialization",
+      key: "specialization",
       render: (value, row, index) => {
         const obj = {
           children: value,
@@ -97,8 +142,13 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
     },
     {
       title: "Perawat",
-      dataIndex: "nurse",
-      key: "nurse",
+      dataIndex: "nurse_name",
+      key: "nurse_name",
+    },
+    {
+      title: "Perawat",
+      dataIndex: "nurse_address",
+      key: "nurse_address",
       render: (nurse) => <Tag color={getTagColor(nurse)}>{nurse}</Tag>,
     },
   ];
