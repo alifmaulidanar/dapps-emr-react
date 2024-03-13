@@ -1,0 +1,111 @@
+{
+  "doctors": [
+    {
+      "doctor_id": 1,
+      "doctor_address": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+      "doctor_name": "dr. Andi",
+      "specialization": "Umum",
+      "location": "Bekasi",
+      "schedules": [
+        {
+          "schedule_id": 1,
+          "day": "Senin",
+          "time": "08:00 - 12:00",
+          "nurse_id": 1,
+          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "nurse_name": "Nurul"
+        },
+        {
+          "schedule_id": 2,
+          "day": "Rabu",
+          "time": "14:00 - 18:00",
+          "nurse_id": 2,
+          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurse_name": "Siti"
+        },
+        {
+          "schedule_id": 3,
+          "day": "Jumat",
+          "time": "09:00 - 13:00",
+          "nurse_id": 2,
+          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurse_name": "Siti"
+        }
+      ]
+    },
+    {
+      "doctor_id": 2,
+      "doctor_address": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+      "doctor_name": "dr. Budi",
+      "specialization": "Umum",
+      "location": "BSD",
+      "schedules": [
+        {
+          "schedule_id": 1,
+          "day": "Selasa",
+          "time": "10:00 - 14:00",
+          "nurse_id": 1,
+          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "nurse_name": "Nurul"
+        },
+        {
+          "schedule_id": 2,
+          "day": "Kamis",
+          "time": "15:00 - 19:00",
+          "nurse_id": 3,
+          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "nurse_name": "Ani"
+        },
+        {
+          "schedule_id": 3,
+          "day": "Sabtu",
+          "time": "10:00 - 14:00",
+          "nurse_id": 2,
+          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurse_name": "Siti"
+        }
+      ]
+    },
+    {
+      "doctor_id": 3,
+      "doctor_address": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+      "doctor_name": "dr. Caca",
+      "specialization": "Gigi",
+      "location": "Bekasi",
+      "schedules": [
+        {
+          "schedule_id": 1,
+          "day": "Rabu",
+          "time": "09:00 - 12:00",
+          "nurse_id": 3,
+          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "nurse_name": "Ani"
+        },
+        {
+          "schedule_id": 2,
+          "day": "Kamis",
+          "time": "13:00 - 17:00",
+          "nurse_id": 3,
+          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "nurse_name": "Ani"
+        },
+        {
+          "schedule_id": 3,
+          "day": "Minggu",
+          "time": "08:00 - 12:00",
+          "nurse_id": 1,
+          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "nurse_name": "Nurul"
+        },
+        {
+          "schedule_id": 4,
+          "day": "Minggu",
+          "time": "16:00 - 18:00",
+          "nurse_id": 1,
+          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "nurse_name": "Nurul"
+        }
+      ]
+    }
+  ]
+}
