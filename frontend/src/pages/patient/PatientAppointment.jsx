@@ -1,19 +1,42 @@
 import "./../../index.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
 import RecordList from "../../components/RecordList";
 import { AllPatient } from "../../data/patientData";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
-import { useParams } from "react-router-dom";
+import { CONN } from "../../../../enum-global";
 
-export default function PatientAppointment() {
-  const { accountAddress } = useParams();
+export default function PatientAppointment({ role }) {
+  const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
+  const [scheduleData, setScheduleData] = useState([]);
+  // const [fetchData, setFetchData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
 
-  const handlePatientClick = (index) => {
-    setChosenIndex(index);
-  };
+  useEffect(() => {
+    if (token && accountAddress) {
+      const fetchDataAsync = async () => {
+        try {
+          const response = await fetch(
+            `${CONN.BACKEND_LOCAL}/${role}/appointment`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          const data = await response.json();
+          setScheduleData(data);
+        } catch (error) {
+          console.error(`Error fetching ${role} data:`, error);
+        }
+      };
+      fetchDataAsync();
+    }
+  }, []);
 
   // Mengambil data pasien dari AllPatient
   const patientListProps = AllPatient.map((patient, index) => ({
@@ -57,7 +80,10 @@ export default function PatientAppointment() {
       </div>
       <div className="grid items-baseline justify-center w-1/2 grid-cols-2 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-y-4">
         <div className="grid items-center grid-cols-1">
-          <MakeAppointmentButton buttonText={"Buat Appointment"} />
+          <MakeAppointmentButton
+            buttonText={"Buat Appointment"}
+            scheduleData={scheduleData || []}
+          />
         </div>
         <div className="grid items-center grid-cols-1">
           <RecordControl search={"Cari Appointment"} />

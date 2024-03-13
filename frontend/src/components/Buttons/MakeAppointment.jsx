@@ -1,50 +1,84 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Steps } from "antd";
+import { Modal, Steps, Select, Tag, Radio } from "antd";
+const { Option } = Select;
 import flatpickr from "flatpickr";
+import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import "flatpickr/dist/flatpickr.min.css";
-// import Datepicker from "../Datepicker";
-// import Datepicker from "../Datepicker";
 
-export default function RegisterPatientButton({ buttonText }) {
+export default function MakeAppointmentButton({ buttonText, scheduleData = [] }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDoctorInfo, setSelectedDoctorInfo] = useState({address: "default", name: ""});
+  const [availableTimes, setAvailableTimes] = useState([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [specializations, setSpecializations] = useState([]);
+  const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const flatpickrRef = useRef(null);
+
+  const selectedDoctor = scheduleData?.doctors?.find((doc) => doc.doctor_address === selectedDoctorInfo.address);
 
   useEffect(() => {
     if (isModalOpen && flatpickrRef.current) {
-      flatpickr(flatpickrRef.current, {
+      let disableFunction;
+      if (selectedDoctorInfo.address !== "default" && selectedDoctor) {
+        const enabledDays = selectedDoctor.schedules.map((schedule) => {
+          return ["Minggu", "Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].indexOf(schedule.day);
+        });
+        disableFunction = function (date) {return !enabledDays.includes(date.getDay());};
+      } else {
+        disableFunction = function () {return false;};
+      }
+
+      if (window.flatpickrInstance) window.flatpickrInstance.destroy()
+
+      window.flatpickrInstance = flatpickr(flatpickrRef.current, {
         inline: true,
-        dateFormat: "d/m/Y",
+        dateFormat: "Y-m-d",
         minDate: "today",
         maxDate: new Date().fp_incr(30),
-        defaultDate: selectedDate, // Set default date
-        onChange: (selectedDates, dateStr, instance) => {
+        locale: Indonesian,
+        defaultDate: selectedDate,
+        disable: [disableFunction],
+        onChange: (selectedDates, dateStr) => {
           setSelectedDate(dateStr);
+          setSelectedTimeSlot(null);
+          if (selectedDoctorInfo.address !== "default") {
+            const dayName = new Date(dateStr).toLocaleDateString("id-ID", { weekday: "long" });
+            const times = selectedDoctor?.schedules
+            .filter((schedule) => schedule.day === dayName)
+            .flatMap((schedule) => schedule.time);
+            setAvailableTimes(times);
+          }
         },
       });
     }
-  }, [isModalOpen, currentStep, selectedDate]);
+    return () => { if (window.flatpickrInstance) window.flatpickrInstance.destroy() };
+  }, [isModalOpen, selectedDoctorInfo, scheduleData, selectedDate]);
 
-  const showModal = () => {
-    setIsModalOpen(true);
+  
+  useEffect(() => {
+    const specs = new Set(scheduleData?.doctors?.map(doctor => doctor.specialization));
+    setSpecializations(["all", ...specs]);
+  }, [scheduleData]);
+
+  if (scheduleData.length === 0) return <div>Loading...</div>;
+
+  const filteredDoctors = selectedSpecialization === "all" 
+    ? scheduleData.doctors 
+    : scheduleData.doctors.filter(doctor => doctor.specialization === selectedSpecialization);
+
+  const handleSpecializationChange = value => {
+    setSelectedSpecialization(value);
+    setSelectedDoctorInfo({ address: "default", name: "" });
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleNext = () => {
-    setCurrentStep(currentStep + 1);
-  };
-
-  const handleBack = () => {
-    setCurrentStep(currentStep - 1);
-  };
+  const showModal = () => setIsModalOpen(true);
+  const handleOk = () => setIsModalOpen(false);
+  const handleCancel = () => setIsModalOpen(false);
+  const handleNext = () => setCurrentStep(currentStep + 1);
+  const handleBack = () => setCurrentStep(currentStep - 1);
+  const handleTimeChange = (e) => setSelectedTimeSlot(e.target.value);
 
   const renderStepContent = (step) => {
     switch (step) {
@@ -68,12 +102,105 @@ export default function RegisterPatientButton({ buttonText }) {
     { title: "Konfirmasi" },
   ];
 
-  // const Tab = () => (
-  //   <Segmented
-  //     options={["Identitas Pasien", "Identitas Bayi Baru Lahir"]}
-  //     block
-  //   />
-  // );
+  const handleDoctorChange = (value) => {
+    const doctor = scheduleData.doctors.find(
+      (doc) => doc.doctor_address === value
+    );
+    if (doctor) {
+      setSelectedDoctorInfo({
+        address: doctor.doctor_address,
+        name: doctor.doctor_name,
+      });
+    } else {
+      setSelectedDoctorInfo({ address: "default", name: "" });
+    }
+    setSelectedDate(null);
+    setAvailableTimes([]);
+  };
+
+  const dayColor = (day) => {
+    const colorToDay = {
+      Senin: "green",
+      Selasa: "orange",
+      Rabu: "cyan",
+      Kamis: "red",
+      Jumat: "purple",
+      Sabtu: "blue",
+      Minggu: "pink",
+    };
+    return colorToDay[day];
+  };
+
+  const doctorDays = (
+    <>
+      {selectedDoctor && (
+        <p>
+          {selectedDoctor.schedules.map((schedule, index) => (
+            <Tag color={dayColor(schedule.day)} key={index}>
+              {schedule.day}
+            </Tag>
+          ))}
+        </p>
+      )}
+    </>
+  );
+
+  const timeOptions = availableTimes.map((time, index) => (
+    <Radio.Button key={index} value={time}>
+      {time}
+    </Radio.Button>
+  ));
+
+  const selectedScheduleInfo =
+    selectedDate && selectedTimeSlot ? (
+      <p className="mt-6">
+        Anda telah memilih: <strong>{selectedDate}</strong>,{" "}
+        <strong>{selectedTimeSlot}</strong>
+      </p>
+    ) : null;
+
+  const doctorInfoSection = (
+    <>
+      <div className="mb-6">
+        {selectedDoctorInfo.address !== "default" && (
+          <div className="flex flex-nowrap gap-x-2">
+            <p>
+              <span className="font-medium text-gray-900">
+                {selectedDoctorInfo.name}
+              </span>{" "}
+              melakukan praktik pada hari:
+            </p>
+            <p>{doctorDays}</p>
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 mb-6">
+        <div>
+          <label
+            htmlFor="date"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Pilih Tanggal
+          </label>
+          <div ref={flatpickrRef}></div>
+        </div>
+        <div>
+          <label
+            htmlFor="time"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Pilih Waktu
+          </label>
+          <div>
+            <Radio.Group onChange={handleTimeChange} value={selectedTimeSlot} className="flex rounded-sm gap-x-4">
+              {timeOptions}
+            </Radio.Group>
+          </div>
+          {selectedScheduleInfo}
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -85,9 +212,6 @@ export default function RegisterPatientButton({ buttonText }) {
       </button>
 
       {/* MODAL ANT DESIGN */}
-      {/* <Button type="primary" onClick={showModal}>
-        Open Modal
-      </Button> */}
       <Modal
         open={isModalOpen}
         onOk={handleOk}
@@ -109,6 +233,8 @@ export default function RegisterPatientButton({ buttonText }) {
         </div>
         <form className="p-8">
           {renderStepContent(currentStep)}
+
+          {/* Pilih Jadwal Dokter */}
           {currentStep === 0 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">
@@ -138,16 +264,20 @@ export default function RegisterPatientButton({ buttonText }) {
                   htmlFor="rs"
                   className="block mb-2 text-sm font-medium text-gray-900"
                 >
-                  Pilih Kategori Dokter
+                  Pilih Spesialisasi Dokter
                 </label>
-                <select
-                  id="rs"
-                  className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
+                <Select
+                  showSearch
+                  style={{ width: 430 }}
+                  defaultValue="all"
+                  size="large"
+                  placeholder="Select a specialization"
+                  onChange={handleSpecializationChange}
                 >
-                  <option>Pilih Kategori Dokter</option>
-                  <option value="0">Umum</option>
-                </select>
+                  {specializations.map(spec => (
+                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : spec}</Option>
+                  ))}
+                </Select>
               </div>
               <div className="mb-6">
                 <label
@@ -156,48 +286,33 @@ export default function RegisterPatientButton({ buttonText }) {
                 >
                   Pilih Dokter
                 </label>
-                <select
-                  id="category"
-                  className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
+                <Select
+                  showSearch
+                  style={{ width: 430 }}
+                  size="large"
+                  placeholder="Select a doctor"
+                  optionFilterProp="children"
+                  value={selectedDoctorInfo.address}
+                  onChange={handleDoctorChange}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
                 >
-                  <option>Pilih Dokter</option>
-                  <option value="0">Jakarta</option>
-                  <option value="1">Bekasi</option>
-                  <option value="2">Tangerang</option>
-                </select>
+                  <Option value="default">Pilih Dokter</Option>
+                  {filteredDoctors.map((doctor) => (
+                    <Option key={doctor.doctor_address} value={doctor.doctor_address}>
+                      Dr. {doctor.doctor_name}
+                    </Option>
+                  ))}
+                </Select>
               </div>
-              <div className="mb-6">
-                <p>
-                  Dokter{" "}
-                  <span className="font-medium text-gray-900">
-                    [NAMA DOKTER]
-                  </span>{" "}
-                  melakukan pada hari [HARI], [HARI], dan [HARI]
-                </p>
-              </div>
-              <div className="grid grid-cols-2 mb-6">
-                <div>
-                  <label
-                    htmlFor="date"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Pilih Tanggal
-                  </label>
-                  <div ref={flatpickrRef}></div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="time"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Pilih Waktu
-                  </label>
-                </div>
-              </div>
+              {doctorInfoSection}
             </div>
           )}
 
+          {/* Pilih Pasien */}
           {currentStep === 1 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">
@@ -237,6 +352,7 @@ export default function RegisterPatientButton({ buttonText }) {
             </div>
           )}
 
+          {/* Konfirmasi Appointment */}
           {currentStep === 2 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">

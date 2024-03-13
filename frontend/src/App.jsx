@@ -95,7 +95,7 @@ function App() {
               />
               <Route
                 path={`/patient/appointment`}
-                element={<PatientAppointment />}
+                element={<PatientAppointment role="patient" />}
               />
               <Route
                 path={`/patient/profile`}
