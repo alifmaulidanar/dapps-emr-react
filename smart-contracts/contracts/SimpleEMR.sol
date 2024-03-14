@@ -211,6 +211,86 @@ contract SimpleEMR {
         return count;
     }
 
+    // Outpatient Data
+    struct OutpatientData {
+        uint id;
+        address patientAddress;
+        string patientProfileId;
+        address doctor;
+        address nurse;
+        string cid;
+        uint createdAt;
+    }
+
+    mapping(address => uint[]) public appointmentsByPatient;
+    mapping(address => uint[]) public appointmentsByDoctor;
+    mapping(address => uint[]) public appointmentsByNurse;
+
+    event OutpatientDataAdded(uint id, address owner, address doctor, address nurse, string cid, uint createdAt);
+
+    uint private outpatientDataCounter = 1;
+    OutpatientData[] public outpatientData;
+
+    function addOutpatientData(
+        address _patientAddress,
+        string memory _patientProfileId,
+        address _doctor,
+        address _nurse,
+        string memory _cid
+    ) public {
+        // Validasi input dan pastikan bahwa _patientAddress, _doctor, dan _nurse adalah valid
+
+        OutpatientData memory newOutpatientData = OutpatientData(
+            outpatientDataCounter++,
+            _patientAddress,
+            _patientProfileId,
+            _doctor,
+            _nurse,
+            _cid,
+            block.timestamp
+        );
+
+        outpatientData.push(newOutpatientData);
+
+        // Update mapping
+        appointmentsByPatient[_patientAddress].push(newOutpatientData.id);
+        appointmentsByDoctor[_doctor].push(newOutpatientData.id);
+        appointmentsByNurse[_nurse].push(newOutpatientData.id);
+    }
+
+    function getAppointmentsByPatient(address _patientAddress) public view returns (OutpatientData[] memory) {
+        uint[] memory appointmentIds = appointmentsByPatient[_patientAddress];
+        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
+        
+        for (uint i = 0; i < appointmentIds.length; i++) {
+            appointments[i] = outpatientData[appointmentIds[i]];
+        }
+
+        return appointments;
+    }
+
+    function getAppointmentsByNurse(address _nurseAddress) public view returns (OutpatientData[] memory) {
+        uint[] memory appointmentIds = appointmentsByNurse[_nurseAddress];
+        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
+        
+        for (uint i = 0; i < appointmentIds.length; i++) {
+            appointments[i] = outpatientData[appointmentIds[i]];
+        }
+
+        return appointments;
+    }
+
+    function getAppointmentsByDoctor(address _doctorAddress) public view returns (OutpatientData[] memory) {
+        uint[] memory appointmentIds = appointmentsByDoctor[_doctorAddress];
+        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
+        
+        for (uint i = 0; i < appointmentIds.length; i++) {
+            appointments[i] = outpatientData[appointmentIds[i]];
+        }
+
+        return appointments;
+    }
+
     // DOCTOR SCHEDULES //
     event ScheduleCreated(uint id, string cid, uint createdAt);
     event ScheduleUpdated(uint id, string cid, bool isActive);
