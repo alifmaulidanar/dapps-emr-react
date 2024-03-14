@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Modal, Steps, Select, Tag, Radio } from "antd";
+import { Modal, Steps, Select, Tag, Radio, Button, Empty } from "antd";
 const { Option } = Select;
 import flatpickr from "flatpickr";
 import { Indonesian } from "flatpickr/dist/l10n/id.js";
@@ -11,6 +11,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const [selectedDoctorInfo, setSelectedDoctorInfo] = useState({address: "default", name: ""});
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  // console.log({userData});
+  // console.log({scheduleData});
   
   const flatpickrRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -90,6 +94,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const handleNext = () => setCurrentStep(currentStep + 1);
   const handleBack = () => setCurrentStep(currentStep - 1);
   const handleTimeChange = (e) => setSelectedTimeSlot(e.target.value);
+  const handlePatientSelection = (patient) => setSelectedPatient(patient);
 
   const renderStepContent = (step) => {
     switch (step) {
@@ -206,8 +211,34 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     </>
   );
 
-  console.log(userData.accountProfiles[0].namaLengkap);
-  console.log(userData.accountProfiles[0].nomorIdentitas);
+  // buat sebuah handle untuk menyimpan data pembuatan appointment baru yand dilakukan pada setiap step modal "Buat Appointment". satukan data menjadi appointmentData yang berupa object. appointmentData berisi: accountAddress, nomorIdentitas (dari profil pasien terpilih), address doctor terpilih, address nurse dari schedule terpilih (dari scheduleData). dan buat 1 object lagi bernama appointmentDataIpfs untuk menampung data yang akan dikirimkan ke IPFS (lebih lengkap), meliputi: appointmentId (gunakan uuid), accountAddress, accountEmail, namaLengkap, nomorIdentitas, email, lokasi rumah sakit terpilih, spesialisasi terpilih, dokter terpilih, nurse terpilih berdasarkan schedule, jadwal terpilih (tanggal dan waktu), dan status == ongoing. setelah itu console log kedua object.
+  const handleCreateAppointment = () => {
+    const appointmentData = {
+      accountAddress: userData.accountAddress,
+      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
+      doctorAddress: selectedDoctorInfo.address,
+      nurseAddress: selectedDoctor.nurse_address,
+    };
+    console.log({ appointmentData });
+
+    const appointmentDataIpfs = {
+      // appointmentId: uuidv4(),
+      accountAddress: userData.accountAddress,
+      accountEmail: userData.accountEmail,
+      namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
+      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
+      email: userData.accountEmail,
+      lokasiRumahSakit: selectedLocation,
+      spesialisasi: selectedSpecialization,
+      dokter: selectedDoctorInfo.name,
+      nurse: selectedDoctor.nurse_name,
+      jadwal: `${selectedDate}, ${selectedTimeSlot}`,
+      status: "ongoing",
+    };
+    console.log({ appointmentDataIpfs });
+  };
+
+  console.log({selectedTimeSlot});
 
   return (
     <>
@@ -327,38 +358,25 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
           {currentStep === 1 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">
-                Pilih Pasien
+                Pilih Profil Pasien
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
-              <div className="mb-6">
-                <label
-                  htmlFor="gender"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pilih Profil Pasien
-                </label>
-                <select
-                  id="gender"
-                  className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                >
-                  <option>Pilih Profil Pasien</option>
-                  <option value="0">
-                    Budi Santoso (0x1234567890123456789012345678901234567890)
-                  </option>
-                  <option value="1">
-                    Alif Maulidanar (0x66E167fDd23614b58A4459C1C875C6705f550ED6)
-                  </option>
-                  <option value="2">
-                    Citra Indriani (0x9876543210987654321098765432109876543210)
-                  </option>
-                </select>
-              </div>
-              <div className="mb-6">
-                <p>
-                  Belum memiliki profil pasien? Silakan melakukan pendaftaran
-                  pasien terlebih dahulu.
-                </p>
+              <div className="my-4">
+                {userData?.accountProfiles?.length ? (
+                  userData.accountProfiles.map((profile, index) => (
+                    <Button
+                      key={index}
+                      type="primary"
+                      onClick={() => handlePatientSelection(index)}
+                      style={{ margin: '5px' }}
+                      className={selectedPatient === index ? 'bg-blue-500 hover:bg-blue-800 text-white' : 'bg-white text-gray-900 border border-gray-300'}
+                    >
+                      {`${profile.namaLengkap} (${profile.nomorIdentitas})`}
+                    </Button>
+                  ))
+                ) : (
+                  <Empty description="Tidak ada profil pasien yang tersedia" />
+                )}
               </div>
             </div>
           )}
@@ -371,22 +389,22 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
               <div className="mb-6">
-                <label
-                  htmlFor="gender"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pilih Rumah Sakit
-                </label>
-                <select
-                  id="gender"
-                  className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
-                >
-                  <option>Pilih Rumah Sakit</option>
-                  <option value="0">Jakarta</option>
-                  <option value="1">Bekasi</option>
-                  <option value="2">Tangerang</option>
-                </select>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-900">Lokasi Rumah Sakit:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedLocation === "all" ? "Semua Lokasi" : "Eka Hospital " + selectedLocation}</p>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedSpecialization})</p>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-900">Jadwal yang dipilih:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDate}, {selectedTimeSlot}</p>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-900">Profil Pasien yang dipilih:</p>
+                  <p className="text-lg font-semibold text-gray-900">{userData.accountProfiles[selectedPatient].namaLengkap} ({userData.accountProfiles[selectedPatient].nomorIdentitas})</p>
+                </div>
               </div>
             </div>
           )}
@@ -422,6 +440,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
               <button
                 type="button"
                 className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
+                onClick={handleCreateAppointment}
               >
                 Buat Appointment
               </button>
