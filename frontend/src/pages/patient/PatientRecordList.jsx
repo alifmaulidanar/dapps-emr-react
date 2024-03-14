@@ -35,7 +35,8 @@ export default function PatientRecordList() {
           );
           const data = await response.json();
           setPatientAccountData(data);
-          // console.log(data);
+          sessionStorage.setItem("userData", JSON.stringify(data.ipfs.data));
+          // console.log({data});
         } catch (error) {
           console.error("Error fetching patient data:", error);
         }
@@ -43,6 +44,7 @@ export default function PatientRecordList() {
       fetchData();
     }
   }, [token, accountAddress]);
+
 
   const handlePatientClick = (index) => {
     setChosenIndex(index);
