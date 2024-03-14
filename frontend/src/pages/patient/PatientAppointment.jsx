@@ -10,9 +10,15 @@ import { CONN } from "../../../../enum-global";
 export default function PatientAppointment({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
+  const userData = JSON.parse(sessionStorage.getItem("userData"));
+
+  if (!token || !accountAddress) {
+    window.location.assign(`/patient/signin`);
+  }
+  
   const [scheduleData, setScheduleData] = useState([]);
-  // const [fetchData, setFetchData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
+  // const [fetchData, setFetchData] = useState([]);
 
   useEffect(() => {
     if (token && accountAddress) {
@@ -83,6 +89,7 @@ export default function PatientAppointment({ role }) {
           <MakeAppointmentButton
             buttonText={"Buat Appointment"}
             scheduleData={scheduleData || []}
+            userData={userData}
           />
         </div>
         <div className="grid items-center grid-cols-1">

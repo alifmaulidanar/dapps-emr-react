@@ -5,18 +5,28 @@ import flatpickr from "flatpickr";
 import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import "flatpickr/dist/flatpickr.min.css";
 
-export default function MakeAppointmentButton({ buttonText, scheduleData = [] }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null }) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("all");
+  const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const [selectedDoctorInfo, setSelectedDoctorInfo] = useState({address: "default", name: ""});
+  
+  const flatpickrRef = useRef(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
-  const [specializations, setSpecializations] = useState([]);
-  const [selectedSpecialization, setSelectedSpecialization] = useState("all");
-  const flatpickrRef = useRef(null);
 
   const selectedDoctor = scheduleData?.doctors?.find((doc) => doc.doctor_address === selectedDoctorInfo.address);
+
+  const locations = ["all", ...new Set(scheduleData?.doctors?.map(doc => doc.location))];
+  let specializations = ["all"];
+  if(selectedLocation !== "all") {
+    specializations = [
+      "all",
+      ...new Set(scheduleData.doctors.filter(doc => doc.location === selectedLocation).map(doc => doc.specialization))
+    ];
+  }
 
   useEffect(() => {
     if (isModalOpen && flatpickrRef.current) {
@@ -56,20 +66,21 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
     return () => { if (window.flatpickrInstance) window.flatpickrInstance.destroy() };
   }, [isModalOpen, selectedDoctorInfo, scheduleData, selectedDate]);
 
-  
-  useEffect(() => {
-    const specs = new Set(scheduleData?.doctors?.map(doctor => doctor.specialization));
-    setSpecializations(["all", ...specs]);
-  }, [scheduleData]);
-
   if (scheduleData.length === 0) return <div>Loading...</div>;
 
-  const filteredDoctors = selectedSpecialization === "all" 
-    ? scheduleData.doctors 
-    : scheduleData.doctors.filter(doctor => doctor.specialization === selectedSpecialization);
+  const filteredDoctors = scheduleData.doctors.filter(doc => 
+    (selectedLocation === "all" || doc.location === selectedLocation) && 
+    (selectedSpecialization === "all" || doc.specialization === selectedSpecialization)
+  );
 
   const handleSpecializationChange = value => {
     setSelectedSpecialization(value);
+    setSelectedDoctorInfo({ address: "default", name: "" });
+  };
+
+  const handleLocationChange = value => {
+    setSelectedLocation(value);
+    setSelectedSpecialization("all");
     setSelectedDoctorInfo({ address: "default", name: "" });
   };
 
@@ -93,9 +104,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
     }
   };
 
-  // const dateFormat = "DD/MM/YYYY";
-  // const customFormat = (value) => `${value.format(dateFormat)}`;
-
   const items = [
     { title: "Pilih Jadwal Dokter" },
     { title: "Pilih Pasien" },
@@ -103,14 +111,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
   ];
 
   const handleDoctorChange = (value) => {
-    const doctor = scheduleData.doctors.find(
-      (doc) => doc.doctor_address === value
-    );
+    const doctor = scheduleData.doctors.find((doc) => doc.doctor_address === value);
+
     if (doctor) {
-      setSelectedDoctorInfo({
-        address: doctor.doctor_address,
-        name: doctor.doctor_name,
-      });
+      setSelectedDoctorInfo({ address: doctor.doctor_address, name: doctor.doctor_name });
     } else {
       setSelectedDoctorInfo({ address: "default", name: "" });
     }
@@ -202,6 +206,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
     </>
   );
 
+  console.log(userData.accountProfiles[0].namaLengkap);
+  console.log(userData.accountProfiles[0].nomorIdentitas);
+
   return (
     <>
       <button
@@ -248,16 +255,18 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
                 >
                   Pilih Rumah Sakit
                 </label>
-                <select
-                  id="gender"
-                  className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  required
+                <Select
+                  showSearch
+                  style={{ width: 430 }}
+                  defaultValue="all"
+                  size="large"
+                  placeholder="Select a location"
+                  onChange={handleLocationChange}
                 >
-                  <option>Pilih Rumah Sakit</option>
-                  <option value="0">Jakarta</option>
-                  <option value="1">Bekasi</option>
-                  <option value="2">Tangerang</option>
-                </select>
+                  {locations.map(loc => (
+                    <Option key={loc} value={loc}>{loc === "all" ? "Semua Lokasi" : "Eka Hospital " + loc}</Option>
+                  ))}
+                </Select>
               </div>
               <div className="mb-6">
                 <label
@@ -272,10 +281,12 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
                   defaultValue="all"
                   size="large"
                   placeholder="Select a specialization"
+                  optionFilterProp="children"
                   onChange={handleSpecializationChange}
+                  value={selectedSpecialization}
                 >
                   {specializations.map(spec => (
-                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : spec}</Option>
+                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : "Dokter " + spec}</Option>
                   ))}
                 </Select>
               </div>
@@ -303,7 +314,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [] })
                   <Option value="default">Pilih Dokter</Option>
                   {filteredDoctors.map((doctor) => (
                     <Option key={doctor.doctor_address} value={doctor.doctor_address}>
-                      Dr. {doctor.doctor_name}
+                      {doctor.doctor_name} (Dokter {doctor.specialization})
                     </Option>
                   ))}
                 </Select>

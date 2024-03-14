@@ -132,9 +132,11 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             if (response.ok) {
               const data = await response.json();
               const accountAddress = data.account.accountAddress;
+
               console.log(data.message, data);
               sessionStorage.setItem("userToken", data.token);
               sessionStorage.setItem("accountAddress", accountAddress);
+              sessionStorage.setItem("userData", JSON.stringify(data.ipfs.data));
               setSpinning(false);
               Swal.fire({
                 icon: "success",

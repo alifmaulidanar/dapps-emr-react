@@ -1,7 +1,6 @@
 import Navbar from "./Navbar";
 
-function NavbarController({ type, page, color, accountAddress = null }) {
-  const id = accountAddress;
+function NavbarController({ type, page, color, accountData = null }) {
   const title = "Hospital";
   let navItems = [];
   let buttons = [];
@@ -13,6 +12,7 @@ function NavbarController({ type, page, color, accountAddress = null }) {
     // home
     navItems = [
       {
+        
         text: "Beranda",
         linkToPage: "/",
         color: page === "Beranda" ? color : defaultColor,
