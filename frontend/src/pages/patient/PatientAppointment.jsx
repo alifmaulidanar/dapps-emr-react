@@ -11,12 +11,13 @@ export default function PatientAppointment({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const userData = JSON.parse(sessionStorage.getItem("userData"));
-
+  
   if (!token || !accountAddress) {
     window.location.assign(`/patient/signin`);
   }
   
   const [scheduleData, setScheduleData] = useState([]);
+  const [appointmentData, setAppointmentData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
   // const [fetchData, setFetchData] = useState([]);
 
@@ -35,7 +36,8 @@ export default function PatientAppointment({ role }) {
             }
           );
           const data = await response.json();
-          setScheduleData(data);
+          setScheduleData(data.doctors);
+          setAppointmentData(data.appointments);
         } catch (error) {
           console.error(`Error fetching ${role} data:`, error);
         }
@@ -90,6 +92,7 @@ export default function PatientAppointment({ role }) {
             buttonText={"Buat Appointment"}
             scheduleData={scheduleData || []}
             userData={userData}
+            token={token}
           />
         </div>
         <div className="grid items-center grid-cols-1">

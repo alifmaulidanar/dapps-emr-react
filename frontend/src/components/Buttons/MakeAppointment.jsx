@@ -1,11 +1,17 @@
-import { useState, useEffect, useRef } from "react";
-import { Modal, Steps, Select, Tag, Radio, Button, Empty } from "antd";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Modal, Steps, Select, Tag, Radio, Button, Empty, Spin } from "antd";
 const { Option } = Select;
+import { v4 as uuidv4 } from 'uuid';
 import flatpickr from "flatpickr";
 import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import "flatpickr/dist/flatpickr.min.css";
+import { CONN } from "../../../../enum-global"
+import { ethers } from "ethers";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
-export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null }) {
+export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null, token }) {
+  const [selectedAccount, setSelectedAccount] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -17,18 +23,59 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   // console.log({scheduleData});
   
   const flatpickrRef = useRef(null);
+  const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [spinning, setSpinning] = React.useState(false);
 
-  const selectedDoctor = scheduleData?.doctors?.find((doc) => doc.doctor_address === selectedDoctorInfo.address);
+  const showLoader = () => {
+    setSpinning(true);
+  };
 
-  const locations = ["all", ...new Set(scheduleData?.doctors?.map(doc => doc.location))];
+  const getSigner = useCallback(async () => {
+    const win = window;
+    if (!win.ethereum) {
+      console.error("Metamask not detected");
+      return;
+    }
+
+    try {
+      const accounts = await win.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const selectedAccount = accounts[0];
+      setSelectedAccount(selectedAccount);
+      console.log(selectedAccount);
+
+      const provider = new ethers.providers.Web3Provider(win.ethereum);
+      await provider.send("wallet_addEthereumChain", [
+        {
+          chainId: "0x539",
+          chainName: "Ganache",
+          nativeCurrency: {
+            name: "ETH",
+            symbol: "ETH",
+          },
+          rpcUrls: [CONN.GANACHE_LOCAL],
+        },
+      ]);
+
+      const signer = provider.getSigner(selectedAccount);
+      return signer;
+    } catch (error) {
+      console.error("Error setting up Web3Provider:", error);
+    }
+  }, []);
+
+  const selectedDoctor = scheduleData?.find((doc) => doc.doctor_address === selectedDoctorInfo.address);
+
+  const locations = ["all", ...new Set(scheduleData?.map(doc => doc.location))];
   let specializations = ["all"];
   if(selectedLocation !== "all") {
     specializations = [
       "all",
-      ...new Set(scheduleData.doctors.filter(doc => doc.location === selectedLocation).map(doc => doc.specialization))
+      ...new Set(scheduleData.filter(doc => doc.location === selectedLocation).map(doc => doc.specialization))
     ];
   }
 
@@ -70,9 +117,17 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     return () => { if (window.flatpickrInstance) window.flatpickrInstance.destroy() };
   }, [isModalOpen, selectedDoctorInfo, scheduleData, selectedDate]);
 
+  useEffect(() => {
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      const dayName = date.toLocaleDateString("id-ID", { weekday: "long" });
+      setSelectedDay(dayName);
+    }
+  }, [selectedDate]);
+
   if (scheduleData.length === 0) return <div>Loading...</div>;
 
-  const filteredDoctors = scheduleData.doctors.filter(doc => 
+  const filteredDoctors = scheduleData.filter(doc => 
     (selectedLocation === "all" || doc.location === selectedLocation) && 
     (selectedSpecialization === "all" || doc.specialization === selectedSpecialization)
   );
@@ -116,7 +171,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   ];
 
   const handleDoctorChange = (value) => {
-    const doctor = scheduleData.doctors.find((doc) => doc.doctor_address === value);
+    const doctor = scheduleData.find((doc) => doc.doctor_address === value);
 
     if (doctor) {
       setSelectedDoctorInfo({ address: doctor.doctor_address, name: doctor.doctor_name });
@@ -211,34 +266,98 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     </>
   );
 
-  // buat sebuah handle untuk menyimpan data pembuatan appointment baru yand dilakukan pada setiap step modal "Buat Appointment". satukan data menjadi appointmentData yang berupa object. appointmentData berisi: accountAddress, nomorIdentitas (dari profil pasien terpilih), address doctor terpilih, address nurse dari schedule terpilih (dari scheduleData). dan buat 1 object lagi bernama appointmentDataIpfs untuk menampung data yang akan dikirimkan ke IPFS (lebih lengkap), meliputi: appointmentId (gunakan uuid), accountAddress, accountEmail, namaLengkap, nomorIdentitas, email, lokasi rumah sakit terpilih, spesialisasi terpilih, dokter terpilih, nurse terpilih berdasarkan schedule, jadwal terpilih (tanggal dan waktu), dan status == ongoing. setelah itu console log kedua object.
-  const handleCreateAppointment = () => {
+  const handleCreateAppointment = async (event) => {
+    showLoader();
+    event.preventDefault();
+
+    const nurseInfo = selectedDoctor.schedules.find(schedule => schedule.day === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.time === selectedTimeSlot);
     const appointmentData = {
       accountAddress: userData.accountAddress,
       nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      doctorAddress: selectedDoctorInfo.address,
-      nurseAddress: selectedDoctor.nurse_address,
+      doctorAddress: selectedDoctor.doctor_address,
+      nurseAddress: nurseInfo.nurse_address,
     };
-    console.log({ appointmentData });
+    // console.log({ appointmentData });
 
     const appointmentDataIpfs = {
-      // appointmentId: uuidv4(),
+      appointmentId: uuidv4(),
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
-      namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
-      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      email: userData.accountEmail,
-      lokasiRumahSakit: selectedLocation,
-      spesialisasi: selectedSpecialization,
-      dokter: selectedDoctorInfo.name,
-      nurse: selectedDoctor.nurse_name,
-      jadwal: `${selectedDate}, ${selectedTimeSlot}`,
+      patientName: userData.accountProfiles[selectedPatient].namaLengkap,
+      patientIdentityNumber: userData.accountProfiles[selectedPatient].nomorIdentitas,
+      patientEmail: userData.accountProfiles[selectedPatient].email,
+      hospitalLocation: selectedLocation,
+      doctorId: selectedDoctor.doctor_id,
+      doctorAddress: selectedDoctor.doctor_address,
+      doctorName: selectedDoctor.doctor_name,
+      nurseId: nurseInfo.nurse_id,
+      nurseAddress: nurseInfo.nurse_address,
+      nurseName: nurseInfo.nurse_name,
+      spesialisasiDokter: selectedSpecialization,
+      selectedDay: `${selectedDay}`,
+      selectedDate: `${selectedDate}`,
+      selectedTime: `${selectedTimeSlot}`,
       status: "ongoing",
     };
-    console.log({ appointmentDataIpfs });
-  };
+    // console.log({ appointmentDataIpfs });
 
-  console.log({selectedTimeSlot});
+    const signedData = {
+      appointmentData,
+      appointmentDataIpfs,
+    }
+
+    const signer = await getSigner();
+    const signature = await signer.signMessage(
+      JSON.stringify(signedData)
+    );
+    signedData.signature = signature;
+    console.log("Appointment signature:", signature);
+
+    try {
+      const response = await fetch(
+        `${CONN.BACKEND_LOCAL}/patient/appointment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify(signedData),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        console.log({ responseData });
+        setSpinning(false);
+        Swal.fire({
+          icon: "success",
+          title: "Pendaftaran Profil Pasien Berhasil!",
+          text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
+        })
+        .then(() => {
+          window.location.reload();
+        });
+      } else {
+        console.log(responseData.error, responseData.message);
+        setSpinning(false);
+        Swal.fire({
+          icon: "error",
+          title: "Pendaftaran Profil Pasien Gagal",
+          text: responseData.error,
+        });
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan:", error);
+      setSpinning(false);
+      Swal.fire({
+        icon: "error",
+        title: "Terjadi kesalahan saat melakukan pendaftaran",
+        text: error,
+      });
+    }
+  };
 
   return (
     <>
@@ -447,6 +566,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
             )}
           </div>
         </form>
+        <Spin spinning={spinning} fullscreen />
       </Modal>
     </>
   );
