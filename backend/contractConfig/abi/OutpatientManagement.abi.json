@@ -1,0 +1,296 @@
+[
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "doctor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "nurse",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "cid",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "createdAt",
+				"type": "uint256"
+			}
+		],
+		"name": "OutpatientDataAdded",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patientAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_patientProfileId",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "_doctor",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_nurse",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_cid",
+				"type": "string"
+			}
+		],
+		"name": "addOutpatientData",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllAppointments",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "patientProfileId",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "doctor",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurse",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.OutpatientData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_doctorAddress",
+				"type": "address"
+			}
+		],
+		"name": "getAppointmentsByDoctor",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "patientProfileId",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "doctor",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurse",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.OutpatientData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_nurseAddress",
+				"type": "address"
+			}
+		],
+		"name": "getAppointmentsByNurse",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "patientProfileId",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "doctor",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurse",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.OutpatientData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patientAddress",
+				"type": "address"
+			}
+		],
+		"name": "getAppointmentsByPatient",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "patientProfileId",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "doctor",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurse",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "cid",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.OutpatientData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]

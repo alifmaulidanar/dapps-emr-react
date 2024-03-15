@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-contract SimpleEMR {
+contract UserManagement {
     event PatientAccountAdded(address indexed userAddress, string email);
     event DoctorAccountAdded(address indexed userAddress, string email);
     event NurseAccountAdded(address indexed userAddress, string email);
@@ -16,16 +16,15 @@ contract SimpleEMR {
     struct UserAccount {uint id; address accountAddress; string username; string email; string role; string phone; uint createdAt; string cid; bool isActive;}
     struct DoctorSchedules {uint id; address doctorAddress;}
 
-    UserAccount[] public userAccounts;
-    UserAccount[] public patientAccounts;
-    UserAccount[] public doctorAccounts;
-    UserAccount[] public nurseAccounts;
-    UserAccount[] public staffAccounts;
-    UserAccount[] public adminAccounts;
+    UserAccount[] internal userAccounts;
+    UserAccount[] internal patientAccounts;
+    UserAccount[] internal doctorAccounts;
+    UserAccount[] internal nurseAccounts;
+    UserAccount[] internal staffAccounts;
+    UserAccount[] internal adminAccounts;
 
-    mapping(address => UserAccount) userAccountsMap;
-    mapping(string => address) emailToAddressMap;
-
+    mapping(address => UserAccount) private userAccountsMap;
+    mapping(string => address) private emailToAddressMap;
     uint private userAccountCounter = 1;
 
     // POST Add New User Account
@@ -57,14 +56,13 @@ contract SimpleEMR {
 
     // POST Update Existing User Account
     function updateUserAccount(string memory _email, string memory _newUsername, string memory _newEmail, string memory _newPhone, string memory _newCid) public {
-        require(emailToAddressMap[_email] != address(0), "Email not registered.");
+        require(emailToAddressMap[_email] != address(0), "!email_registered");
         address userAddress = emailToAddressMap[_email];
-        require(userAddress == msg.sender, "Caller is not the account owner.");
+        require(userAddress == msg.sender, "!owner");
         UserAccount storage account = userAccountsMap[userAddress];
 
         if (keccak256(bytes(_email)) != keccak256(bytes(_newEmail))) {
-            require(emailToAddressMap[_newEmail] == address(0), "New email is already in use"
-            );
+            require(emailToAddressMap[_newEmail] == address(0), "!email_available");
             emailToAddressMap[_newEmail] = userAddress;
             delete emailToAddressMap[_email];
         }
@@ -88,10 +86,10 @@ contract SimpleEMR {
 
     // PATCH Delete/Deactivate User Account
     function deactivateAccount() public {
-        require(emailToAddressMap[userAccountsMap[msg.sender].email] != address(0), "Account does not exist.");
+        require(emailToAddressMap[userAccountsMap[msg.sender].email] != address(0), "!exists");
         require(userAccountsMap[msg.sender].accountAddress == msg.sender, "Unauthorized.");
         userAccountsMap[msg.sender].isActive = false;
-        
+
         for (uint i = 0; i < userAccounts.length; i++) {
             if (userAccounts[i].accountAddress == msg.sender) {
                 userAccounts[i].isActive = false;
@@ -167,11 +165,8 @@ contract SimpleEMR {
     function getAccountsByRole(string memory role) public view returns (UserAccount[] memory) {
         uint activeCount = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked(role)) && userAccounts[i].isActive) {
-                activeCount++;
-            }
+            if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked(role)) && userAccounts[i].isActive) activeCount++;
         }
-
         UserAccount[] memory activeAccounts = new UserAccount[](activeCount);
         uint index = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
@@ -204,177 +199,8 @@ contract SimpleEMR {
     function getNumberOfAccountsByRole(string memory role) public view returns (uint) {
         uint count = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (emailToAddressMap[userAccounts[i].email] != address(0) && keccak256(bytes(userAccounts[i].role)) == keccak256(bytes(role))) {
-                count++;
-            }
+            if (emailToAddressMap[userAccounts[i].email] != address(0) && keccak256(bytes(userAccounts[i].role)) == keccak256(bytes(role))) count++;
         }
         return count;
-    }
-
-    // Outpatient Data
-    struct OutpatientData {
-        uint id;
-        address patientAddress;
-        string patientProfileId;
-        address doctor;
-        address nurse;
-        string cid;
-        uint createdAt;
-    }
-
-    mapping(address => uint[]) public appointmentsByPatient;
-    mapping(address => uint[]) public appointmentsByDoctor;
-    mapping(address => uint[]) public appointmentsByNurse;
-
-    event OutpatientDataAdded(uint id, address owner, address doctor, address nurse, string cid, uint createdAt);
-
-    uint private outpatientDataCounter = 1;
-    OutpatientData[] public outpatientData;
-
-    function addOutpatientData(
-        address _patientAddress,
-        string memory _patientProfileId,
-        address _doctor,
-        address _nurse,
-        string memory _cid
-    ) public {
-        // Validasi input dan pastikan bahwa _patientAddress, _doctor, dan _nurse adalah valid
-
-        OutpatientData memory newOutpatientData = OutpatientData(
-            outpatientDataCounter++,
-            _patientAddress,
-            _patientProfileId,
-            _doctor,
-            _nurse,
-            _cid,
-            block.timestamp
-        );
-
-        outpatientData.push(newOutpatientData);
-
-        // Update mapping
-        appointmentsByPatient[_patientAddress].push(newOutpatientData.id);
-        appointmentsByDoctor[_doctor].push(newOutpatientData.id);
-        appointmentsByNurse[_nurse].push(newOutpatientData.id);
-    }
-
-    function getAppointmentsByPatient(address _patientAddress) public view returns (OutpatientData[] memory) {
-        uint[] memory appointmentIds = appointmentsByPatient[_patientAddress];
-        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
-        
-        for (uint i = 0; i < appointmentIds.length; i++) {
-            appointments[i] = outpatientData[appointmentIds[i]];
-        }
-
-        return appointments;
-    }
-
-    function getAppointmentsByNurse(address _nurseAddress) public view returns (OutpatientData[] memory) {
-        uint[] memory appointmentIds = appointmentsByNurse[_nurseAddress];
-        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
-        
-        for (uint i = 0; i < appointmentIds.length; i++) {
-            appointments[i] = outpatientData[appointmentIds[i]];
-        }
-
-        return appointments;
-    }
-
-    function getAppointmentsByDoctor(address _doctorAddress) public view returns (OutpatientData[] memory) {
-        uint[] memory appointmentIds = appointmentsByDoctor[_doctorAddress];
-        OutpatientData[] memory appointments = new OutpatientData[](appointmentIds.length);
-        
-        for (uint i = 0; i < appointmentIds.length; i++) {
-            appointments[i] = outpatientData[appointmentIds[i]];
-        }
-
-        return appointments;
-    }
-
-    // DOCTOR SCHEDULES //
-    event ScheduleCreated(uint id, string cid, uint createdAt);
-    event ScheduleUpdated(uint id, string cid, bool isActive);
-
-    struct DoctorSchedule {uint id; string cid; uint createdAt; bool isActive;}
-    DoctorSchedule[] public doctorSchedules;
-    mapping(string => uint) public doctorSchedulesMap;
-    uint private scheduleIdCounter = 1;
-
-    // Add New Schedule
-    function addDoctorSchedule(string memory _cid) public {
-        doctorSchedules.push(DoctorSchedule(scheduleIdCounter, _cid, block.timestamp, true));
-        doctorSchedulesMap[_cid] = scheduleIdCounter;
-        emit ScheduleCreated(scheduleIdCounter, _cid, block.timestamp);
-        scheduleIdCounter++;
-    }
-
-    // Update isActive Status
-    function updateDoctorScheduleStatus(string memory _cid, bool _isActive) public {
-        uint id = doctorSchedulesMap[_cid];
-        require(id != 0, "Schedule not found.");
-        DoctorSchedule storage schedule = doctorSchedules[id - 1];
-        schedule.isActive = _isActive;
-        emit ScheduleUpdated(id, _cid, _isActive);
-    }
-
-    // GET Schedule by CID
-    function getDoctorScheduleByCID(string memory _cid) public view returns (DoctorSchedule memory) {
-        uint id = doctorSchedulesMap[_cid];
-        require(id != 0, "Schedule not found.");
-        return doctorSchedules[id - 1];
-    }
-
-    // GET Latest Active Doctor Schedule
-    function getLatestActiveDoctorSchedule() public view returns (DoctorSchedule memory) {
-        for (uint i = doctorSchedules.length; i > 0; i--) {
-            DoctorSchedule memory currentSchedule = doctorSchedules[i - 1];
-            if (currentSchedule.isActive) {
-                return currentSchedule;
-            }
-        }
-        return DoctorSchedule(0, "", 0, false);
-    }
-
-    // GET All Active Schedules
-    function getAllActiveDoctorSchedules() public view returns (DoctorSchedule[] memory) {
-        uint activeCount = 0;
-        for (uint i = 0; i < doctorSchedules.length; i++) {
-            if (doctorSchedules[i].isActive) {
-                activeCount++;
-            }
-        }
-
-        DoctorSchedule[] memory activeSchedules = new DoctorSchedule[](activeCount);
-        uint currentIndex = 0;
-        for (uint i = 0; i < doctorSchedules.length; i++) {
-            if (doctorSchedules[i].isActive) {
-                activeSchedules[currentIndex] = doctorSchedules[i];
-                currentIndex++;
-            }
-        }
-        return activeSchedules;
-    }
-
-    // ADMIN //
-    event AdminAdded(uint id, address adminAddress, string username);
-    struct Admin {uint id; address adminAddress; string username; string password;}
-
-    Admin[] public admins;
-    mapping(address => uint) public adminMap;
-    constructor() {
-        addAdmin(msg.sender, "admin1234", "$2a$10$boCU2CG2uF6dOsS1EDiFr.gizftTaskir9sBB/wC2zXyX/etbTzdq");
-    }
-
-    function addAdmin(address _adminAddress, string memory _username, string memory _password) internal {
-        uint id = admins.length + 1;
-        admins.push(Admin(id, _adminAddress, _username, _password));
-        adminMap[_adminAddress] = id;
-        emit AdminAdded(id, _adminAddress, _username);
-    }
-
-    function getAllAdmins() public view returns (Admin[] memory) { return admins;}
-    function getAdminByAddress(address _adminAddress) public view returns (Admin memory) {
-        require(adminMap[_adminAddress] != 0, "Admin does not exist.");
-        return admins[adminMap[_adminAddress] - 1];
     }
 }

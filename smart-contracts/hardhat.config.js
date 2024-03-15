@@ -25,10 +25,10 @@ const config = {
         version: "0.8.22",
         settings: {
           evmVersion: "london",
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
+          // optimizer: {
+          //   enabled: true,
+          //   runs: 200,
+          // },
         },
       },
     ],
