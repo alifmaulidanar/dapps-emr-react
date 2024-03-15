@@ -1,20 +1,17 @@
 /* eslint-disable prettier/prettier */
-// Import dependencies
 import Joi from "joi";
 import express from "express";
 import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
-import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
-import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 
-const contractAddress = CONTRACT_ADDRESS.toString();
-const client = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
+// Contract & ABI
+import { USER_CONTRACT } from "../../dotenvConfig.js";
+import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+const user_contract = USER_CONTRACT.toString();
+const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
 router.use(express.json());
@@ -115,13 +112,9 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
       negaraKerabat, patientAccountData,
     });
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+    if (error) { return res.status(400).json({ error: error.details[0].message }); }
 
     // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -136,24 +129,10 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
 
     const recoveredSigner = provider.getSigner(recoveredAddress);
     const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
 
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
     // Membuat objek data pasien
     const patientData = {
@@ -164,9 +143,8 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto
     };
 
-    // const earlyCid = patientAccountData.ipfs.cid;
-
     // Fisrt fetch IPFS data to retrieve accountProfiles array value
+    // const earlyCid = patientAccountData.ipfs.cid;
     // const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/ipfs/${earlyCid}`;
     // const earlyResponse = await fetch(ipfsGatewayUrl);
     // const earlyData = await earlyResponse.json();
@@ -187,12 +165,11 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     };
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
-    const existingProfile = accountData.accountProfiles.findIndex(
-      (profile) => profile.nomorIdentitas === patientData.nomorIdentitas
-    );
+    const existingProfile = accountData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === patientData.nomorIdentitas);
 
     if (existingProfile !== -1) {
       console.log(`Profile with ${nomorIdentitas} already exists`);
+      return res.status(400).json({ error: "Nomor Identitas telah digunakan" });
     } else {
       accountData.accountProfiles.push(patientData);
     }
@@ -206,6 +183,8 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
+    // Koneksi ke Smart Contract
+    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const tx = await contract.updateUserAccount(
       patientAccountData.account.accountEmail,
       patientAccountData.ipfs.data.accountUsername,
@@ -217,12 +196,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
-    const responseData = {
-      message: `Patient Profile added successfully`,
-      account: getAccount,
-      ipfs: ipfsData,
-    };
-
+    const responseData = { message: `Patient Profile added successfully`, account: getAccount, ipfs: ipfsData };
     console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
@@ -249,10 +223,7 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData,
     });
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+    if (error) { return res.status(400).json({ error: error.details[0].message }); }
 
     // Verifikasi tanda tangan
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
@@ -279,13 +250,6 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Invalid signature" });
     }
 
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-
     // Membuat objek data
     const userData = {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -293,9 +257,8 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
       kelurahan, kecamatan, kota, pos, provinsi, negara, foto
     };
 
-    // const earlyCid = userAccountData.ipfs.cid;
-
     // Fisrt fetch IPFS data to retrieve accountProfiles array value
+    // const earlyCid = userAccountData.ipfs.cid;
     // const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/ipfs/${earlyCid}`;
     // const earlyResponse = await fetch(ipfsGatewayUrl);
     // const earlyData = await earlyResponse.json();
@@ -318,12 +281,11 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     accountData.accountProfiles.push(userData);
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
-    const existingProfile = accountData.accountProfiles.findIndex(
-      (profile) => profile.nomorIdentitas === userData.nomorIdentitas
-    );
+    const existingProfile = accountData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === userData.nomorIdentitas);
 
     if (existingProfile !== -1) {
       console.log(`Profile with ${nomorIdentitas} already exists`);
+      return res.status(400).json({ error: "Nomor Identitas telah digunakan" });
     } else {
       accountData.accountProfiles.push(userData);
     }
@@ -336,7 +298,9 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
-
+    
+    // Koneksi ke Smart Contract
+    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const tx = await contract.updateUserAccount(
       userAccountData.accountEmail,
       userAccountData.accountUsername,
@@ -348,11 +312,7 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     const getAccount = await contract.getAccountByAddress(accountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
-    const responseData = {
-      message: `User Profile added successfully`,
-      account: getAccount,
-      ipfs: ipfsData,
-    };
+    const responseData = { message: `User Profile added successfully`, account: getAccount, ipfs: ipfsData };
     console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {

@@ -1,14 +1,9 @@
 import jwt from "jsonwebtoken";
-// import bcrypt from "bcrypt";
-import("dotenv").then((dotenv) => dotenv.config());
-
-const JWT_SECRET = process.env.SECRET_KEY;
+import { SECRET_KEY } from "../dotenvConfig.js";
+// import("dotenv").then((dotenv) => dotenv.config());
+const JWT_SECRET = SECRET_KEY.toString();
 
 // Create JWToken
-// const generateToken = (email) => {
-//   return jwt.sign({ email: email }, JWT_SECRET);
-// };
-
 const generateToken = (userData) => jwt.sign({ ...userData }, JWT_SECRET);
 
 // Create JWT for reset password
@@ -31,10 +26,4 @@ const verifyToken = (token) => {
 //   return bcrypt.compare(password, hashedPassword);
 // };
 
-export {
-  JWT_SECRET,
-  generateToken,
-  // generateTokenForResetPassword,
-  verifyToken,
-  // verifyPassword,
-};
+export { JWT_SECRET, generateToken, verifyToken };

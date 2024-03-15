@@ -35,5 +35,12 @@
       "negara": "USA",
       "foto": null
     }
+  ],
+  "appointments": [
+    {
+      "appointmentId": "",
+      "cid": "",
+      "status": ""
+    }
   ]
 }

@@ -1,14 +1,26 @@
+import fs from "fs";
 import Joi from "joi";
+import path from "path";
 import express from "express";
 import bcrypt from "bcryptjs";
+import { fileURLToPath } from "url";
 import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
-import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
-import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+
+// Contract & ABI
+import { USER_CONTRACT } from "../../dotenvConfig.js";
+import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+const userContract = USER_CONTRACT.toString();
+const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+const contract = new ethers.Contract(userContract, userABI, provider);
+
+// IPFS
+const client = create({
+  host: "127.0.0.1",
+  port: 5001,
+  protocol: "http",
+});
 
 // Dapatkan __dirname yang setara
 const __filename = fileURLToPath(import.meta.url);
@@ -17,28 +29,14 @@ const accountsPath = path.join(__dirname, "../../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
 const accounts = JSON.parse(accountsJson);
 
-const contractAddress = CONTRACT_ADDRESS.toString();
-const client = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
-
 const router = express.Router();
 router.use(express.json());
 
 const schema = Joi.object({
-  username: Joi.string()
-    .pattern(/^\S.*$/)
-    .alphanum()
-    .min(3)
-    .max(50)
-    .required(),
+  username: Joi.string().pattern(/^\S.*$/).alphanum().min(3).max(50).required(),
   email: Joi.string().email().required(),
   phone: Joi.string().pattern(new RegExp("^[0-9]{10,12}$")).required(),
-  password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$"))
-    .required(),
+  password: Joi.string().pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$")).required(),
   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 });
 
@@ -61,36 +59,13 @@ router.post("/:role/signup", async (req, res) => {
   try {
     const { username, email, phone, password, confirmPassword } = req.body;
     const encryptedPassword = await bcrypt.hash(password, 10);
+    const { error } = schema.validate({ username, email, phone, password, confirmPassword });
+    if (error) return res.status(400).json({ error: error.details[0].message });
 
-    // Validasi input menggunakan Joi
-    const { error } = schema.validate({
-      username,
-      email,
-      phone,
-      password,
-      confirmPassword,
-    });
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
-    // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+    // Cek akun
     const accountList = await provider.listAccounts();
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      provider
-    );
-
-    // Cek email sudah terdaftar atau belum
     const emailRegistered = await contract.getAccountByEmail(email);
-    if (emailRegistered.accountAddress !== ethers.constants.AddressZero) {
-      return res.status(400).json({ error: `Email ${email} sudah terdaftar.` });
-    }
+    if (emailRegistered.accountAddress !== ethers.constants.AddressZero) return res.status(400).json({ error: `Email ${email} sudah terdaftar.` });
 
     // Iterasi pada daftar akun untuk menemukan yang belum terdaftar
     let selectedAccountAddress;
@@ -105,11 +80,7 @@ router.post("/:role/signup", async (req, res) => {
     const privateKey = accounts[selectedAccountAddress];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
-    const contractWithSigner = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      walletWithProvider
-    );
+    const contractWithSigner = new ethers.Contract(userContract, userABI, walletWithProvider);
 
     // Membuat objek untuk akun pasien
     const newAccount = {
@@ -133,17 +104,9 @@ router.post("/:role/signup", async (req, res) => {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    const accountTX = await contractWithSigner.addUserAccount(
-      username,
-      email,
-      role,
-      phone,
-      cid
-    );
+    const accountTX = await contractWithSigner.addUserAccount( username, email, role, phone, cid);
     await accountTX.wait();
-    const getAccount = await contractWithSigner.getAccountByAddress(
-      selectedAccountAddress
-    );
+    const getAccount = await contractWithSigner.getAccountByAddress(selectedAccountAddress);
 
     // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = {
@@ -158,21 +121,13 @@ router.post("/:role/signup", async (req, res) => {
         cid: getAccount.cid,
         isActive: getAccount.isActive,
       },
-      ipfs: {
-        cid: cid,
-        data: ipfsData,
-      },
+      ipfs: { cid: cid, data: ipfsData },
     };
-
     console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
-    console.log(error);
-    res.status(500).json({
-      error: error,
-      message: `${role} Registration Failed`,
-    });
+    res.status(500).json({ error: error, message: `${role} Registration Failed` });
   }
 });
 

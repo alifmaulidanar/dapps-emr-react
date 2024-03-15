@@ -3,17 +3,15 @@ import Joi from "joi";
 import express from "express";
 import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
-import { CONTRACT_ADDRESS } from "../../dotenvConfig.js";
-import contractAbi from "../../contractConfig/abi/SimpleEMR.abi.json" assert { type: "json" };
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 
-const contractAddress = CONTRACT_ADDRESS.toString();
-const client = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
+// Contract & ABI
+import { USER_CONTRACT } from "../../dotenvConfig.js";
+import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+const user_contract = USER_CONTRACT.toString();
+const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
 router.use(express.json());
@@ -114,14 +112,9 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
       negaraKerabat, userAccountData
     });
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+    if (error) { return res.status(400).json({ error: error.details[0].message }) }
 
     // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -136,39 +129,21 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
 
     const recoveredSigner = provider.getSigner(recoveredAddress);
     const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
 
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
-
-    // Mengambil CID dari blockchain
+    // Mengambil CID dari blockchain dan data dari IPFS
+    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const getIpfs = await contract.getAccountByAddress(accountAddress);
     const cidFromBlockchain = getIpfs.cid;
-
-    // Mengambil data dari IPFS
     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
 
     // Mencari dan memperbarui profil pasien dalam array accountProfiles
-    const indexToUpdate = ipfsData.accountProfiles.findIndex(
-      (profile) => profile.nomorIdentitas === nomorIdentitas
-    );
-
+    const indexToUpdate = ipfsData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === nomorIdentitas);
     if (indexToUpdate !== -1) {
       ipfsData.accountProfiles[indexToUpdate] = {
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -191,6 +166,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
 
+    // Update user account di blockchain
     const tx = await contract.updateUserAccount(
       getIpfs.email,
       getIpfs.username,
@@ -200,13 +176,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     );
     await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
-
-    // Response
-    const responseData = {
-      message: `${role} Profile Updated`,
-      account: getAccount,
-      ipfs: newIpfsData,
-    };
+    const responseData = { message: `${role} Profile Updated`, account: getAccount, ipfs: newIpfsData };
     console.log(responseData)
     res.status(200).json(responseData);
   } catch (error) {
@@ -235,13 +205,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
     });
-
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
-    // Verifikasi tanda tangan
-    const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+    if (error) { return res.status(400).json({ error: error.details[0].message }) }
 
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
@@ -254,26 +218,13 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
 
     const recoveredSigner = provider.getSigner(recoveredAddress);
     const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
 
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
-
-    // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      recoveredSigner
-    );
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }) }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }) }
 
     // Mengambil CID dari blockchain
+    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const getIpfs = await contract.getAccountByAddress(accountAddress);
     const cidFromBlockchain = getIpfs.cid;
 
@@ -283,10 +234,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     const ipfsData = await ipfsResponse.json();
 
     // Mencari dan memperbarui profil pasien dalam array accountProfiles
-    const indexToUpdate = ipfsData.accountProfiles.findIndex(
-      (profile) => profile.nomorIdentitas === nomorIdentitas
-    );
-
+    const indexToUpdate = ipfsData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === nomorIdentitas);
     if (indexToUpdate !== -1) {
       ipfsData.accountProfiles[indexToUpdate] = {
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
@@ -307,7 +255,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
     const newIpfsData = await newIpfsResponse.json();
     
-    // Update user account di blockchain (Jika perlu)
+    // Update user account di blockchain
     const tx = await contract.updateUserAccount(
       getIpfs.email,
       getIpfs.username,
@@ -317,24 +265,18 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     );
     await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
-
-    // Response
     const responseData = {
       message: `${userAccountData.accountRole.charAt(0).toUpperCase() + userAccountData.accountRole.slice(1)} Profile Updated`,
       account: getAccount,
       ipfs: newIpfsData,
     };
-
     res.status(200).json(responseData);
     console.log(responseData)
   } catch (error) {
     console.error(error);
     const stackLines = error.stack.split("\n");
     console.log("Error pada file dan baris:", stackLines[1].trim());
-    res.status(500).json({
-      error: error.message,
-      message: "Failed updating patient profile",
-    });
+    res.status(500).json({ error: error.message, message: "Failed updating patient profile" });
   }
 });
 
