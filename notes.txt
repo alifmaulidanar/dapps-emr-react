@@ -1,4 +1,11 @@
 📃SMART CONTRACT📃
+
+💡💡💡💡💡
+public: Dapat diakses dari mana saja.
+private: Hanya dapat diakses dari dalam kontrak yang mendeklarasikannya.
+external: Hanya dapat diakses dari luar kontrak (termasuk kontrak lain).
+internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
+
 17/02/24
 ✅ Fungsi addUserAccount tidak bisa digunakan untuk update email di blockchain karena masih dapat mengakses akun melalui email lama --> fixed pakai mapping jadi email baru menggantikan email lama di map
 ✅ Solusinya, buat fungsi baru untuk memperbarui email sekaligus tambahkan field isActive = true ❌ tidak jadi pakai isActive untuk verifikasi email yang aktif karena bisa error
@@ -52,8 +59,17 @@
 13/03/24
 ❌ ga nyentuh smart contract
 
+14/03/24
+✅ implement OutpatientData struct dan beberapa function pendukung seperti di chatgpt
+
+15/03/24
+✅ rombak smart contract -> dipisah jadi 4 smart contract berdasarkan fungsi (AdminManagement, UserManagement, ScheduleManagement, OutpatientManagement)
+✅ refactor smart contract -> perbaikan hak akses di banyak array, mapping, dan function
+✅ update deploy.js untuk deploy 4 smart contract
+✅ bisa getAll dan getBy address dari role tertentu
+
 next:
-- implement OutpatientData struct dan beberapa function pendukung seperti di chatgpt
+- pikirin kalo ada user milih appointment yang sama persis lebih dari 1 kali
 - logika:
     - data appointment punya struct, array, dan mapping masing-masing
     - di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
@@ -137,15 +153,21 @@ next:
 ✅ tampilkan jadwal praktik dokter di modal buat appointment baru
 ⚒️ modal make new appointment on progres (pilih spesialisasi✅, pilih dokter✅, date & time picker✅)
 
+14/03/24
+✅ lanjut ke appointment -> modal buat appointment baru
+✅ modal step pilih jadwal dokter: kurang di bagian pilih rumah sakit -> lalu cek lagi semuanya
+✅ next step modal pilih pasien: ambil pasien yang dibawa dari PatientAppointment.jsx
+✅ kirim tanggal dan waktu appointment yang dipilih dengan benar
+
+15/03/24
+✅ modal pembuatan appointment baru sudah bagus di frontend, sudah bisa kirim ke endpoint backend
+✅ data sudah masuk ke backend dan masuk ke ipfs dan smart contract
+✅ sudah bisa getAll OutpatientData di halaman appointment
 
 next:
-- lanjut ke appointment -> modal buat appointment baru
-- modal step pilih jadwal dokter: kurang di bagian pilih rumah sakit -> lalu cek lagi semuanya
-- next step modal pilih pasien: ambil pasien yang dibawa dari PatientAppointment.jsx
-- kirim tanggal dan waktu appointment yang dipilih dengan benar
+- bikin appointment/Outpatient list -> sekarang masih pake record list (masih salah, harus dipisah componentnya)
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
-- pendaftaran rawat jalan (appointment) pasien
 
 ===================================================================================================
 ===================================================================================================
@@ -210,16 +232,27 @@ next:
 13/03/24
 ✅ endpoint get doctor schedule untuk pasien -> di halaman appointment (modal)
 
+14/03/24
+✅ endpoint untuk add new appointment dari modal frontend
+
+15/03/24
+✅ koneksi ke smart contract addNewAppointment(), terhubung ke dokter dan perawat terkait
+✅ OutpatientData dari blockchain sudah bisa dikirim ke frontend tinggal ditampilkan dalam bentuk appointment/Outpatient list
+✅ refactor semua yang berkaitan dengan backend karena ada perubahan cara consume function SC (akibat pemisahan SC jadi 4 SC terpisah -> deploynya juga terpisah)
+
 next:
-- endpoint untuk add new appointment dari modal frontend
-- koneksi ke smart contract addNewAppointment(), terhubung ke dokter dan perawat terkait
-- tampilkan data appointment yang telah dibuat
-- buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab
-- perbagus validasi authMiddleware untuk semua endpoint backend
-- perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
+- validasi data pembuatan appointment
+- terima appointment dari dokter dan nurse
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - endpoint appointment sisi dokter dan perawat
+- buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
+- perbagus validasi authMiddleware untuk semua endpoint backend
+- perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 
+
+TERKAIT PEMBUATAN APPOINTMENT / RAWAT JALAN
+1. lanjutkan penyimpanan appointment seperti yang sekarang sudah berjalan (menyimpan ke ipfs, lalu disimpan ke struct dan array mandiri di blockchain)
+2. selanjutnya akan terkoneksi dengan EMR pasien yang berada pada objek suatu pasien di array accountProfiles di array UserAccount di blockchain
 
 
 ✨✨ KNOWN BUGS ✨✨
@@ -243,6 +276,13 @@ A. Handle update account information dari sisi admin (frontend dan backend)
 
 
 abis ini ngapain:
-- struktur data appointment
-- appointment relasi dengan doctor_data dan doctor_schedules
+✅ optimasi smart contract dulu -> pisahin admin, dll
+✅ test 4 smart contract baru
+✅ struktur data appointment
+✅ appointment relasi dengan doctor_data dan doctor_schedules
 - penyimpanan jadwal appointment di patient dan doctor
+- tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
+- perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
+- tes ulang proses appointment
+- pembuatan appointment oleh staff
+- penerimaan appointment oleh nurse dan dokter
