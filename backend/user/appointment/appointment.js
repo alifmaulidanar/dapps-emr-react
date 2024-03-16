@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
+import  { performance } from 'perf_hooks';
 
 // Contract & ABI
 import { SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../../dotenvConfig.js";
@@ -43,29 +44,35 @@ router.get("/:role/appointment", authMiddleware, async (req, res) => {
     const ipfsData = await ipfsResponse.json();
 
     const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider)
-    let data = [];
+    let appointments = [];
     if (role == "patient") {
-      data = await outpatientContract.getAppointmentsByPatient(address);
+      appointments = await outpatientContract.getAppointmentsByPatient(address);
     } else if (role == "doctor") {
-      data = await outpatientContract.getAppointmentsByDoctor(address);
+      appointments = await outpatientContract.getAppointmentsByDoctor(address);
     } else if (role == "nurse") {
-      data = await outpatientContract.getAppointmentsByNurse(address);
+      appointments = await outpatientContract.getAppointmentsByNurse(address);
     } else if (role == "staff") {
-      data = await outpatientContract.getAppointmentsByStaff(address);
+      appointments = await outpatientContract.getAppointmentsByStaff(address);
     }
-
-    const appointments = data.map((appointment) => {
+    // const start = performance.now();
+    const appointmentDetails = await Promise.all(appointments.map(async (appointment) => {
+      const appointmentCid = appointment.cid;
+      const appointmentIpfsUrl = `${CONN.IPFS_LOCAL}/${appointmentCid}`;
+      const appointmentResponse = await fetch(appointmentIpfsUrl);
+      const appointmentData = await appointmentResponse.json();
       return {
-        id: appointment.id,
-        patientAddress: appointment.patientAddress,
-        patientProfileId: appointment.patientProfileId,
-        doctor: appointment.doctor,
-        nurse: appointment.nurse,
+        id: appointment.id.toString(),
+        ownerAddress: appointment.owner,
         cid: appointment.cid,
-        createdAt: appointment.createdAt
+        data: appointmentData
       };
-    })
-    res.status(200).json({ ...ipfsData, appointments });
+    }));
+    // const end = performance.now();
+    // const duration = end - start;
+    // console.log(`Promise.all took ${duration} milliseconds`);
+    // console.log({appointmentDetails});
+    // console.log({...appointmentDetails});
+    res.status(200).json({ ...ipfsData, appointments: appointmentDetails });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -88,25 +95,19 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
-    // save appointment data ipfs to ipfs
-    const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
-    const { cid } = await client.add(JSON.stringify(appointmentDataIpfs));
-    const appointmentDataIpfsCid = cid.toString();
+    // Save appointment data to IPFS
+    const newCid = await client.add(JSON.stringify(appointmentDataIpfs));
+    console.log({newCid: newCid.path});
 
-    // save appointment data to blockchain
-    const appointmentTx = await contractWithSigner.addOutpatientData(
+    // Save appointment data to blockchain
+    const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+    const outpatientTx = await contractWithSigner.addOutpatientData(
       appointmentData.accountAddress,
-      appointmentData.nomorIdentitas,
       appointmentData.doctorAddress,
       appointmentData.nurseAddress,
-      appointmentDataIpfsCid
+      newCid.path
     );
-    const response = await appointmentTx.wait();
-    console.log({ response });
-    console.log({appointmentData})
-    console.log({appointmentDataIpfs})
-    console.log({signature})
-    console.log({appointmentDataIpfsCid})
+    await outpatientTx.wait();
     res.status(200).json({ message: "Appointment created successfully" });
   } catch (error) {
     console.error(error);
