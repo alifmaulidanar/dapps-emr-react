@@ -18,15 +18,13 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const [selectedDoctorInfo, setSelectedDoctorInfo] = useState({address: "default", name: ""});
   const [selectedPatient, setSelectedPatient] = useState(null);
-
-  // console.log({userData});
-  // console.log({scheduleData});
   
   const flatpickrRef = useRef(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableTimes, setAvailableTimes] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
 
   const showLoader = () => {
@@ -148,7 +146,15 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const handleCancel = () => setIsModalOpen(false);
   const handleNext = () => setCurrentStep(currentStep + 1);
   const handleBack = () => setCurrentStep(currentStep - 1);
-  const handleTimeChange = (e) => setSelectedTimeSlot(e.target.value);
+  const handleTimeChange = (e) => {
+    setSelectedTimeSlot(e.target.value);
+    const selectedSchedule = selectedDoctorInfo.schedules.find(schedule => schedule.day === selectedDay && schedule.time === e.target.value);
+    if (selectedSchedule) {
+      setSelectedScheduleId(selectedSchedule.schedule_id);
+    } else {
+      setSelectedScheduleId(null);
+    }
+  };
   const handlePatientSelection = (patient) => setSelectedPatient(patient);
 
   const renderStepContent = (step) => {
@@ -172,11 +178,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
 
   const handleDoctorChange = (value) => {
     const doctor = scheduleData.find((doc) => doc.doctor_address === value);
-
     if (doctor) {
-      setSelectedDoctorInfo({ address: doctor.doctor_address, name: doctor.doctor_name });
+      setSelectedDoctorInfo({ address: doctor.doctor_address, name: doctor.doctor_name, schedules: doctor.schedules });
     } else {
-      setSelectedDoctorInfo({ address: "default", name: "" });
+      setSelectedDoctorInfo({ address: "default", name: "", schedules: [] });
     }
     setSelectedDate(null);
     setAvailableTimes([]);
@@ -269,7 +274,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const handleCreateAppointment = async (event) => {
     showLoader();
     event.preventDefault();
-
     const nurseInfo = selectedDoctor.schedules.find(schedule => schedule.day === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.time === selectedTimeSlot);
     const appointmentData = {
       accountAddress: userData.accountAddress,
@@ -277,12 +281,12 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       doctorAddress: selectedDoctor.doctor_address,
       nurseAddress: nurseInfo.nurse_address,
     };
-    // console.log({ appointmentData });
 
     const appointmentDataIpfs = {
-      appointmentId: uuidv4(),
+      appointmentId: uuidv4(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
+      emrNumber: userData.accountAddress,
       patientName: userData.accountProfiles[selectedPatient].namaLengkap,
       patientIdentityNumber: userData.accountProfiles[selectedPatient].nomorIdentitas,
       patientEmail: userData.accountProfiles[selectedPatient].email,
@@ -290,16 +294,19 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       doctorId: selectedDoctor.doctor_id,
       doctorAddress: selectedDoctor.doctor_address,
       doctorName: selectedDoctor.doctor_name,
-      nurseId: nurseInfo.nurse_id,
-      nurseAddress: nurseInfo.nurse_address,
-      nurseName: nurseInfo.nurse_name,
-      spesialisasiDokter: selectedSpecialization,
+      doctorSpecialization: selectedSpecialization,
+      scheduleId: selectedScheduleId,
       selectedDay: `${selectedDay}`,
       selectedDate: `${selectedDate}`,
       selectedTime: `${selectedTimeSlot}`,
+      nurseId: nurseInfo.nurse_id,
+      nurseAddress: nurseInfo.nurse_address,
+      nurseName: nurseInfo.nurse_name,
       status: "ongoing",
+      createdAt: new Date().toISOString(),
     };
-    // console.log({ appointmentDataIpfs });
+
+    console.log({ appointmentDataIpfs });
 
     const signedData = {
       appointmentData,

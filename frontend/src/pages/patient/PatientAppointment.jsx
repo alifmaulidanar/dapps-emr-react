@@ -2,8 +2,7 @@ import "./../../index.css";
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
-import RecordList from "../../components/RecordList";
-import { AllPatient } from "../../data/patientData";
+import AppointmentList from "../../components/AppointmentList";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import { CONN } from "../../../../enum-global";
 
@@ -20,6 +19,9 @@ export default function PatientAppointment({ role }) {
   const [appointmentData, setAppointmentData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
   // const [fetchData, setFetchData] = useState([]);
+
+  // console.log("scheduleData", scheduleData);
+  // console.log("appointmentData", appointmentData);
 
   useEffect(() => {
     if (token && accountAddress) {
@@ -46,29 +48,20 @@ export default function PatientAppointment({ role }) {
     }
   }, []);
 
-  // Mengambil data pasien dari AllPatient
-  const patientListProps = AllPatient.map((patient, index) => ({
-    patientName: patient.patientName,
-    patientImage: patient.patientImage,
-    patientAddress: patient.patientAddress,
-    patientIsChosen: index === chosenIndex,
-    patientRecords: patient.patientRecords,
-  }));
-
   // Mencari pasien yang memiliki patientIsChosen bernilai true
-  const chosenPatient = patientListProps.find(
-    (patient) => patient.patientIsChosen
-  );
+  // const chosenPatient = patientListProps.find(
+  //   (patient) => patient.patientIsChosen
+  // );
 
   // Mendapatkan data rekam medis dari patientRecords pasien yang dipilih
-  const recordItems = chosenPatient
-    ? chosenPatient.patientRecords.flatMap((record) => ({
-        recordAddress: record.recordAddress,
-        recordTitle: record.recordTitle,
-        recordDate: record.recordDate,
-        recordDoctorName: record.recordDoctorName,
-      }))
-    : [];
+  // const recordItems = chosenPatient
+  //   ? chosenPatient.patientRecords.flatMap((record) => ({
+  //       recordAddress: record.recordAddress,
+  //       recordTitle: record.recordTitle,
+  //       recordDate: record.recordDate,
+  //       recordDoctorName: record.recordDoctorName,
+  //     }))
+  //   : [];
 
   return (
     <>
@@ -101,12 +94,9 @@ export default function PatientAppointment({ role }) {
       </div>
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          {chosenPatient && (
-            <RecordList
-              recordItems={recordItems}
-              accountAddress={accountAddress}
-            />
-          )}
+          <AppointmentList
+            appointmentData={appointmentData || []}
+          />
         </div>
       </div>
     </>
