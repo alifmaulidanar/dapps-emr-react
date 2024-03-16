@@ -1,0 +1,23 @@
+{
+  "appointmentId": "3e66d92d-c0d9-4675-a587-87c2ac74183d",
+  "accountAddress": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+  "accountEmail": "patient123@gmail.com",
+  "emrNumber": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+  "patientName": "Budi",
+  "patientIdentityNumber": "1113613151531531",
+  "patientEmail": "budibudi@gmail.com",
+  "hospitalLocation": "Bekasi",
+  "doctorId": 3,
+  "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+  "doctorName": "dr. Caca",
+  "doctorSpecialization": "Gigi",
+  "scheduleId": 3,
+  "selectedDay": "Minggu",
+  "selectedDate": "2024-03-24",
+  "selectedTime": "08:00 - 12:00",
+  "nurseId": 1,
+  "nurseAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+  "nurseName": "Nurul",
+  "status": "ongoing",
+  "createdAt": "2024-03-16T17:03:43.305Z"
+}
