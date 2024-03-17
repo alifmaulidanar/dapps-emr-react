@@ -68,6 +68,14 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ✅ update deploy.js untuk deploy 4 smart contract
 ✅ bisa getAll dan getBy address dari role tertentu
 
+16/03/24
+✅ perbaiki OutpatientManagement -> pemisahan mapping/array untuk patient, doctor, dan nurse
+✅ bisa melakukan pemanggiland dari masing-masing akun dan role
+✅ selalu addOutpatientData pada saat pembuatan appointment
+
+17/03/24
+✅ bisa get appointment by patient address dan ditampilkan di detail appointment
+
 next:
 - pikirin kalo ada user milih appointment yang sama persis lebih dari 1 kali
 - logika:
@@ -164,8 +172,18 @@ next:
 ✅ data sudah masuk ke backend dan masuk ke ipfs dan smart contract
 ✅ sudah bisa getAll OutpatientData di halaman appointment
 
+16/03/24
+✅ data udah bisa tampil ke frontend dalam bentuk card list appointment, tapi masih berantakan
+✅ bikin komponen AppointmentList menggantikan RecordList
+
+17/03/24
+✅ AppointmentList berubah menjadi AppointmentCardList -> kalo diklik menuju /details
+✅ halaman detail appointment menampilkan informasi appointment outpatient yang telah dibuat pasien
+
 next:
-- bikin appointment/Outpatient list -> sekarang masih pake record list (masih salah, harus dipisah componentnya)
+- cek appointment dari dokter dan nurse
+- add tombol choose patient ([ake dropdown kaya di profile])
+- di halaman detail appointment atau pada AppointmentCardList kasih tombol untuk batalkan appointment
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 
@@ -240,6 +258,12 @@ next:
 ✅ OutpatientData dari blockchain sudah bisa dikirim ke frontend tinggal ditampilkan dalam bentuk appointment/Outpatient list
 ✅ refactor semua yang berkaitan dengan backend karena ada perubahan cara consume function SC (akibat pemisahan SC jadi 4 SC terpisah -> deploynya juga terpisah)
 
+16/03/24
+✅ perbaikan handle pada /appointment untuk dapat menampilkan scheduleData dan appointmentData ke frontend
+
+17/03/24
+❌ ga nyentuh backend
+
 next:
 - validasi data pembuatan appointment
 - terima appointment dari dokter dan nurse
@@ -280,8 +304,8 @@ abis ini ngapain:
 ✅ test 4 smart contract baru
 ✅ struktur data appointment
 ✅ appointment relasi dengan doctor_data dan doctor_schedules
-- penyimpanan jadwal appointment di patient dan doctor
-- tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
+✅ penyimpanan jadwal appointment di patient dan doctor
+✅ tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
 - perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
 - tes ulang proses appointment
 - pembuatan appointment oleh staff
