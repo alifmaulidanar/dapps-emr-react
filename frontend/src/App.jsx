@@ -5,13 +5,15 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import PatientRecordList from "./pages/patient/PatientRecordList";
 import PatientRecord from "./pages/patient/PatientRecord";
-import PatientAppointment from "./pages/patient/PatientAppointment";
+import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
 
 // global page routes
 import UserAccount from "./pages/Account";
 import UserProfile from "./pages/Profile";
 import NakesPatientList from "./pages/NakesPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import PatientRecordDisplay from "./components/PatientRecordData";
+import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
 
 function App() {
   return (
@@ -89,13 +91,17 @@ function App() {
                 path={`/patient/record-list`}
                 element={<PatientRecordList />}
               />
-              <Route
+              {/* <Route
                 path={`/patient/record-list/record/:recordAddress`}
                 element={<PatientRecord />}
-              />
+              /> */}
               <Route
                 path={`/patient/appointment`}
-                element={<PatientAppointment role="patient" />}
+                element={<PatientAppointmentList role="patient" />}
+              />
+              <Route
+                path={`/patient/appointment/details`}
+                element={<PatientAppointmentDetails role="patient" />}
               />
               <Route
                 path={`/patient/profile`}
@@ -139,7 +145,7 @@ function App() {
               />
               <Route
                 path={`/nurse/appointment`}
-                element={<PatientAppointment />}
+                element={<PatientAppointmentList />}
               />
               <Route
                 path={`/nurse/profile`}
@@ -159,7 +165,7 @@ function App() {
               />
               <Route
                 path={`/staff/appointment`}
-                element={<PatientAppointment />}
+                element={<PatientAppointmentList />}
               />
               <Route
                 path={`/staff/profile`}
@@ -179,7 +185,7 @@ function App() {
               />
               <Route
                 path={`/staff/appointment`}
-                element={<PatientAppointment />}
+                element={<PatientAppointmentList />}
               />
               <Route
                 path={`/staff/profile`}

@@ -2,11 +2,11 @@ import "./../../index.css";
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
-import AppointmentList from "../../components/AppointmentList";
+import AppointmentCardList from "../../components/Cards/AppointmentCardList";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import { CONN } from "../../../../enum-global";
 
-export default function PatientAppointment({ role }) {
+export default function PatientAppointmentList({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const userData = JSON.parse(sessionStorage.getItem("userData"));
@@ -94,7 +94,7 @@ export default function PatientAppointment({ role }) {
       </div>
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          <AppointmentList
+          <AppointmentCardList
             appointmentData={appointmentData || []}
           />
         </div>
