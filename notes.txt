@@ -76,6 +76,10 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 17/03/24
 ✅ bisa get appointment by patient address dan ditampilkan di detail appointment
 
+18/03/24
+✅ bikin struct Patient untuk menampung profile pasien dan nomorRekamMedis (emrNumber) -> biar emrNumber ga terduplikat
+✅ untuk pembuatan profil pasien baru harus cek di getAllPatients() -> cek nomorRekamMedis (emrNumber) kalo ada yang sama auto increment 1, baru setelah masuk ke UserAccount[] masukkan juga ke Patients[] pakai addPatient()
+
 next:
 - pikirin kalo ada user milih appointment yang sama persis lebih dari 1 kali
 - logika:
@@ -85,6 +89,7 @@ next:
     - harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
     - selesaikan proses penyimpanan data appointment dahulu, baru lanjut ke rekam medis elektronik
     - di appointment terkait, hanya akan menyimpan cid rekam medis elektronik
+- lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 ===================================================================================================
 ===================================================================================================
@@ -180,7 +185,14 @@ next:
 ✅ AppointmentList berubah menjadi AppointmentCardList -> kalo diklik menuju /details
 ✅ halaman detail appointment menampilkan informasi appointment outpatient yang telah dibuat pasien
 
+18/03/24
+✅ di pembuatan profil pasien ada tambahan Select cabang rumah sakit terdekat (Data Rumah Sakit)
+✅ pembuatan user dropdown di halaman appointment untuk pilih pasien
+✅ perbaiki list appointment agar menampilkan sesuai dengan user yg dipilih
+✅ perbaikan di halaman detail appointment agar lebih simpel dan akurat
+
 next:
+- perubahan variable ke bahasa indonesia -> appointment
 - cek appointment dari dokter dan nurse
 - add tombol choose patient ([ake dropdown kaya di profile])
 - di halaman detail appointment atau pada AppointmentCardList kasih tombol untuk batalkan appointment
@@ -264,7 +276,12 @@ next:
 17/03/24
 ❌ ga nyentuh backend
 
+18/03/24
+✅ di addProfile buat function baru generateNomorRekamMedis() untuk generate 10 digit nomorRekamMedis -> dicek menggunakan getAllPatients() -> auto increment
+✅ menambahkan rumahSakitAsal di profile pasien
+
 next:
+- perubahan variable ke bahasa indonesia -> appointment (SELURUHNYA) -> biar konsisten dengan di profil
 - validasi data pembuatan appointment
 - terima appointment dari dokter dan nurse
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
