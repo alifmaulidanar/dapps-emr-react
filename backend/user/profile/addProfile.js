@@ -16,8 +16,34 @@ const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 const router = express.Router();
 router.use(express.json());
 
+// Rumah Sakit Asal
+// 1 = Eka Hospital Bekasi
+// 2 = Eka Hospital BSD
+// 3 = Eka Hospital Jakarta
+// 4 = Eka Hospital Lampung
+
+const generateNomorRekamMedis = async (rumahSakitAsal, existingProfiles) => {
+  const tahun = new Date().getFullYear().toString().slice(-2);
+  const kodeCabang = rumahSakitAsal.padStart(2, '0');
+  const kelompokPengobatan = '01';
+
+  // Cek nomor rekam medis terakhir dari profil yang sudah ada
+  const lastNomorRekamMedis = existingProfiles.reduce((acc, profile) => {
+    const nomor = profile.emrNumber;
+    if (nomor && nomor.startsWith(tahun + kodeCabang + kelompokPengobatan)) {
+      return Math.max(acc, parseInt(nomor.slice(-4), 10));
+    }
+    return acc;
+  }, 0);
+
+  // Nomor pasien auto increment
+  const nomorPasien = (lastNomorRekamMedis + 1).toString().padStart(4, '0');
+  return tahun + kodeCabang + kelompokPengobatan + nomorPasien;
+};
+
 // Skema validasi Joi untuk data pasien
 const patientSchema = Joi.object({
+  rumahSakitAsal: Joi.string().required(),
   namaLengkap: Joi.string().required(),
   nomorIdentitas: Joi.string().required(),
   tempatLahir: Joi.string().required(),
@@ -95,7 +121,7 @@ const userSchema = Joi.object({
 router.post("/patient/add-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -105,7 +131,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
 
     // Validasi input menggunakan Joi
     const { error } = patientSchema.validate({
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -117,7 +143,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     // Verifikasi tanda tangan
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -135,8 +161,9 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
     // Membuat objek data pasien
+    let nomorRekamMedis;
     const patientData = {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      nomorRekamMedis,rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -165,12 +192,15 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     };
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
+    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const existingProfile = accountData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === patientData.nomorIdentitas);
 
     if (existingProfile !== -1) {
       console.log(`Profile with ${nomorIdentitas} already exists`);
       return res.status(400).json({ error: "Nomor Identitas telah digunakan" });
     } else {
+      const allPatients = await contract.getAllPatients();
+      patientData.nomorRekamMedis = await generateNomorRekamMedis(rumahSakitAsal, allPatients);
       accountData.accountProfiles.push(patientData);
     }
 
@@ -184,7 +214,6 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     const ipfsData = await response.json();
 
     // Koneksi ke Smart Contract
-    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
     const tx = await contract.updateUserAccount(
       patientAccountData.account.accountEmail,
       patientAccountData.ipfs.data.accountUsername,
@@ -193,9 +222,14 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
       cid
     );
     await tx.wait();
-    const getAccount = await contract.getAccountByAddress(accountAddress);
+    const patient = await contract.addPatient(
+      patientAccountData.account.accountAddress,
+      patientData.nomorRekamMedis,
+      patientData.nomorIdentitas
+    );
+    await patient.wait();
 
-    // Menyusun objek data yang ingin ditampilkan dalam response body
+    const getAccount = await contract.getAccountByAddress(accountAddress);
     const responseData = { message: `Patient Profile added successfully`, account: getAccount, ipfs: ipfsData };
     console.log(responseData);
     res.status(200).json(responseData);
@@ -212,14 +246,14 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
 router.post("/:role/add-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData, role, signature, foto
     } = req.body;
 
     // Validasi input menggunakan Joi
     const { error } = userSchema.validate({
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData,
     });
@@ -229,7 +263,7 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
       }),
@@ -252,7 +286,7 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
 
     // Membuat objek data
     const userData = {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      nomorRekamMedis, rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, foto
     };
