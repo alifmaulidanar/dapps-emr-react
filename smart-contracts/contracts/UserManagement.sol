@@ -14,7 +14,7 @@ contract UserManagement {
     event AccountDeactivated(address indexed userAddress);
 
     struct UserAccount {uint id; address accountAddress; string username; string email; string role; string phone; uint createdAt; string cid; bool isActive;}
-    struct DoctorSchedules {uint id; address doctorAddress;}
+    struct Patients {uint id; address accountAddress; string emrNumber; string idNumber;}
 
     UserAccount[] internal userAccounts;
     UserAccount[] internal patientAccounts;
@@ -22,10 +22,12 @@ contract UserManagement {
     UserAccount[] internal nurseAccounts;
     UserAccount[] internal staffAccounts;
     UserAccount[] internal adminAccounts;
+    Patients[] private patientRecords;
 
     mapping(address => UserAccount) private userAccountsMap;
     mapping(string => address) private emailToAddressMap;
     uint private userAccountCounter = 1;
+    uint private patientRecordCounter = 1;
 
     // POST Add New User Account
     function addUserAccount(string memory _username, string memory _email, string memory _role, string memory _phone, string memory _cid ) public {
@@ -34,7 +36,6 @@ contract UserManagement {
         userAccountsMap[msg.sender] = newUserAccount;
         emailToAddressMap[_email] = msg.sender;
         userAccountCounter++;
-
         // Role segregation logic
         if (keccak256(bytes(_role)) == keccak256(bytes("patient"))) {
             patientAccounts.push(newUserAccount);
@@ -60,18 +61,15 @@ contract UserManagement {
         address userAddress = emailToAddressMap[_email];
         require(userAddress == msg.sender, "!owner");
         UserAccount storage account = userAccountsMap[userAddress];
-
         if (keccak256(bytes(_email)) != keccak256(bytes(_newEmail))) {
             require(emailToAddressMap[_newEmail] == address(0), "!email_available");
             emailToAddressMap[_newEmail] = userAddress;
             delete emailToAddressMap[_email];
         }
-
         account.username = _newUsername;
         account.email = _newEmail;
         account.phone = _newPhone;
         account.cid = _newCid;
-
         for (uint i = 0; i < userAccounts.length; i++) {
             if (userAccounts[i].accountAddress == userAddress) {
                 userAccounts[i].username = _newUsername;
@@ -89,14 +87,9 @@ contract UserManagement {
         require(emailToAddressMap[userAccountsMap[msg.sender].email] != address(0), "!exists");
         require(userAccountsMap[msg.sender].accountAddress == msg.sender, "Unauthorized.");
         userAccountsMap[msg.sender].isActive = false;
-
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (userAccounts[i].accountAddress == msg.sender) {
-                userAccounts[i].isActive = false;
-                break;
-            }
+            if (userAccounts[i].accountAddress == msg.sender) { userAccounts[i].isActive = false; break; }
         }
-        
         string memory role = userAccountsMap[msg.sender].role;
         if (keccak256(bytes(role)) == keccak256(bytes("patient"))) {
             updateRoleArrayStatus(patientAccounts, msg.sender);
@@ -115,12 +108,19 @@ contract UserManagement {
     // Helper function to update isActive status in role-specific array
     function updateRoleArrayStatus(UserAccount[] storage accounts, address userAddress ) private {
         for (uint i = 0; i < accounts.length; i++) {
-            if (accounts[i].accountAddress == userAddress) {
-                accounts[i].isActive = false;
-                break;
-            }
+            if (accounts[i].accountAddress == userAddress) { accounts[i].isActive = false; break; }
         }
     }
+
+    // Add a new patient record
+    function addPatient(address _accountAddress, string memory _emrNumber, string memory _idNumber) external {
+        Patients memory newPatientRecord = Patients(patientRecordCounter, _accountAddress, _emrNumber, _idNumber);
+        patientRecords.push(newPatientRecord);
+        patientRecordCounter++;
+    }
+
+    // GET All Patients
+    function getAllPatients() external view returns (Patients[] memory) { return patientRecords; }
 
     // GET All Acounts
     function getAllAccounts() public view returns (UserAccount[] memory) { return userAccounts; }
@@ -129,18 +129,12 @@ contract UserManagement {
     function getAllActiveAccounts() public view returns (UserAccount[] memory) {
         uint activeCount = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (userAccounts[i].isActive) {
-                activeCount++;
-            }
+            if (userAccounts[i].isActive) { activeCount++; }
         }
-
         UserAccount[] memory activeAccounts = new UserAccount[](activeCount);
         uint j = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (userAccounts[i].isActive) {
-                activeAccounts[j] = userAccounts[i];
-                j++;
-            }
+            if (userAccounts[i].isActive) { activeAccounts[j] = userAccounts[i]; j++; }
         }
         return activeAccounts;
     }
@@ -170,10 +164,7 @@ contract UserManagement {
         UserAccount[] memory activeAccounts = new UserAccount[](activeCount);
         uint index = 0;
         for (uint i = 0; i < userAccounts.length; i++) {
-            if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked(role)) && userAccounts[i].isActive) {
-                activeAccounts[index] = userAccounts[i];
-                index++;
-            }
+            if (keccak256(abi.encodePacked(userAccounts[i].role)) == keccak256(abi.encodePacked(role)) && userAccounts[i].isActive) { activeAccounts[index] = userAccounts[i]; index++; }
         }
         return activeAccounts;
     }

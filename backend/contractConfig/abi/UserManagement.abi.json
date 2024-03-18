@@ -204,6 +204,29 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "_accountAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_emrNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_idNumber",
+				"type": "string"
+			}
+		],
+		"name": "addPatient",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "string",
 				"name": "_username",
 				"type": "string"
@@ -618,6 +641,41 @@
 					}
 				],
 				"internalType": "struct UserManagement.UserAccount[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllPatients",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "accountAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "idNumber",
+						"type": "string"
+					}
+				],
+				"internalType": "struct UserManagement.Patients[]",
 				"name": "",
 				"type": "tuple[]"
 			}
