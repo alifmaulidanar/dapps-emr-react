@@ -22,7 +22,7 @@ export default function AppointmentList({ appointmentData }) {
                     <Tag color="green" className="m-0">{appointment.data.doctorAddress}</Tag>
                   </div>
                   <p className="text-right text-gray-900">
-                    {new Date(appointment.data.createdAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                    {new Date(appointment.data.selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
                   </p>
                 </div>
                 <div className="flex justify-between mb-4 flex-nowrap">
@@ -30,10 +30,13 @@ export default function AppointmentList({ appointmentData }) {
                     Dokter {appointment.data.doctorSpecialization}
                   </p>
                   <p className="w-full text-base text-right text-gray-900">
-                    Eka Hospital {appointment.data.hospitalLocation}
+                    {appointment.data.selectedTime}
                   </p>
                 </div>
                 <div className="flex justify-end w-full m-0 flex-nowrap">
+                  <p className="w-full text-base text-gray-900">
+                    Eka Hospital {appointment.data.hospitalLocation}
+                  </p>
                   <Tag color="blue" className="m-0">{appointment.cid}</Tag>
                 </div>
               </div>

@@ -28,7 +28,7 @@ function PatientAppointmentDisplay({data}) {
       key: "recordDate",
       value1: "Hari & Tanggal",
       value2: (
-        <p>{data.appointment.data.selectedDay}, {data.appointment.data.selectedDate}</p>
+        <p>{new Date(data.appointment.data.selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
       ),
     },
     {
