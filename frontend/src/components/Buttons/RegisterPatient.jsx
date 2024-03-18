@@ -96,6 +96,7 @@ export default function RegisterPatientButton({
   // }, []);
 
   const [patientData, setPatientData] = useState({
+    rumahSakitAsal: "",
     namaLengkap: "",
     nomorIdentitas: "",
     tempatLahir: "",
@@ -233,11 +234,38 @@ export default function RegisterPatientButton({
       >
         <form className="col-span-2 p-8" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-x-8">
-            {/* <div className="w-full">
-              <Tab />
-            </div> */}
+            <div className="justify-center w-full col-span-2 mb-6 text-lg font-medium text-center text-gray-900">
+              Pendaftaran Profil Pasien Baru
+            </div>
             <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
-              Pendaftaran Pasien Baru
+              Data Rumah Sakit
+              <hr className="h-px bg-gray-700 border-0"></hr>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="name"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Pilih Eka Hospital terdekat dari tempat tinggal Anda:
+              </label>
+              <select
+                id="gender"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                value={patientData.rumahSakitAsal}
+                onChange={(e) =>
+                  setPatientData({ ...patientData, rumahSakitAsal: e.target.value })
+                }
+                required
+              >
+                <option>Pilih Rumah Sakit Asal</option>
+                <option value="1">Eka Hospital Bekasi</option>
+                <option value="2">Eka Hospital BSD</option>
+                <option value="3">Eka Hospital Jakarta</option>
+                <option value="4">Eka Hospital Lampung</option>
+              </select>
+            </div>
+            <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
+              Data Pasien
               <hr className="h-px bg-gray-700 border-0"></hr>
             </div>
             <div className="mb-6">
@@ -814,7 +842,7 @@ export default function RegisterPatientButton({
             </div>
 
             {/* DATA PENANGGUNG JAWAB */}
-            <div className="col-span-2 my-6 text-lg text-gray-900">
+            <div className="col-span-2 my-6 text-lg font-medium text-gray-900">
               Data Kerabat/Penanggung Jawab
               <hr className="h-px bg-gray-700 border-0"></hr>
             </div>

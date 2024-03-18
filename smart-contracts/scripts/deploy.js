@@ -17,23 +17,23 @@ async function main() {
     // await adminManagement.waitForDeployment();
     // console.log(`AdminManagement deployed! Contract address: ${adminManagement.target}`);
 
-    // User Management
-    // const UserManagement = await ethers.getContractFactory("UserManagement");
-    // const userManagement = await UserManagement.deploy();
-    // await userManagement.waitForDeployment();
-    // console.log(`UserManagement deployed! Contract address: ${userManagement.target}`);
-
     //  Schedule Management
     // const ScheduleManagement = await ethers.getContractFactory("ScheduleManagement");
     // const scheduleManagement = await ScheduleManagement.deploy();
     // await scheduleManagement.waitForDeployment();
     // console.log(`ScheduleManagement deployed! Contract address: ${scheduleManagement.target}`);
+    
+    // User Management
+    const UserManagement = await ethers.getContractFactory("UserManagement");
+    const userManagement = await UserManagement.deploy();
+    await userManagement.waitForDeployment();
+    console.log(`UserManagement deployed! Contract address: ${userManagement.target}`);
 
     // Outpatient Data Management
-    const OutpatientManagement = await ethers.getContractFactory("OutpatientManagement");
-    const outpatientManagement = await OutpatientManagement.deploy();
-    await outpatientManagement.waitForDeployment();
-    console.log(`OutpatientManagement deployed! Contract address: ${outpatientManagement.target}`);
+    // const OutpatientManagement = await ethers.getContractFactory("OutpatientManagement");
+    // const outpatientManagement = await OutpatientManagement.deploy();
+    // await outpatientManagement.waitForDeployment();
+    // console.log(`OutpatientManagement deployed! Contract address: ${outpatientManagement.target}`);
   } catch (err) {
     console.error(err);
   }

@@ -65,7 +65,7 @@ export default function PatientRecordList() {
     accountProfiles?.length > 0
       ? accountProfiles.map((patient, index) => ({
           patientName: patient.namaLengkap,
-          patientIdentification: patient.nomorIdentitas,
+          patientIdentification: patient.nomorRekamMedis,
           patientImage: patient.foto,
           // patientAddress: patient.alamat,
           patientIsChosen: index === chosenIndex,

@@ -57,7 +57,7 @@ export default function UserData({ userDataProps, userAccountData }) {
 
   // user identifier
   const userName = userDataProps.namaLengkap;
-  const userIdentification = userDataProps.nomorIdentitas;
+  const userIdentification = userDataProps.nomorRekamMedis;
   const userImage = userDataProps.foto;
 
   const handleFileChange = async (info) => {

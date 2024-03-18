@@ -6,6 +6,7 @@
   "patientName": "Budi",
   "patientIdentityNumber": "1113613151531531",
   "patientEmail": "budibudi@gmail.com",
+  "patientPhone": "08123456789",
   "hospitalLocation": "Bekasi",
   "doctorId": 3,
   "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",

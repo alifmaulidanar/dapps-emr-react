@@ -290,6 +290,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       patientName: userData.accountProfiles[selectedPatient].namaLengkap,
       patientIdentityNumber: userData.accountProfiles[selectedPatient].nomorIdentitas,
       patientEmail: userData.accountProfiles[selectedPatient].email,
+      patientPhone: userData.accountProfiles[selectedPatient].nomorTelepon,
       hospitalLocation: selectedLocation,
       doctorId: selectedDoctor.doctor_id,
       doctorAddress: selectedDoctor.doctor_address,
