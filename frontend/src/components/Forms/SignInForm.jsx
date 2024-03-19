@@ -145,7 +145,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
                 if (role === "patient") {
                   window.location.assign(`/patient/record-list`);
                 } else if (role === "staff") {
-                  window.location.assign(`/staff/record-list`);
+                  window.location.assign(`/staff/patient-list`);
                 } else if (role === "doctor") {
                   window.location.assign(`/doctor/patient-list`);
                 } else if (role === "nurse") {

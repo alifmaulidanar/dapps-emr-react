@@ -5,7 +5,7 @@ import flatpickr from "flatpickr";
 import { v4 as uuidv4 } from 'uuid';
 import "flatpickr/dist/flatpickr.min.css";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { CONN } from "../../../../enum-global"
+import { CONN } from "../../../../enum-global";
 import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, Steps, Select, Tag, Radio, Button, Empty, Spin } from "antd";
@@ -115,18 +115,15 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     (selectedLocation === "all" || doc.lokasiPraktik === selectedLocation) && 
     (selectedSpecialization === "all" || doc.spesialisasiDokter === selectedSpecialization)
   );
-
   const handleSpecializationChange = value => {
     setSelectedSpecialization(value);
     setSelectedDoctorInfo({ address: "default", name: "" });
   };
-
   const handleLocationChange = value => {
     setSelectedLocation(value);
     setSelectedSpecialization("all");
     setSelectedDoctorInfo({ address: "default", name: "" });
   };
-
   const showModal = () => setIsModalOpen(true);
   const handleOk = () => setIsModalOpen(false);
   const handleCancel = () => setIsModalOpen(false);
@@ -140,20 +137,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   };
   const handlePatientSelection = (patient) => setSelectedPatient(patient);
   const renderStepContent = (step) => {
-    switch (step) {
-      case 0: return;
-      case 1: return;
-      case 2: return;
-      default: return null;
-    }
+    switch (step) { case 0: return; case 1: return; case 2: return; default: return null; }
   };
-
-  const items = [
-    { title: "Pilih Jadwal Dokter" },
-    { title: "Pilih Pasien" },
-    { title: "Konfirmasi" },
-  ];
-
+  const items = [{ title: "Pilih Jadwal Dokter" }, { title: "Pilih Pasien" }, { title: "Konfirmasi" }];
   const handleDoctorChange = (value) => {
     const dokter = scheduleData.find((doc) => doc.alamatDokter === value);
     if (!dokter) setSelectedDoctorInfo({ address: "default", name: "", jadwal: [] });
@@ -161,7 +147,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     setSelectedDate(null);
     setAvailableTimes([]);
   };
-
   const dayColor = (day) => {
     const colorToDay = {
       Senin: "green",
@@ -174,27 +159,20 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     };
     return colorToDay[day];
   };
-
   const doctorDays = (
     <>
       {selectedDoctor && (
         <p>
           {selectedDoctor.jadwal.map((jadwal, index) => (
-            <Tag color={dayColor(jadwal.hari)} key={index}>
-              {jadwal.hari}
-            </Tag>
+            <Tag color={dayColor(jadwal.hari)} key={index}>{jadwal.hari}</Tag>
           ))}
         </p>
       )}
     </>
   );
-
   const timeOptions = availableTimes.map((waktu, index) => (
-    <Radio.Button key={index} value={waktu}>
-      {waktu}
-    </Radio.Button>
+    <Radio.Button key={index} value={waktu}>{waktu}</Radio.Button>
   ));
-
   const selectedScheduleInfo =
     selectedDate && selectedTimeSlot ? (
       <p className="mt-6">
@@ -202,7 +180,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
         <strong>{selectedTimeSlot}</strong>
       </p>
     ) : null;
-
   const doctorInfoSection = (
     <>
       <div className="mb-6">
@@ -242,7 +219,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       </div>
     </>
   );
-
   const handleCreateAppointment = async (event) => {
     showLoader();
     event.preventDefault();
@@ -253,12 +229,11 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       doctorAddress: selectedDoctor.alamatDokter,
       nurseAddress: nurseInfo.alamatPerawat,
     };
-
     const appointmentDataIpfs = {
       appointmentId: uuidv4(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
-      nomorRekamMedis: userData.accountAddress,
+      nomorRekamMedis: userData.accountProfiles[selectedPatient].nomorRekamMedis,
       namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
       nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
       email: userData.accountProfiles[selectedPatient].email,
@@ -278,20 +253,16 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       status: "ongoing",
       createdAt: new Date().toISOString(),
     };
-
-    console.log({ appointmentDataIpfs });
-
     const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
     const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;
     console.log("Appointment signature:", signature);
-
     try {
       const response = await fetch(
         `${CONN.BACKEND_LOCAL}/patient/appointment`,
         {
-          // method: "POST",
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
@@ -330,7 +301,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       });
     }
   };
-
   return (
     <>
       <button
@@ -482,7 +452,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
               <div className="mb-6">
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Lokasi Rumah Sakit:</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedLocation === "all" ? "Semua Lokasi" : "Eka Hospital " + selectedLocation}</p>
+                  <p className="text-lg font-semibold text-gray-900">Eka Hospital {selectedDoctor.lokasiPraktik}</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>

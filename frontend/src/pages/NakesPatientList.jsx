@@ -42,7 +42,7 @@ export default function NakesPatientList({ role }) {
       <div>
         <div className="grid items-center justify-center w-1/2 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="grid items-center grid-cols-2 h-fit">
-            <AddPatientButton />
+            <AddPatientButton token={token} />
             <ListSearchBar />
           </div>
         </div>
