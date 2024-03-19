@@ -95,12 +95,31 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
+    // check if patient already made the same appointment before
+    const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+    const appointments = await contractWithSigner.getAppointmentsByPatient(accountAddress);
+    let foundAppointment = false;
+    for (let i = 0; i < appointments.length; i++) {
+      const appointmentCid = appointments[i].cid;
+      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${appointmentCid}`;
+      const ipfsResponse = await fetch(ipfsGatewayUrl);
+      const ipfsData = await ipfsResponse.json();
+      if (
+        ipfsData.nomorRekamMedis == appointmentDataIpfs.nomorRekamMedis &&
+        ipfsData.idDokter == appointmentDataIpfs.idDokter &&
+        ipfsData.idJadwal == appointmentDataIpfs.idJadwal
+      ) {
+        foundAppointment = true;
+        break;
+      }
+    }
+    if (foundAppointment) return res.status(400).json({ error: "You already made an appointment with this doctor" });
+
     // Save appointment data to IPFS
     const newCid = await client.add(JSON.stringify(appointmentDataIpfs));
     console.log({newCid: newCid.path});
 
     // Save appointment data to blockchain
-    const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
     const outpatientTx = await contractWithSigner.addOutpatientData(
       appointmentData.accountAddress,
       appointmentData.doctorAddress,
