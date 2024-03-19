@@ -74,6 +74,37 @@
 		"type": "event"
 	},
 	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "staffAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "patientAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "emrNumber",
+				"type": "string"
+			}
+		],
+		"name": "TemporaryPatientDataAdded",
+		"type": "event"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -97,6 +128,29 @@
 			}
 		],
 		"name": "addOutpatientData",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_staffAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_patientAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_emrNumber",
+				"type": "string"
+			}
+		],
+		"name": "addTemporaryPatientData",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -281,6 +335,60 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_staffAddress",
+				"type": "address"
+			}
+		],
+		"name": "getTemporaryPatientDataByStaff",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "addedAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.TemporaryPatientData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_patientAddress",
+				"type": "address"
+			}
+		],
+		"name": "removeTemporaryPatientDataByPatientAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
