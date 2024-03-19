@@ -82,9 +82,9 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 
 19/03/24
 ✅ penyesuaian schedule dokter, data pasien, dan data appointment yang diubah ke bahasa indonesia
+✅ bikin struct, mapping, dan array untuk temporary patient data di staff
 
 next:
-- pikirin kalo ada user milih appointment yang sama persis lebih dari 1 kali
 - logika:
     - data appointment punya struct, array, dan mapping masing-masing
     - di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
@@ -197,6 +197,9 @@ next:
 19/03/24
 ✅ ubah data schedule dan appointment ke bahasa indonesia, dan data pasien kembali ke bahasa indonesia juga
 ✅ perbaikan pembuatan appointment -> cek nomorRekamMedis, idDokter, dan idJadwal sebelum membuat appointment agar pasien tidak bisa membuat appointment yang sama persis lebih dari 1 kali
+✅ lanjut ke bagian staff -> patient list -> bisa cari pasien lewat modal (pakai address dan nomorRekamMedis)
+✅ ada 2 tombol, 1 untuk cek ketersediaan profil pasien, 1 lagi untuk menambahkan profil pasien tersebut ke akun staff (sementara/temporary)
+✅ bisa kirim data ke backend untuk save ke temporary patient data di SC -> masih error⚠️
 
 next:
 - cek appointment dari dokter dan nurse
@@ -285,8 +288,13 @@ next:
 ✅ di addProfile buat function baru generateNomorRekamMedis() untuk generate 10 digit nomorRekamMedis -> dicek menggunakan getAllPatients() -> auto increment
 ✅ menambahkan rumahSakitAsal di profile pasien
 
+19/03/24
+✅ perubahan variable ke bahasa indonesia -> appointment (SELURUHNYA) -> biar konsisten dengan di profil
+✅ membuat file baru staff.js untuk kelola aktivitas staff
+✅ staff punya 2 endpoint utama -> 1) /check-patient-appointment, 2) /add-patient-appointment
+⚠️ /add-patient-appointment masih error
+
 next:
-- perubahan variable ke bahasa indonesia -> appointment (SELURUHNYA) -> biar konsisten dengan di profil
 - validasi data pembuatan appointment
 - terima appointment dari dokter dan nurse
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
@@ -328,7 +336,7 @@ abis ini ngapain:
 ✅ appointment relasi dengan doctor_data dan doctor_schedules
 ✅ penyimpanan jadwal appointment di patient dan doctor
 ✅ tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
-- perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
-- tes ulang proses appointment
+✅ perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
+✅ tes ulang proses appointment
 - pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
