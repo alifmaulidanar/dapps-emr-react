@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Tag } from "antd";
 
 const PatientRecordLoop = ({ data }) => {
@@ -21,28 +22,28 @@ function PatientAppointmentDisplay({data}) {
       key: "recordDoctorName",
       value1: "Cabang Eka Hospital",
       value2: (
-        <p>{data.appointment.data.hospitalLocation}</p>
+        <p>{data.appointment.data.rumahSakit}</p>
       ),
     },
     {
       key: "recordDate",
       value1: "Hari & Tanggal",
       value2: (
-        <p>{new Date(data.appointment.data.selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
+        <p>{new Date(data.appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
       ),
     },
     {
       key: "patientAddress",
       value1: "Nomor Rekam Medis",
       value2: (
-        <p>{data.appointment.data.emrNumber}</p>
+        <p>{data.appointment.data.nomorRekamMedis}</p>
       ),
     },
     {
       key: "recordDoctorName",
       value1: "Waktu Praktik",
       value2: (
-        <p>{data.appointment.data.selectedTime}</p>
+        <p>{data.appointment.data.waktuTerpilih}</p>
       ),
     },
     // {
@@ -69,56 +70,56 @@ function PatientAppointmentDisplay({data}) {
       key: "recordAddress",
       value1: "Nama Dokter",
       value2: (
-        <p>{data.appointment.data.doctorName}</p>
+        <p>{data.appointment.data.namaDokter}</p>
       ),
     },
     {
       key: "recordAddress",
       value1: "Alamat Akun Dokter",
       value2: (
-        <Tag color="green" className="m-0">{data.appointment.data.doctorAddress}</Tag>
+        <Tag color="green" className="m-0">{data.appointment.data.alamatDokter}</Tag>
       ),
     },
     {
       key: "recordAddress",
       value1: "Nama Perawat",
       value2: (
-        <p>{data.appointment.data.nurseName}</p>
+        <p>{data.appointment.data.namaPerawat}</p>
       ),
     },
     {
       key: "recordAddress",
       value1: "Alamat Akun Perawat",
       value2: (
-        <Tag color="green" className="m-0">{data.appointment.data.nurseAddress}</Tag>
+        <Tag color="green" className="m-0">{data.appointment.data.alamatPerawat}</Tag>
       ),
     },
     {
       key: "patientName",
       value1: "Nama Pasien",
       value2: (
-        <p>{data.appointment.data.patientName}</p>
+        <p>{data.appointment.data.namaLengkap}</p>
       ),
     },
     {
       key: "patientIdNumber",
       value1: "Nomor Identitas Pasien (NIK/SIM/Paspor)",
       value2: (
-        <p>{data.appointment.data.patientIdentityNumber}</p>
+        <p>{data.appointment.data.nomorIdentitas}</p>
       ),
     },
     {
       key: "patientGender",
       value1: "Email Pasien",
       value2: (
-        <p>{data.appointment.data.patientEmail}</p>
+        <p>{data.appointment.data.email}</p>
       ),
     },
     {
       key: "patientGender",
       value1: "Email Pasien",
       value2: (
-        <p>{data.appointment.data.patientEmail}</p>
+        <p>{data.appointment.data.telpSelular}</p>
       ),
     },
     {
@@ -137,14 +138,13 @@ function PatientAppointmentDisplay({data}) {
     },
   ];
   return (
-    <div className="grid p-12 gap-y-8">
+    <div className="grid p-12 gap-y-12">
       <div className="grid items-center mx-auto text-center text-gray-900 w-fit gap-y-2">
         <h1 className="text-xl font-medium">Data Pendaftaran Rawat Jalan</h1>
-        <Tag color="blue" className="m-0 mx-auto w-fit">{data.appointment.cid}</Tag>
+        {/* <Tag color="blue" className="m-0 mx-auto w-fit">{data.appointment.cid}</Tag> */}
         <p>ID Pendaftaran: {data.appointment.data.appointmentId}</p>
       </div>
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-        {/* DATA PENDAFTARAN RAWAT JALAN / OUTPATIENT */}
+      <div className="grid grid-cols-2 gap-x-8 gap-y-6">
         <PatientRecordLoop data={patientDataProps1} />
         <PatientRecordLoop data={patientDataProps2} />
       </div>

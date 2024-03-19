@@ -1,7 +1,8 @@
-import React from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload, Tag } from "antd";
-import { useState, useEffect } from "react";
 import { Table } from "antd";
 import { CONN } from "../../../../enum-global";
 
@@ -19,29 +20,28 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
   const [spinning, setSpinning] = React.useState(false);
   const [dataSource, setDataSource] = useState([]);
 
-  // Fetch and update doctor schedules
   const fetchDoctorSchedules = async () => {
     try {
       const cid = schedulesData.scheduleCid;
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       if (!ipfsResponse.ok) throw new Error("Failed to fetch from IPFS");
-      const { doctors } = await ipfsResponse.json();
-      if (!Array.isArray(doctors)) throw new Error("Data format is incorrect");
+      const { dokter } = await ipfsResponse.json();
+      if (!Array.isArray(dokter)) throw new Error("Data format is incorrect");
       let flattenedData = [];
-      doctors.forEach((doctor) => {
-        doctor.schedules.forEach((schedule, index) => {
+      dokter.forEach((dokter) => {
+        dokter.jadwal.forEach((schedule, index) => {
           flattenedData.push({
-            key: doctor.doctor_id,
-            doctor_address: doctor.doctor_address,
-            doctor_name: doctor.doctor_name,
-            specialization: doctor.specialization,
-            location: doctor.location,
-            day: schedule.day,
-            time: schedule.time,
-            nurse_address: schedule.nurse_address,
-            nurse_name: schedule.nurse_name,
-            rowSpan: index === 0 ? doctor.schedules.length : 0,
+            key: dokter.idDokter,
+            alamatDokter: dokter.alamatDokter,
+            namaDokter: dokter.namaDokter,
+            spesialisasiDokter: dokter.spesialisasiDokter,
+            lokasiPraktik: dokter.lokasiPraktik,
+            hari: schedule.hari,
+            waktu: schedule.waktu,
+            alamatPerawat: schedule.alamatPerawat,
+            namaPerawat: schedule.namaPerawat,
+            rowSpan: index === 0 ? dokter.jadwal.length : 0,
           });
         });
       });
@@ -53,9 +53,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
   };
 
   useEffect(() => {
-    if (schedulesData && schedulesData.scheduleCid) {
-      fetchDoctorSchedules();
-    }
+    if (schedulesData && schedulesData.scheduleCid) fetchDoctorSchedules();
     setSpinning(false);
   }, [schedulesData]);
 
@@ -67,88 +65,78 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       render: (value, row, index) => {
         const obj = {
           children: value,
-          props: {
-            rowSpan: row.rowSpan,
-          },
+          props: { rowSpan: row.rowSpan },
         };
         return obj;
       },
     },
     {
       title: "Nama",
-      dataIndex: "doctor_name",
-      key: "doctor_name",
+      dataIndex: "namaDokter",
+      key: "namaDokter",
       render: (value, row, index) => {
         const obj = {
           children: value,
-          props: {
-            rowSpan: row.rowSpan,
-          },
+          props: { rowSpan: row.rowSpan },
         };
         return obj;
       },
     },
     {
       title: "Alamat Dokter",
-      dataIndex: "doctor_address",
-      key: "doctor_address",
+      dataIndex: "alamatDokter",
+      key: "alamatDokter",
       render: (value, row, index) => {
         const obj = {
           children: value,
-          props: {
-            rowSpan: row.rowSpan,
-          },
+          props: { rowSpan: row.rowSpan },
         };
         return obj;
       },
     },
     {
       title: "Lokasi",
-      dataIndex: "location",
-      key: "location",
+      dataIndex: "lokasiPraktik",
+      key: "lokasiPraktik",
       render: (value, row, index) => {
         const obj = {
           children: value,
-          props: {
-            rowSpan: row.rowSpan,
-          },
+          props: { rowSpan: row.rowSpan },
         };
         return obj;
       },
     },
     {
       title: "Spesialis",
-      dataIndex: "specialization",
-      key: "specialization",
+      dataIndex: "spesialisasiDokter",
+      key: "spesialisasiDokter",
       render: (value, row, index) => {
         const obj = {
           children: value,
-          props: {
-            rowSpan: row.rowSpan,
-          },
+          props: { rowSpan: row.rowSpan },
         };
         return obj;
       },
     },
     {
       title: "Hari",
-      dataIndex: "day",
-      key: "day",
+      dataIndex: "hari",
+      key: "hari",
     },
     {
       title: "Jam",
-      dataIndex: "time",
-      key: "time",
+      dataIndex: "waktu",
+      key: "waktu",
     },
     {
       title: "Perawat",
-      dataIndex: "nurse_name",
-      key: "nurse_name",
+      dataIndex: "namaPerawat",
+      key: "namaPerawat",
     },
     {
       title: "Perawat",
-      dataIndex: "nurse_address",
-      key: "nurse_address",
+      dataIndex: "alamatPerawat",
+      key: "alamatPerawat",
       render: (nurse) => <Tag color={getTagColor(nurse)}>{nurse}</Tag>,
     },
   ];
@@ -156,11 +144,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
   // handle upload
   const handleUpload = async (file) => {
     try {
-      if (file.type !== "application/json") {
-        message.error("Hanya file JSON yang diperbolehkan.");
-        return;
-      }
-
+      if (file.type !== "application/json") { message.error("Hanya file JSON yang diperbolehkan."); return; }
       const formData = new FormData();
       formData.append("file", file);
 
@@ -174,9 +158,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
         message.success(`${file.name} file uploaded successfully`);
         onScheduleCidUpdate(cid);
         fetchDoctorSchedules();
-      } else {
-        message.error(`${file.name} file upload failed.`);
-      }
+      } else message.error(`${file.name} file upload failed.`);
     } catch (error) {
       message.error(`${file.name} file upload failed.`);
       console.log({ error });
@@ -185,10 +167,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
 
   // upload props
   const uploadProps = {
-    beforeUpload: (file) => {
-      handleUpload(file);
-      return false;
-    },
+    beforeUpload: (file) => { handleUpload(file); return false; },
     showUploadList: false,
     multiple: false,
     accept: ".json",
@@ -199,9 +178,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       <div className="flex justify-between">
         <div className="justify-self-start">
           <Upload {...uploadProps}>
-            <Button type="default" icon={<UploadOutlined />}>
-              Unggah Jadwal Dokter
-            </Button>
+            <Button type="default" icon={<UploadOutlined />}>Unggah Jadwal Dokter</Button>
           </Upload>
         </div>
         <div className="justify-self-end w-[150px]"></div>

@@ -34,7 +34,7 @@ export default function PatientAppointmentList({ role }) {
             }
           );
           const dataAppointment = await responseAppointment.json();
-          setScheduleData(dataAppointment.doctors);
+          setScheduleData(dataAppointment.dokter);
           setAppointmentData(dataAppointment.appointments);
         } catch (error) {
           console.error(`Error fetching ${role} data:`, error);
@@ -73,7 +73,7 @@ export default function PatientAppointmentList({ role }) {
   useEffect(() => {
     if (selectedUser) {
       const filteredData = appointmentData.filter(
-        (appointment) => appointment.data.patientIdentityNumber === selectedUser.nomorIdentitas
+        (appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas
       );
       setFilteredAppointmentData(filteredData);
     }

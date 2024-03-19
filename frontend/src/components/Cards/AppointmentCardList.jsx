@@ -17,17 +17,17 @@ export default function AppointmentList({ appointmentData }) {
                 <div className="grid items-center grid-cols-2 mb-4">
                   <div className="flex flex-nowrap gap-x-4">
                     <h5 className="font-bold text-gray-900">
-                      {appointment.data.doctorName}
+                      {appointment.data.namaDokter}
                     </h5>
-                    <Tag color="green" className="m-0">{appointment.data.doctorAddress}</Tag>
+                    <Tag color="green" className="m-0">{appointment.data.alamatDokter}</Tag>
                   </div>
                   <p className="text-right text-gray-900">
-                    {new Date(appointment.data.selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                    {new Date(appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
                   </p>
                 </div>
                 <div className="flex justify-between mb-4 flex-nowrap">
                   <p className="w-full text-base text-gray-900">
-                    Dokter {appointment.data.doctorSpecialization}
+                    Dokter {appointment.data.spesialisasiDokter}
                   </p>
                   <p className="w-full text-base text-right text-gray-900">
                     {appointment.data.selectedTime}
@@ -35,7 +35,7 @@ export default function AppointmentList({ appointmentData }) {
                 </div>
                 <div className="flex justify-end w-full m-0 flex-nowrap">
                   <p className="w-full text-base text-gray-900">
-                    Eka Hospital {appointment.data.hospitalLocation}
+                    Eka Hospital {appointment.data.rumahSakit}
                   </p>
                   <Tag color="blue" className="m-0">{appointment.cid}</Tag>
                 </div>

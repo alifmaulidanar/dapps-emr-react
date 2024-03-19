@@ -1,14 +1,14 @@
+const { Option } = Select;
+import Swal from "sweetalert2";
+import { ethers } from "ethers";
+import flatpickr from "flatpickr";
+import { v4 as uuidv4 } from 'uuid';
+import "flatpickr/dist/flatpickr.min.css";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { CONN } from "../../../../enum-global"
+import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, Steps, Select, Tag, Radio, Button, Empty, Spin } from "antd";
-const { Option } = Select;
-import { v4 as uuidv4 } from 'uuid';
-import flatpickr from "flatpickr";
-import { Indonesian } from "flatpickr/dist/l10n/id.js";
-import "flatpickr/dist/flatpickr.min.css";
-import { CONN } from "../../../../enum-global"
-import { ethers } from "ethers";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null, token }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -27,17 +27,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const [selectedScheduleId, setSelectedScheduleId] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
 
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
+  const showLoader = () => { setSpinning(true); };
   const getSigner = useCallback(async () => {
     const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
+    if (!win.ethereum) { console.error("Metamask not detected"); return; }
     try {
       const accounts = await win.ethereum.request({
         method: "eth_requestAccounts",
@@ -45,7 +38,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       const selectedAccount = accounts[0];
       setSelectedAccount(selectedAccount);
       console.log(selectedAccount);
-
       const provider = new ethers.providers.Web3Provider(win.ethereum);
       await provider.send("wallet_addEthereumChain", [
         {
@@ -58,7 +50,6 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
           rpcUrls: [CONN.GANACHE_LOCAL],
         },
       ]);
-
       const signer = provider.getSigner(selectedAccount);
       return signer;
     } catch (error) {
@@ -66,14 +57,13 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     }
   }, []);
 
-  const selectedDoctor = scheduleData?.find((doc) => doc.doctor_address === selectedDoctorInfo.address);
-
-  const locations = ["all", ...new Set(scheduleData?.map(doc => doc.location))];
+  const selectedDoctor = scheduleData?.find((doc) => doc.alamatDokter === selectedDoctorInfo.address);
+  const locations = ["all", ...new Set(scheduleData?.map(doc => doc.lokasiPraktik))];
   let specializations = ["all"];
   if(selectedLocation !== "all") {
     specializations = [
       "all",
-      ...new Set(scheduleData.filter(doc => doc.location === selectedLocation).map(doc => doc.specialization))
+      ...new Set(scheduleData.filter(doc => doc.lokasiPraktik === selectedLocation).map(doc => doc.spesialisasiDokter))
     ];
   }
 
@@ -81,16 +71,14 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     if (isModalOpen && flatpickrRef.current) {
       let disableFunction;
       if (selectedDoctorInfo.address !== "default" && selectedDoctor) {
-        const enabledDays = selectedDoctor.schedules.map((schedule) => {
-          return ["Minggu", "Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].indexOf(schedule.day);
+        const enabledDays = selectedDoctor.jadwal.map((jadwal) => {
+          return ["Minggu", "Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"].indexOf(jadwal.hari);
         });
-        disableFunction = function (date) {return !enabledDays.includes(date.getDay());};
+        disableFunction = function (date) { return !enabledDays.includes(date.getDay()); }
       } else {
-        disableFunction = function () {return false;};
+        disableFunction = function () { return false; }
       }
-
       if (window.flatpickrInstance) window.flatpickrInstance.destroy()
-
       window.flatpickrInstance = flatpickr(flatpickrRef.current, {
         inline: true,
         dateFormat: "Y-m-d",
@@ -104,9 +92,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
           setSelectedTimeSlot(null);
           if (selectedDoctorInfo.address !== "default") {
             const dayName = new Date(dateStr).toLocaleDateString("id-ID", { weekday: "long" });
-            const times = selectedDoctor?.schedules
-            .filter((schedule) => schedule.day === dayName)
-            .flatMap((schedule) => schedule.time);
+            const times = selectedDoctor?.jadwal.filter((jadwal) => jadwal.hari === dayName).flatMap((jadwal) => jadwal.waktu);
             setAvailableTimes(times);
           }
         },
@@ -126,8 +112,8 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   if (scheduleData.length === 0) return <div>Loading...</div>;
 
   const filteredDoctors = scheduleData.filter(doc => 
-    (selectedLocation === "all" || doc.location === selectedLocation) && 
-    (selectedSpecialization === "all" || doc.specialization === selectedSpecialization)
+    (selectedLocation === "all" || doc.lokasiPraktik === selectedLocation) && 
+    (selectedSpecialization === "all" || doc.spesialisasiDokter === selectedSpecialization)
   );
 
   const handleSpecializationChange = value => {
@@ -148,25 +134,17 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const handleBack = () => setCurrentStep(currentStep - 1);
   const handleTimeChange = (e) => {
     setSelectedTimeSlot(e.target.value);
-    const selectedSchedule = selectedDoctorInfo.schedules.find(schedule => schedule.day === selectedDay && schedule.time === e.target.value);
-    if (selectedSchedule) {
-      setSelectedScheduleId(selectedSchedule.schedule_id);
-    } else {
-      setSelectedScheduleId(null);
-    }
+    const selectedSchedule = selectedDoctorInfo.jadwal.find(jadwal => jadwal.hari === selectedDay && jadwal.waktu === e.target.value);
+    if (!selectedSchedule) setSelectedScheduleId(null);
+    setSelectedScheduleId(selectedSchedule.idJadwal);
   };
   const handlePatientSelection = (patient) => setSelectedPatient(patient);
-
   const renderStepContent = (step) => {
     switch (step) {
-      case 0:
-        return;
-      case 1:
-        return;
-      case 2:
-        return;
-      default:
-        return null;
+      case 0: return;
+      case 1: return;
+      case 2: return;
+      default: return null;
     }
   };
 
@@ -177,12 +155,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   ];
 
   const handleDoctorChange = (value) => {
-    const doctor = scheduleData.find((doc) => doc.doctor_address === value);
-    if (doctor) {
-      setSelectedDoctorInfo({ address: doctor.doctor_address, name: doctor.doctor_name, schedules: doctor.schedules });
-    } else {
-      setSelectedDoctorInfo({ address: "default", name: "", schedules: [] });
-    }
+    const dokter = scheduleData.find((doc) => doc.alamatDokter === value);
+    if (!dokter) setSelectedDoctorInfo({ address: "default", name: "", jadwal: [] });
+    setSelectedDoctorInfo({ address: dokter.alamatDokter, name: dokter.namaDokter, jadwal: dokter.jadwal });
     setSelectedDate(null);
     setAvailableTimes([]);
   };
@@ -204,9 +179,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     <>
       {selectedDoctor && (
         <p>
-          {selectedDoctor.schedules.map((schedule, index) => (
-            <Tag color={dayColor(schedule.day)} key={index}>
-              {schedule.day}
+          {selectedDoctor.jadwal.map((jadwal, index) => (
+            <Tag color={dayColor(jadwal.hari)} key={index}>
+              {jadwal.hari}
             </Tag>
           ))}
         </p>
@@ -214,16 +189,16 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     </>
   );
 
-  const timeOptions = availableTimes.map((time, index) => (
-    <Radio.Button key={index} value={time}>
-      {time}
+  const timeOptions = availableTimes.map((waktu, index) => (
+    <Radio.Button key={index} value={waktu}>
+      {waktu}
     </Radio.Button>
   ));
 
   const selectedScheduleInfo =
     selectedDate && selectedTimeSlot ? (
       <p className="mt-6">
-        Anda telah memilih: <strong>{selectedDate}</strong>,{" "}
+        Anda memilih: <strong>{new Date(selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</strong>, pukul{" "}
         <strong>{selectedTimeSlot}</strong>
       </p>
     ) : null;
@@ -234,10 +209,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
         {selectedDoctorInfo.address !== "default" && (
           <div className="flex flex-nowrap gap-x-2">
             <p>
-              <span className="font-medium text-gray-900">
-                {selectedDoctorInfo.name}
-              </span>{" "}
-              melakukan praktik pada hari:
+              <strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>Eka Hospital {selectedDoctor.lokasiPraktik}</strong> pada hari:
             </p>
             <p>{doctorDays}</p>
           </div>
@@ -274,50 +246,44 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   const handleCreateAppointment = async (event) => {
     showLoader();
     event.preventDefault();
-    const nurseInfo = selectedDoctor.schedules.find(schedule => schedule.day === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.time === selectedTimeSlot);
+    const nurseInfo = selectedDoctor.jadwal.find(schedule => schedule.hari === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.waktu === selectedTimeSlot);
     const appointmentData = {
       accountAddress: userData.accountAddress,
       nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      doctorAddress: selectedDoctor.doctor_address,
-      nurseAddress: nurseInfo.nurse_address,
+      doctorAddress: selectedDoctor.alamatDokter,
+      nurseAddress: nurseInfo.alamatPerawat,
     };
 
     const appointmentDataIpfs = {
       appointmentId: uuidv4(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
-      emrNumber: userData.accountAddress,
-      patientName: userData.accountProfiles[selectedPatient].namaLengkap,
-      patientIdentityNumber: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      patientEmail: userData.accountProfiles[selectedPatient].email,
-      patientPhone: userData.accountProfiles[selectedPatient].nomorTelepon,
-      hospitalLocation: selectedLocation,
-      doctorId: selectedDoctor.doctor_id,
-      doctorAddress: selectedDoctor.doctor_address,
-      doctorName: selectedDoctor.doctor_name,
-      doctorSpecialization: selectedSpecialization,
-      scheduleId: selectedScheduleId,
-      selectedDay: `${selectedDay}`,
-      selectedDate: `${selectedDate}`,
-      selectedTime: `${selectedTimeSlot}`,
-      nurseId: nurseInfo.nurse_id,
-      nurseAddress: nurseInfo.nurse_address,
-      nurseName: nurseInfo.nurse_name,
+      nomorRekamMedis: userData.accountAddress,
+      namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
+      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
+      email: userData.accountProfiles[selectedPatient].email,
+      telpSelular: userData.accountProfiles[selectedPatient].telpSelular,
+      rumahSakit: selectedDoctor.lokasiPraktik,
+      idDokter: selectedDoctor.idDokter,
+      alamatDokter: selectedDoctor.alamatDokter,
+      namaDokter: selectedDoctor.namaDokter,
+      spesialisasiDokter: selectedDoctor.spesialisasiDokter,
+      idJadwal: selectedScheduleId,
+      hariTerpilih: `${selectedDay}`,
+      tanggalTerpilih: `${selectedDate}`,
+      waktuTerpilih: `${selectedTimeSlot}`,
+      idPerawat: nurseInfo.idPerawat,
+      alamatPerawat: nurseInfo.alamatPerawat,
+      namaPerawat: nurseInfo.namaPerawat,
       status: "ongoing",
       createdAt: new Date().toISOString(),
     };
 
     console.log({ appointmentDataIpfs });
 
-    const signedData = {
-      appointmentData,
-      appointmentDataIpfs,
-    }
-
+    const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
-    const signature = await signer.signMessage(
-      JSON.stringify(signedData)
-    );
+    const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;
     console.log("Appointment signature:", signature);
 
@@ -325,7 +291,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       const response = await fetch(
         `${CONN.BACKEND_LOCAL}/patient/appointment`,
         {
-          method: "POST",
+          // method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
@@ -333,9 +299,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
           body: JSON.stringify(signedData),
         }
       );
-
       const responseData = await response.json();
-
       if (response.ok) {
         console.log({ responseData });
         setSpinning(false);
@@ -470,9 +434,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   }
                 >
                   <Option value="default">Pilih Dokter</Option>
-                  {filteredDoctors.map((doctor) => (
-                    <Option key={doctor.doctor_address} value={doctor.doctor_address}>
-                      {doctor.doctor_name} (Dokter {doctor.specialization})
+                  {filteredDoctors.map((dokter) => (
+                    <Option key={dokter.alamatDokter} value={dokter.alamatDokter}>
+                      {dokter.namaDokter} (Dokter {dokter.spesialisasiDokter})
                     </Option>
                   ))}
                 </Select>
@@ -522,11 +486,11 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedSpecialization})</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedDoctor.spesialisasiDokter})</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Jadwal yang dipilih:</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedDate}, {selectedTimeSlot}</p>
+                  <p className="text-lg font-semibold text-gray-900">{new Date(selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}, pukul {selectedTimeSlot}</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Profil Pasien yang dipilih:</p>
@@ -559,7 +523,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
               <button
                 type="button"
                 onClick={handleNext}
-                className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
+                className={`text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center ${
+                  !selectedTimeSlot ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!selectedTimeSlot}
               >
                 Selanjutnya
               </button>
