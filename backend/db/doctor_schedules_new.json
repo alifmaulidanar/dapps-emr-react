@@ -1,109 +1,109 @@
 {
-  "doctors": [
+  "dokter": [
     {
-      "doctor_id": 1,
-      "doctor_address": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
-      "doctor_name": "dr. Andi",
-      "specialization": "Umum",
-      "location": "Bekasi",
-      "schedules": [
+      "idDokter": 1,
+      "alamatDokter": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+      "namaDokter": "dr. Andi",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "Bekasi",
+      "jadwal": [
         {
-          "schedule_id": 1,
-          "day": "Senin",
-          "time": "08:00 - 12:00",
-          "nurse_id": 1,
-          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
-          "nurse_name": "Nurul"
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "08:00-12:00",
+          "idPerawat": 1,
+          "alamatPerawat": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaPerawat": "Nurul"
         },
         {
-          "schedule_id": 2,
-          "day": "Rabu",
-          "time": "14:00 - 18:00",
-          "nurse_id": 2,
-          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
-          "nurse_name": "Siti"
+          "idJadwal": 2,
+          "hari": "Rabu",
+          "waktu": "14:00-18:00",
+          "idPerawat": 2,
+          "alamatPerawat": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "namaPerawat": "Siti"
         },
         {
-          "schedule_id": 3,
-          "day": "Jumat",
-          "time": "09:00 - 13:00",
-          "nurse_id": 2,
-          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
-          "nurse_name": "Siti"
+          "idJadwal": 3,
+          "hari": "Jumat",
+          "waktu": "09:00-13:00",
+          "idPerawat": 2,
+          "alamatPerawat": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "namaPerawat": "Siti"
         }
       ]
     },
     {
-      "doctor_id": 2,
-      "doctor_address": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
-      "doctor_name": "dr. Budi",
-      "specialization": "Umum",
-      "location": "BSD",
-      "schedules": [
+      "idDokter": 2,
+      "alamatDokter": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+      "namaDokter": "dr. Budi",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "BSD",
+      "jadwal": [
         {
-          "schedule_id": 1,
-          "day": "Selasa",
-          "time": "10:00 - 14:00",
-          "nurse_id": 1,
-          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
-          "nurse_name": "Nurul"
+          "idJadwal": 1,
+          "hari": "Selasa",
+          "waktu": "10:00-14:00",
+          "idPerawat": 1,
+          "alamatPerawat": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaPerawat": "Nurul"
         },
         {
-          "schedule_id": 2,
-          "day": "Kamis",
-          "time": "15:00 - 19:00",
-          "nurse_id": 3,
-          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
-          "nurse_name": "Ani"
+          "idJadwal": 2,
+          "hari": "Kamis",
+          "waktu": "15:00-19:00",
+          "idPerawat": 3,
+          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "namaPerawat": "Ani"
         },
         {
-          "schedule_id": 3,
-          "day": "Sabtu",
-          "time": "10:00 - 14:00",
-          "nurse_id": 2,
-          "nurse_address": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
-          "nurse_name": "Siti"
+          "idJadwal": 3,
+          "hari": "Sabtu",
+          "waktu": "10:00-14:00",
+          "idPerawat": 2,
+          "alamatPerawat": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "namaPerawat": "Siti"
         }
       ]
     },
     {
-      "doctor_id": 3,
-      "doctor_address": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
-      "doctor_name": "dr. Caca",
-      "specialization": "Gigi",
-      "location": "Bekasi",
-      "schedules": [
+      "idDokter": 3,
+      "alamatDokter": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+      "namaDokter": "dr. Caca",
+      "spesialisasiDokter": "Gigi",
+      "lokasiPraktik": "Bekasi",
+      "jadwal": [
         {
-          "schedule_id": 1,
-          "day": "Rabu",
-          "time": "09:00 - 12:00",
-          "nurse_id": 3,
-          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
-          "nurse_name": "Ani"
+          "idJadwal": 1,
+          "hari": "Rabu",
+          "waktu": "09:00-12:00",
+          "idPerawat": 3,
+          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "namaPerawat": "Ani"
         },
         {
-          "schedule_id": 2,
-          "day": "Kamis",
-          "time": "13:00 - 17:00",
-          "nurse_id": 3,
-          "nurse_address": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
-          "nurse_name": "Ani"
+          "idJadwal": 2,
+          "hari": "Kamis",
+          "waktu": "13:00-17:00",
+          "idPerawat": 3,
+          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "namaPerawat": "Ani"
         },
         {
-          "schedule_id": 3,
-          "day": "Minggu",
-          "time": "08:00 - 12:00",
-          "nurse_id": 1,
-          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
-          "nurse_name": "Nurul"
+          "idJadwal": 3,
+          "hari": "Minggu",
+          "waktu": "08:00-12:00",
+          "idPerawat": 1,
+          "alamatPerawat": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaPerawat": "Nurul"
         },
         {
-          "schedule_id": 4,
-          "day": "Minggu",
-          "time": "16:00 - 18:00",
-          "nurse_id": 1,
-          "nurse_address": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
-          "nurse_name": "Nurul"
+          "idJadwal": 4,
+          "hari": "Minggu",
+          "waktu": "16:00-18:00",
+          "idPerawat": 1,
+          "alamatPerawat": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaPerawat": "Nurul"
         }
       ]
     }
