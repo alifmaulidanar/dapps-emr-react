@@ -9,7 +9,7 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 17/02/24
 ✅ Fungsi addUserAccount tidak bisa digunakan untuk update email di blockchain karena masih dapat mengakses akun melalui email lama --> fixed pakai mapping jadi email baru menggantikan email lama di map
 ✅ Solusinya, buat fungsi baru untuk memperbarui email sekaligus tambahkan field isActive = true ❌ tidak jadi pakai isActive untuk verifikasi email yang aktif karena bisa error
-✅ Sebelum membuat menyimpan akun user dengan email baru tersebut, simpan dulu akun email user lama dengan isActive = false --> meskipun tetap dilakukan penggantian nilai isActive, pengecekan akun dengan email yg aktif tetap dilakukan dengan mengecek mapping email to address, isActive hanya tanda
+✅ Sebelum menyimpan akun user dengan email baru tersebut, simpan dulu akun email user lama dengan isActive = false --> meskipun tetap dilakukan penggantian nilai isActive, pengecekan akun dengan email yg aktif tetap dilakukan dengan mengecek mapping email to address, isActive hanya tanda
 
 18/02/24
 ✅ bikin role lengkap untuk pasien, petugas pendaftaran, perawat, dan dokter
@@ -84,14 +84,16 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ✅ penyesuaian schedule dokter, data pasien, dan data appointment yang diubah ke bahasa indonesia
 ✅ bikin struct, mapping, dan array untuk temporary patient data di staff
 
+20/03/24
+❌ ga nyentuh smart contract
+✅ logika:
+    ✅ data appointment punya struct, array, dan mapping masing-masing
+    ✅ di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
+    ✅ bisa dipanggil dari masing-masing role
+    ✅ harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
+
 next:
-- logika:
-    - data appointment punya struct, array, dan mapping masing-masing
-    - di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
-    - bisa dipanggil dari masing-masing role
-    - harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
-    - selesaikan proses penyimpanan data appointment dahulu, baru lanjut ke rekam medis elektronik
-    - di appointment terkait, hanya akan menyimpan cid rekam medis elektronik
+- kayanya butuh getAppointmentsByStaff(), tapi coba akalin dulu tombol make appointment yang baru di frontend
 - lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 ===================================================================================================
@@ -201,9 +203,18 @@ next:
 ✅ ada 2 tombol, 1 untuk cek ketersediaan profil pasien, 1 lagi untuk menambahkan profil pasien tersebut ke akun staff (sementara/temporary)
 ✅ bisa kirim data ke backend untuk save ke temporary patient data di SC -> masih error⚠️
 
+20/03/24
+✅ berhasil post dan get appointment dari staff
+✅ menampilkan data patient appointment di staff dalam tabel
+✅ menambahkan aksi detail yang mengarahkan ke halaman Data Pendaftaran Rawat Jalan pasien terkait
+✅ persiapan pembuatan tombol untuk membuat appointment dari staff
+✅ perbaikan tombol 'kembali' (BackButton) agar kembali ke halaman sebelumnya dengan benar
+
 next:
-- cek appointment dari dokter dan nurse
+- pembuatan modal pendaftaran appointment dari staff -> tiru MakeAppointment tetapi sesuaikan dengan data yang dapat dikirim dari PatientList di staff
+- perbaikan penampilan data di patient list staf -> harusnya hanya tampil daftar pasien saja -> setelah pasien diklik baru tampil di halaman selanjutnya daftar appointment dari pasien tersebut
 - di halaman detail appointment atau pada AppointmentCardList kasih tombol untuk batalkan appointment
+- cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 
@@ -222,7 +233,6 @@ next:
 
 19/02/24
 ✅ persiapan file auth-middleware
-
 
 20/02/24
 ✅ Endpoint sementara udah jalan semua untuk setiap role --> cek notion untuk daftar API
@@ -294,12 +304,17 @@ next:
 ✅ staff punya 2 endpoint utama -> 1) /check-patient-appointment, 2) /add-patient-appointment
 ⚠️ /add-patient-appointment masih error
 
+20/03/24
+✅ fix endpoint /add-patient-appointment di staff.js
+✅ bikin endpoint baru /patient-appointment di staff.js untuk get patient profiles yang ditambahkan ke akun staf
+
 next:
+- kalau perlu bikin endpoint get baru untuk schedule dari staf karena tombol MakeAppointment akan berubah di staf
 - validasi data pembuatan appointment
-- terima appointment dari dokter dan nurse
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
-- endpoint appointment sisi dokter dan perawat
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
+- terima appointment dari dokter dan nurse
+- endpoint appointment sisi dokter dan perawat
 - perbagus validasi authMiddleware untuk semua endpoint backend
 - perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 
@@ -338,5 +353,6 @@ abis ini ngapain:
 ✅ tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
 ✅ perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
 ✅ tes ulang proses appointment
+- tampilan patient list di staf menjadi -> daftar pasien dulu, baru setelah salah satu pasien diklik muncul halaman baru yang isinya daftar appointment, nanti appointment diklik muncul popup info appointment
 - pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
