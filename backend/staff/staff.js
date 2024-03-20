@@ -88,4 +88,26 @@ router.post("/add-patient-appointment", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/patient-appointment", authMiddleware, async (req, res) => {
+  try {
+    const address = req.auth.address;
+    const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
+    const patientProfiles = [];
+    for (const appointment of appointments) {
+      const patientAppointments = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
+      for (const patientAppointment of patientAppointments) {
+        const cid = patientAppointment.cid;
+        const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+        const response = await fetch(ipfsGatewayUrl);
+        const patientData = await response.json();
+        if (patientData.nomorRekamMedis === appointment.emrNumber) patientProfiles.push(patientData);
+      }
+    }
+    res.status(200).json({ patientProfiles });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
 export default router;
