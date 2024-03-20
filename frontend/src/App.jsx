@@ -101,7 +101,7 @@ function App() {
               />
               <Route
                 path={`/patient/appointment/details`}
-                element={<PatientAppointmentDetails role="patient" />}
+                element={<PatientAppointmentDetails role="patient" linkToPage={"/patient/appointment"} />}
               />
               <Route
                 path={`/patient/profile`}
@@ -164,8 +164,8 @@ function App() {
                 element={<NakesPatientList role="staff" />}
               />
               <Route
-                path={`/staff/appointment`}
-                element={<PatientAppointmentList />}
+                path={`/staff/patient-list/appointment-details`}
+                element={<PatientAppointmentDetails role="staff" linkToPage="/staff/patient-list" />}
               />
               <Route
                 path={`/staff/profile`}
