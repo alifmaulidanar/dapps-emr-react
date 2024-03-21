@@ -2,7 +2,6 @@ import "./../index.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarController from "../components/Navbar/NavbarController";
-import ListSearchBar from "../components/Forms/ListSearchBar";
 import AddPatientButton from "../components/Buttons/AddPatientButton";
 import { Table, Button } from "antd";
 import { CONN } from "../../../enum-global";
@@ -12,19 +11,16 @@ export default function NakesPatientList({ role }) {
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
   
-  const [appointments, setAppointments] = useState([]);
+  const [accounts, setAccount] = useState(null);
   const [profiles, setProfiles] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+
   const navigate = useNavigate();
-  const handleDetailClick = (nomorRekamMedis) => {
-    // const selectedAppointment = appointments.patientProfiles[index];
-    // const appointment = {
-    //   id: selectedAppointment.appointmentId,
-    //   ownerAddress: selectedAppointment.accountAddress,
-    //   data: { ...selectedAppointment }
-    // };
+  const handleDetailClick = (nomorRekamMedis, accountAddress) => {
+    const account = accounts.find(account => account.accountAddress === accountAddress);
     const profile = profiles.filter(profile => profile.nomorRekamMedis === nomorRekamMedis);
     const appointment = appointments.filter(appointment => appointment.nomorRekamMedis === nomorRekamMedis);
-    navigate('/staff/patient-list/patient-details', { state: { profile, appointment } });
+    navigate('/staff/patient-list/patient-details', { state: { account, profile, appointment } });
   };
 
   useEffect(() => {
@@ -39,6 +35,7 @@ export default function NakesPatientList({ role }) {
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
+        setAccount(data.patientAccountData);
         setProfiles(data.patientProfiles);
         setAppointments(data.patientAppointments);
       } catch (error) {
@@ -66,6 +63,11 @@ export default function NakesPatientList({ role }) {
       title: 'No.',
       dataIndex: 'key',
       key: 'key',
+    },
+    {
+      title: 'Alamat Akun',
+      dataIndex: 'accountAddress',
+      key: 'accountAddress',
     },
     {
       title: 'Nomor Rekam Medis',
@@ -100,12 +102,13 @@ export default function NakesPatientList({ role }) {
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record) => (<Button type="primary" ghost onClick={() => handleDetailClick(record.nomorRekamMedis)}>Detail</Button>),
+      render: (_, record) => (<Button type="primary" ghost onClick={() => handleDetailClick(record.nomorRekamMedis, record.accountAddress)}>Detail</Button>),
     },
   ];
 
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
+    accountAddress: profile?.accountAddress,
     nomorRekamMedis: profile?.nomorRekamMedis,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,

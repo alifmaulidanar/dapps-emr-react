@@ -13,6 +13,7 @@ import UserProfile from "./pages/Profile";
 import NakesPatientList from "./pages/NakesPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PatientRecordDisplay from "./components/PatientRecordData";
+import PatientDetails from "./pages/staff/PatientDetails";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
 
 function App() {
@@ -165,7 +166,7 @@ function App() {
               />
               <Route
                 path={`/staff/patient-list/patient-details`}
-                element={<PatientAppointmentDetails role="staff" linkToPage="/staff/patient-list" />}
+                element={<PatientDetails role="staff" linkToPage="/staff/patient-list" />}
               />
               <Route
                 path={`/staff/profile`}

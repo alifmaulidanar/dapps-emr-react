@@ -1,74 +1,28 @@
-import { useEffect, useState } from "react";
-import { Empty, Button } from "antd";
-import NavbarController from "../components/Navbar/NavbarController";
-import UserData from "../../data/UserData";
-import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
-import { CONN } from "../../../../enum-global";
-import RegisterDoctorButton from "../../components/Buttons/RegisterDoctor";
+import { useState } from "react";
+import PatientData from "./PatientData";
+import { Table, Button, Modal } from "antd";
+import { useLocation } from 'react-router-dom';
+import BackButton from "../../components/Buttons/Navigations";
+import NavbarController from "../../components/Navbar/NavbarController";
+import PatientAppointmentDisplay from "../../components/PatientAppointmentDisplay";
 
-export default function UserProfile({ role }) {
+export default function PatientDetails({ role, linkToPage }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
+  const location = useLocation();
+  const {account, profile, appointment} = location.state;
 
-  if (!token || !accountAddress) {
-    window.location.assign(`/${role}/signin`);
-  }
+  if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
 
-  const [users, setUsers] = useState([]);
-  const [userAccountData, setUserAccountData] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-
-  useEffect(() => {
-    if (token && accountAddress) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            `${CONN.BACKEND_LOCAL}/${role}/account`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
-            }
-          );
-          const data = await response.json();
-          const profiles =
-            data.ipfs?.data?.accountProfiles?.map((profile) => ({
-              ...profile,
-            })) || [];
-          setUsers(profiles);
-          const accountData = {
-            accountAddress: data.ipfs.data.accountAddress,
-            accountEmail: data.ipfs.data.accountEmail,
-            accountPhone: data.ipfs.data.accountPhone,
-            accountPassword: data.ipfs.data.accountPassword,
-            accountCreated: data.ipfs.data.accountCreated,
-            accountRole: data.ipfs.data.accountRole,
-            accountUsername: data.ipfs.data.accountUsername,
-          };
-          setUserAccountData(accountData);
-          if (profiles.length > 0) {
-            setSelectedUser(profiles[0]);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      };
-      fetchData();
-    }
-  }, [token, accountAddress]);
-
-  const handleUserChange = (nomorIdentitas) => {
-    const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
-    setSelectedUser(user);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  // const handleOk = () => { setIsModalOpen(false) };
+  const handleCancel = () => {setIsModalOpen(false) };
+  const showModal = (appointmentId) => {
+    const selected = appointment.find(a => a.appointmentId === appointmentId);
+    setSelectedAppointment({ ...selected, data: { ...selected } });
+    setIsModalOpen(true);
   };
-
-  const userDataProps = selectedUser
-    ? {
-        ...selectedUser,
-      }
-    : {};
 
   let type;
   switch (role) {
@@ -86,6 +40,59 @@ export default function UserProfile({ role }) {
       break;
   }
 
+  const columns = [
+    {
+      title: 'No.',
+      dataIndex: 'key',
+      key: 'key',
+    },
+    {
+      title: 'ID Pendaftaran',
+      dataIndex: 'appointmentId',
+      key: 'appointmentId',
+    },
+    {
+      title: 'Nama Dokter',
+      dataIndex: 'namaDokter',
+      key: 'namaDokter',
+    },
+    {
+      title: 'Spesialisasi',
+      dataIndex: 'spesialisasiDokter',
+      key: 'spesialisasiDokter',
+    },
+    {
+      title: 'Tanggal',
+      dataIndex: 'tanggalTerpilih',
+      key: 'tanggalTerpilih',
+    },
+    {
+      title: 'Rumah Sakit',
+      dataIndex: 'rumahSakit',
+      key: 'rumahSakit',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Aksi',
+      key: 'action',
+      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.appointmentId)}>Lihat</Button>),
+    },
+  ];
+
+  const dataSource = appointment?.map((appointment, index) => ({
+    key: index + 1,
+    appointmentId: appointment?.appointmentId,
+    namaDokter: appointment?.namaDokter,
+    spesialisasiDokter: `Dokter ${appointment?.spesialisasiDokter}`,
+    tanggalTerpilih: new Date(appointment?.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
+    rumahSakit: appointment?.rumahSakit,
+    status: appointment?.status,
+  }));
+
   return (
     <>
       <NavbarController
@@ -94,43 +101,22 @@ export default function UserProfile({ role }) {
         color="blue"
         accountAddress={accountAddress}
       />
-      <div className="grid justify-center w-9/12 min-h-screen grid-cols-1 px-4 py-24 mx-auto">
-        <div className="grid gap-y-4">
-          {role === "patient" ? (
-            <ProfileDropdown
-              users={users}
-              onChange={handleUserChange}
-              defaultValue={selectedUser?.nomorIdentitas || "Tidak ada pasien"}
-            />
-          ) : (
-            <></>
-          )}
-          {users.length > 0 ? (
-            <div className="grid w-full grid-cols-3 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
-              <UserData
-                userDataProps={userDataProps}
-                userAccountData={userAccountData}
-              />
+      <div className="grid min-h-screen grid-cols-1 py-24 mx-12">
+        <div className="mb-8">
+          <BackButton linkToPage={linkToPage} />
+        </div>
+        <div className="grid grid-cols-5 gap-x-8">
+            <div className="grid col-span-2 bg-white border border-gray-200 rounded-lg shadow gap-x-8">
+              <PatientData userDataProps={profile[0]} userAccountData={account} />
             </div>
-          ) : (
-            <Empty description="Tidak ada data profil">
-              {role === "patient" ? (
-                <Button
-                  type="primary"
-                  className="text-white bg-blue-600 blue-button"
-                >
-                  Daftarkan Pasien Baru
-                </Button>
-              ) : (
-                <RegisterDoctorButton
-                  buttonText={"Lengkapi Profil"}
-                  userAccountData={userAccountData}
-                />
-              )}
-            </Empty>
-          )}
+            <div className="grid col-span-3">
+              <Table columns={columns} dataSource={dataSource} />
+            </div>
         </div>
       </div>
+      <Modal title="Data Pendaftaran Rawat Jalan" width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
+        {selectedAppointment && (<PatientAppointmentDisplay data={{appointment: {data: selectedAppointment}}} />)}
+      </Modal>
     </>
   );
 }
