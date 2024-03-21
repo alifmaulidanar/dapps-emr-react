@@ -13,23 +13,24 @@ export default function NakesPatientList({ role }) {
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
   
   const [appointments, setAppointments] = useState([]);
+  const [profiles, setProfiles] = useState([]);
   const navigate = useNavigate();
-  const handleDetailClick = (index) => {
-    const selectedAppointment = appointments.patientProfiles[index];
-    const appointment = {
-      id: selectedAppointment.appointmentId,
-      ownerAddress: selectedAppointment.accountAddress,
-      data: {
-        ...selectedAppointment
-      }
-    };
-    navigate('/staff/patient-list/appointment-details', { state: { appointment } });
+  const handleDetailClick = (nomorRekamMedis) => {
+    // const selectedAppointment = appointments.patientProfiles[index];
+    // const appointment = {
+    //   id: selectedAppointment.appointmentId,
+    //   ownerAddress: selectedAppointment.accountAddress,
+    //   data: { ...selectedAppointment }
+    // };
+    const profile = profiles.filter(profile => profile.nomorRekamMedis === nomorRekamMedis);
+    const appointment = appointments.filter(appointment => appointment.nomorRekamMedis === nomorRekamMedis);
+    navigate('/staff/patient-list/patient-details', { state: { profile, appointment } });
   };
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-appointment`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-list`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -38,7 +39,8 @@ export default function NakesPatientList({ role }) {
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
-        setAppointments(data);
+        setProfiles(data.patientProfiles);
+        setAppointments(data.patientAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -66,52 +68,50 @@ export default function NakesPatientList({ role }) {
       key: 'key',
     },
     {
-      title: 'ID Pendaftaran',
-      dataIndex: 'appointmentId',
-      key: 'appointmentId',
-    },
-    {
-      title: 'Alamat Akun',
-      dataIndex: 'accountAddress',
-      key: 'accountAddress',
-    },
-    {
       title: 'Nomor Rekam Medis',
       dataIndex: 'nomorRekamMedis',
       key: 'nomorRekamMedis',
     },
     {
-      title: 'Nama Pasien',
+      title: 'Nomor Identitas',
+      dataIndex: 'nomorIdentitas',
+      key: 'nomorIdentitas',
+    },
+    {
+      title: 'Nama Lengkap',
       dataIndex: 'namaLengkap',
       key: 'namaLengkap',
     },
     {
-      title: 'Rumah Sakit',
-      dataIndex: 'rumahSakit',
-      key: 'rumahSakit',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: 'Nomor Telepon',
+      dataIndex: 'telpSelular',
+      key: 'telpSelular',
+    },
+    {
+      title: 'Rumah Sakit Asal',
+      dataIndex: 'rumahSakitAsal',
+      key: 'rumahSakitAsal',
     },
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record, index) => (
-        <Button type="primary" ghost onClick={() => handleDetailClick(index)}>Detail</Button>
-      ),
+      render: (_, record) => (<Button type="primary" ghost onClick={() => handleDetailClick(record.nomorRekamMedis)}>Detail</Button>),
     },
   ];
 
-  const dataSource = appointments?.patientProfiles?.map((appointment, index) => ({
+  const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
-    accountAddress: appointment?.accountAddress,
-    appointmentId: appointment?.appointmentId,
-    namaLengkap: appointment?.namaLengkap,
-    rumahSakit: appointment?.rumahSakit,
-    nomorRekamMedis: appointment?.nomorRekamMedis,
-    status: appointment?.status,
+    nomorRekamMedis: profile?.nomorRekamMedis,
+    nomorIdentitas: profile?.nomorIdentitas,
+    namaLengkap: profile?.namaLengkap,
+    email: profile?.email,
+    telpSelular: profile?.telpSelular,
+    rumahSakitAsal: profile?.rumahSakitAsal,
   }));
 
   return (
@@ -120,7 +120,6 @@ export default function NakesPatientList({ role }) {
       <div>
         <div className="grid items-center justify-center w-3/4 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
-            <AddPatientButton token={token} />
             <AddPatientButton token={token} />
             {/* <ListSearchBar /> */}
           </div>

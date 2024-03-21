@@ -164,7 +164,7 @@ function App() {
                 element={<NakesPatientList role="staff" />}
               />
               <Route
-                path={`/staff/patient-list/appointment-details`}
+                path={`/staff/patient-list/patient-details`}
                 element={<PatientAppointmentDetails role="staff" linkToPage="/staff/patient-list" />}
               />
               <Route
