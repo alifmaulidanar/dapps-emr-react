@@ -22,17 +22,17 @@ const outpatientContract = new ethers.Contract(outpatient_contract, outpatientAB
 const router = express.Router();
 router.use(express.json());
 
-function formatDateTime(date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}_${day}-${month}-${year}`;
-}
-const currentDateTime = new Date();
-const formattedDateTime = formatDateTime(currentDateTime);
+// function formatDateTime(date) {
+//   const day = String(date.getDate()).padStart(2, "0");
+//   const month = String(date.getMonth() + 1).padStart(2, "0");
+//   const year = date.getFullYear();
+//   const hours = String(date.getHours()).padStart(2, "0");
+//   const minutes = String(date.getMinutes()).padStart(2, "0");
+//   const seconds = String(date.getSeconds()).padStart(2, "0");
+//   return `${hours}:${minutes}:${seconds}_${day}-${month}-${year}`;
+// }
+// const currentDateTime = new Date();
+// const formattedDateTime = formatDateTime(currentDateTime);
 
 // check patient appointment
 router.post("/check-patient-appointment", authMiddleware, async (req, res) => {
@@ -60,8 +60,8 @@ router.post("/check-patient-appointment", authMiddleware, async (req, res) => {
     }
     return res.status(200).json({ foundPatientProfile });
   } catch (error) {
-      console.error("Error fetching appointments:", error);
-      return res.status(500).json({ message: "Failed to fetch appointments" });
+    console.error("Error fetching appointments:", error);
+    return res.status(500).json({ message: "Failed to fetch appointments" });
   }
 });
 
@@ -95,7 +95,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
-
+    let patientAccountData = [];
     let patientProfiles = [];
     let patientAppointments = [];
 
@@ -105,9 +105,12 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const response = await fetch(ipfsGatewayUrl);
       const accountData = await response.json();
+      const { accountProfiles, ...rest } = accountData;
+      patientAccountData.push(rest);
       for (const profile of accountData.accountProfiles) {
         if (profile.nomorRekamMedis === appointment.emrNumber) {
-          patientProfiles.push({ ...profile });
+          const profileWithAddress = { ...profile, accountAddress: rest.accountAddress };
+          patientProfiles.push(profileWithAddress);
           break;
         }
       }
@@ -148,29 +151,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
         }
       }
     }
-    res.status(200).json({ patientProfiles, patientAppointments });
-
-    // const uniqueAddresses = new Set(appointments.map(appointment => appointment.patientAddress));
-    // let patientAccounts = [];
-    // for (const address of uniqueAddresses) {
-    //   const patientAccount = await userContract.getAccountByAddress(address);
-    //   patientAccounts.push(patientAccount);
-    // }
-    // // console.log({patientAccounts});
-
-    // const patientProfiles = [];
-    // for (const appointment of appointments) {
-    //   const patientAppointments = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
-    //   for (const patientAppointment of patientAppointments) {
-    //     const cid = patientAppointment.cid;
-    //     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-    //     const response = await fetch(ipfsGatewayUrl);
-    //     const patientData = await response.json();
-    //     if (patientData.nomorRekamMedis === appointment.emrNumber) patientProfiles.push(patientData);
-    //   }
-    // }
-    // console.log({patientProfiles});
-    // res.status(200).json({ patientProfiles });
+    res.status(200).json({ patientAccountData, patientProfiles, patientAppointments });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });
