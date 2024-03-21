@@ -92,8 +92,11 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
     ✅ bisa dipanggil dari masing-masing role
     ✅ harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
 
+21/03/24
+❌ ga nyentuh smart contract
+❌ kayanya butuh getAppointmentsByStaff(), tapi coba akalin dulu tombol make appointment yang baru di frontend -> sepertinya ga perlu
+
 next:
-- kayanya butuh getAppointmentsByStaff(), tapi coba akalin dulu tombol make appointment yang baru di frontend
 - lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 ===================================================================================================
@@ -210,10 +213,16 @@ next:
 ✅ persiapan pembuatan tombol untuk membuat appointment dari staff
 ✅ perbaikan tombol 'kembali' (BackButton) agar kembali ke halaman sebelumnya dengan benar
 
+21/03/24
+✅ pembuatan modal pendaftaran appointment dari staff -> tiru MakeAppointment tetapi sesuaikan dengan data yang dapat dikirim dari PatientList di staff
+✅ perbaikan penampilan data di patient list staf -> harusnya hanya tampil daftar pasien saja -> setelah pasien diklik baru tampil di halaman selanjutnya daftar appointment dari pasien tersebut
+✅ jadi sekarang pada /patient-list hanya tampil daftar pasien, lalu masuk ke /patient-list/patient-details, di dalamnya ada card profil pasien dan table appointment list -> kalo diklik muncul modal appointment info
+✅ ada tombol back
+✅ penyesuaian endpoint di frontend App.jsx
+
 next:
-- pembuatan modal pendaftaran appointment dari staff -> tiru MakeAppointment tetapi sesuaikan dengan data yang dapat dikirim dari PatientList di staff
-- perbaikan penampilan data di patient list staf -> harusnya hanya tampil daftar pasien saja -> setelah pasien diklik baru tampil di halaman selanjutnya daftar appointment dari pasien tersebut
 - di halaman detail appointment atau pada AppointmentCardList kasih tombol untuk batalkan appointment
+- pembuatan appointment oleh staff
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -308,7 +317,12 @@ next:
 ✅ fix endpoint /add-patient-appointment di staff.js
 ✅ bikin endpoint baru /patient-appointment di staff.js untuk get patient profiles yang ditambahkan ke akun staf
 
+21/03/24
+✅ penyesuaian api /patient-list agar bisa provide data yang dibutuhkan di daftar profil pasien, data profil pasien, dan daftar appointment
+
 next:
+- handle cancel appointment
+- pembuatan appointment oleh staff
 - kalau perlu bikin endpoint get baru untuk schedule dari staf karena tombol MakeAppointment akan berubah di staf
 - validasi data pembuatan appointment
 - endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
@@ -353,6 +367,6 @@ abis ini ngapain:
 ✅ tampilin data appointment yang udah dibuat di frontend dalam bentuk card list
 ✅ perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
 ✅ tes ulang proses appointment
-- tampilan patient list di staf menjadi -> daftar pasien dulu, baru setelah salah satu pasien diklik muncul halaman baru yang isinya daftar appointment, nanti appointment diklik muncul popup info appointment
+✅ tampilan patient list di staf menjadi -> daftar pasien dulu, baru setelah salah satu pasien diklik muncul halaman baru yang isinya daftar appointment, nanti appointment diklik muncul popup info appointment
 - pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
