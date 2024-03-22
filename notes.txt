@@ -96,6 +96,10 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ❌ ga nyentuh smart contract
 ❌ kayanya butuh getAppointmentsByStaff(), tapi coba akalin dulu tombol make appointment yang baru di frontend -> sepertinya ga perlu
 
+22/03/24
+✅ fix update appointment data function agar lebih efektif dalam memperbarui data appointment
+✅ perbaikan function remove temporary data dari staff untuk menghapus data profil pasien temporal dari akun staff
+
 next:
 - lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
@@ -220,8 +224,15 @@ next:
 ✅ ada tombol back
 ✅ penyesuaian endpoint di frontend App.jsx
 
+22/03/24
+✅ tombol batalkan appointment / handle cancel sudah bekerja di patient dan staff
+✅ perubahan warna tag status
+✅ perubahan uuidv4 ke nanoid
+✅ update state status sudah bisa tapi belum efektif
+
 next:
-- di halaman detail appointment atau pada AppointmentCardList kasih tombol untuk batalkan appointment
+- pemisahan endpoint untuk appointment yang menggunakan useNavigate -> ada bug state status appointment setelah cancel
+- beri penanda di appointment card list status appointment (patient)
 - pembuatan appointment oleh staff
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
@@ -320,8 +331,11 @@ next:
 21/03/24
 ✅ penyesuaian api /patient-list agar bisa provide data yang dibutuhkan di daftar profil pasien, data profil pasien, dan daftar appointment
 
+22/03/24
+✅ handle cancel udah bisa oleh patient dan staff
+
 next:
-- handle cancel appointment
+- pemisahan endpoint appointment -> hindari useNavigate baik di patient dan staff (ada bug karena sulit update state status setelah perubahan data cancel appointment)
 - pembuatan appointment oleh staff
 - kalau perlu bikin endpoint get baru untuk schedule dari staf karena tombol MakeAppointment akan berubah di staf
 - validasi data pembuatan appointment
@@ -368,5 +382,11 @@ abis ini ngapain:
 ✅ perbaiki jika pasien bikin appointment yang sama persis lebih dari sekali
 ✅ tes ulang proses appointment
 ✅ tampilan patient list di staf menjadi -> daftar pasien dulu, baru setelah salah satu pasien diklik muncul halaman baru yang isinya daftar appointment, nanti appointment diklik muncul popup info appointment
+✅ compile SC baru, deploy, pake
+✅ ganti uuidv4 jadi nanoid
+✅ handle cancel appointment
+- fix bug di handle cancel appointment
+- pemisahan endpoint untuk menghindari penggunaan useNavigate
+- implementasi remove temporary profile pasien dari staff -> sediakan tombol
 - pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
