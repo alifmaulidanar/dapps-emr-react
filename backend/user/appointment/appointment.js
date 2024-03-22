@@ -134,4 +134,49 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
   }
 });
 
+// Cancel Patient Appointment
+router.post("/:role/appointment/cancel", authMiddleware, async (req, res) => {
+  try {
+    const { address, email } = req.auth;
+    const { appointmentId, nomorRekamMedis, signature } = req.body;
+    if (!address || !email) return res.status(401).json({ error: "Unauthorized" });
+    if (!appointmentId || !nomorRekamMedis) return res.status(400).json({ error: "Missing appointmentId or nomorRekamMedis" });
+
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ nomorRekamMedis, appointmentId }), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
+    const appointments = await outpatientContract.getAppointmentsByPatient(address);
+
+    for (const appointment of appointments) {
+      const cid = appointment.cid;
+      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+      const ipfsResponse = await fetch(ipfsGatewayUrl);
+      const ipfsData = await ipfsResponse.json();
+
+      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "canceled") {
+        ipfsData.status = "ongoing";
+        const updatedCid = await client.add(JSON.stringify(ipfsData));
+        const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+        await contractWithSigner.updateOutpatientData(appointment.id, address, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
+        const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
+        const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+        const newIpfsData = await newIpfsResponse.json();
+        const newStatus = { newStatus: newIpfsData.status }
+        res.status(200).json({ newStatus });
+        return;
+      }
+    }
+    res.status(404).json({ error: "Appointment not found or already canceled" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

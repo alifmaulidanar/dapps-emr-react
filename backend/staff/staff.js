@@ -1,6 +1,9 @@
+import fs from "fs";
+import path from "path";
 import express from "express";
-import { ethers } from "ethers";
-// import { create } from "ipfs-http-client";
+import { fileURLToPath } from "url";
+import { ethers, Wallet } from "ethers";
+import { create } from "ipfs-http-client";
 import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
 
@@ -17,7 +20,13 @@ const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 const userContract = new ethers.Contract( user_contract, userABI, provider);
 // const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
 const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
-// const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
+const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const accountsPath = path.join(__dirname, "../ganache/accounts.json");
+const accountsJson = fs.readFileSync(accountsPath);
+const accounts = JSON.parse(accountsJson);
 
 const router = express.Router();
 router.use(express.json());
@@ -34,8 +43,8 @@ router.use(express.json());
 // const currentDateTime = new Date();
 // const formattedDateTime = formatDateTime(currentDateTime);
 
-// check patient appointment
-router.post("/check-patient-appointment", authMiddleware, async (req, res) => {
+// check patient profile
+router.post("/check-patient-profile", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const { patientAddress, emrNumber } = req.body;
@@ -65,8 +74,8 @@ router.post("/check-patient-appointment", authMiddleware, async (req, res) => {
   }
 });
 
-// add patient appointment
-router.post("/add-patient-appointment", authMiddleware, async (req, res) => {
+// add patient profile
+router.post("/add-patient-profile", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const { patientAddress, emrNumber, signature } = req.body;
@@ -91,6 +100,61 @@ router.post("/add-patient-appointment", authMiddleware, async (req, res) => {
   }
 });
 
+// Cancel Patient Appointment
+router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
+  try {
+    const { address, email } = req.auth;
+    const { accountAddress, appointmentId, nomorRekamMedis, signature } = req.body;
+    if (!address || !email) return res.status(401).json({ error: "Unauthorized" });
+    if (!appointmentId || !nomorRekamMedis) return res.status(400).json({ error: "Missing appointmentId or nomorRekamMedis" });
+
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ accountAddress, nomorRekamMedis, appointmentId }), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accountList = await provider.listAccounts();
+    let selectedAccountAddress;
+    for (let account of accountList) {
+      const accountByAddress = await userContract.getAccountByAddress(accountAddress);
+      if (accountByAddress.accountAddress === accountAddress) {
+        selectedAccountAddress = account;
+        break;
+      }
+    }
+
+    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
+
+    const privateKey = accounts[selectedAccountAddress];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
+    const appointments = await outpatientContract.getAppointmentsByPatient(accountAddress);
+
+    for (const appointment of appointments) {
+      const cid = appointment.cid;
+      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+      const ipfsResponse = await fetch(ipfsGatewayUrl);
+      const ipfsData = await ipfsResponse.json();
+
+      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "canceled") {
+        ipfsData.status = "ongoing";
+        const updatedCid = await client.add(JSON.stringify(ipfsData));
+        const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
+        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
+        const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
+        const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+        const newIpfsData = await newIpfsResponse.json();
+        const newStatus = { newStatus: newIpfsData.status }
+        res.status(200).json({ newStatus });
+        return;
+      }
+    }
+    res.status(404).json({ error: "Appointment not found or already canceled" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get patient profile list
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
@@ -118,6 +182,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
 
     for (const appointment of appointments) {
       const patientAppointmentData = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
+      console.log({patientAppointmentData});
       for (const patientAppointment of patientAppointmentData) {
         const cid = patientAppointment.cid;
         const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
