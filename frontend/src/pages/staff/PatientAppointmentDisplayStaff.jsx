@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { ethers } from "ethers";
 import { Tag, Button } from "antd";
-import { CONN } from "../../../enum-global";
+import { CONN } from "../../../../enum-global";
 import { useState, useCallback } from "react";
 
 const PatientRecordLoop = ({ data }) => {
@@ -19,7 +19,7 @@ const PatientRecordLoop = ({ data }) => {
   );
 };
 
-function PatientAppointmentDisplay({ data, token }) {
+function PatientAppointmentDisplayStaff({ data, token }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [appointmentStatus, setAppointmentStatus] = useState(data.appointment.data.status);
   const getSigner = useCallback(async () => {
@@ -180,13 +180,13 @@ function PatientAppointmentDisplay({ data, token }) {
   ];
 
   const cancelAppointment = async () => {
-    const signedData = { nomorRekamMedis: data.appointment.data.nomorRekamMedis, appointmentId: data.appointment.data.appointmentId }
+    const signedData = { accountAddress: data.appointment.data.accountAddress, nomorRekamMedis: data.appointment.data.nomorRekamMedis, appointmentId: data.appointment.data.appointmentId }
     const signer = await getSigner();
     const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;
     console.log("Appointment signature:", signature);
     try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/patient/appointment/cancel`, {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/cancel-patient-appointment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -199,8 +199,11 @@ function PatientAppointmentDisplay({ data, token }) {
   
       const result = await response.json();
       if (response.ok) {
+        // Handle success
+        console.log("Appointment canceled successfully:", result);
         setAppointmentStatus(result.newStatus);
       } else {
+        // Handle error
         console.error("Failed to cancel appointment:", result.error);
       }
     } catch (error) {
@@ -226,4 +229,4 @@ function PatientAppointmentDisplay({ data, token }) {
   );
 }
 
-export default PatientAppointmentDisplay;
+export default PatientAppointmentDisplayStaff;

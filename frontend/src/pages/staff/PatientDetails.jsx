@@ -1,10 +1,10 @@
 import { useState } from "react";
 import PatientData from "./PatientData";
-import { Table, Button, Modal } from "antd";
 import { useLocation } from 'react-router-dom';
+import { Table, Button, Modal, Tag } from "antd";
 import BackButton from "../../components/Buttons/Navigations";
 import NavbarController from "../../components/Navbar/NavbarController";
-import PatientAppointmentDisplay from "../../components/PatientAppointmentDisplay";
+import PatientAppointmentDisplayStaff from "./PatientAppointmentDisplayStaff";
 
 export default function PatientDetails({ role, linkToPage }) {
   const token = sessionStorage.getItem("userToken");
@@ -74,7 +74,17 @@ export default function PatientDetails({ role, linkToPage }) {
     {
       title: 'Status',
       dataIndex: 'status',
-      key: 'status',
+      render: (status) => (
+        <Tag color={
+          status === "ongoing" ? "blue" : 
+          status === "done" ? "green" : "red"
+        }>
+          {
+            status === "ongoing" ? "Sedang berjalan" : 
+            status === "done" ? "Selesai" : "Batal"
+          }
+        </Tag>
+      ),
     },
     {
       title: 'Aksi',
@@ -114,8 +124,12 @@ export default function PatientDetails({ role, linkToPage }) {
             </div>
         </div>
       </div>
-      <Modal title="Data Pendaftaran Rawat Jalan" width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
-        {selectedAppointment && (<PatientAppointmentDisplay data={{appointment: {data: selectedAppointment}}} />)}
+      <Modal width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
+        {selectedAppointment && (
+          <>
+            <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} />
+          </>
+        )}
       </Modal>
     </>
   );
