@@ -34,18 +34,18 @@ contract OutpatientManagement {
         appointmentsByNurse[_nurseAddress].push(nurseAppointmentId);
     }
 
-    function updateOutpatientData(address _patientAddress, string memory _cid) external {
-        require(appointmentsByPatient[_patientAddress].length > 0, "Appointments:404");
-        for (uint i = 0; i < appointmentsByPatient[_patientAddress].length; i++) {
-            uint appointmentId = appointmentsByPatient[_patientAddress][i];
-            AppointmentData storage patientAppointment = patientAppointments[appointmentId - 1];
-            AppointmentData storage doctorAppointment = doctorAppointments[appointmentId - 1];
-            AppointmentData storage nurseAppointment = nurseAppointments[appointmentId - 1];
-            patientAppointment.cid = _cid;
-            doctorAppointment.cid = _cid;
-            nurseAppointment.cid = _cid;
-            emit OutpatientDataUpdated(appointmentId, _patientAddress, doctorAppointment.owner, nurseAppointment.owner, _cid);
-        }
+    function updateOutpatientData(uint _appointmentId, address _patientAddress, address _doctorAddress, address _nurseAddress, string memory _cid) external {
+        require(_appointmentId > 0 && _appointmentId <= appointmentCounter, "Invalid appointment ID");
+        AppointmentData storage patientAppointment = patientAppointments[_appointmentId - 1];
+        AppointmentData storage doctorAppointment = doctorAppointments[_appointmentId - 1];
+        AppointmentData storage nurseAppointment = nurseAppointments[_appointmentId - 1];
+        require(patientAppointment.owner == _patientAddress, "Unauthorized patient");
+        require(doctorAppointment.owner == _doctorAddress, "Unauthorized doctor");
+        require(nurseAppointment.owner == _nurseAddress, "Unauthorized nurse");
+        patientAppointment.cid = _cid;
+        doctorAppointment.cid = _cid;
+        nurseAppointment.cid = _cid;
+        emit OutpatientDataUpdated(_appointmentId, _patientAddress, _doctorAddress, _nurseAddress, _cid);
     }
 
     function getAllAppointments() external view returns (AppointmentData[] memory, AppointmentData[] memory, AppointmentData[] memory) {
@@ -81,13 +81,15 @@ contract OutpatientManagement {
         emit TemporaryPatientDataAdded(newTemporaryPatientData.id, _staffAddress, _patientAddress, _emrNumber);
     }
 
-    function removeTemporaryPatientDataByPatientAddress(address _patientAddress) external {
-        address staffAddress = msg.sender;
-        uint[] storage dataIds = temporaryPatientDataByStaff[staffAddress];
+    function removeTemporaryPatientData(address _staffAddress, string memory _emrNumber) external {
+        uint[] storage dataIds = temporaryPatientDataByStaff[_staffAddress];
         for (uint i = 0; i < dataIds.length; i++) {
             uint dataId = dataIds[i];
-            if (temporaryPatientData[dataId - 1].patientAddress == _patientAddress) {
-                delete temporaryPatientData[dataId - 1];
+            TemporaryPatientData storage data = temporaryPatientData[dataId - 1];
+            if (keccak256(abi.encodePacked(data.emrNumber)) == keccak256(abi.encodePacked(_emrNumber))) {
+                uint lastDataId = temporaryPatientData.length;
+                temporaryPatientData[dataId - 1] = temporaryPatientData[lastDataId - 1];
+                temporaryPatientData.pop();
                 dataIds[i] = dataIds[dataIds.length - 1];
                 dataIds.pop();
                 break;
