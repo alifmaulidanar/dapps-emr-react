@@ -2,7 +2,7 @@ const { Option } = Select;
 import Swal from "sweetalert2";
 import { ethers } from "ethers";
 import flatpickr from "flatpickr";
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import "flatpickr/dist/flatpickr.min.css";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
@@ -230,7 +230,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       nurseAddress: nurseInfo.alamatPerawat,
     };
     const appointmentDataIpfs = {
-      appointmentId: uuidv4(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
+      appointmentId: nanoid(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
       nomorRekamMedis: userData.accountProfiles[selectedPatient].nomorRekamMedis,

@@ -59,7 +59,7 @@ export default function AddPatientButton({ token }) {
     event.preventDefault();
     showLoader();
     try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/check-patient-appointment`, {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/check-patient-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +99,7 @@ export default function AddPatientButton({ token }) {
     const signature = await signer.signMessage(JSON.stringify(formattedData));
     formattedData.signature = signature;
     try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/add-patient-appointment`, {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/add-patient-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
