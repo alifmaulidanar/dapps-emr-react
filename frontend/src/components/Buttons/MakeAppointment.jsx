@@ -220,6 +220,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     </>
   );
   const handleCreateAppointment = async (event) => {
+    try {
     showLoader();
     event.preventDefault();
     const nurseInfo = selectedDoctor.jadwal.find(schedule => schedule.hari === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.waktu === selectedTimeSlot);
@@ -230,7 +231,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       nurseAddress: nurseInfo.alamatPerawat,
     };
     const appointmentDataIpfs = {
-      appointmentId: nanoid(),  // sementara UUID -> next harus generate berdasarkan nomor rumah sakit, pasien, dll.
+      appointmentId: nanoid(),
       accountAddress: userData.accountAddress,
       accountEmail: userData.accountEmail,
       nomorRekamMedis: userData.accountProfiles[selectedPatient].nomorRekamMedis,
@@ -255,10 +256,13 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     };
     const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
+    if (!signer) {
+      setSpinning(false);
+      return;
+    }
     const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;
     console.log("Appointment signature:", signature);
-    try {
       const response = await fetch(
         `${CONN.BACKEND_LOCAL}/patient/appointment`,
         {

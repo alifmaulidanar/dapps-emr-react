@@ -12,9 +12,8 @@ import UserAccount from "./pages/Account";
 import UserProfile from "./pages/Profile";
 import NakesPatientList from "./pages/NakesPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import PatientRecordDisplay from "./components/PatientRecordData";
-import PatientDetails from "./pages/staff/PatientDetails";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
+import StaffPatientAppointments from "./pages/staff/StaffPatientAppointments";
 
 function App() {
   return (
@@ -165,12 +164,8 @@ function App() {
                 element={<NakesPatientList role="staff" />}
               />
               <Route
-                path={`/staff/patient-list/patient-details`}
-                element={<PatientDetails role="staff" linkToPage="/staff/patient-list" />}
-              />
-              <Route
-                path={`/staff/profile`}
-                element={<UserProfile role="staff" />}
+                path={`/staff/appointment`}
+                element={<StaffPatientAppointments role="staff" />}
               />
               <Route
                 path={`/staff/account`}

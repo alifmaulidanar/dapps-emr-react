@@ -192,18 +192,15 @@ function PatientAppointmentDisplayStaff({ data, token }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...signedData,
-        }),
+        body: JSON.stringify({ ...signedData }),
       });
   
       const result = await response.json();
       if (response.ok) {
-        // Handle success
         console.log("Appointment canceled successfully:", result);
         setAppointmentStatus(result.newStatus);
+        window.location.reload();
       } else {
-        // Handle error
         console.error("Failed to cancel appointment:", result.error);
       }
     } catch (error) {

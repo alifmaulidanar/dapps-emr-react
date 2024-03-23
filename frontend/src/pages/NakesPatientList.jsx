@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarController from "../components/Navbar/NavbarController";
 import AddPatientButton from "../components/Buttons/AddPatientButton";
-import { Table, Button } from "antd";
+import PatientData from "./staff/PatientData";
+import { Table, Button, Modal } from "antd";
 import { CONN } from "../../../enum-global";
 
 export default function NakesPatientList({ role }) {
@@ -11,16 +12,20 @@ export default function NakesPatientList({ role }) {
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
   
-  const [accounts, setAccount] = useState(null);
+  const [accounts, setAccounts] = useState(null);
   const [profiles, setProfiles] = useState([]);
-  const [appointments, setAppointments] = useState([]);
+  const [selectedData, setSelectedData] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const navigate = useNavigate();
-  const handleDetailClick = (nomorRekamMedis, accountAddress) => {
-    const account = accounts.find(account => account.accountAddress === accountAddress);
-    const profile = profiles.filter(profile => profile.nomorRekamMedis === nomorRekamMedis);
-    const appointment = appointments.filter(appointment => appointment.nomorRekamMedis === nomorRekamMedis);
-    navigate('/staff/patient-list/patient-details', { state: { account, profile, appointment } });
+  const handleCancel = () => {setIsModalOpen(false) };
+  const showModal = (nomorRekamMedis) => {
+    const selectedProfile = profiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
+    const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
+    setSelectedData({
+      account: selectedAccount,
+      profile: selectedProfile
+    });
+    setIsModalOpen(true);
   };
 
   useEffect(() => {
@@ -35,9 +40,8 @@ export default function NakesPatientList({ role }) {
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
-        setAccount(data.patientAccountData);
+        setAccounts(data.patientAccountData);
         setProfiles(data.patientProfiles);
-        setAppointments(data.patientAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -102,7 +106,7 @@ export default function NakesPatientList({ role }) {
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record) => (<Button type="primary" ghost onClick={() => handleDetailClick(record.nomorRekamMedis, record.accountAddress)}>Detail</Button>),
+      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.nomorRekamMedis)}>Lihat</Button>),
     },
   ];
 
@@ -116,6 +120,28 @@ export default function NakesPatientList({ role }) {
     telpSelular: profile?.telpSelular,
     rumahSakitAsal: profile?.rumahSakitAsal,
   }));
+
+  const mergeAccountAndProfileData = (accounts, profiles) => {
+    const accountMap = new Map();
+    if (accounts) {
+      accounts.forEach(account => {
+        accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
+      });
+    }
+    if (profiles) {
+      profiles.forEach(profile => {
+        const account = accountMap.get(profile.accountAddress);
+        if (account) {
+          account.accountProfiles.push(profile);
+        }
+      });
+    }
+    return Array.from(accountMap.values());
+  };
+  
+  const userData = mergeAccountAndProfileData(accounts, profiles);
+  sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
+  sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
 
   return (
     <>
@@ -135,6 +161,13 @@ export default function NakesPatientList({ role }) {
           </div>
         </div>
       </div>
+      <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
+        {selectedData.profile && (
+          <>
+            <PatientData userDataProps={selectedData.profile} userAccountData={selectedData.account} />
+          </>
+        )}
+      </Modal>
     </>
   );
 }
