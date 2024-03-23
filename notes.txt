@@ -230,10 +230,21 @@ next:
 ✅ perubahan uuidv4 ke nanoid
 ✅ update state status sudah bisa tapi belum efektif
 
+23/03/24 - 24/03/24
+✅ pemisahan endpoint untuk appointment yang menggunakan useNavigate -> ada bug state status appointment setelah cancel
+✅ hilangkan tombol aksi detail pada patient list untuk membuat halaman profile dan appointment
+✅ buat tombol aksi lihat di patient list
+✅ profile pasien di staff menjadi modal instead of halaman baru
+✅ appointment list di staff jadi menu tersendiri, data disajikan dalam tabel
+✅ tersedia tombol aksi lihat di appointment list untuk membatalkan appointment
+✅ pembuatan appointment oleh staff
+✅ terdapat tombol buat appointment baru
+✅ sudah auto reload setelah buat dan cancel appointment
+✅ menggunakan sessionStorage untuk userData dan profiles
+
 next:
-- pemisahan endpoint untuk appointment yang menggunakan useNavigate -> ada bug state status appointment setelah cancel
+- persiapan pembuatan dropdown profile patient untuk berganti2 sesuai kebutuhan dengan default "all"
 - beri penanda di appointment card list status appointment (patient)
-- pembuatan appointment oleh staff
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -334,12 +345,16 @@ next:
 22/03/24
 ✅ handle cancel udah bisa oleh patient dan staff
 
+23/03/24 - 24/03/24
+✅ rework semua penggunaan useNavigate di staff untuk perpindahan dari patient list ke appointment list
+✅ ganti endpoint /patient-details ke /patient-appointments
+✅ staff sudah bisa buat appointment untuk pasien
+✅ pemisahan endpoint appointment -> hindari useNavigate baik di patient dan staff (ada bug karena sulit update state status setelah perubahan data cancel appointment)
+✅ pembuatan appointment oleh staff
+✅ endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
+
 next:
-- pemisahan endpoint appointment -> hindari useNavigate baik di patient dan staff (ada bug karena sulit update state status setelah perubahan data cancel appointment)
-- pembuatan appointment oleh staff
-- kalau perlu bikin endpoint get baru untuk schedule dari staf karena tombol MakeAppointment akan berubah di staf
 - validasi data pembuatan appointment
-- endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
 - terima appointment dari dokter dan nurse
 - endpoint appointment sisi dokter dan perawat
@@ -385,8 +400,9 @@ abis ini ngapain:
 ✅ compile SC baru, deploy, pake
 ✅ ganti uuidv4 jadi nanoid
 ✅ handle cancel appointment
-- fix bug di handle cancel appointment
-- pemisahan endpoint untuk menghindari penggunaan useNavigate
-- implementasi remove temporary profile pasien dari staff -> sediakan tombol
-- pembuatan appointment oleh staff
+✅ fix bug di handle cancel appointment
+✅ pemisahan endpoint untuk menghindari penggunaan useNavigate
+✅ penggunaan context provider dan usenavigate di staff gagal -> rombak ganti pakai useState dan useEffect dan endpoint mandiri
+✅ implementasi remove temporary profile pasien dari staff -> sediakan tombol cancel
+✅ pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
