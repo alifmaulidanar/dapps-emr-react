@@ -159,16 +159,15 @@ router.post("/:role/appointment/cancel", authMiddleware, async (req, res) => {
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
 
-      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "canceled") {
-        ipfsData.status = "ongoing";
+      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "ongoing") {
+        ipfsData.status = "canceled";
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
         await contractWithSigner.updateOutpatientData(appointment.id, address, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
-        const newStatus = { newStatus: newIpfsData.status }
-        res.status(200).json({ newStatus });
+        res.status(200).json({newStatus: newIpfsData.status});
         return;
       }
     }

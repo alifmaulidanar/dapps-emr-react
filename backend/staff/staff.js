@@ -10,15 +10,15 @@ import authMiddleware from "../middleware/auth-middleware.js";
 // Contract & ABI
 import { USER_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
-// import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
+import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
-// const schedule_contract = SCHEDULE_CONTRACT.toString();
+const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
 const userContract = new ethers.Contract( user_contract, userABI, provider);
-// const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
+const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
 const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
@@ -92,7 +92,7 @@ router.post("/add-patient-profile", authMiddleware, async (req, res) => {
     const addPatientTx = await contract.addTemporaryPatientData(address, patientAddress, emrNumber);
     await addPatientTx.wait()
     const getNewestData = await contract.getTemporaryPatientDataByStaff(address);
-    console.log({getNewestData});
+    // console.log({getNewestData});
     res.status(200).json({ message: "Patient appointment added successfully" });
   } catch (error) {
     console.error("Error adding patient appointment:", error);
@@ -134,16 +134,15 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
 
-      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "canceled") {
-        ipfsData.status = "ongoing";
+      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "ongoing") {
+        ipfsData.status = "canceled";
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
         await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
-        const newStatus = { newStatus: newIpfsData.status }
-        res.status(200).json({ newStatus });
+        res.status(200).json({newStatus: newIpfsData.status});
         return;
       }
     }
@@ -161,7 +160,6 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
     const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
     let patientAccountData = [];
     let patientProfiles = [];
-    let patientAppointments = [];
 
     for (const appointment of appointments) {
       const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
@@ -179,10 +177,23 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
         }
       }
     }
+    console.log(patientAccountData)
+    res.status(200).json({ patientAccountData, patientProfiles });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
+// get patient appointments
+router.get("/patient-appointments", authMiddleware, async (req, res) => {
+  try {
+    const address = req.auth.address;
+    const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
+    let patientAppointments = [];
 
     for (const appointment of appointments) {
       const patientAppointmentData = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
-      console.log({patientAppointmentData});
       for (const patientAppointment of patientAppointmentData) {
         const cid = patientAppointment.cid;
         const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
@@ -190,36 +201,45 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
         const patientData = await response.json();
         if (patientData.nomorRekamMedis === appointment.emrNumber) {
           patientAppointments.push({
-            appointmentId: patientData.appointmentId,
-            accountAddress: patientData.accountAddress,
-            accountEmail: patientData.accountEmail,
-            nomorRekamMedis: patientData.nomorRekamMedis,
-            namaLengkap: patientData.namaLengkap,
-            nomorIdentitas: patientData.nomorIdentitas,
-            email : patientData.email,
-            telpSelular: patientData.telpSelular,
-            rumahSakit: patientData.rumahSakit,
-            idDokter: patientData.idDokter,
-            alamatDokter: patientData.alamatDokter,
-            namaDokter: patientData.namaDokter,
-            spesialisasiDokter: patientData.spesialisasiDokter,
-            idJadwal: patientData.idJadwal,
-            hariTerpilih: patientData.hariTerpilih,
-            tanggalTerpilih: patientData.tanggalTerpilih,
-            waktuTerpilih: patientData.waktuTerpilih,
-            idPerawat: patientData.idPerawat,
-            alamatPerawat: patientData.alamatPerawat,
-            namaPerawat: patientData.namaPerawat,
-            status: patientData.status,
-            createdAt: patientData.createdAt
+            data: {
+              appointmentId: patientData.appointmentId,
+              accountAddress: patientData.accountAddress,
+              accountEmail: patientData.accountEmail,
+              nomorRekamMedis: patientData.nomorRekamMedis,
+              namaLengkap: patientData.namaLengkap,
+              nomorIdentitas: patientData.nomorIdentitas,
+              email : patientData.email,
+              telpSelular: patientData.telpSelular,
+              rumahSakit: patientData.rumahSakit,
+              idDokter: patientData.idDokter,
+              alamatDokter: patientData.alamatDokter,
+              namaDokter: patientData.namaDokter,
+              spesialisasiDokter: patientData.spesialisasiDokter,
+              idJadwal: patientData.idJadwal,
+              hariTerpilih: patientData.hariTerpilih,
+              tanggalTerpilih: patientData.tanggalTerpilih,
+              waktuTerpilih: patientData.waktuTerpilih,
+              idPerawat: patientData.idPerawat,
+              alamatPerawat: patientData.alamatPerawat,
+              namaPerawat: patientData.namaPerawat,
+              status: patientData.status,
+              createdAt: patientData.createdAt
+            },
           });
         }
       }
     }
-    res.status(200).json({ patientAccountData, patientProfiles, patientAppointments });
+
+    const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
+    const schedules = await scheduleContract.getLatestActiveDoctorSchedule();
+    const scheduleCid = schedules.cid;
+    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${scheduleCid}`;
+    const ipfsResponse = await fetch(ipfsGatewayUrl);
+    const ipfsData = await ipfsResponse.json();
+    res.status(200).json({ ...ipfsData, patientAppointments });
   } catch (error) {
-    console.error("Error fetching appointments:", error);
-    res.status(500).json({ message: "Failed to fetch appointments" });
+    console.error("Error fetching patient appointments:", error);
+    res.status(500).json({ message: "Failed to fetch patient appointments" });
   }
 });
 
