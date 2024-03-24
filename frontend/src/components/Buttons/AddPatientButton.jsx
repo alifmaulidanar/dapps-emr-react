@@ -1,7 +1,6 @@
-import { Button } from "antd";
+import { Button, Tag } from "antd";
 import Swal from "sweetalert2";
 import { ethers } from "ethers";
-import flatpickr from "flatpickr";
 import { CONN } from "../../../../enum-global";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
@@ -220,8 +219,12 @@ export default function AddPatientButton({ token }) {
                       Nama Lengkap: {foundPatientProfile.namaLengkap}
                     </p>
                     <p className="mb-2 text-sm text-gray-900">
-                      No. Rekam Medis: <span className="bg-green-100 text-green-800 text-sm px-2.5 py-0.5 rounded text-center">{foundPatientProfile.nomorRekamMedis}</span>
+                      No. Rekam Medis:
+                      {foundPatientProfile && foundPatientProfile.nomorRekamMedis && (
+                        <Tag color="green">{foundPatientProfile.nomorRekamMedis}</Tag>
+                      )}
                     </p>
+                      {/* <span className="bg-green-100 text-green-800 text-sm px-2.5 py-0.5 rounded text-center">{foundPatientProfile.nomorRekamMedis}</span> */}
                   </div>
                 </div>
                 <button

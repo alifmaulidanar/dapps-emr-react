@@ -99,9 +99,10 @@ export default function NakesPatientList({ role }) {
       key: 'telpSelular',
     },
     {
-      title: 'Rumah Sakit Asal',
+      title: 'RS Asal',
       dataIndex: 'rumahSakitAsal',
       key: 'rumahSakitAsal',
+      render: (text) => getHospitalName(text),
     },
     {
       title: 'Aksi',
@@ -109,6 +110,21 @@ export default function NakesPatientList({ role }) {
       render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.nomorRekamMedis)}>Lihat</Button>),
     },
   ];
+
+  const getHospitalName = (hospitalCode) => {
+    switch (hospitalCode) {
+      case "1":
+        return "Bekasi";
+      case "2":
+        return "BSD";
+      case "3":
+        return "Jakarta";
+      case "4":
+        return "Lampung";
+      default:
+        return "Tidak diketahui";
+    }
+  };
 
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,

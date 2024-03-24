@@ -192,9 +192,7 @@ function PatientAppointmentDisplay({ data, token }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          ...signedData,
-        }),
+        body: JSON.stringify({ ...signedData }),
       });
   
       const result = await response.json();
@@ -209,7 +207,7 @@ function PatientAppointmentDisplay({ data, token }) {
   };
 
   return (
-    <div className="grid p-8 gap-y-12">
+    <div className="grid px-12 py-8 gap-y-8">
       <div className="grid items-center mx-auto text-center text-gray-900 w-fit gap-y-2">
         <h1 className="text-xl font-medium">Data Pendaftaran Rawat Jalan</h1>
         {/* <Tag color="blue" className="m-0 mx-auto w-fit">{data.appointment.data.cid}</Tag> */}
