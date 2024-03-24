@@ -123,7 +123,7 @@ router.post("/:role/signup", async (req, res) => {
       },
       ipfs: { cid: cid, data: ipfsData },
     };
-    console.log(responseData);
+    // console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);

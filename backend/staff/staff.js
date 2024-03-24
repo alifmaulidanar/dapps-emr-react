@@ -51,6 +51,8 @@ router.post("/check-patient-profile", authMiddleware, async (req, res) => {
     if (!address) return res.status(401).json({ message: "Unauthorized" });
 
     const account = await userContract.getAccountByAddress(patientAddress);
+    if (!account) return res.status(404).json({ error: "Pasien tidak ditemukan", message: "Alamat pasien tidak ditemukan." });
+
     let foundProfile = false;
     let foundPatientProfile;
     const accountCid = account.cid;
@@ -67,6 +69,8 @@ router.post("/check-patient-profile", authMiddleware, async (req, res) => {
         }
       }
     }
+
+    if (!foundProfile) return res.status(404).json({ error: "Profil pasien tidak ditemukan", message: "Nomor rekam medis pasien tidak ditemukan." });
     return res.status(200).json({ foundPatientProfile });
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -177,7 +181,6 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
         }
       }
     }
-    console.log(patientAccountData)
     res.status(200).json({ patientAccountData, patientProfiles });
   } catch (error) {
     console.error("Error fetching appointments:", error);

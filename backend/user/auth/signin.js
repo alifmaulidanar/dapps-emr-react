@@ -75,7 +75,7 @@ router.post("/:role/signin", async (req, res) => {
       },
       ipfs: { cid: cid, data: ipfsData },
     };
-    console.log(responseData);
+    // console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
