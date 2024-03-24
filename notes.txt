@@ -241,10 +241,11 @@ next:
 ✅ terdapat tombol buat appointment baru
 ✅ sudah auto reload setelah buat dan cancel appointment
 ✅ menggunakan sessionStorage untuk userData dan profiles
+✅ sorting appointment list
+✅ penyempurnaan tag, appointment card list, table dari sisi pasien dan staff
+✅ tampilan status di appointment card list
 
 next:
-- persiapan pembuatan dropdown profile patient untuk berganti2 sesuai kebutuhan dengan default "all"
-- beri penanda di appointment card list status appointment (patient)
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -354,12 +355,11 @@ next:
 ✅ endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 
 next:
-- validasi data pembuatan appointment
-- buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
 - terima appointment dari dokter dan nurse
 - endpoint appointment sisi dokter dan perawat
+- validasi data pembuatan appointment
+- buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
 - perbagus validasi authMiddleware untuk semua endpoint backend
-- perisapan masuk ke pembuatan appointment (pengajuan rawat jalan)
 
 
 TERKAIT PEMBUATAN APPOINTMENT / RAWAT JALAN
@@ -406,3 +406,12 @@ abis ini ngapain:
 ✅ implementasi remove temporary profile pasien dari staff -> sediakan tombol cancel
 ✅ pembuatan appointment oleh staff
 - penerimaan appointment oleh nurse dan dokter
+
+
+🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
+- manfaatkan getAppointmentsByNurse() dan getAppointmentsByDoctor() untuk mendapatkan appointment yang terkait dengan perawat dan dokter tersebut
+- perawat akan mengecek profil pasien (termasuk melihat riwayat pengobatan (EMR)) dan pengajuan rawat jalan (cek userData dan appointmentData)
+- perawat mengisikan informasi awal pemeriksaan (bb, tb, keluhan, dll.) -> pembuatan data pemeriksaan -> masuk ke array 'pengobatan' -> berarti update objek dan cid profil pada struct, array, dan mapping pasien pada akun terkait (update cid updateUserAccount())
+- perawat simpan -> sementara
+- dokter melakukan hal yg sama dengan perawwat tadi -> isian dari perawat bisa diedit dokter juga
+- dokter simpan permanen
