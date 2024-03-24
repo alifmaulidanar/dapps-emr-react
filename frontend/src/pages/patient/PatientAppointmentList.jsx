@@ -79,6 +79,8 @@ export default function PatientAppointmentList({ role }) {
     }
   }, [selectedUser, appointmentData]);
 
+  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
+
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
     setSelectedUser(user);
@@ -123,7 +125,7 @@ export default function PatientAppointmentList({ role }) {
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
           <AppointmentCardList
-            appointmentData={filteredAppointmentData || []}
+            appointmentData={sortedAppointmentData || []}
           />
         </div>
       </div>

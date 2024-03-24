@@ -1,7 +1,6 @@
 import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
-import { Table, Button, Modal, Tag } from "antd";
-import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
+import { Table, Button, Modal, Tag, Select } from "antd";
 import NavbarController from "../../components/Navbar/NavbarController";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import PatientAppointmentDisplayStaff from "./PatientAppointmentDisplayStaff";
@@ -13,25 +12,19 @@ export default function StaffPatientAppointments({ role }) {
   const profiles = JSON.parse(sessionStorage.getItem("staffPatientProfiles"));
   if (!token || !accountAddress) window.location.assign(`/staff/signin`);
 
-  const [users, setUsers] = useState([]);
   const [scheduleData, setScheduleData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [appointmentData, setAppointmentData] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [filteredAppointmentData, setFilteredAppointmentData] = useState([]);
+  const [selectedProfile, setSelectedProfile] = useState("Semua");
 
+  const handleProfileChange = (value) => { setSelectedProfile(value); };
   // const handleOk = () => { setIsModalOpen(false) };
   const handleCancel = () => {setIsModalOpen(false) };
   const showModal = (appointmentId) => {
     const selected = appointmentData.find(a => a.data.appointmentId === appointmentId);
     setSelectedAppointment(selected.data);
     setIsModalOpen(true);
-  };
-
-  const handleUserChange = (nomorIdentitas) => {
-    const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
-    setSelectedUser(user);
   };
 
   useEffect(() => {
@@ -58,15 +51,6 @@ export default function StaffPatientAppointments({ role }) {
       fetchDataAsync();
     }
   }, []);
-
-  useEffect(() => {
-    if (selectedUser) {
-      const filteredData = appointmentData.filter(
-        (appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas
-      );
-      setFilteredAppointmentData(filteredData);
-    }
-  }, [selectedUser, appointmentData]);
 
   let type;
   switch (role) {
@@ -116,6 +100,11 @@ export default function StaffPatientAppointments({ role }) {
       key: 'rumahSakit',
     },
     {
+      title: 'Waktu',
+      dataIndex: 'waktuTerpilih',
+      key: 'waktuTerpilih',
+    },
+    {
       title: 'Tanggal',
       dataIndex: 'tanggalTerpilih',
       key: 'tanggalTerpilih',
@@ -142,12 +131,16 @@ export default function StaffPatientAppointments({ role }) {
     },
   ];
 
-  const dataSource = appointmentData?.map((appointment, index) => ({
+  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.data.nomorRekamMedis === selectedProfile);
+  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
+
+  const dataSource = sortedAppointmentData?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment.data.appointmentId,
     namaLengkap: appointment.data.namaLengkap,
     namaDokter: appointment.data.namaDokter,
     spesialisasiDokter: `Dokter ${appointment.data.spesialisasiDokter}`,
+    waktuTerpilih: appointment.data.waktuTerpilih,
     tanggalTerpilih: new Date(appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
     rumahSakit: appointment.data.rumahSakit,
     status: appointment.data.status,
@@ -155,30 +148,34 @@ export default function StaffPatientAppointments({ role }) {
 
   return (
     <>
-      <NavbarController
-        type={type}
-        page="Profil Pasien"
-        color="blue"
-        accountAddress={accountAddress}
-      />
-      <div className="grid min-h-screen grid-cols-1 py-24 mx-12">
-        <div className="grid grid-cols-5 gap-x-8">
-            <div className="grid col-span-5 mb-8">
+      <NavbarController type={type} page="Profil Pasien" color="blue" accountAddress={accountAddress} />
+      <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
+        <div className="grid justify-between grid-cols-5 gap-x-8">
+          <div className="grid items-start grid-cols-2 col-span-5">
+            <div className="grid mb-8">
               <MakeAppointmentButton
                 buttonText={"Buat Appointment"}
                 scheduleData={scheduleData || []}
                 userData={userData}
                 token={token}
               />
-              <ProfileDropdown
-                users={users}
-                onChange={handleUserChange}
-                defaultValue={selectedUser?.nomorIdentitas || "Tidak ada pasien"}
-              />
             </div>
-            <div className="grid col-span-5">
-              <Table columns={columns} dataSource={dataSource} />
+            <div className="grid mb-8 ml-auto">
+              <Select
+                style={{ width: 200, marginLeft: 20 }}
+                onChange={handleProfileChange}
+                defaultValue="Semua"
+              >
+                <Select.Option value="Semua">Semua</Select.Option>
+                {profiles.map(profile => (
+                  <Select.Option key={profile.nomorRekamMedis} value={profile.nomorRekamMedis}>{profile.namaLengkap}</Select.Option>
+                ))}
+              </Select>
             </div>
+          </div>
+          <div className="grid items-start col-span-5">
+            <Table columns={columns} dataSource={dataSource} />
+          </div>
         </div>
       </div>
       <Modal width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
