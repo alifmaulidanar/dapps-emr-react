@@ -9,9 +9,9 @@ import { CONN } from "../../../../enum-global";
 // Nurse tag color
 const getTagColor = (address) => {
   const colorToAddress = {
-    "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "green",
-    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "blue",
     "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "red",
+    "0xBec10133688B118Bd183B73B7963617472800E83": "green",
+    "0x0be909d68efd2b18111254782D0Edf077CD7F6aD": "blue",
   };
   return colorToAddress[address];
 };

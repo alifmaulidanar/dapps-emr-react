@@ -82,11 +82,6 @@ function NavbarController({ type, page, color, accountData = null }) {
         color: page === "doctor" ? color : defaultColor,
       },
       {
-        text: "Appointment",
-        linkToPage: `/doctor/appointment`,
-        color: page === "Appointment" ? color : defaultColor,
-      },
-      {
         text: "Profil Dokter",
         linkToPage: `/doctor/profile`,
         color: page === "Profil Dokter" ? color : defaultColor,

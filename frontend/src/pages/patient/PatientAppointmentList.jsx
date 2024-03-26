@@ -71,7 +71,7 @@ export default function PatientAppointmentList({ role }) {
   }, [token, accountAddress]);
 
   useEffect(() => {
-    if (selectedUser) {
+    if (selectedUser && appointmentData) {
       const filteredData = appointmentData.filter(
         (appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas
       );
