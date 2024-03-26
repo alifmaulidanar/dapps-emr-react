@@ -10,7 +10,8 @@ import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
 // global page routes
 import UserAccount from "./pages/Account";
 import UserProfile from "./pages/Profile";
-import NakesPatientList from "./pages/NakesPatientList";
+import DoctorPatientList from "./pages/doctor/DoctorPatientList";
+import StaffPatientList from "./pages/staff/StaffPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
 import StaffPatientAppointments from "./pages/staff/StaffPatientAppointments";
@@ -117,7 +118,7 @@ function App() {
             <>
               <Route
                 path={`/doctor/patient-list`}
-                element={<NakesPatientList role="doctor" />}
+                element={<DoctorPatientList role="doctor" />}
               />
               {/* <Route
               path={`/doctor/record-list/record/:recordAddress`}
@@ -137,7 +138,7 @@ function App() {
             <>
               <Route
                 path={`/nurse/patient-list`}
-                element={<NakesPatientList role="nurse" />}
+                element={<DoctorPatientList role="nurse" />}
               />
               <Route
                 path={`/nurse/record-list/record/:recordAddress`}
@@ -161,7 +162,7 @@ function App() {
             <>
               <Route
                 path={`/staff/patient-list`}
-                element={<NakesPatientList role="staff" />}
+                element={<StaffPatientList role="staff" />}
               />
               <Route
                 path={`/staff/appointment`}

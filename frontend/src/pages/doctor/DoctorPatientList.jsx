@@ -1,13 +1,11 @@
-import "./../index.css";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import NavbarController from "../components/Navbar/NavbarController";
-import AddPatientButton from "../components/Buttons/AddPatientButton";
-import PatientData from "./staff/PatientData";
+import NavbarController from "../../components/Navbar/NavbarController";
+import AddPatientButton from "../../components/Buttons/AddPatientButton";
+import PatientData from "../staff/PatientData";
 import { Table, Button, Modal } from "antd";
-import { CONN } from "../../../enum-global";
+import { CONN } from "../../../../enum-global";
 
-export default function NakesPatientList({ role }) {
+export default function DoctorPatientList({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
@@ -31,7 +29,7 @@ export default function NakesPatientList({ role }) {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-list`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-list`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -39,6 +37,7 @@ export default function NakesPatientList({ role }) {
           },
         });
         const data = await response.json();
+        console.log({data})
         if (!response.ok) console.log(data.error, data.message);
         setAccounts(data.patientAccountData);
         setProfiles(data.patientProfiles);
