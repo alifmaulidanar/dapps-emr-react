@@ -100,7 +100,11 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ✅ fix update appointment data function agar lebih efektif dalam memperbarui data appointment
 ✅ perbaikan function remove temporary data dari staff untuk menghapus data profil pasien temporal dari akun staff
 
+26/03/24
+✅ perbaikan smart contract outpatient dengan menambahkan emrNumber dan referensi patient address, doctor address, dan nurse address secara lengkap ke masing-masing role
+
 next:
+- penyesuaian smart contract lagi dalam pengembangan sisi dokter
 - lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 ===================================================================================================
@@ -245,7 +249,11 @@ next:
 ✅ penyempurnaan tag, appointment card list, table dari sisi pasien dan staff
 ✅ tampilan status di appointment card list
 
+26/03/24
+✅ dashboard dokter sudah bisa menampilkan daftar pasien pasien dokter terkait
+
 next:
+- bikin halaman baru untuk menampilkan profil pasien, appointment, dan emr
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -354,7 +362,12 @@ next:
 ✅ pembuatan appointment oleh staff
 ✅ endpoint appointment sisi pasien dan staff (post, get) --> perawat bisa signin dulu karena setiap pembuatan appointment akan otomatis assign dokter dan perawat random
 
+26/03/24
+✅ buat router doctor sendiri
+✅ bisa get outpatient by doctor address
+
 next:
+- buat endpoint untuk halaman yang bisa menampilkan profil pasien, appointment, dan emr
 - terima appointment dari dokter dan nurse
 - endpoint appointment sisi dokter dan perawat
 - validasi data pembuatan appointment
