@@ -6,7 +6,7 @@ contract OutpatientManagement {
     event OutpatientDataUpdated(uint id, address owner, address doctor, address nurse, string cid);
     event TemporaryPatientDataAdded(uint id, address staffAddress, address patientAddress, string emrNumber);
 
-    struct AppointmentData {uint id; address owner; string cid;}
+    struct AppointmentData { uint id; address patientAddress; address doctorAddress; address nurseAddress; string emrNumber; string cid; }
     struct TemporaryPatientData {uint id; address patientAddress; string emrNumber; uint addedAt;}
 
     mapping(address => uint[]) private appointmentsByPatient;
@@ -21,30 +21,25 @@ contract OutpatientManagement {
     AppointmentData[] private nurseAppointments;
     TemporaryPatientData[] private temporaryPatientData;
 
-    function addOutpatientData(address _patientAddress, address _doctorAddress, address _nurseAddress, string memory _cid) external {
-        uint patientAppointmentId = appointmentCounter;
-        uint doctorAppointmentId = appointmentCounter;
-        uint nurseAppointmentId = appointmentCounter;
-        appointmentCounter++;
-        patientAppointments.push(AppointmentData(patientAppointmentId, _patientAddress, _cid));
-        doctorAppointments.push(AppointmentData(doctorAppointmentId, _doctorAddress, _cid));
-        nurseAppointments.push(AppointmentData(nurseAppointmentId, _nurseAddress, _cid));
-        appointmentsByPatient[_patientAddress].push(patientAppointmentId);
-        appointmentsByDoctor[_doctorAddress].push(doctorAppointmentId);
-        appointmentsByNurse[_nurseAddress].push(nurseAppointmentId);
+    function addOutpatientData(address _patientAddress, address _doctorAddress, address _nurseAddress, string memory _emrNumber, string memory _cid) external {
+        uint appointmentId = appointmentCounter++;
+        AppointmentData memory newAppointment = AppointmentData(appointmentId, _patientAddress, _doctorAddress, _nurseAddress, _emrNumber, _cid);
+        patientAppointments.push(newAppointment);
+        doctorAppointments.push(newAppointment);
+        nurseAppointments.push(newAppointment);
+        appointmentsByPatient[_patientAddress].push(appointmentId);
+        appointmentsByDoctor[_doctorAddress].push(appointmentId);
+        appointmentsByNurse[_nurseAddress].push(appointmentId);
+        emit OutpatientDataAdded(appointmentId, _patientAddress, _doctorAddress, _nurseAddress, _cid);
     }
 
     function updateOutpatientData(uint _appointmentId, address _patientAddress, address _doctorAddress, address _nurseAddress, string memory _cid) external {
-        require(_appointmentId > 0 && _appointmentId <= appointmentCounter, "Invalid appointment ID");
-        AppointmentData storage patientAppointment = patientAppointments[_appointmentId - 1];
-        AppointmentData storage doctorAppointment = doctorAppointments[_appointmentId - 1];
-        AppointmentData storage nurseAppointment = nurseAppointments[_appointmentId - 1];
-        require(patientAppointment.owner == _patientAddress, "Unauthorized patient");
-        require(doctorAppointment.owner == _doctorAddress, "Unauthorized doctor");
-        require(nurseAppointment.owner == _nurseAddress, "Unauthorized nurse");
-        patientAppointment.cid = _cid;
-        doctorAppointment.cid = _cid;
-        nurseAppointment.cid = _cid;
+        require(_appointmentId > 0 && _appointmentId < appointmentCounter, "Invalid appointment ID");
+        AppointmentData storage appointment = patientAppointments[_appointmentId - 1];
+        require(appointment.patientAddress == _patientAddress, "Unauthorized patient");
+        require(appointment.doctorAddress == _doctorAddress, "Unauthorized doctor");
+        require(appointment.nurseAddress == _nurseAddress, "Unauthorized nurse");
+        appointment.cid = _cid;
         emit OutpatientDataUpdated(_appointmentId, _patientAddress, _doctorAddress, _nurseAddress, _cid);
     }
 

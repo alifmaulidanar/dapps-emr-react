@@ -124,6 +124,7 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
       appointmentData.accountAddress,
       appointmentData.doctorAddress,
       appointmentData.nurseAddress,
+      appointmentDataIpfs.nomorRekamMedis,
       newCid.path
     );
     await outpatientTx.wait();

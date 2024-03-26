@@ -123,6 +123,11 @@
 			},
 			{
 				"internalType": "string",
+				"name": "_emrNumber",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "_cid",
 				"type": "string"
 			}
@@ -168,8 +173,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -190,8 +210,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -212,8 +247,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -248,8 +298,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -284,8 +349,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -320,8 +400,23 @@
 					},
 					{
 						"internalType": "address",
-						"name": "owner",
+						"name": "patientAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "doctorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "nurseAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
 					},
 					{
 						"internalType": "string",
