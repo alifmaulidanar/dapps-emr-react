@@ -6,6 +6,7 @@ import SignIn from "./pages/SignIn";
 import PatientRecordList from "./pages/patient/PatientRecordList";
 import PatientRecord from "./pages/patient/PatientRecord";
 import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
+import DoctorPatientDetails from "./pages/doctor/DoctorPatientDetails";
 
 // global page routes
 import UserAccount from "./pages/Account";
@@ -120,10 +121,10 @@ function App() {
                 path={`/doctor/patient-list`}
                 element={<DoctorPatientList role="doctor" />}
               />
-              {/* <Route
-              path={`/doctor/record-list/record/:recordAddress`}
-              element={<PatientRecord />}
-            /> */}
+              <Route
+                path={`/doctor/patient-list/patient-details`}
+                element={<DoctorPatientDetails role="doctor" />}
+              />
               <Route
                 path={`/doctor/profile`}
                 element={<UserProfile role="doctor" />}

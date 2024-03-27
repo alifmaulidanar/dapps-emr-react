@@ -4,6 +4,7 @@ import AddPatientButton from "../../components/Buttons/AddPatientButton";
 import PatientData from "../staff/PatientData";
 import { Table, Button, Modal } from "antd";
 import { CONN } from "../../../../enum-global";
+import { useNavigate } from "react-router-dom";
 
 export default function DoctorPatientList({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -14,17 +15,18 @@ export default function DoctorPatientList({ role }) {
   const [profiles, setProfiles] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleCancel = () => {setIsModalOpen(false) };
-  const showModal = (nomorRekamMedis) => {
-    const selectedProfile = profiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
-    const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
-    setSelectedData({
-      account: selectedAccount,
-      profile: selectedProfile
-    });
-    setIsModalOpen(true);
-  };
+  // const showModal = (nomorRekamMedis) => {
+  //   const selectedProfile = profiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
+  //   const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
+  //   setSelectedData({
+  //     account: selectedAccount,
+  //     profile: selectedProfile
+  //   });
+  //   setIsModalOpen(true);
+  // };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -37,7 +39,6 @@ export default function DoctorPatientList({ role }) {
           },
         });
         const data = await response.json();
-        console.log({data})
         if (!response.ok) console.log(data.error, data.message);
         setAccounts(data.patientAccountData);
         setProfiles(data.patientProfiles);
@@ -106,8 +107,12 @@ export default function DoctorPatientList({ role }) {
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.nomorRekamMedis)}>Lihat</Button>),
-    },
+      render: (_, record) => (
+        <Button type="primary" ghost onClick={() => navigate('/doctor/patient-list/patient-details', { state: { record } })}>
+          {role === 'doctor' ? 'Detail' : 'Lihat'}
+        </Button>
+      ),
+    }
   ];
 
   const getHospitalName = (hospitalCode) => {
@@ -163,10 +168,12 @@ export default function DoctorPatientList({ role }) {
       <NavbarController type={type} page={role} color="blue" />
       <div>
         <div className="grid items-center justify-center w-3/4 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
-          <div className="flex gap-x-4 h-fit">
-            <AddPatientButton token={token} />
-            {/* <ListSearchBar /> */}
-          </div>
+          {role !== "doctor" && (
+            <div className="flex gap-x-4 h-fit">
+                <AddPatientButton token={token} />
+                {/* <ListSearchBar /> */}
+            </div>
+          )}
         </div>
         <div className="grid justify-center w-3/4 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
