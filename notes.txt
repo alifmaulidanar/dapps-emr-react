@@ -252,8 +252,14 @@ next:
 26/03/24
 ✅ dashboard dokter sudah bisa menampilkan daftar pasien pasien dokter terkait
 
+27/03/24
+✅ bikin halaman baru untuk menampilkan profil pasien, appointment, dan emr
+✅ perbaikan penerimaan data karena ada update struktur data pasien
+✅ modal detail profil pasien sudah bisa diakses
+
 next:
-- bikin halaman baru untuk menampilkan profil pasien, appointment, dan emr
+- perbaiki card emr dengan lebih baik (form pembuatan maupun penampilan)
+- cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -366,9 +372,13 @@ next:
 ✅ buat router doctor sendiri
 ✅ bisa get outpatient by doctor address
 
+27/03/24
+✅ buat endpoint untuk halaman yang bisa menampilkan profil pasien, appointment, dan emr
+✅ perbaikan struktur data pasien agar dapat melakukan filter riwayatPengobatan (EMR)
+
 next:
-- buat endpoint untuk halaman yang bisa menampilkan profil pasien, appointment, dan emr
-- terima appointment dari dokter dan nurse
+- pembuatan emr dari dokter terkait
+- pengecekan keandalan pembuatan emr
 - endpoint appointment sisi dokter dan perawat
 - validasi data pembuatan appointment
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
