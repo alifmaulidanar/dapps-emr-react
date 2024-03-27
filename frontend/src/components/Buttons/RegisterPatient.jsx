@@ -31,7 +31,7 @@ export default function RegisterPatientButton({
     setIsModalOpen(false);
   };
 
-  const dateFormat = "DD/MM/YYYY";
+  const dateFormat = "YYYY-MM-DD";
   const customFormat = (value) => `${value.format(dateFormat)}`;
 
   // const Tab = () => (
@@ -164,6 +164,7 @@ export default function RegisterPatientButton({
     console.log("Register Patient Profile Signature:", signature);
     formattedPatientData.role = patientAccountData.accountRole;
     formattedPatientData.foto = null;
+    formattedPatientData.riwayatPengobatan = [];
 
     try {
       const response = await fetch(

@@ -18,6 +18,7 @@ router.use(express.json());
 
 // Skema validasi Joi untuk data pasien
 const patientSchema = Joi.object({
+  nomorRekamMedis: Joi.string().required(),
   namaLengkap: Joi.string().required(),
   nomorIdentitas: Joi.string().required(),
   tempatLahir: Joi.string().required(),
@@ -95,17 +96,17 @@ const userSchema = Joi.object({
 router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
-        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, userAccountData, role, signature, foto
+      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, userAccountData, role, signature, foto, riwayatPengobatan
     } = req.body;
 
     // Validasi input menggunakan Joi
     const { error } = patientSchema.validate({
-      namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -122,7 +123,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, userAccountData, role
+        negaraKerabat, nomorRekamMedis, userAccountData, role
       }),
       signature
     );
@@ -146,11 +147,11 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     const indexToUpdate = ipfsData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === nomorIdentitas);
     if (indexToUpdate !== -1) {
       ipfsData.accountProfiles[indexToUpdate] = {
-        namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto, riwayatPengobatan
       };
     } else {
       return res.status(404).json({ error: "Profile not found" });
@@ -177,7 +178,6 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
     const responseData = { message: `${role} Profile Updated`, account: getAccount, ipfs: newIpfsData };
-    console.log(responseData)
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
@@ -195,8 +195,8 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-        kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData, role, signature, foto
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData, role, signature, foto
     } = req.body;
 
     // Validasi input menggunakan Joi

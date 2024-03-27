@@ -1,16 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Avatar,
-  Upload,
-  message,
-  Button,
-  Form,
-  Input,
-  Select,
-  Checkbox,
-  DatePicker,
-  Spin,
-} from "antd";
+import { Avatar, Upload, message, Button, Form, Input, Select, Checkbox, DatePicker, Spin } from "antd";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -21,12 +10,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global";
 
-// Membuat instance client IPFS
-const ipfsClient = create({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
+const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 export default function UserData({ userDataProps, userAccountData }) {
   const token = sessionStorage.getItem("userToken");
@@ -68,10 +52,7 @@ export default function UserData({ userDataProps, userAccountData }) {
 
   const uploadProps = {
     beforeUpload: (file) => {
-      const isAccepted =
-        file.type === "image/jpeg" ||
-        file.type === "image/jpg" ||
-        file.type === "image/png";
+      const isAccepted = file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png";
       if (!isAccepted) {
         message.error("You can only upload JPEG/JPG/PNG file!");
       }
@@ -81,15 +62,12 @@ export default function UserData({ userDataProps, userAccountData }) {
     onChange: handleFileChange,
   };
 
-  const showLoader = () => {
-    setSpinning(true);
-  };
+  const showLoader = () => { setSpinning(true) };
 
-  const dateFormat = "DD/MM/YYYY";
+  const dateFormat = "YYYY-MM-DD";
   // const customFormat = (value) => `${value.format(dateFormat)}`;
 
   useEffect(() => {
-    // Simpan data awal ke state
     const initialFormData = {
       ...userDataProps,
       tanggalLahir: userDataProps.tanggalLahir
@@ -183,6 +161,7 @@ export default function UserData({ userDataProps, userAccountData }) {
 
         const updatedValues = {
           ...values,
+          nomorRekamMedis: userIdentification,
           tanggalLahir: values.tanggalLahir
             ? dayjs(values.tanggalLahir).format(dateFormat)
             : "",
@@ -201,6 +180,8 @@ export default function UserData({ userDataProps, userAccountData }) {
           JSON.stringify(updatedValues)
         );
         updatedValues.signature = signature;
+        updatedValues.riwayatPengobatan = userDataProps.riwayatPengobatan || [];
+        console.log({ updatedValues });
 
         if (!cid) {
           updatedValues.foto = userImage;
@@ -273,10 +254,7 @@ export default function UserData({ userDataProps, userAccountData }) {
     { value: "Kalimantan Tengah", label: "Kalimantan Tengah" },
     { value: "Kalimantan Timur", label: "Kalimantan Timur" },
     { value: "Kalimantan Utara", label: "Kalimantan Utara" },
-    {
-      value: "Kepulauan Bangka Belitung",
-      label: "Kepulauan Bangka Belitung",
-    },
+    { value: "Kepulauan Bangka Belitung", label: "Kepulauan Bangka Belitung" },
     { value: "Kepulauan Riau", label: "Kepulauan Riau" },
     { value: "Lampung", label: "Lampung" },
     { value: "Maluku", label: "Maluku" },

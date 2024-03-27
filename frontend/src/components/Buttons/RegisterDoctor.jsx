@@ -28,7 +28,7 @@ export default function RegisterDoctorButton({ buttonText, userAccountData }) {
     setIsModalOpen(false);
   };
 
-  const dateFormat = "DD/MM/YYYY";
+  const dateFormat = "YYYY-MM-DD";
   const customFormat = (value) => `${value.format(dateFormat)}`;
 
   // Connect MetaMask to Ganache lokal

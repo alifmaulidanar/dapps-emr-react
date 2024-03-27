@@ -70,7 +70,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
     setSpinning(true);
   };
 
-  const dateFormat = "DD/MM/YYYY";
+  const dateFormat = "YYYY-MM-DD";
   // const customFormat = (value) => `${value.format(dateFormat)}`;
 
   useEffect(() => {
