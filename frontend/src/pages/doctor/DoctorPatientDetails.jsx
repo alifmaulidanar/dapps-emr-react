@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
-import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Upload } from "antd";
-import { UserOutlined, RightOutlined, UploadOutlined  } from "@ant-design/icons";
+import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Upload, message } from "antd";
+const  { Dragger } = Upload;
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+import { UserOutlined, RightOutlined, InboxOutlined } from "@ant-design/icons";
 import { CONN } from "../../../../enum-global";
 import BackButton from "../../components/Buttons/Navigations";
 import { useLocation } from "react-router-dom";
@@ -20,10 +24,7 @@ export default function DoctorPatientDetails({ role }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCancel = () => {setIsModalOpen(false) };
-  const showProfileModal = () => {
-    setSelectedData({ profile });
-    setIsModalOpen(true);
-  };
+  const showProfileModal = () => { setSelectedData({ profile }); setIsModalOpen(true); };
   const showEMR = (appointmentId) => {
     const appointment = appointments.find(a => a.appointmentId === appointmentId);
     const history = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
@@ -119,80 +120,16 @@ export default function DoctorPatientDetails({ role }) {
     rumahSakitAsal: appointment?.rumahSakitAsal,
   }));
 
-
   function convertProfileData(originalProfile) {
     const profile = {...originalProfile};
+    const rumahSakitAsalMap = { '1': 'Eka Hospital Bekasi', '2': 'Eka Hospital BSD', '3': 'Eka Hospital Jakarta', '4': 'Eka Hospital Lampung' };
+    const genderMap = { '0': 'Tidak diketahui', '1': 'Laki-laki', '2': 'Perempuan', '3': 'Tidak dapat ditentukan', '4': 'Tidak mengisi' };
+    const agamaMap = { '1': 'Islam', '2': 'Kristen (Protestan)', '3': 'Katolik', '4': 'Hindu', '5': 'Budha', '6': 'Konghuchu', '7': 'Penghayat', '8': 'Lain-lain' };
+    const golonganDarahMap = { '1': 'A', '2': 'B', '3': 'AB', '4': 'O', '5': 'A+', '6': 'A-', '7': 'B+', '8': 'B-', '9': 'AB+', '10': 'AB-', '11': 'O+', '12': 'O-', '13': 'Tidak tahu' };
+    const pendidikanMap = { '0': 'Tidak sekolah', '1': 'SD', '2': 'SLTP sederajat', '3': 'SLTA sederajat', '4': 'D1-D3 sederajat', '5': 'D4', '6': 'S1', '7': 'S2', '8': 'S3' };
+    const pekerjaanMap = { '0': 'Tidak Bekerja', '1': 'PNS', '2': 'TNI/POLRI', '3': 'BUMN', '4': 'Pegawai Swasta/Wirausaha', '5': 'Lain-lain' };
+    const pernikahanMap = { '1': 'Belum Kawin', '2': 'Kawin', '3': 'Cerai Hidup', '4': 'Cerai Mati' };
 
-    const rumahSakitAsalMap = {
-      '1': 'Eka Hospital Bekasi',
-      '2': 'Eka Hospital BSD',
-      '3': 'Eka Hospital Jakarta',
-      '4': 'Eka Hospital Lampung',
-    };
-  
-    const genderMap = {
-      '0': 'Tidak diketahui',
-      '1': 'Laki-laki',
-      '2': 'Perempuan',
-      '3': 'Tidak dapat ditentukan',
-      '4': 'Tidak mengisi',
-    };
-  
-    const agamaMap = {
-      '1': 'Islam',
-      '2': 'Kristen (Protestan)',
-      '3': 'Katolik',
-      '4': 'Hindu',
-      '5': 'Budha',
-      '6': 'Konghuchu',
-      '7': 'Penghayat',
-      '8': 'Lain-lain',
-    };
-  
-    const golonganDarahMap = {
-      '1': 'A',
-      '2': 'B',
-      '3': 'AB',
-      '4': 'O',
-      '5': 'A+',
-      '6': 'A-',
-      '7': 'B+',
-      '8': 'B-',
-      '9': 'AB+',
-      '10': 'AB-',
-      '11': 'O+',
-      '12': 'O-',
-      '13': 'Tidak tahu',
-    };
-  
-    const pendidikanMap = {
-      '0': 'Tidak sekolah',
-      '1': 'SD',
-      '2': 'SLTP sederajat',
-      '3': 'SLTA sederajat',
-      '4': 'D1-D3 sederajat',
-      '5': 'D4',
-      '6': 'S1',
-      '7': 'S2',
-      '8': 'S3',
-    };
-  
-    const pekerjaanMap = {
-      '0': 'Tidak Bekerja',
-      '1': 'PNS',
-      '2': 'TNI/POLRI',
-      '3': 'BUMN',
-      '4': 'Pegawai Swasta/Wirausaha',
-      '5': 'Lain-lain',
-    };
-  
-    const pernikahanMap = {
-      '1': 'Belum Kawin',
-      '2': 'Kawin',
-      '3': 'Cerai Hidup',
-      '4': 'Cerai Mati',
-    };
-  
     // Konversi nilai angka menjadi teks yang sesuai
     profile.rumahSakitAsal = rumahSakitAsalMap[profile.rumahSakitAsal];
     profile.gender = genderMap[profile.gender];
@@ -202,82 +139,112 @@ export default function DoctorPatientDetails({ role }) {
     profile.pekerjaan = pekerjaanMap[profile.pekerjaan];
     profile.pernikahan = pernikahanMap[profile.pernikahan];
     profile.genderKerabat = genderMap[profile.genderKerabat];
-  
     return profile;
   }
 
+  const dateFormat = "YYYY-MM-DD";
+  const inputStyling = { border: "1px solid #E2E8F0", borderRadius: "6px" };
+
   const EMRForm = ({ appointmentId, doctor, patient }) => {
     const [form] = Form.useForm();
+    const [fileList, setFileList] = useState([]);
+
+    const onFinish = async (values) => {
+      const formData = new FormData();
+      console.log({values})
+      Object.keys(values).forEach(key => { formData.append(key, values[key]); });
+      fileList.forEach(file => { formData.append('files', file.originFileObj); });
+      console.log({formData});
+
+      try {
+        const response = await fetch('/make-appointment', {
+          // method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
   
-    const onFinish = (values) => {
-      console.log('Received values of form: ', values);
-      // Lakukan POST request ke server dengan data form
+        const responseData = await response.json();
+        if (!response.ok) throw new Error(responseData.message);
+        message.success('Appointment made successfully!');
+      } catch (error) {
+        console.error('Failed to make appointment:', error);
+        message.error(`Error: ${error.message}`);
+      }
+    };
+
+    const customRequest = ({ file, onSuccess }) => { setFileList(prevList => [...prevList, file]); onSuccess("ok"); };
+    const uploadProps = {
+      multiple: true,
+      onRemove: file => {
+        setFileList(current => {
+          const index = current.indexOf(file);
+          const newFileList = current.slice();
+          newFileList.splice(index, 1);
+          return newFileList;
+        });
+      },
+      beforeUpload: file => { return false },
+      customRequest,
+      fileList,
     };
   
     return (
       <Form
         form={form}
-        name="medical_history_form"
+        name="medical_form"
         onFinish={onFinish}
         layout="vertical"
-        initialValues={{
-          appointmentId: appointmentId,
-          idDokter: doctor.idDokter,
-          namaDokter: doctor.namaDokter,
-          alamat: doctor.alamat,
-          gender: patient.gender,
-          usia: patient.usia,
-          golonganDarah: patient.golonganDarah,
-        }}
+        initialValues={{ appointmentId: appointmentId, tanggalRekamMedis: dayjs() }}
+        size="small"
       >
-        <Form.Item name="appointmentId" label="ID Pendaftaran">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="tanggalRekamMedis" label="Tanggal Rekam Medis">
-          <DatePicker />
-        </Form.Item>
-        <Form.Item name="judulRekamMedis" label="Judul Rekam Medis">
-          <Input />
-        </Form.Item>
-        <Form.Item name="idDokter" label="ID Dokter">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="namaDokter" label="Nama Dokter">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="alamat" label="Alamat">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="gender" label="Jenis Kelamin">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="usia" label="Usia">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="golonganDarah" label="Golongan Darah">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="alergi" label="Alergi">
-          <Input />
-        </Form.Item>
-        <Form.Item name="anamnesa" label="Anamnesa">
-          <Input />
-        </Form.Item>
-        <Form.Item name="terapi" label="Terapi">
-          <Input />
-        </Form.Item>
-        <Form.Item name="catatan" label="Catatan">
-          <Input.TextArea />
+        <div className="grid grid-cols-2 gap-x-4">
+          <Form.Item label="ID Pendaftaran" name="appointmentId" >
+            <Input disabled style={inputStyling} />
+          </Form.Item>
+          <Form.Item label="Tanggal Rekam Medis" name="tanggalRekamMedis"
+          >
+            <DatePicker
+              id="tanggalRekamMedis"
+              className="w-full h-auto text-gray-900"
+              style={inputStyling}
+              size="large"
+              format={dateFormat}
+              inputReadOnly={true}
+              disabled
+            />
+          </Form.Item>
+          <Form.Item label="Judul Rekam Medis" name="judulRekamMedis" >
+            <Input style={inputStyling} />
+          </Form.Item>
+          <Form.Item label="Alergi" name="alergi" >
+            <Input style={inputStyling} />
+          </Form.Item>
+          <Form.Item label="Anamnesa" name="anamnesa" >
+            <Input style={inputStyling} />
+          </Form.Item>
+          <Form.Item label="Terapi" name="terapi" >
+            <Input style={inputStyling} />
+          </Form.Item>
+        </div>
+        <Form.Item label="Catatan" name="catatan" >
+          <Input.TextArea style={inputStyling} rows={4} />
         </Form.Item>
         <Form.Item name="berkas" label="Berkas">
-          <Upload>
-            <Button icon={<UploadOutlined />}>Upload Berkas</Button>
-          </Upload>
+        <Dragger {...uploadProps}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">Click or drag file to this area to upload</p>
+          <p className="ant-upload-hint">
+          Support for a single or bulk upload. Only JPG/JPEG, PNG, SVG, DOC/DOCX, XLS/XLSX, PDF, PPT, RAR, ZIP files are allowed.
+          </p>
+        </Dragger>
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Simpan Permanen
-          </Button>
+        <Form.Item className="flex justify-center mt-12">
+          <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
         </Form.Item>
       </Form>
     );
@@ -354,14 +321,14 @@ export default function DoctorPatientDetails({ role }) {
       <NavbarController type={type} page={role} color="blue" />
       <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
         <div className="grid justify-between grid-cols-5 gap-x-8">
-          <div className="grid items-start grid-cols-2 col-span-5">
-            <div className="grid mb-8">
+          <div className="grid items-start col-span-5">
+            <div className="grid mb-4">
               <BackButton linkToPage="/doctor/patient-list" />
             </div>
           </div>
           <div className="grid items-start col-span-5">
             <div className="grid grid-cols-7 gap-x-8">
-              <div className="grid items-start col-span-3 gap-y-8">
+              <div className="grid content-start col-span-3 gap-y-8">
                 <Card
                   className="w-full"
                   actions={[
