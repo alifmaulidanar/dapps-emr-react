@@ -257,8 +257,12 @@ next:
 ✅ perbaikan penerimaan data karena ada update struktur data pasien
 ✅ modal detail profil pasien sudah bisa diakses
 
+28/03/24
+✅ card pembuatan emr sudah berhasil, form sudah baik tapi belum bisa upload files
+✅ pengiriman data form ke backend sudah bisa
+
 next:
-- perbaiki card emr dengan lebih baik (form pembuatan maupun penampilan)
+- perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
 - cek appointment dari dokter dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
@@ -376,8 +380,11 @@ next:
 ✅ buat endpoint untuk halaman yang bisa menampilkan profil pasien, appointment, dan emr
 ✅ perbaikan struktur data pasien agar dapat melakukan filter riwayatPengobatan (EMR)
 
+28/03/24
+✅ sudah ada endpoint untuk post emr
+
 next:
-- pembuatan emr dari dokter terkait
+- pembuatan emr dari dokter terkait (pengambilan data profil pasien terkait, penyimpanan data emr ke riwayatPengobatan (plus files), penyimpanan ke ipfs, penyimpanan ke blockchain, nyatakan appointment selesai, tampilkan appointment selesai, tampilkan emr selesai)
 - pengecekan keandalan pembuatan emr
 - endpoint appointment sisi dokter dan perawat
 - validasi data pembuatan appointment
