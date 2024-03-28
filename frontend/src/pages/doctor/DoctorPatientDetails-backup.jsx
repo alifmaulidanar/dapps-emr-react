@@ -1,16 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
-import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, message } from "antd";
-// const  { Dragger } = Upload;
+import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Upload, message } from "antd";
+const  { Dragger } = Upload;
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
-import { UserOutlined, RightOutlined } from "@ant-design/icons";
+import { UserOutlined, RightOutlined, InboxOutlined } from "@ant-design/icons";
 import { CONN } from "../../../../enum-global";
 import BackButton from "../../components/Buttons/Navigations";
 import { useLocation } from "react-router-dom";
 import DoctorPatientProfile from "./DoctorPatientProfile";
 import { ethers } from "ethers";
+import { create } from "ipfs-http-client";
+
+const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 export default function DoctorPatientDetails({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -20,11 +23,13 @@ export default function DoctorPatientDetails({ role }) {
   const record = location.state?.record;
   
   const [profile, setProfile] = useState([]);
+  const [fileList, setFileList] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
 
+  const handleUploadChange = ({ fileList: newFileList }) => { setFileList(newFileList) };
   const handleCancel = () => {setIsModalOpen(false) };
   const showProfileModal = () => { setSelectedData({ profile }); setIsModalOpen(true); };
   const showEMR = (appointmentId) => {
@@ -182,41 +187,51 @@ export default function DoctorPatientDetails({ role }) {
   const dateFormat = "YYYY-MM-DD";
   const inputStyling = { border: "1px solid #E2E8F0", borderRadius: "6px" };
 
+  const submitEMR = async (data, files) => {
+    const formData = new FormData();
+    Object.keys(data).forEach(key => formData.append(key, data[key]));
+    files.forEach(file => formData.append('files', file.originFileObj));
+
+    const fileCids = await Promise.all(files.map(async file => {
+      const result = await ipfsClient.add(file.originFileObj);
+      return result.path;
+    }));
+
+    formData.append('fileCids', JSON.stringify(fileCids));
+    const signer = await getSigner();
+    const signature = await signer.signMessage(JSON.stringify(data));
+    formData.append('signature', signature);
+
+    try {
+      const response = await fetch(CONN.BACKEND_LOCAL + '/submit-emr', {
+        // method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        // Handle success
+        message.success('EMR submitted successfully');
+      } else {
+        // Handle error
+        const error = await response.json();
+        message.error(`Submission failed: ${error.message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      message.error('Failed to submit EMR');
+    }
+  };
+
   const EMRForm = ({ appointmentId }) => {
     const [form] = Form.useForm();
-    const onFinish = async (values) => {
-      const submissionValues = {
-        ...values,
-        tanggalRekamMedis: values.tanggalRekamMedis
-          ? values.tanggalRekamMedis.format(dateFormat)
-          : '',
-      };
-
-      const signer = await getSigner();
-      const signature = await signer.signMessage(JSON.stringify(submissionValues));
-      submissionValues.signature = signature;
-
-      try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-list/patient-details/emr`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ emrData: submissionValues }),
-          }
-        );
-        if (!response.ok) { throw new Error('Network response was not ok') }
-        const data = await response.json();
-        console.log('EMR berhasil disimpan:', data);
-        message.success('EMR berhasil disimpan');
-      } catch (error) {
-        console.error('Terdapat kesalahan:', error);
-        message.error('Gagal menyimpan EMR');
-      }
-    };
-
+    const onFinish = async (values) => { await submitEMR(values, fileList) };
+    const onRemove = (file) => { setFileList(fileList.filter(f => f.uid !== file.uid)) };
+    const beforeUpload = (file) => { setFileList([...fileList, file]); return false; };
+    const uploadProps = { onRemove, beforeUpload, fileList };
+    console.log({fileList});
+  
     return (
       <Form
         form={form}
@@ -258,6 +273,17 @@ export default function DoctorPatientDetails({ role }) {
         <Form.Item label="Catatan" name="catatan" >
           <Input.TextArea style={inputStyling} rows={4} />
         </Form.Item>
+        <Form.Item name="berkas" label="Berkas">
+        <Dragger {...uploadProps}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">Click or drag file to this area to upload</p>
+          <p className="ant-upload-hint">
+          Support for a single or bulk upload. Only JPG/JPEG, PNG, SVG, DOC/DOCX, XLS/XLSX, PDF, PPT, RAR, ZIP files are allowed.
+          </p>
+        </Dragger>
+        </Form.Item>
         <Form.Item className="flex justify-center mt-12">
           <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
         </Form.Item>
@@ -266,17 +292,26 @@ export default function DoctorPatientDetails({ role }) {
   };
 
   const EMRCard = () => {
-    if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Appointment" /></Card>;
+    if (!selectedData.appointmentId) {
+      return (
+        <Card>
+          <Empty description="Silakan pilih Appointment" />
+        </Card>
+      );
+    }
+
     const doctor = {
       idDokter: selectedData.appointment?.idDokter,
       namaDokter: selectedData.appointment?.namaDokter,
       alamat: selectedData.appointment?.alamatDokter
     };
+
     const patient = {
       gender: profile.gender,
       usia: calculateAge(profile.tanggalLahir),
       golonganDarah: profile.golonganDarah
     };
+
     return (
       <Card>
         {selectedData.history ? (

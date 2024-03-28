@@ -116,6 +116,19 @@ router.post("/patient-list/patient-details", authMiddleware, async (req, res) =>
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });
   }
-})
+});
+
+router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res) => {
+  try {
+    const address = req.auth.address;
+    if (!address) return res.status(401).json({ message: "Unauthorized" });
+    const { ...emrData } = req.body;
+    console.log(emrData);
+    res.status(200).json({ message: "Success" });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  };
+});
 
 export default router;
