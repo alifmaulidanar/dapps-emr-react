@@ -261,7 +261,14 @@ next:
 ✅ card pembuatan emr sudah berhasil, form sudah baik tapi belum bisa upload files
 ✅ pengiriman data form ke backend sudah bisa
 
+29/03/24
+✅ pembuatan appointment oleh dokter
+✅ penampilan hanya profil pasien yang mendaftar rawat jalan pada dokter terkait yang tampil di daftar pasien dokter
+✅ penampilan hanya appointment pasien terkait yang tampil pada daftar appointment profil pasien
+
 next:
+- perubahan status appointment di outpatient data -> jika EMR sudah diisi status berubah dari "sedang berjalan" menjadi "selesai"
+- penampilan EMR yang sudah diisi -> kalau sudah diisi tampilkan form disabled dengan isi emr sbg default values
 - perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
 - cek appointment dari dokter dan nurse
@@ -383,7 +390,14 @@ next:
 28/03/24
 ✅ sudah ada endpoint untuk post emr
 
+29/03/24
+✅ udah bisa terima data emr dari frontend di backend
+✅ berhasil get profil dan push data emr baru ke riwayat pengobatan
+✅ perbaikan data yang ditampilkan di dashboard dokter (patient list dan appointment list)
+✅ simpan data baru ke ipfs -> lalu update data profil pasien di ipfs (karena CID berubah) menggunakan updateUserAccount()
+
 next:
+- perubahan status appointment ketika EMR sudah terisi
 - pembuatan emr dari dokter terkait (pengambilan data profil pasien terkait, penyimpanan data emr ke riwayatPengobatan (plus files), penyimpanan ke ipfs, penyimpanan ke blockchain, nyatakan appointment selesai, tampilkan appointment selesai, tampilkan emr selesai)
 - pengecekan keandalan pembuatan emr
 - endpoint appointment sisi dokter dan perawat
@@ -435,7 +449,7 @@ abis ini ngapain:
 ✅ penggunaan context provider dan usenavigate di staff gagal -> rombak ganti pakai useState dan useEffect dan endpoint mandiri
 ✅ implementasi remove temporary profile pasien dari staff -> sediakan tombol cancel
 ✅ pembuatan appointment oleh staff
-- penerimaan appointment oleh nurse dan dokter
+- penerimaan appointment dan pembuatan EMR oleh nurse dan dokter
 
 
 🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
