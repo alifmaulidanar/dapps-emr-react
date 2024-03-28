@@ -185,8 +185,19 @@ export default function DoctorPatientDetails({ role }) {
   const EMRForm = ({ appointmentId }) => {
     const [form] = Form.useForm();
     const onFinish = async (values) => {
+      const nomorRekamMedis = profile.nomorRekamMedis;
+      const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
+      const accountAddress = selectedAppointment ? selectedAppointment.accountAddress : null;
+
+      if (!nomorRekamMedis || !accountAddress) {
+        message.error("Missing required patient or appointment information.");
+        return;
+      }
+
       const submissionValues = {
         ...values,
+        nomorRekamMedis,
+        accountAddress,
         tanggalRekamMedis: values.tanggalRekamMedis
           ? values.tanggalRekamMedis.format(dateFormat)
           : '',
@@ -204,12 +215,13 @@ export default function DoctorPatientDetails({ role }) {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ emrData: submissionValues }),
+            body: JSON.stringify(submissionValues),
           }
         );
         if (!response.ok) { throw new Error('Network response was not ok') }
         const data = await response.json();
         console.log('EMR berhasil disimpan:', data);
+        window.location.reload();
         message.success('EMR berhasil disimpan');
       } catch (error) {
         console.error('Terdapat kesalahan:', error);

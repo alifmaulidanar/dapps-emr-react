@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import AddPatientButton from "../../components/Buttons/AddPatientButton";
-import PatientData from "../staff/PatientData";
-import { Table, Button, Modal } from "antd";
+import { Table, Button } from "antd";
 import { CONN } from "../../../../enum-global";
 import { useNavigate } from "react-router-dom";
 
@@ -13,20 +12,7 @@ export default function DoctorPatientList({ role }) {
   
   const [accounts, setAccounts] = useState(null);
   const [profiles, setProfiles] = useState([]);
-  const [selectedData, setSelectedData] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
-  const handleCancel = () => {setIsModalOpen(false) };
-  // const showModal = (nomorRekamMedis) => {
-  //   const selectedProfile = profiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
-  //   const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
-  //   setSelectedData({
-  //     account: selectedAccount,
-  //     profile: selectedProfile
-  //   });
-  //   setIsModalOpen(true);
-  // };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -177,19 +163,10 @@ export default function DoctorPatientList({ role }) {
         </div>
         <div className="grid justify-center w-3/4 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
-            {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
               <Table columns={columns} dataSource={dataSource} />
-            {/* </div> */}
           </div>
         </div>
       </div>
-      <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
-        {selectedData.profile && (
-          <>
-            <PatientData userDataProps={selectedData.profile} userAccountData={selectedData.account} />
-          </>
-        )}
-      </Modal>
     </>
   );
 }
