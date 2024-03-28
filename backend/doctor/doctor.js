@@ -26,7 +26,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const accountsPath = path.join(__dirname, "../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
-const accounts = JSON.parse(accountsJson);
+const accountsPrivate = JSON.parse(accountsJson);
 
 const router = express.Router();
 router.use(express.json());
@@ -48,8 +48,8 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const appointments = await outpatientContract.getAppointmentsByDoctor(address);
+    const uniquePatientProfilesMap = new Map();
     let patientAccountData = [];
-    let patientProfiles = [];
 
     for (const appointment of appointments) {
       const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
@@ -58,15 +58,17 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
       const response = await fetch(ipfsGatewayUrl);
       const accountData = await response.json();
       const { accountProfiles, ...rest } = accountData;
-      patientAccountData.push(rest);
-      for (const profile of accountData.accountProfiles) {
-        if (profile.nomorRekamMedis === appointment.emrNumber) {
-          const profileWithAddress = { ...profile, accountAddress: rest.accountAddress };
-          patientProfiles.push(profileWithAddress);
-          break;
+      if (accountProfiles) patientAccountData.push(rest);
+
+      if (accountData.hasOwnProperty("accountProfiles") && Array.isArray(accountProfiles) && accountProfiles.length) {
+        for (const profile of accountData.accountProfiles) {
+          if (!uniquePatientProfilesMap.has(profile.nomorRekamMedis)) {
+            uniquePatientProfilesMap.set(profile.nomorRekamMedis, { ...profile, accountAddress: accountData.accountAddress });
+          }
         }
       }
     }
+    const patientProfiles = Array.from(uniquePatientProfilesMap.values());
     res.status(200).json({ patientAccountData, patientProfiles });
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -108,9 +110,9 @@ router.post("/patient-list/patient-details", authMiddleware, async (req, res) =>
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
-      patientAppointments.push(ipfsData);
-      break;
+      if (ipfsData.nomorRekamMedis === nomorRekamMedis) patientAppointments.push(ipfsData);
     }
+
     res.status(200).json({ foundPatientProfile, patientAppointments });
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -122,9 +124,79 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
   try {
     const address = req.auth.address;
     if (!address) return res.status(401).json({ message: "Unauthorized" });
-    const { ...emrData } = req.body;
-    console.log(emrData);
-    res.status(200).json({ message: "Success" });
+    const { appointmentId, tanggalRekamMedis, judulRekamMedis, alergi, anamnesa, terapi, catatan, nomorRekamMedis, accountAddress, signature } = req.body;
+
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ appointmentId, tanggalRekamMedis, judulRekamMedis, alergi, anamnesa, terapi, catatan, nomorRekamMedis, accountAddress }), signature);
+    const accounts = await provider.listAccounts();
+    const doctorAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!doctorAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== doctorAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const getIpfs = await userContract.getAccountByAddress(accountAddress);
+    const cidFromBlockchain = getIpfs.cid;
+    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
+    const ipfsResponse = await fetch(ipfsGatewayUrl);
+    const ipfsData = await ipfsResponse.json();
+
+    // Finding the patient profile
+    const patientProfileIndex = ipfsData.accountProfiles.findIndex(profile => profile.nomorRekamMedis === nomorRekamMedis);
+    if (patientProfileIndex === -1) return res.status(404).json({ message: "Patient profile not found" });
+
+    // Checking for existing EMR entry
+    const profileData = ipfsData.accountProfiles[patientProfileIndex];
+    const emrExists = profileData.riwayatPengobatan.some(emr => emr.appointmentId === appointmentId);
+    if (emrExists) return res.status(409).json({ message: "EMR sudah pernah diisi" });
+
+    // Generate new ID for the EMR entry
+    const lastEmr = profileData.riwayatPengobatan.reduce((prev, current) => (prev.id > current.id) ? prev : current, { id: 0 });
+    const newId = lastEmr.id + 1;
+
+    // Push new EMR entry
+    profileData.riwayatPengobatan.push({
+      id: newId,
+      appointmentId,
+      nomorRekamMedis,
+      tanggalRekamMedis,
+      judulRekamMedis,
+      alergi,
+      anamnesa,
+      terapi,
+      catatan
+    });
+
+    const updatedResult = await client.add(JSON.stringify(ipfsData));
+    const updatedCid = updatedResult.cid.toString();
+    await client.pin.add(updatedCid);
+    console.log({ updatedCid });
+
+    const patientAddress = accounts.find((account) => account.toLowerCase() === accountAddress.toLowerCase());
+    if (!patientAddress) return res.status(400).json({ error: "Account not found" });
+    let selectedAccountAddress;
+    for (let account of accounts) {
+      const accountByAddress = await userContract.getAccountByAddress(account);
+      if (accountByAddress.accountAddress === patientAddress) {
+        selectedAccountAddress = account;
+        break;
+      }
+    }
+    
+    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
+    const privateKey = accountsPrivate[selectedAccountAddress];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(user_contract, userABI, walletWithProvider);
+
+    const tx = await contractWithSigner.updateUserAccount(
+      ipfsData.accountEmail,
+      ipfsData.accountUsername,
+      ipfsData.accountEmail,
+      ipfsData.accountPhone,
+      updatedCid
+    );
+    await tx.wait();
+
+    res.status(200).json({ message: "EMR can be saved", profile: profileData });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });

@@ -107,7 +107,9 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
       if (
         ipfsData.nomorRekamMedis == appointmentDataIpfs.nomorRekamMedis &&
         ipfsData.idDokter == appointmentDataIpfs.idDokter &&
-        ipfsData.idJadwal == appointmentDataIpfs.idJadwal
+        ipfsData.idJadwal == appointmentDataIpfs.idJadwal &&
+        ipfsData.tanggalTerpilih == appointmentDataIpfs.tanggalTerpilih &&
+        ipfsData.waktuTerpilih == appointmentDataIpfs.waktuTerpilih
       ) {
         foundAppointment = true;
         break;

@@ -162,12 +162,13 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
 
     // Membuat objek data pasien
     let nomorRekamMedis;
+    let riwayatPengobatan = [];
     const patientData = {
       nomorRekamMedis,rumahSakitAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto, riwayatPengobatan
     };
 
     // Fisrt fetch IPFS data to retrieve accountProfiles array value
