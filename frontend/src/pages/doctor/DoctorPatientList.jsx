@@ -146,8 +146,8 @@ export default function DoctorPatientList({ role }) {
   };
   
   const userData = mergeAccountAndProfileData(accounts, profiles);
-  sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
-  sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
+  sessionStorage.setItem("doctorPatientData", JSON.stringify(...userData));
+  sessionStorage.setItem("doctorPatientProfiles", JSON.stringify(profiles));
 
   return (
     <>

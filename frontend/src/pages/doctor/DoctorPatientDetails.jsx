@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
-import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, message } from "antd";
+import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, message } from "antd";
 // const  { Dragger } = Upload;
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -29,7 +29,6 @@ export default function DoctorPatientDetails({ role }) {
   const showProfileModal = () => { setSelectedData({ profile }); setIsModalOpen(true); };
   const showEMR = (appointmentId) => {
     const appointment = appointments.find(a => a.appointmentId === appointmentId);
-    // const history = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
     setSelectedData({ appointmentId, appointment });
   };
   
@@ -119,11 +118,11 @@ export default function DoctorPatientDetails({ role }) {
       dataIndex: 'nomorRekamMedis',
       key: 'nomorRekamMedis',
     },
-    {
-      title: 'Lokasi Berobat',
-      dataIndex: 'rumahSakit',
-      key: 'rumahSakit',
-    },
+    // {
+    //   title: 'Lokasi Berobat',
+    //   dataIndex: 'rumahSakit',
+    //   key: 'rumahSakit',
+    // },
     {
       title: 'Dokter',
       dataIndex: 'namaDokter',
@@ -133,6 +132,21 @@ export default function DoctorPatientDetails({ role }) {
       title: 'Jadwal Berobat',
       dataIndex: 'tanggalTerpilih',
       key: 'tanggalTerpilih',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status) => (
+        <Tag color={
+          status === "ongoing" ? "blue" : 
+          status === "done" ? "green" : "red"
+        }>
+          {
+            status === "ongoing" ? "Sedang berjalan" : 
+            status === "done" ? "Selesai" : "Batal"
+          }
+        </Tag>
+      ),
     },
     {
       title: 'Aksi',
@@ -146,7 +160,7 @@ export default function DoctorPatientDetails({ role }) {
     key: index + 1,
     appointmentId: appointment?.appointmentId,
     nomorRekamMedis: appointment?.nomorRekamMedis,
-    rumahSakit: "Eka Hospital " + appointment?.rumahSakit,
+    // rumahSakit: "Eka Hospital " + appointment?.rumahSakit,
     namaDokter: appointment?.namaDokter,
     tanggalTerpilih: (
       <>
@@ -154,7 +168,7 @@ export default function DoctorPatientDetails({ role }) {
         {appointment?.waktuTerpilih}
       </>
     ),
-    rumahSakitAsal: appointment?.rumahSakitAsal,
+    status: appointment?.status,
   }));
 
   function convertProfileData(originalProfile) {
@@ -184,6 +198,8 @@ export default function DoctorPatientDetails({ role }) {
 
   const EMRForm = ({ appointmentId }) => {
     const [form] = Form.useForm();
+    const [isEdit, setIsEdit] = useState(false);
+
     const onFinish = async (values) => {
       const nomorRekamMedis = profile.nomorRekamMedis;
       const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
@@ -229,6 +245,26 @@ export default function DoctorPatientDetails({ role }) {
       }
     };
 
+    useEffect(() => {
+      const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
+      if (selectedHistory) {
+        form.setFieldsValue({
+          appointmentId: selectedHistory.appointmentId,
+          tanggalRekamMedis: dayjs(selectedHistory.tanggalRekamMedis),
+          judulRekamMedis: selectedHistory.judulRekamMedis,
+          alergi: selectedHistory.alergi,
+          anamnesa: selectedHistory.anamnesa,
+          tindakan: selectedHistory.tindakan,
+          terapi: selectedHistory.terapi,
+          catatan: selectedHistory.catatan
+        });
+        setIsEdit(true);
+      } else {
+        form.resetFields();
+        setIsEdit(false);
+      }
+    }, [appointmentId, form, profile.riwayatPengobatan]);
+
     return (
       <Form
         form={form}
@@ -255,24 +291,26 @@ export default function DoctorPatientDetails({ role }) {
             />
           </Form.Item>
           <Form.Item label="Judul Rekam Medis" name="judulRekamMedis" >
-            <Input style={inputStyling} />
+            <Input style={inputStyling} disabled={isEdit} />
           </Form.Item>
           <Form.Item label="Alergi" name="alergi" >
-            <Input style={inputStyling} />
+            <Input style={inputStyling} disabled={isEdit} />
           </Form.Item>
           <Form.Item label="Anamnesa" name="anamnesa" >
-            <Input style={inputStyling} />
+            <Input style={inputStyling} disabled={isEdit} />
           </Form.Item>
           <Form.Item label="Terapi" name="terapi" >
-            <Input style={inputStyling} />
+            <Input style={inputStyling} disabled={isEdit} />
           </Form.Item>
         </div>
         <Form.Item label="Catatan" name="catatan" >
-          <Input.TextArea style={inputStyling} rows={4} />
+          <Input.TextArea style={inputStyling} disabled={isEdit} rows={4} />
         </Form.Item>
-        <Form.Item className="flex justify-center mt-12">
-          <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
-        </Form.Item>
+        {!isEdit && (
+          <Form.Item className="flex justify-center mt-12">
+            <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
+          </Form.Item>
+        )}
       </Form>
     );
   };
@@ -345,8 +383,8 @@ export default function DoctorPatientDetails({ role }) {
             </div>
           </div>
           <div className="grid items-start col-span-5">
-            <div className="grid grid-cols-7 gap-x-8">
-              <div className="grid content-start col-span-3 gap-y-8">
+            <div className="grid grid-cols-2 gap-x-8">
+              <div className="grid content-start gap-y-8">
                 <Card
                   className="w-full"
                   actions={[
@@ -388,7 +426,7 @@ export default function DoctorPatientDetails({ role }) {
                 </Card>
                 <Table columns={columns} dataSource={appointmentDataSource} size="middle" />
               </div>
-              <div className="col-span-4">
+              <div className="">
                 <EMRCard />
               </div>
             </div>

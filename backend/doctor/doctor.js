@@ -110,9 +110,8 @@ router.post("/patient-list/patient-details", authMiddleware, async (req, res) =>
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
-      if (ipfsData.nomorRekamMedis === nomorRekamMedis) patientAppointments.push(ipfsData);
+      if (ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.alamatDokter === address) patientAppointments.push(ipfsData);
     }
-
     res.status(200).json({ foundPatientProfile, patientAppointments });
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -196,6 +195,25 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
     );
     await tx.wait();
 
+    const appointments = await outpatientContract.getAppointmentsByPatient(accountAddress);
+    for (const appointment of appointments) {
+      const cid = appointment.cid;
+      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+      const ipfsResponse = await fetch(ipfsGatewayUrl);
+      const ipfsData = await ipfsResponse.json();
+
+      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "ongoing") {
+        ipfsData.status = "done";
+        const updatedCid = await client.add(JSON.stringify(ipfsData));
+        const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
+        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
+        const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
+        const newIpfsResponse = await fetch(newIpfsGatewayUrl);
+        const newIpfsData = await newIpfsResponse.json();
+        res.status(200).json({profile: profileData, newStatus: newIpfsData.status});
+        return;
+      }
+    }
     res.status(200).json({ message: "EMR can be saved", profile: profileData });
   } catch (error) {
     console.error("Error fetching appointments:", error);
