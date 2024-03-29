@@ -104,13 +104,8 @@ function NavbarController({ type, page, color, accountData = null }) {
     navItems = [
       {
         text: "Daftar Pasien",
-        linkToPage: `/nurse/record-list`,
+        linkToPage: `/nurse/patient-list`,
         color: page === "nurse" ? color : defaultColor,
-      },
-      {
-        text: "Appointment",
-        linkToPage: `/nurse/appointment`,
-        color: page === "Appointment" ? color : defaultColor,
       },
       {
         text: "Profil Perawat",

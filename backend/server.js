@@ -5,6 +5,7 @@ import { CONN } from "../enum-global.js";
 import adminRouter from "./admin/admin.js";
 import staffRouter from "./staff/staff.js";
 import doctorRouter from "./doctor/doctor.js";
+import nurseRouter from "./nurse/nurse.js";
 import account from "./user/account/account.js";
 import signupRouter from "./user/auth/signup.js";
 import signinRouter from "./user/auth/signin.js";
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/admin", adminRouter);
 app.use("/staff", staffRouter);
 app.use("/doctor", doctorRouter);
+app.use("/nurse", nurseRouter);
 app.use(
   "/",
   account,
