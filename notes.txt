@@ -265,13 +265,19 @@ next:
 ✅ pembuatan appointment oleh dokter
 ✅ penampilan hanya profil pasien yang mendaftar rawat jalan pada dokter terkait yang tampil di daftar pasien dokter
 ✅ penampilan hanya appointment pasien terkait yang tampil pada daftar appointment profil pasien
+✅ dokter dan perawat melihat appointment yang terkait dengan alamatnya sendiri
+✅ pembuatan appointment akan mentrigger update status appointment -> sudah ditampilkan
+✅ perubahan status appointment di outpatient data -> jika EMR sudah diisi status berubah dari "sedang berjalan" menjadi "selesai"
+✅ penampilan EMR yang sudah diisi -> kalau sudah diisi tampilkan form disabled dengan isi emr sbg default values
+✅ cek appointment dari dokter dan nurse
+✅ jika EMR sudah terisi form menjadi disabled dan terdapat initial values
 
 next:
-- perubahan status appointment di outpatient data -> jika EMR sudah diisi status berubah dari "sedang berjalan" menjadi "selesai"
-- penampilan EMR yang sudah diisi -> kalau sudah diisi tampilkan form disabled dengan isi emr sbg default values
+- form struktur data EMR untuk perawat dan dokter sesuai regulasi pemerintah
+- penambahan informasi detail appointment di card EMR -> karena dari tabel saja terlalu sedikit informasi
 - perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
-- cek appointment dari dokter dan nurse
+- tampilkan appointment di daftar rekam medis pasien dalam bentuk card
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 
@@ -395,13 +401,19 @@ next:
 ✅ berhasil get profil dan push data emr baru ke riwayat pengobatan
 ✅ perbaikan data yang ditampilkan di dashboard dokter (patient list dan appointment list)
 ✅ simpan data baru ke ipfs -> lalu update data profil pasien di ipfs (karena CID berubah) menggunakan updateUserAccount()
+✅ perubahan status appointment ketika EMR sudah terisi dari "ongoing" menjadi "done"
+✅ pembuatan emr dari dokter terkait (pengambilan data profil pasien terkait, penyimpanan data emr ke riwayatPengobatan, penyimpanan ke ipfs, penyimpanan ke blockchain, nyatakan appointment selesai, tampilkan appointment selesai, tampilkan emr selesai)
+✅ menampilkan data sesuai dengan alamat dokter dan perawat
+✅ dokter dan perawat sudah bisa membuat emr (isinya masih sama persis)
+✅ endpoint appointment sisi dokter dan perawat
 
 next:
-- perubahan status appointment ketika EMR sudah terisi
-- pembuatan emr dari dokter terkait (pengambilan data profil pasien terkait, penyimpanan data emr ke riwayatPengobatan (plus files), penyimpanan ke ipfs, penyimpanan ke blockchain, nyatakan appointment selesai, tampilkan appointment selesai, tampilkan emr selesai)
+- struktur data EMR sesuai regulasi pemerintah
+- data yang harus diisikan oleh perawat dan dokter
+- handle upload multiple files di EMR
 - pengecekan keandalan pembuatan emr
-- endpoint appointment sisi dokter dan perawat
 - validasi data pembuatan appointment
+- penampilan EMR di dashboard pasien sesuai profil
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
 - perbagus validasi authMiddleware untuk semua endpoint backend
 
@@ -450,6 +462,9 @@ abis ini ngapain:
 ✅ implementasi remove temporary profile pasien dari staff -> sediakan tombol cancel
 ✅ pembuatan appointment oleh staff
 - penerimaan appointment dan pembuatan EMR oleh nurse dan dokter
+- perbaikan struktur data appointment agar sesuai regulasi pemerintah (untuk perawat dan dokter)
+- handle file upload
+- tampilkan EMR di daftar rekam medis pasien
 
 
 🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
