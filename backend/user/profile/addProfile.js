@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import Joi from "joi";
 import express from "express";
 import { ethers } from "ethers";
@@ -6,7 +5,6 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 
-// Contract & ABI
 import { USER_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
@@ -16,17 +14,15 @@ const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 const router = express.Router();
 router.use(express.json());
 
-// Rumah Sakit Asal
-// 1 = Eka Hospital Bekasi
-// 2 = Eka Hospital BSD
-// 3 = Eka Hospital Jakarta
-// 4 = Eka Hospital Lampung
-
-const generateNomorRekamMedis = async (rumahSakitAsal, existingProfiles) => {
-  const tahun = new Date().getFullYear().toString().slice(-2);
+const generateNomorRekamMedis = async (accountAddress, rumahSakitAsal, existingProfiles) => {
+  const tahun = new Date().getFullYear().toString().slice(-2); // 2 digit paling belakang tahun
+  // Rumah Sakit Asal
+  // 1 = Eka Hospital Bekasi
+  // 2 = Eka Hospital BSD
+  // 3 = Eka Hospital Jakarta
+  // 4 = Eka Hospital Lampung
   const kodeCabang = rumahSakitAsal.padStart(2, '0');
-  const kelompokPengobatan = '01';
-
+  const kelompokPengobatan = '01'; // 01 = rawat jalan
   // Cek nomor rekam medis terakhir dari profil yang sudah ada
   const lastNomorRekamMedis = existingProfiles.reduce((acc, profile) => {
     const nomor = profile.emrNumber;
@@ -35,10 +31,9 @@ const generateNomorRekamMedis = async (rumahSakitAsal, existingProfiles) => {
     }
     return acc;
   }, 0);
-
-  // Nomor pasien auto increment
-  const nomorPasien = (lastNomorRekamMedis + 1).toString().padStart(4, '0');
-  return tahun + kodeCabang + kelompokPengobatan + nomorPasien;
+  const nomorPasien = (lastNomorRekamMedis + 1).toString().padStart(4, '0'); // Nomor pasien auto increment
+  const identifierAkun = accountAddress.slice(-5); // 5 karakter paling belakang dari accountAddress
+  return tahun + kodeCabang + kelompokPengobatan + identifierAkun + nomorPasien; // contoh: 24010133e1f0001
 };
 
 // Skema validasi Joi untuk data pasien
@@ -187,9 +182,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
       accountPassword: patientAccountData.ipfs.data.accountPassword,
       accountRole: patientAccountData.account.role,
       accountCreated: patientAccountData.ipfs.data.accountCreated,
-      accountProfiles: [
-        ...(patientAccountData.ipfs.data.accountProfiles || []),
-      ],
+      accountProfiles: [...(patientAccountData.ipfs.data.accountProfiles || [])],
     };
 
     // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
@@ -201,7 +194,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: "Nomor Identitas telah digunakan" });
     } else {
       const allPatients = await contract.getAllPatients();
-      patientData.nomorRekamMedis = await generateNomorRekamMedis(rumahSakitAsal, allPatients);
+      patientData.nomorRekamMedis = await generateNomorRekamMedis(accountAddress, rumahSakitAsal, allPatients);
       accountData.accountProfiles.push(patientData);
     }
 
@@ -236,10 +229,7 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: error.message,
-      message: "Patient registration failed",
-    });
+    res.status(500).json({ error: error.message, message: "Patient registration failed" });
   }
 });
 
@@ -273,17 +263,10 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
 
     const recoveredSigner = provider.getSigner(recoveredAddress);
     const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find(
-      (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
-    );
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
 
-    if (!accountAddress) {
-      return res.status(400).json({ error: "Account not found" });
-    }
-
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
-      return res.status(400).json({ error: "Invalid signature" });
-    }
+    if (!accountAddress) return res.status(400).json({ error: "Account not found" });
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) return res.status(400).json({ error: "Invalid signature" });
 
     // Membuat objek data
     const userData = {
@@ -308,14 +291,10 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
       accountPassword: userAccountData.accountPassword,
       accountRole: userAccountData.accountRole,
       accountCreated: userAccountData.accountCreated,
-      accountProfiles: [
-        ...(userAccountData.accountProfiles || []),
-      ],
+      accountProfiles: [...(userAccountData.accountProfiles || [])],
     };
 
     accountData.accountProfiles.push(userData);
-
-    // Cek apakah sudah ada profil dengan nomorIdentitas yang sama
     const existingProfile = accountData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === userData.nomorIdentitas);
 
     if (existingProfile !== -1) {
@@ -346,16 +325,12 @@ router.post("/:role/add-profile", authMiddleware, async (req, res) => {
     await tx.wait();
     const getAccount = await contract.getAccountByAddress(accountAddress);
 
-    // Menyusun objek data yang ingin ditampilkan dalam response body
     const responseData = { message: `User Profile added successfully`, account: getAccount, ipfs: ipfsData };
     console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: error.message,
-      message: "User registration failed",
-    });
+    res.status(500).json({ error: error.message, message: "User registration failed" });
   }
 });
 
