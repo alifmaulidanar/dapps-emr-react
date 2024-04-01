@@ -272,9 +272,17 @@ next:
 ✅ cek appointment dari dokter dan nurse
 ✅ jika EMR sudah terisi form menjadi disabled dan terdapat initial values
 
+01/04/24
+✅ mengarahkan ke endpoint halaman detail EMR yang baru dari patient record list
+✅ penerapan form pembuatan rekam medis baru untuk dokter (belum berfungsi)
+✅ form struktur data EMR untuk perawat dan dokter sesuai regulasi pemerintah
+
 next:
-- form struktur data EMR untuk perawat dan dokter sesuai regulasi pemerintah
+- perbaiki form lagi -> perhatikan select dan input, konfimrasi untuk terapi dan laboratorium perlu atau tidak, pengiriman data ke backend
 - penambahan informasi detail appointment di card EMR -> karena dari tabel saja terlalu sedikit informasi
+- display EMR yang sudah diisi sebagai initial values form disabled
+- diplay data EMR dengan struktur baru di patient record list
+- display data details EMR
 - perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
 - tampilkan appointment di daftar rekam medis pasien dalam bentuk card
@@ -407,8 +415,16 @@ next:
 ✅ dokter dan perawat sudah bisa membuat emr (isinya masih sama persis)
 ✅ endpoint appointment sisi dokter dan perawat
 
+01/04/24
+✅ penggantian logic generateNomorRekamMedis menjadi 15 digit -> tahun + kodeCabang + kelompokPengobatan + identifierAkun + nomorPasien
+   contoh: 24010133e1f0001
+✅ return data appointment/outpatient ke patient record list
+
 next:
 - struktur data EMR sesuai regulasi pemerintah
+- pembuatan rekam medis dengan struktur data form baru
+- penyimpanan struktur data EMR baru
+- penampilan kembali struktur data EMR baru
 - data yang harus diisikan oleh perawat dan dokter
 - handle upload multiple files di EMR
 - pengecekan keandalan pembuatan emr
