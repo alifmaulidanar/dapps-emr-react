@@ -2,26 +2,24 @@ import { Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { CONN } from "../../../enum-global";
 
-// Komponen untuk informasi pasien
 export default function PatientList({
-  patientName,
-  patientIdentification,
-  patientImage,
-  // patientAddress,
   patientIsChosen = false,
+  nomorRekamMedis,
+  namaLengkap,
+  foto,
   onClick,
 }) {
   return (
     <li onClick={onClick} className="py-2">
       <div className="flex items-center px-4 space-x-4">
         <div className="flex-shrink-0">
-          {patientImage ? (
+          {foto ? (
             <img
               className="w-16 h-16 rounded-full"
               width={64}
               height={64}
-              src={`${CONN.IPFS_LOCAL}/${patientImage}`}
-              alt={`${patientName} image`}
+              src={`${CONN.IPFS_LOCAL}/${foto}`}
+              alt={`${namaLengkap} image`}
             />
           ) : (
             <Avatar
@@ -35,11 +33,11 @@ export default function PatientList({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">
-            {patientName}
+            {namaLengkap}
           </p>
           <div>
             <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-              {patientIdentification}
+              {nomorRekamMedis}
             </span>
           </div>
         </div>

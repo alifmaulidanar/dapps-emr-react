@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import PatientRecordList from "./pages/patient/PatientRecordList";
+import PatientRecord from "./pages/patient/PatientRecord";
 import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
 import DoctorPatientDetails from "./pages/doctor/DoctorPatientDetails";
 import NursePatientDetails from "./pages/nurse/NursePatientDetails";
@@ -94,10 +95,10 @@ function App() {
                 path={`/patient/record-list`}
                 element={<PatientRecordList />}
               />
-              {/* <Route
-                path={`/patient/record-list/record/:recordAddress`}
+              <Route
+                path={`/patient/record-list/details/`}
                 element={<PatientRecord />}
-              /> */}
+              />
               <Route
                 path={`/patient/appointment`}
                 element={<PatientAppointmentList role="patient" />}

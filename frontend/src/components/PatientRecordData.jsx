@@ -3,7 +3,7 @@ const PatientRecordLoop = ({ data }) => {
     <>
       {data.map(({ key, value1, value2 }) => (
         <div key={key} className="mb-6">
-          <h3 className="text-sm block font-medium text-gray-900 mb-2">
+          <h3 className="block mb-2 text-sm font-medium text-gray-900">
             {value1}
           </h3>
           <p className="text-sm text-gray-900">{value2}</p>
@@ -13,11 +13,12 @@ const PatientRecordLoop = ({ data }) => {
   );
 };
 
-function PatientRecordDisplay() {
+function PatientRecordDisplay({ appointment }) {
+  console.log({appointment});
   const patientDataProps1 = [
     {
       key: "recordAddress",
-      value1: "Kode Rekam Medis",
+      value1: "No Rekam Medis",
       value2: (
         <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
           0x66E167fDd23614b58A4459C1C875C6705f550ED6
@@ -155,25 +156,25 @@ function PatientRecordDisplay() {
   return (
     <div className="col-span-2 p-8">
       <div className="grid grid-cols-2 gap-x-8">
-        <div className="col-span-2 text-gray-900 text-xl mt-4 my-12 font-medium text-center">
+        <div className="col-span-2 my-12 mt-4 text-xl font-medium text-center text-gray-900">
           Rekam Medis Pasien
         </div>
 
         {/* DATA REKAM MEDIS */}
         <PatientRecordLoop data={patientDataProps1} />
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <PatientRecordLoop data={patientDataProps2} />
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <PatientRecordLoop data={patientDataProps3} />
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <PatientRecordLoop data={patientDataProps4} />
-        <div className="col-span-2 text-gray-900 text-lg mb-6">
+        <div className="col-span-2 mb-6 text-lg text-gray-900">
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <PatientRecordLoop data={patientDataProps5} />

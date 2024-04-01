@@ -1,4 +1,3 @@
-import "./../../index.css";
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RecordControl from "../../components/RecordControl";
@@ -11,12 +10,10 @@ import { CONN } from "../../../../enum-global";
 export default function PatientRecordList() {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
-
-  if (!token || !accountAddress) {
-    window.location.assign(`/patient/signin`);
-  }
+  if (!token || !accountAddress) window.location.assign(`/patient/signin`);
 
   const [patientAccountData, setPatientAccountData] = useState(null);
+  const [appointmentsData, setAppointmentsData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
 
   useEffect(() => {
@@ -34,9 +31,9 @@ export default function PatientRecordList() {
             }
           );
           const data = await response.json();
+          setAppointmentsData(data.appointments);
           setPatientAccountData(data);
           sessionStorage.setItem("userData", JSON.stringify(data.ipfs.data));
-          // console.log({data});
         } catch (error) {
           console.error("Error fetching patient data:", error);
         }
@@ -45,52 +42,29 @@ export default function PatientRecordList() {
     }
   }, [token, accountAddress]);
 
+  const handlePatientClick = (index) => { setChosenIndex(index) };
 
-  const handlePatientClick = (index) => {
-    setChosenIndex(index);
-  };
-
-  // Mengambil data pasien dari AllPatient
-  // const patientListProps = AllPatient.map((patient, index) => ({
-  //   patientName: patient.patientName,
-  //   patientImage: patient.patientImage,
-  //   patientAddress: patient.patientAddress,
-  //   patientIsChosen: index === chosenIndex,
-  //   patientRecords: patient.patientRecords,
-  // }));
-
-  // Mengambil data pasien dari accountProfiles yang tersimpan di IPFS
   const accountProfiles = patientAccountData?.ipfs?.data?.accountProfiles;
   const patientListProps =
     accountProfiles?.length > 0
       ? accountProfiles.map((patient, index) => ({
-          patientName: patient.namaLengkap,
-          patientIdentification: patient.nomorRekamMedis,
-          patientImage: patient.foto,
-          // patientAddress: patient.alamat,
           patientIsChosen: index === chosenIndex,
-          // patientRecords: patient.patientRecords,
-        }))
-      : [];
+          ...patient,
+        })) : [];
 
-  // console.log(patientAccountData.ipfs.data.accountProfiles);
-  // console.log({ patientListProps });
-
-  // Mencari pasien yang memiliki patientIsChosen bernilai true
-  const chosenPatient = patientListProps.find(
-    (patient) => patient.patientIsChosen
-  );
-
-  // Mendapatkan data rekam medis dari patientRecords pasien yang dipilih
-  const recordItems =
-    chosenPatient && Array.isArray(chosenPatient.patientRecords)
-      ? chosenPatient.patientRecords.flatMap((record) => ({
-          recordAddress: record.recordAddress,
-          recordTitle: record.recordTitle,
-          recordDate: record.recordDate,
-          recordDoctorName: record.recordDoctorName,
-        }))
-      : [];
+  const chosenPatient = patientListProps.find((patient) => patient.patientIsChosen);
+  const recordItems = chosenPatient && Array.isArray(chosenPatient.riwayatPengobatan) ? chosenPatient.riwayatPengobatan.map((record) => ({
+    id: record.id,
+    appointmentId: record.appointmentId,
+    nomorRekamMedis: record.nomorRekamMedis,
+    tanggalRekamMedis: record.tanggalRekamMedis,
+    judulRekamMedis: record.judulRekamMedis,
+    alergi: record.alergi,
+    anamnesa: record.anamnesa,
+    terapi: record.terapi,
+    catatan: record.catatan,
+  })) : [];
+  const relatedAppointments = appointmentsData.filter(appointment => appointment.data.nomorRekamMedis === chosenPatient?.nomorRekamMedis);
 
   return (
     <>
@@ -128,7 +102,8 @@ export default function PatientRecordList() {
             recordItems.length > 0 ? (
               <RecordList
                 recordItems={recordItems}
-                accountAddress={accountAddress}
+                chosenPatient={chosenPatient}
+                appointmentData={relatedAppointments}
               />
             ) : (
               <Empty description="Tidak ada rekam medis" />
