@@ -43,27 +43,10 @@ export default function PatientRecordList() {
   }, [token, accountAddress]);
 
   const handlePatientClick = (index) => { setChosenIndex(index) };
-
   const accountProfiles = patientAccountData?.ipfs?.data?.accountProfiles;
-  const patientListProps =
-    accountProfiles?.length > 0
-      ? accountProfiles.map((patient, index) => ({
-          patientIsChosen: index === chosenIndex,
-          ...patient,
-        })) : [];
-
+  const patientListProps = accountProfiles?.length > 0 ? accountProfiles.map((patient, index) => ({ patientIsChosen: index === chosenIndex, ...patient })) : [];
   const chosenPatient = patientListProps.find((patient) => patient.patientIsChosen);
-  const recordItems = chosenPatient && Array.isArray(chosenPatient.riwayatPengobatan) ? chosenPatient.riwayatPengobatan.map((record) => ({
-    id: record.id,
-    appointmentId: record.appointmentId,
-    nomorRekamMedis: record.nomorRekamMedis,
-    tanggalRekamMedis: record.tanggalRekamMedis,
-    judulRekamMedis: record.judulRekamMedis,
-    alergi: record.alergi,
-    anamnesa: record.anamnesa,
-    terapi: record.terapi,
-    catatan: record.catatan,
-  })) : [];
+  const recordItems = chosenPatient && Array.isArray(chosenPatient.riwayatPengobatan) ? chosenPatient.riwayatPengobatan.map((record) => ({ ...record, })) : [];
   const relatedAppointments = appointmentsData.filter(appointment => appointment.data.nomorRekamMedis === chosenPatient?.nomorRekamMedis);
 
   return (
@@ -89,10 +72,7 @@ export default function PatientRecordList() {
         </div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
-            <RegisterPatientButton
-              buttonText={"Daftarkan Pasien Baru"}
-              patientAccountData={patientAccountData}
-            />
+            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} patientAccountData={patientAccountData} />
           </div>
         </div>
       </div>
@@ -100,17 +80,9 @@ export default function PatientRecordList() {
         <div className="w-full col-span-3">
           {chosenPatient ? (
             recordItems.length > 0 ? (
-              <RecordList
-                recordItems={recordItems}
-                chosenPatient={chosenPatient}
-                appointmentData={relatedAppointments}
-              />
-            ) : (
-              <Empty description="Tidak ada rekam medis" />
-            )
-          ) : (
-            <Empty description="Pilih pasien untuk melihat rekam medis" />
-          )}
+              <RecordList recordItems={recordItems} chosenPatient={chosenPatient} appointmentData={relatedAppointments} />
+            ) : (<Empty description="Tidak ada rekam medis" />)
+          ) : (<Empty description="Pilih pasien untuk melihat rekam medis" />)}
         </div>
         <div className="w-full col-span-2">
           <div className="w-full px-4 py-4 bg-white border border-gray-200 rounded-lg shadow">
@@ -118,16 +90,10 @@ export default function PatientRecordList() {
               {patientListProps.length > 0 ? (
                 <ul role="list" className="divide-y divide-gray-200">
                   {patientListProps.map((patient, index) => (
-                    <PatientList
-                      key={index}
-                      {...patient}
-                      onClick={() => handlePatientClick(index)}
-                    />
+                    <PatientList key={index} {...patient} onClick={() => handlePatientClick(index)} />
                   ))}
                 </ul>
-              ) : (
-                <Empty description="Tidak ada pasien" />
-              )}
+              ) : (<Empty description="Tidak ada pasien" />)}
             </div>
           </div>
         </div>
