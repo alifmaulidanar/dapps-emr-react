@@ -252,7 +252,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       alamatPerawat: nurseInfo.alamatPerawat,
       namaPerawat: nurseInfo.namaPerawat,
       status: "ongoing",
-      createdAt: new Date().toISOString(),
+      appointmnetCreatedAt: new Date().toISOString(),
     };
     const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
