@@ -1,11 +1,11 @@
+import { Empty } from "antd";
 import { useState, useEffect } from "react";
-import NavbarController from "../../components/Navbar/NavbarController";
-import RecordControl from "../../components/RecordControl";
+import { CONN } from "../../../../enum-global";
 import RecordList from "../../components/RecordList";
 import PatientList from "../../components/PatientList";
+import RecordControl from "../../components/RecordControl";
+import NavbarController from "../../components/Navbar/NavbarController";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
-import { Empty } from "antd";
-import { CONN } from "../../../../enum-global";
 
 export default function PatientRecordList() {
   const token = sessionStorage.getItem("userToken");
@@ -20,8 +20,7 @@ export default function PatientRecordList() {
     if (token && accountAddress) {
       const fetchData = async () => {
         try {
-          const response = await fetch(
-            `${CONN.BACKEND_LOCAL}/patient/account`,
+          const response = await fetch(`${CONN.BACKEND_LOCAL}/patient/account`,
             {
               method: "GET",
               headers: {
@@ -56,20 +55,18 @@ export default function PatientRecordList() {
         <div className="grid items-center grid-cols-1 col-span-3 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">
             Daftar Rekam Medis
-            <hr className="h-px bg-gray-700 border-0"></hr>
+            <hr className="h-px bg-gray-700 border-0"/>
           </h5>
         </div>
         <div className="grid items-center col-span-2 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">
             Daftar Pasien di Akun Anda
-            <hr className="h-px bg-gray-700 border-0"></hr>
+            <hr className="h-px bg-gray-700 border-0"/>
           </h5>
         </div>
       </div>
       <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
-        <div className="grid items-center grid-cols-1 col-span-3 h-fit">
-          <RecordControl search={"Cari rekam medis"} />
-        </div>
+        <div className="grid items-center grid-cols-1 col-span-3 h-fit"><RecordControl search={"Cari rekam medis"} /></div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
             <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} patientAccountData={patientAccountData} />
