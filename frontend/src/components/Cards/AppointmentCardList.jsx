@@ -9,17 +9,14 @@ export default function AppointmentList({ appointmentData }) {
       <div className="grid gap-4">
         {appointmentData.length > 0 ? (
           appointmentData.map((appointment, index) => (
-            <div
-              key={index}
-              onClick={() => handleNavigate(appointment)}
-            >
+            <div key={index} onClick={() => handleNavigate(appointment)} className="cursor-pointer" >
               <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
                 <div className="grid items-center justify-between grid-cols-2 mb-4">
                   <div className="flex flex-nowrap gap-x-4">
                     <h5 className="font-bold text-gray-900">
                       {appointment.data.namaDokter}
                     </h5>
-                    <Tag color="green" className="m-0">{appointment.data.alamatDokter}</Tag>
+                    <Tag color="gold" className="m-0">{appointment.data.alamatDokter}</Tag>
                   </div>
                   <div className="grid justify-end w-full mr-auto">
                     <Tag className="m-0" color={

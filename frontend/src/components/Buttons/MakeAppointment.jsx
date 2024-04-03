@@ -170,9 +170,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       )}
     </>
   );
-  const timeOptions = availableTimes.map((waktu, index) => (
-    <Radio.Button key={index} value={waktu}>{waktu}</Radio.Button>
-  ));
+  const timeOptions = availableTimes.map((waktu, index) => (<Radio.Button key={index} value={waktu}>{waktu}</Radio.Button>));
   const selectedScheduleInfo =
     selectedDate && selectedTimeSlot ? (
       <p className="mt-6">
@@ -185,34 +183,20 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       <div className="mb-6">
         {selectedDoctorInfo.address !== "default" && (
           <div className="flex flex-nowrap gap-x-2">
-            <p>
-              <strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>Eka Hospital {selectedDoctor.lokasiPraktik}</strong> pada hari:
-            </p>
+            <p><strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>Eka Hospital {selectedDoctor.lokasiPraktik}</strong> pada hari:</p>
             <p>{doctorDays}</p>
           </div>
         )}
       </div>
       <div className="grid grid-cols-2 mb-6">
         <div>
-          <label
-            htmlFor="date"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Pilih Tanggal
-          </label>
+          <label htmlFor="date" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Tanggal</label>
           <div ref={flatpickrRef}></div>
         </div>
         <div>
-          <label
-            htmlFor="time"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Pilih Waktu
-          </label>
+          <label htmlFor="time" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Waktu</label>
           <div>
-            <Radio.Group onChange={handleTimeChange} value={selectedTimeSlot} className="flex rounded-sm gap-x-4">
-              {timeOptions}
-            </Radio.Group>
+            <Radio.Group onChange={handleTimeChange} value={selectedTimeSlot} className="flex rounded-sm gap-x-4">{timeOptions}</Radio.Group>
           </div>
           {selectedScheduleInfo}
         </div>
@@ -252,7 +236,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       alamatPerawat: nurseInfo.alamatPerawat,
       namaPerawat: nurseInfo.namaPerawat,
       status: "ongoing",
-      appointmnetCreatedAt: new Date().toISOString(),
+      appointmentCreatedAt: new Date().toISOString(),
     };
     const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
@@ -282,10 +266,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
           icon: "success",
           title: "Pendaftaran Profil Pasien Berhasil!",
           text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
-        })
-        .then(() => {
-          window.location.reload();
-        });
+        }).then(() => { window.location.reload() });
       } else {
         console.log(responseData.error, responseData.message);
         setSpinning(false);
@@ -315,24 +296,10 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       </button>
 
       {/* MODAL ANT DESIGN */}
-      <Modal
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        width={1024}
-        style={{ top: 20 }}
-        footer={[]}
-      >
-        <h2 className="my-8 text-2xl font-bold text-center">
-          Buat Appointment
-        </h2>
+      <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={1024} style={{ top: 20 }} footer={[]} >
+        <h2 className="my-8 text-2xl font-bold text-center">Buat Appointment</h2>
         <div className="grid justify-center w-2/3 grid-cols-2 mx-auto">
-          <Steps
-            current={currentStep}
-            labelPlacement="vertical"
-            items={items}
-            className="w-full col-span-2 pt-4"
-          />
+          <Steps current={currentStep} labelPlacement="vertical" items={items} className="w-full col-span-2 pt-4" />
         </div>
         <form className="p-8">
           {renderStepContent(currentStep)}
@@ -345,12 +312,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
               <div className="mb-6">
-                <label
-                  htmlFor="gender"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pilih Rumah Sakit
-                </label>
+                <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Rumah Sakit</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
@@ -365,12 +327,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 </Select>
               </div>
               <div className="mb-6">
-                <label
-                  htmlFor="rs"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pilih Spesialisasi Dokter
-                </label>
+                <label htmlFor="rs" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Spesialisasi Dokter</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
@@ -387,12 +344,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 </Select>
               </div>
               <div className="mb-6">
-                <label
-                  htmlFor="category"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pilih Dokter
-                </label>
+                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Dokter</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
@@ -401,11 +353,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   optionFilterProp="children"
                   value={selectedDoctorInfo.address}
                   onChange={handleDoctorChange}
-                  filterOption={(input, option) =>
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
+                  filterOption={ (input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
                 >
                   <Option value="default">Pilih Dokter</Option>
                   {filteredDoctors.map((dokter) => (
@@ -493,18 +441,27 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 Kembali
               </button>
             )}
-            {currentStep < 2 ? (
+            {currentStep == 0 && (
               <button
                 type="button"
                 onClick={handleNext}
-                className={`text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center ${
-                  !selectedTimeSlot ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center ${ !selectedTimeSlot ? "opacity-50 cursor-not-allowed" : "" }`}
                 disabled={!selectedTimeSlot}
               >
                 Selanjutnya
               </button>
-            ) : (
+            )}
+            {currentStep === 1 && (
+              <button
+                type="button"
+                onClick={handleNext}
+                className={`text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center ${ selectedPatient === null ? "opacity-50 cursor-not-allowed" : "" }`}
+                disabled={selectedPatient === null}
+              >
+                Selanjutnya
+              </button>
+            )}
+            {currentStep === 2 && (
               <button
                 type="button"
                 className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"

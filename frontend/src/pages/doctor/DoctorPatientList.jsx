@@ -49,55 +49,20 @@ export default function DoctorPatientList({ role }) {
   }
 
   const columns = [
-    {
-      title: 'No.',
-      dataIndex: 'key',
-      key: 'key',
-    },
-    {
-      title: 'Alamat Akun',
-      dataIndex: 'accountAddress',
-      key: 'accountAddress',
-    },
-    {
-      title: 'Nomor Rekam Medis',
-      dataIndex: 'nomorRekamMedis',
-      key: 'nomorRekamMedis',
-    },
-    {
-      title: 'Nomor Identitas',
-      dataIndex: 'nomorIdentitas',
-      key: 'nomorIdentitas',
-    },
-    {
-      title: 'Nama Lengkap',
-      dataIndex: 'namaLengkap',
-      key: 'namaLengkap',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Nomor Telepon',
-      dataIndex: 'telpSelular',
-      key: 'telpSelular',
-    },
-    {
-      title: 'RS Asal',
-      dataIndex: 'rumahSakitAsal',
-      key: 'rumahSakitAsal',
-      render: (text) => getHospitalName(text),
-    },
-    {
-      title: 'Aksi',
-      key: 'action',
+    { title: 'No.', dataIndex: 'key', key: 'key' },
+    { title: 'Alamat Akun', dataIndex: 'accountAddress', key: 'accountAddress' },
+    { title: 'Nomor Rekam Medis', dataIndex: 'nomorRekamMedis', key: 'nomorRekamMedis' },
+    { title: 'Nomor Identitas', dataIndex: 'nomorIdentitas', key: 'nomorIdentitas' },
+    { title: 'Nama Lengkap', dataIndex: 'namaLengkap', key: 'namaLengkap' },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Nomor Telepon', dataIndex: 'telpSelular', key: 'telpSelular' },
+    { title: 'RS Asal', dataIndex: 'rumahSakitAsal', key: 'rumahSakitAsal', render: (text) => getHospitalName(text) },
+    { title: 'Aksi', key: 'action',
       render: (_, record) => (
         <Button type="primary" ghost onClick={() => navigate('/doctor/patient-list/patient-details', { state: { record } })}>
           {role === 'doctor' ? 'Detail' : 'Lihat'}
         </Button>
-      ),
+      )
     }
   ];
 
@@ -130,16 +95,12 @@ export default function DoctorPatientList({ role }) {
   const mergeAccountAndProfileData = (accounts, profiles) => {
     const accountMap = new Map();
     if (accounts) {
-      accounts.forEach(account => {
-        accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
-      });
+      accounts.forEach(account => { accountMap.set(account.accountAddress, { ...account, accountProfiles: [] }) });
     }
     if (profiles) {
       profiles.forEach(profile => {
         const account = accountMap.get(profile.accountAddress);
-        if (account) {
-          account.accountProfiles.push(profile);
-        }
+        if (account) account.accountProfiles.push(profile)
       });
     }
     return Array.from(accountMap.values());
