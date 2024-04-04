@@ -13,7 +13,7 @@ const PatientRecordLoop = ({ data }) => {
   );
 };
 
-function DoctorPatientProfile({ data, convert, foto }) {
+function NakesPatientProfile({ data, convert, foto }) {
   const convertedData = convert(data);
   const patientDataProps1 = [
     { key: "namaLengkap", value1: "Nama Lengkap", value2: (<p>{convertedData.namaLengkap}</p>) },
@@ -83,4 +83,4 @@ function DoctorPatientProfile({ data, convert, foto }) {
   );
 }
 
-export default DoctorPatientProfile;
+export default NakesPatientProfile;
