@@ -1,17 +1,17 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
-import timezone from "dayjs/plugin/timezone";
 import { ethers } from "ethers";
 import { CONN } from "../../../../enum-global";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { UserOutlined, RightOutlined } from "@ant-design/icons";
 import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, message } from "antd";
-import DoctorPatientProfile from "./DoctorPatientProfile";
+import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
 import BackButton from "../../components/Buttons/Navigations";
 import NavbarController from "../../components/Navbar/NavbarController";
 
@@ -190,7 +190,8 @@ export default function DoctorPatientDetails({ role }) {
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
         tanggalRekamMedis: dayjs().format("YYYY-MM-DD"),
         waktuRekamMedis: dayjs().format("HH:mm:ss"),
-        datetimeEMR: dayjs().tz(dayjs.tz.guess()).format()
+        datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
+        isDokter: true
       };
       const signer = await getSigner();
       const signature = await signer.signMessage(JSON.stringify(formattedEMR));
@@ -221,7 +222,8 @@ export default function DoctorPatientDetails({ role }) {
     useEffect(() => {
       const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
       if (selectedHistory) {
-        form.setFieldsValue({
+        // Set initial values
+        const initialValues = {
           appointmentId: selectedHistory.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
           namaDokter: selectedData.appointment.namaDokter,
@@ -273,7 +275,7 @@ export default function DoctorPatientDetails({ role }) {
           spiritual: selectedHistory.spiritual,
           namaObat: selectedHistory.namaObat,
           dosisObat: selectedHistory.dosisObat,
-          waktuPenggunaanObat: selectedHistory.waktuPenggunaanObat,
+          waktuPenggunaanObat: selectedHistory.WaktuPenggunaanObat,
           diagnosisAwal: selectedHistory.diagnosisAwal,
           diagnosisAkhirPrimer: selectedHistory.diagnosisAkhirPrimer,
           diagnosisAkhirSekunder: selectedHistory.diagnosisAkhirSekunder,
@@ -281,14 +283,98 @@ export default function DoctorPatientDetails({ role }) {
           dokterPenjelasanTindakan: selectedHistory.dokterPenjelasanTindakan,
           petugasPendampingTindakan: selectedHistory.petugasPendampingTindakan,
           namaTindakan: selectedHistory.namaTindakan,
+          konsekuensiTindakan: selectedHistory.konsekuensiTindakan,
           konfirmasiTindakan: selectedHistory.konfirmasiTindakan,
           tanggalPenjelasanTindakan: dayjs(selectedHistory.tanggalPenjelasanTindakan),
           pasienPenjelasanTindakan: selectedHistory.pasienPenjelasanTindakan,
           saksi1PenjelasanTindakan: selectedHistory.saksi1PenjelasanTindakan,
           saksi2PenjelasanTindakan: selectedHistory.saksi2PenjelasanTindakan,
           judulRekamMedis: selectedHistory.judulRekamMedis,
-        });
-        setIsEdit(true);
+        };
+    
+        // Check isDokter & isPerawat
+        if (selectedHistory.isDokter) {
+          // if isDokter
+          setIsEdit(true);
+          form.setFieldsValue(initialValues);
+        } else if (selectedHistory.isPerawat) {
+          // if isPerawat
+          setIsEdit(false);
+          form.setFieldsValue({
+            appointmentId: selectedData.appointmentId,
+            appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
+            namaDokter: selectedData.appointment.namaDokter,
+            namaPerawat: selectedData.appointment.namaPerawat,
+            tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
+            namaLengkap: selectedData.appointment.namaLengkap,
+            keluhanUtama: selectedHistory.keluhanUtama,
+            riwayatPenyakit: selectedHistory.riwayatPenyakit,
+            riwayatAlergi: selectedHistory.riwayatAlergi,
+            riwayatAlergiLainnya: selectedHistory.riwayatAlergiLainnya,
+            riwayatPengobatan: selectedHistory.riwayatPengobatan,
+            tingkatKesadaran: selectedHistory.tingkatKesadaran,
+            denyutJantung: selectedHistory.denyutJantung,
+            pernapasan: selectedHistory.pernapasan,
+            tekananDarahSistole: selectedHistory.tekananDarahSistole,
+            tekananDarahDiastole: selectedHistory.tekananDarahDiastole,
+            suhuTubuh: selectedHistory.suhuTubuh,
+            kepala: selectedHistory.kepala,
+            mata: selectedHistory.mata,
+            telinga: selectedHistory.telinga,
+            hidung: selectedHistory.hidung,
+            rambut: selectedHistory.rambut,
+            bibir: selectedHistory.bibir,
+            gigiGeligi: selectedHistory.gigiGeligi,
+            lidah: selectedHistory.lidah,
+            langitLangit: selectedHistory.langitLangit,
+            leher: selectedHistory.leher,
+            tenggorokan: selectedHistory.tenggorokan,
+            tonsil: selectedHistory.tonsil,
+            dada: selectedHistory.dada,
+            payudara: selectedHistory.payudara,
+            punggung: selectedHistory.punggung,
+            perut: selectedHistory.perut,
+            genital: selectedHistory.genital,
+            anusDubur: selectedHistory.anusDubur,
+            lenganAtas: selectedHistory.lenganAtas,
+            lenganBawah: selectedHistory.lenganBawah,
+            jariTangan: selectedHistory.jariTangan,
+            kukuTangan: selectedHistory.kukuTangan,
+            persendianTangan: selectedHistory.persendianTangan,
+            tungkaiAtas: selectedHistory.tulangAtas,
+            tulangBawah: selectedHistory.tulangBawah,
+            jariKaki: selectedHistory.jariKaki,
+            kukuKaki: selectedHistory.kukuKaki,
+            persendianKaki: selectedHistory.persendianKaki,
+            statusPsikologis: selectedHistory.statusPsikologis,
+            statusPsikologisLainnya: selectedHistory.statusPsikologisLainnya,
+            sosialEkonomi: selectedHistory.sosialEkonomi,
+            spiritual: selectedHistory.spiritual,
+            namaKerabat: profile.namaKerabat,
+            dokterPenjelasanTindakan: selectedData.appointment.namaDokter,
+            petugasPendampingTindakan: selectedData.appointment.namaPerawat,
+            pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
+            tanggalPenjelasanTindakan: dayjs(),
+            judulRekamMedis: selectedHistory.judulRekamMedis,
+          });
+        } else {
+          // if !isDokter dan !isPerawat
+          form.resetFields();
+          form.setFieldsValue({
+            appointmentId: selectedData.appointmentId,
+            appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
+            namaDokter: selectedData.appointment.namaDokter,
+            namaPerawat: selectedData.appointment.namaPerawat,
+            tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
+            namaLengkap: selectedData.appointment.namaLengkap,
+            namaKerabat: profile.namaKerabat,
+            dokterPenjelasanTindakan: selectedData.appointment.namaDokter,
+            petugasPendampingTindakan: selectedData.appointment.namaPerawat,
+            pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
+            tanggalPenjelasanTindakan: dayjs(),
+          });
+          setIsEdit(false);
+        }
       } else {
         form.resetFields();
         form.setFieldsValue({
@@ -306,7 +392,8 @@ export default function DoctorPatientDetails({ role }) {
         });
         setIsEdit(false);
       }
-    }, [appointmentId, form, profile.riwayatPengobatan]);
+    }, [appointmentId, form, profile.riwayatPengobatan, selectedData.appointment]);
+    
 
     return (
       <Form
