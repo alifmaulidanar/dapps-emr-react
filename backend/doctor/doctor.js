@@ -148,18 +148,25 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
 
     // Checking for existing EMR entry
     const profileData = ipfsData.accountProfiles[patientProfileIndex];
-    const emrExists = profileData.riwayatPengobatan.some(emr => emr.appointmentId === formattedEMR.appointmentId);
-    if (emrExists) return res.status(409).json({ message: "EMR sudah pernah diisi" });
+    const emrIndex = profileData.riwayatPengobatan.findIndex(emr => emr.appointmentId === formattedEMR.appointmentId);
+    const emrExists = emrIndex !== -1;
+    const isDoctorTrue = emrExists && profileData.riwayatPengobatan[emrIndex].isDokter === true;
 
-    // Generate new ID for the EMR entry
-    const lastEmr = profileData.riwayatPengobatan.reduce((prev, current) => (prev.id > current.id) ? prev : current, { id: 0 });
-    const newId = lastEmr.id + 1;
-
-    // Push new EMR entry
-    profileData.riwayatPengobatan.push({
-      id: newId,
-      ...rest
-    });
+    if (emrExists && isDoctorTrue) {
+      return res.status(409).json({ message: "EMR sudah pernah diisi" });
+    } else if (emrExists) {
+        profileData.riwayatPengobatan[emrIndex] = {
+            ...profileData.riwayatPengobatan[emrIndex],
+            ...rest
+        };
+    } else {
+        const lastEmr = profileData.riwayatPengobatan.reduce((prev, current) => (prev.id > current.id) ? prev : current, { id: 0 });
+        const newId = lastEmr.id + 1;
+        profileData.riwayatPengobatan.push({
+            id: newId,
+            ...rest
+        });
+    };
 
     const updatedResult = await client.add(JSON.stringify(ipfsData));
     const updatedCid = updatedResult.cid.toString();
