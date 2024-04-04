@@ -291,8 +291,16 @@ next:
 ✅ mengurutkan appointment dari tanggal paling baru untuk dokter
 ✅ perbaikan steps pembuatan appointment untuk pasien
 
+04/04/24
+✅ perawat membuat asesmen awal emr
+✅ form untuk pengisian emr oleh perawat terbatas (hanya sampai asesmen awal)
+✅ pengisian emr oleh nurse akan dilanjutkan oleh dokter
+✅ penampilan data pada form untuk kondisi: 1. emr telah diisikan asesmen awal oleh nurse dan akan dilanjutkan oleh dokter -> isPerawat === true, isDokter === false || isDokter === undefined
+                                            2. emr masih kosong dan akan langsung diisi seluruhnya oleh dokter -> isPerawat === true || isPerawat === undefined, isDokter === false || isDokter === undefined
+                                            3. emr telah diisi oleh dokter -> isPerawat === true || isPerawat === undefined, isDokter === true
+✅ penampilan data emr yang telah diperbarui dan statusnya berubah
+
 next:
-- perawat membuat asesmen awal emr
 - perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
 - tampilkan appointment di daftar rekam medis pasien dalam bentuk card
@@ -438,13 +446,18 @@ next:
 ✅ return kembali struktur data EMR baru ke frontend
 ✅ data yang harus diisikan oleh dokter
 
+04/04/24
+✅ backend untuk perawat simpan data emr asesmen awal
+✅ status belum berubah ketika nurse isi asesmen awal
+✅ penanganan update emr jika dokter melanjutkan pengisian emr asesmen awal dari nurse -> bukan bikin objek emr baru tapi hanya update yg dari nurse
+✅ penambahan isPerawat menandakan berarti emr tersebut melalui perawat, selanjutnya dapat dilanjutkan pengisian oleh dokter
+✅ penambahan isDokter menandakan bahwa emr tersebut sudah diisi oleh dokter, baik dari asesmen awal maupun dokter hanya melanjutkan pengisian dari nurse
+✅ penampilan EMR di dashboard pasien sesuai profil
+
 next:
-- data yang harus diisikan oleh perawat
-- perawat membuat asesmen awal emr
 - handle upload multiple files di EMR
-- pengecekan keandalan pembuatan emr
 - validasi data pembuatan appointment
-- penampilan EMR di dashboard pasien sesuai profil
+- pengecekan keandalan pembuatan emr
 - buat perbedaan endpoint untuk menampilkan akun dengan isActive == true dan false -> di frontend akan dipisah halamannya mungkin dengan tab (admin)
 - perbagus validasi authMiddleware untuk semua endpoint backend
 
@@ -492,10 +505,15 @@ abis ini ngapain:
 ✅ penggunaan context provider dan usenavigate di staff gagal -> rombak ganti pakai useState dan useEffect dan endpoint mandiri
 ✅ implementasi remove temporary profile pasien dari staff -> sediakan tombol cancel
 ✅ pembuatan appointment oleh staff
-- penerimaan appointment dan pembuatan EMR oleh nurse dan dokter
-- perbaikan struktur data appointment agar sesuai regulasi pemerintah (untuk perawat dan dokter)
+✅ perbaikan struktur data appointment agar sesuai regulasi pemerintah (untuk perawat dan dokter)
+✅ penerimaan appointment dan pembuatan EMR oleh dokter
+✅ penerimaan appointment dan pembuatan EMR oleh nurse
+✅ nurse terbatas mengisi hanya sampai asesmen awal, pemeriksaan Spesialistik akan dilakukan oleh dokter
+✅ sedangkan dokter bisa mengisi dari asesmen awal hingga terapi
+✅ jadi di nurse tampilkan form lebih sedikit
+✅ di dokter tampilkan form lengkap dengan isian dari nurse bisa diubah lagi jika perlu
+✅ tampilkan EMR di daftar rekam medis pasien
 - handle file upload
-- tampilkan EMR di daftar rekam medis pasien
 
 
 🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
