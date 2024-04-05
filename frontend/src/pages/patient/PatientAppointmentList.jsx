@@ -1,11 +1,10 @@
-import "./../../index.css";
 import { useState, useEffect } from "react";
-import NavbarController from "../../components/Navbar/NavbarController";
+import { CONN } from "../../../../enum-global";
 import RecordControl from "../../components/RecordControl";
+import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
+import NavbarController from "../../components/Navbar/NavbarController";
 import AppointmentCardList from "../../components/Cards/AppointmentCardList";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
-import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
-import { CONN } from "../../../../enum-global";
 
 export default function PatientAppointmentList({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -72,15 +71,12 @@ export default function PatientAppointmentList({ role }) {
 
   useEffect(() => {
     if (selectedUser && appointmentData) {
-      const filteredData = appointmentData.filter(
-        (appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas
-      );
+      const filteredData = appointmentData.filter((appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas);
       setFilteredAppointmentData(filteredData);
     }
   }, [selectedUser, appointmentData]);
 
   const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
-
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
     setSelectedUser(user);
@@ -88,12 +84,7 @@ export default function PatientAppointmentList({ role }) {
 
   return (
     <>
-      <NavbarController
-        type={1}
-        page="Appointment"
-        color="blue"
-        accountAddress={accountAddress}
-      />
+      <NavbarController type={1} page="Appointment" color="blue" accountAddress={accountAddress}/>
       <div className="grid items-center justify-center w-1/2 grid-cols-3 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3">
           <ProfileDropdown
@@ -122,11 +113,9 @@ export default function PatientAppointmentList({ role }) {
           <RecordControl search={"Cari Appointment"} />
         </div>
       </div>
-      <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
+      <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 pb-8 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          <AppointmentCardList
-            appointmentData={sortedAppointmentData || []}
-          />
+          <AppointmentCardList appointmentData={sortedAppointmentData || []}/>
         </div>
       </div>
     </>

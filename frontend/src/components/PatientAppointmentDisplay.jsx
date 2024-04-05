@@ -26,9 +26,7 @@ function PatientAppointmentDisplay({ data, token }) {
     const win = window;
     if (!win.ethereum) { console.error("Metamask not detected"); return; }
     try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      const accounts = await win.ethereum.request({ method: "eth_requestAccounts" });
       const selectedAccount = accounts[0];
       setSelectedAccount(selectedAccount);
       const provider = new ethers.providers.Web3Provider(win.ethereum);
@@ -100,7 +98,6 @@ function PatientAppointmentDisplay({ data, token }) {
     <div className="grid px-12 py-8 gap-y-8">
       <div className="grid items-center mx-auto text-center text-gray-900 w-fit gap-y-2">
         <h1 className="text-xl font-medium">Data Pendaftaran Rawat Jalan</h1>
-        {/* <Tag color="blue" className="m-0 mx-auto w-fit">{data.appointment.data.cid}</Tag> */}
         <p>ID Pendaftaran: <Tag color="green" className="m-0">{data.appointment.data.appointmentId}</Tag></p>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-6">
@@ -108,7 +105,7 @@ function PatientAppointmentDisplay({ data, token }) {
         <PatientRecordLoop data={patientDataProps2} />
       </div>
       <div className="justify-center w-1/3 mx-auto">
-        <Button type="primary" danger onClick={cancelAppointment}>Batalkan Pendaftaran</Button>
+      {data.appointment.data.status === "ongoing" ? <Button type="primary" danger onClick={cancelAppointment}>Batalkan Pendaftaran</Button> : null}
       </div>
     </div>
   );
