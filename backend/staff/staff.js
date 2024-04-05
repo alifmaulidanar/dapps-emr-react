@@ -95,7 +95,7 @@ router.post("/add-patient-profile", authMiddleware, async (req, res) => {
     const contract = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
     const addPatientTx = await contract.addTemporaryPatientData(address, patientAddress, emrNumber);
     await addPatientTx.wait()
-    const getNewestData = await contract.getTemporaryPatientDataByStaff(address);
+    // const getNewestData = await contract.getTemporaryPatientDataByStaff(address);
     // console.log({getNewestData});
     res.status(200).json({ message: "Patient appointment added successfully" });
   } catch (error) {

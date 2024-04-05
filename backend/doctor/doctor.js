@@ -10,15 +10,15 @@ import authMiddleware from "../middleware/auth-middleware.js";
 // Contract & ABI
 import { USER_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
-import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
+// import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
-const schedule_contract = SCHEDULE_CONTRACT.toString();
+// const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
 const userContract = new ethers.Contract( user_contract, userABI, provider);
-const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
+// const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
 const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
@@ -152,20 +152,15 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
     const emrExists = emrIndex !== -1;
     const isDoctorTrue = emrExists && profileData.riwayatPengobatan[emrIndex].isDokter === true;
 
+    // Push new EMR entry
     if (emrExists && isDoctorTrue) {
       return res.status(409).json({ message: "EMR sudah pernah diisi" });
     } else if (emrExists) {
-        profileData.riwayatPengobatan[emrIndex] = {
-            ...profileData.riwayatPengobatan[emrIndex],
-            ...rest
-        };
+      profileData.riwayatPengobatan[emrIndex] = { ...profileData.riwayatPengobatan[emrIndex], ...rest };
     } else {
-        const lastEmr = profileData.riwayatPengobatan.reduce((prev, current) => (prev.id > current.id) ? prev : current, { id: 0 });
-        const newId = lastEmr.id + 1;
-        profileData.riwayatPengobatan.push({
-            id: newId,
-            ...rest
-        });
+      const lastEmr = profileData.riwayatPengobatan.reduce((prev, current) => (prev.id > current.id) ? prev : current, { id: 0 });
+      const newId = lastEmr.id + 1;
+      profileData.riwayatPengobatan.push({ id: newId, ...rest });
     };
 
     const updatedResult = await client.add(JSON.stringify(ipfsData));
@@ -199,6 +194,7 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
     );
     await tx.wait();
 
+    // update status appointment to done if emr is filled
     const appointments = await outpatientContract.getAppointmentsByPatient(formattedEMR.accountAddress);
     for (const appointment of appointments) {
       const cid = appointment.cid;
@@ -214,11 +210,25 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
-        res.status(200).json({profile: profileData, newStatus: newIpfsData.status});
+        if (formattedEMR.alamatStaf) {
+          try {
+            const privateKey = accountsPrivate[formattedEMR.alamatStaf];
+            const staffWallet = new Wallet(privateKey);
+            const walletWithProvider = staffWallet.connect(provider);
+            const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
+            await contractWithSigner.removeTemporaryPatientData(formattedEMR.alamatStaf, formattedEMR.nomorRekamMedis);
+            console.log("Temporary patient data removed successfully.");
+            res.status(200).json({ message: "EMR saved", profile: profileData, newStatus: newIpfsData.status });
+          } catch (error) {
+            console.error("Error removing temporary patient data:", error);
+            res.status(500).json({ message: "Failed to remove temporary patient data" });
+          }
+        }
+        res.status(200).json({ message: "EMR saved", profile: profileData });
         return;
       }
     }
-    res.status(200).json({ message: "EMR can be saved", profile: profileData });
+    res.status(200).json({ message: "EMR saved", profile: profileData });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });
