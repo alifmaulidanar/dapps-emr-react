@@ -300,10 +300,17 @@ next:
                                             3. emr telah diisi oleh dokter -> isPerawat === true || isPerawat === undefined, isDokter === true
 ✅ penampilan data emr yang telah diperbarui dan statusnya berubah
 
+05/04/24
+✅ menambah alamatStaf di pembuatan appointment oleh pasien agar terdeteksi appointment dibuat oleh staf yang mana
+✅ perbaikan endpoint dari /appointment menjadi /appointment-list
+✅ menghilangkan tombol batalkan appointment ketika appointment tidak bernilai ongoing
+✅ menghapus profil pasien dari staf jika EMR telah diisi dokter dan statusnya done
+✅ tampilkan appointment di daftar rekam medis pasien dalam bentuk card
+
 next:
+- pada dashboard nurse, tampilkan pilihan dokter pada tabel -> baru setelah memilih dokter dapat melihat pasien yang terdaftar pada dokter tersebut
 - perbaiki penanganan upload file -> masih gagal
-- cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus
-- tampilkan appointment di daftar rekam medis pasien dalam bentuk card
+- cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus di doctor dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
 
@@ -454,6 +461,10 @@ next:
 ✅ penambahan isDokter menandakan bahwa emr tersebut sudah diisi oleh dokter, baik dari asesmen awal maupun dokter hanya melanjutkan pengisian dari nurse
 ✅ penampilan EMR di dashboard pasien sesuai profil
 
+05/04/24
+✅ auto remove pasien dari staf jika mendaftar appointment melalui staf
+✅ menambah struktur data di EMR -> alamatStaf agar bisa dideteksi mendaftar melalui staf yg mana
+
 next:
 - handle upload multiple files di EMR
 - validasi data pembuatan appointment
@@ -513,7 +524,15 @@ abis ini ngapain:
 ✅ jadi di nurse tampilkan form lebih sedikit
 ✅ di dokter tampilkan form lengkap dengan isian dari nurse bisa diubah lagi jika perlu
 ✅ tampilkan EMR di daftar rekam medis pasien
+✅ remove profil pasien dari akun staf jika status appointment pasien terkait sudah berubah menjadi "done"
+- tampilkan rumah sakit asal di profil pasien
+- perbaiki sort pada setiap tabel dan card
+- dashboard doctor dan nurse yang berisikan jadwal kerja mereka
+- perbaikan di sisi nurse -> harusnya jangan memilih pasien secara langsung, tetapi pilih dokter dahulu baru munculkan pasien yg terdaftar pada jadwal dokter dan nurse itu
 - handle file upload
+- tampilkan data lebih lengkap untuk admin -> total dan daftar akun dan profil pasien, total appointment yang dibuat, total emr yang telah dibuat, dll
+- finishing home page rumah sakit
+- footer di dashboard page tiap role
 
 
 🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
