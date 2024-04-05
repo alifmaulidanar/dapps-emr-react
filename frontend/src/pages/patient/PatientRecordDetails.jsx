@@ -6,10 +6,8 @@ import { useLocation } from 'react-router-dom';
 
 function PatientRecord() {
   const location = useLocation();
+  if (location.state === null) window.location.assign('/patient/record-list');
   const { record, chosenPatient, appointmentData } = location.state;
-  console.log({record});
-  console.log({chosenPatient});
-  console.log({appointmentData});
   return (
     <>
       <NavbarController type={1} page="Rekam Medis" color="blue" />

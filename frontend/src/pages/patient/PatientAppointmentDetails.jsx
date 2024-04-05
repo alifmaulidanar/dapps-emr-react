@@ -6,6 +6,7 @@ import PatientAppointmentDisplay from "../../components/PatientAppointmentDispla
 export default function AppointmentDetails({linkToPage}) {
   const token = sessionStorage.getItem("userToken");
   const location = useLocation();
+  if (location.state === null) window.location.assign('/patient/appointment-list');
   const appointment = location.state;
   return (
     <>
