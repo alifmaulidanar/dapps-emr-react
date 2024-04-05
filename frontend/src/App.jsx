@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import PatientRecordList from "./pages/patient/PatientRecordList";
-import PatientRecord from "./pages/patient/PatientRecord";
+import PatientRecord from "./pages/patient/PatientRecordDetails";
 import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
 import DoctorPatientDetails from "./pages/doctor/DoctorPatientDetails";
 import NursePatientDetails from "./pages/nurse/NursePatientDetails";
@@ -100,12 +100,12 @@ function App() {
                 element={<PatientRecord />}
               />
               <Route
-                path={`/patient/appointment`}
+                path={`/patient/appointment-list`}
                 element={<PatientAppointmentList role="patient" />}
               />
               <Route
-                path={`/patient/appointment/details`}
-                element={<PatientAppointmentDetails role="patient" linkToPage={"/patient/appointment"} />}
+                path={`/patient/appointment-list/details`}
+                element={<PatientAppointmentDetails role="patient" linkToPage={"/patient/appointment-list"} />}
               />
               <Route
                 path={`/patient/profile`}
@@ -168,7 +168,7 @@ function App() {
                 element={<StaffPatientList role="staff" />}
               />
               <Route
-                path={`/staff/appointment`}
+                path={`/staff/appointment-list`}
                 element={<StaffPatientAppointments role="staff" />}
               />
               <Route

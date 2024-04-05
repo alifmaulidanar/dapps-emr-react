@@ -52,7 +52,7 @@ function NavbarController({ type, page, color, accountData = null }) {
       },
       {
         text: "Appointment",
-        linkToPage: `/patient/appointment`,
+        linkToPage: `/patient/appointment-list`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
@@ -135,7 +135,7 @@ function NavbarController({ type, page, color, accountData = null }) {
       },
       {
         text: "Appointment",
-        linkToPage: `/staff/appointment`,
+        linkToPage: `/staff/appointment-list`,
         color: page === "Appointment" ? color : defaultColor,
       },
       {
