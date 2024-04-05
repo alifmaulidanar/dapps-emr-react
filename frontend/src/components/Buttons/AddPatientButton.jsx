@@ -221,7 +221,7 @@ export default function AddPatientButton({ token }) {
                     <p className="mb-2 text-sm text-gray-900">
                       No. Rekam Medis:
                       {foundPatientProfile && foundPatientProfile.nomorRekamMedis && (
-                        <Tag color="green">{foundPatientProfile.nomorRekamMedis}</Tag>
+                        <Tag color="blue">{foundPatientProfile.nomorRekamMedis}</Tag>
                       )}
                     </p>
                       {/* <span className="bg-green-100 text-green-800 text-sm px-2.5 py-0.5 rounded text-center">{foundPatientProfile.nomorRekamMedis}</span> */}

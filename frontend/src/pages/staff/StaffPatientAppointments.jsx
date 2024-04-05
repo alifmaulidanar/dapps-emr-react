@@ -54,86 +54,39 @@ export default function StaffPatientAppointments({ role }) {
 
   let type;
   switch (role) {
-    case "patient":
-      type = 1;
+    case "patient": type = 1;
       break;
-    case "doctor":
-      type = 2;
+    case "doctor": type = 2;
       break;
-    case "nurse":
-      type = 3;
+    case "nurse": type = 3;
       break;
-    case "staff":
-      type = 4;
+    case "staff": type = 4;
       break;
   }
 
   const columns = [
-    {
-      title: 'No.',
-      dataIndex: 'key',
-      key: 'key',
-    },
-    {
-      title: 'ID Pendaftaran',
-      dataIndex: 'appointmentId',
-      key: 'appointmentId',
-    },
-    {
-      title: 'Nama Pasien',
-      dataIndex: 'namaLengkap',
-      key: 'namaLengkap',
-    },
-    {
-      title: 'Nama Dokter',
-      dataIndex: 'namaDokter',
-      key: 'namaDokter',
-    },
-    {
-      title: 'Spesialisasi',
-      dataIndex: 'spesialisasiDokter',
-      key: 'spesialisasiDokter',
-    },
-    {
-      title: 'Rumah Sakit',
-      dataIndex: 'rumahSakit',
-      key: 'rumahSakit',
-    },
-    {
-      title: 'Waktu',
-      dataIndex: 'waktuTerpilih',
-      key: 'waktuTerpilih',
-    },
-    {
-      title: 'Tanggal',
-      dataIndex: 'tanggalTerpilih',
-      key: 'tanggalTerpilih',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
+    { title: 'No.', dataIndex: 'key', key: 'key' },
+    { title: 'ID Pendaftaran', dataIndex: 'appointmentId', key: 'appointmentId' },
+    { title: 'Nama Pasien', dataIndex: 'namaLengkap', key: 'namaLengkap' },
+    { title: 'Nama Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
+    { title: 'Spesialisasi', dataIndex: 'spesialisasiDokter', key: 'spesialisasiDokter' },
+    { title: 'Rumah Sakit', dataIndex: 'rumahSakit', key: 'rumahSakit' },
+    { title: 'Waktu', dataIndex: 'waktuTerpilih', key: 'waktuTerpilih' },
+    { title: 'Tanggal', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
+    { title: 'Status', dataIndex: 'status',
       render: (status) => (
-        <Tag color={
-          status === "ongoing" ? "blue" : 
-          status === "done" ? "green" : "red"
-        }>
-          {
-            status === "ongoing" ? "Sedang berjalan" : 
-            status === "done" ? "Selesai" : "Batal"
-          }
+        <Tag color={ status === "ongoing" ? "blue" : status === "done" ? "green" : "red" }>
+          { status === "ongoing" ? "Sedang berjalan" : status === "done" ? "Selesai" : "Batal"}
         </Tag>
       ),
     },
-    {
-      title: 'Aksi',
-      key: 'action',
+    { title: 'Aksi', key: 'action',
       render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.appointmentId)}>Lihat</Button>),
     },
   ];
 
   const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.data.nomorRekamMedis === selectedProfile);
   const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
-
   const dataSource = sortedAppointmentData?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment.data.appointmentId,
@@ -158,13 +111,11 @@ export default function StaffPatientAppointments({ role }) {
                 scheduleData={scheduleData || []}
                 userData={userData}
                 token={token}
+                alamatStaf={accountAddress}
               />
             </div>
             <div className="grid mb-8 ml-auto">
-              <Select
-                style={{ width: 200, marginLeft: 20 }}
-                onChange={handleProfileChange}
-                defaultValue="Semua"
+              <Select style={{ width: 200, marginLeft: 20 }} onChange={handleProfileChange} defaultValue="Semua"
               >
                 <Select.Option value="Semua">Semua</Select.Option>
                 {profiles.map(profile => (

@@ -10,7 +10,7 @@ import { Indonesian } from "flatpickr/dist/l10n/id.js";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, Steps, Select, Tag, Radio, Button, Empty, Spin } from "antd";
 
-export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null, token }) {
+export default function MakeAppointmentButton({ buttonText, scheduleData = [], userData = null, token, alamatStaf = null }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,9 +32,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     const win = window;
     if (!win.ethereum) { console.error("Metamask not detected"); return; }
     try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      const accounts = await win.ethereum.request({ method: "eth_requestAccounts" });
       const selectedAccount = accounts[0];
       setSelectedAccount(selectedAccount);
       console.log(selectedAccount);
@@ -238,6 +236,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       status: "ongoing",
       appointmentCreatedAt: new Date().toISOString(),
     };
+    if (alamatStaf) appointmentDataIpfs.alamatStaf = alamatStaf;
     const signedData = { appointmentData, appointmentDataIpfs }
     const signer = await getSigner();
     if (!signer) {
@@ -248,7 +247,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     signedData.signature = signature;
     console.log("Appointment signature:", signature);
       const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/patient/appointment`,
+        `${CONN.BACKEND_LOCAL}/staff/appointment`,
         {
           method: "POST",
           headers: {
