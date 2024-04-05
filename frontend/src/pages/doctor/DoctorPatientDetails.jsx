@@ -185,13 +185,15 @@ export default function DoctorPatientDetails({ role }) {
       const formattedEMR = {
         accountAddress,
         nomorRekamMedis,
+        alamatDokter: selectedData.appointment.alamatDokter,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
         tanggalRekamMedis: dayjs().format("YYYY-MM-DD"),
         waktuRekamMedis: dayjs().format("HH:mm:ss"),
         datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
-        isDokter: true
+        isDokter: true,
+        alamatStaf: selectedData.appointment.alamatStaf
       };
       const signer = await getSigner();
       const signature = await signer.signMessage(JSON.stringify(formattedEMR));

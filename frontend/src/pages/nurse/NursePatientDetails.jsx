@@ -185,6 +185,7 @@ export default function NursePatientDetails({ role }) {
       const formattedEMR = {
         accountAddress,
         nomorRekamMedis,
+        alamatPerawat: selectedData.appointment.alamatPerawat,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
