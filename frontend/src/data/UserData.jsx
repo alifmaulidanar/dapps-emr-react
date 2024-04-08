@@ -21,7 +21,6 @@ export default function UserData({ userDataProps, userAccountData }) {
   const [spinning, setSpinning] = React.useState(false);
   const [initialData, setInitialData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
-  // const [imageCid, setImageCid] = useState(userDataProps.foto || "");
 
   let role;
   switch (userAccountData.accountRole) {
@@ -44,18 +43,18 @@ export default function UserData({ userDataProps, userAccountData }) {
   const userIdentification = userDataProps.nomorRekamMedis;
   const userImage = userDataProps.foto;
 
-  const handleFileChange = async (info) => {
-    if (info.file.status === "done") {
-      setSelectedFile(info.file.originFileObj);
-    }
+  const handleFileChange = async (info) => { if (info.file.status === "done") setSelectedFile(info.file.originFileObj) };
+  const handleDateChange = (date, dateString, fieldName) => { form.setFieldsValue({ [fieldName]: date }) };
+  const handleEditClick = () => setIsEditing(true);
+  const handleCancelClick = () => {
+    setIsEditing(false);
+    form.setFieldsValue(initialData);
   };
 
   const uploadProps = {
     beforeUpload: (file) => {
       const isAccepted = file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png";
-      if (!isAccepted) {
-        message.error("You can only upload JPEG/JPG/PNG file!");
-      }
+      if (!isAccepted) message.error("You can only upload JPEG/JPG/PNG file!");
       setSelectedFile(file);
       return false;
     },
@@ -63,13 +62,13 @@ export default function UserData({ userDataProps, userAccountData }) {
   };
 
   const showLoader = () => { setSpinning(true) };
-
   const dateFormat = "YYYY-MM-DD";
   // const customFormat = (value) => `${value.format(dateFormat)}`;
 
   useEffect(() => {
     const initialFormData = {
       ...userDataProps,
+      rumahSakitAsal: userDataProps.rumahSakitAsal || null,
       tanggalLahir: userDataProps.tanggalLahir
         ? dayjs(userDataProps.tanggalLahir, dateFormat)
         : null,
@@ -80,12 +79,6 @@ export default function UserData({ userDataProps, userAccountData }) {
     setInitialData(initialFormData);
     form.setFieldsValue(initialFormData);
   }, [userDataProps, form]);
-
-  const handleEditClick = () => setIsEditing(true);
-  const handleCancelClick = () => {
-    setIsEditing(false);
-    form.setFieldsValue(initialData);
-  };
 
   // const handleCheckboxChange = () => {
   //   setIsChecked(!isChecked);
@@ -127,24 +120,6 @@ export default function UserData({ userDataProps, userAccountData }) {
     }
   }, []);
 
-  // Connect MetaMask to Ganache VPS
-  // const getSigner = useCallback(async () => {
-  //   const win = window;
-  //   if (!win.ethereum) {
-  //     console.error("Metamask not detected");
-  //     return;
-  //   }
-
-  //   try {
-  //     await win.ethereum.request({ method: "eth_requestAccounts" });
-  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     const signer = provider.getSigner();
-  //     return signer;
-  //   } catch (error) {
-  //     console.error("Error setting up Web3Provider:", error);
-  //   }
-  // }, []);
-
   const handleFormSubmit = async (values) => {
     if (window.ethereum) {
       try {
@@ -165,23 +140,15 @@ export default function UserData({ userDataProps, userAccountData }) {
           tanggalLahir: values.tanggalLahir
             ? dayjs(values.tanggalLahir).format(dateFormat)
             : "",
-          ...(values.tanggalLahirKerabat && {
-            tanggalLahirKerabat: dayjs(values.tanggalLahirKerabat).format(
-              dateFormat
-            ),
-          }),
+          ...(values.tanggalLahirKerabat && { tanggalLahirKerabat: dayjs(values.tanggalLahirKerabat).format(dateFormat) }),
           userAccountData: userAccountData,
         };
 
-        // console.log({ cid });
         // Menandatangani data menggunakan signer
         const signer = await getSigner();
-        const signature = await signer.signMessage(
-          JSON.stringify(updatedValues)
-        );
+        const signature = await signer.signMessage(JSON.stringify(updatedValues));
         updatedValues.signature = signature;
         updatedValues.riwayatPengobatan = userDataProps.riwayatPengobatan || [];
-        console.log({ updatedValues });
 
         if (!cid) {
           updatedValues.foto = userImage;
@@ -202,7 +169,6 @@ export default function UserData({ userDataProps, userAccountData }) {
         );
 
         const responseData = await response.json();
-
         if (response.ok) {
           setSpinning(false);
           Swal.fire({
@@ -232,10 +198,6 @@ export default function UserData({ userDataProps, userAccountData }) {
       }
     }
     setIsEditing(false);
-  };
-
-  const handleDateChange = (date, dateString, fieldName) => {
-    form.setFieldsValue({ [fieldName]: date });
   };
 
   const provinsiOptions = [
@@ -275,11 +237,7 @@ export default function UserData({ userDataProps, userAccountData }) {
     { value: "Yogyakarta", label: "Daerah Istimewa Yogyakarta" },
   ];
 
-  const inputStyling = {
-    border: "1px solid #E2E8F0",
-    borderRadius: "6px",
-  };
-
+  const inputStyling = { border: "1px solid #E2E8F0", borderRadius: "6px" };
   const renderUploadButton = () =>
     isEditing ? (
       <div className="pb-4 upload-profile-picture">
@@ -306,8 +264,7 @@ export default function UserData({ userDataProps, userAccountData }) {
             style={{
               backgroundColor: "#87d068",
               marginBottom: ".75rem",
-              boxShadow:
-                "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+              boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
             }}
             icon={<UserOutlined />}
           />
@@ -315,94 +272,59 @@ export default function UserData({ userDataProps, userAccountData }) {
         {renderUploadButton()}
         <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
         <div>
-          <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-            {userIdentification}
-          </span>
+          <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">{userIdentification}</span>
         </div>
       </div>
-      <Form
-        form={form}
-        layout="vertical"
-        className="col-span-2 p-8"
-        onFinish={handleFormSubmit}
-        disabled={!isEditing}
-      >
+      <Form form={form} layout="vertical" className="col-span-2 p-8" onFinish={handleFormSubmit} disabled={!isEditing}>
         <div className="grid grid-cols-2 gap-x-8">
+          {role === "Pasien" && (
+            <>
+              <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
+              Data Rumah Sakit
+              <hr className="h-px bg-gray-700 border-0"></hr>
+              </div>
+              <Form.Item label="Rumah Sakit Asal" name="rumahSakitAsal" rules={[{ required: true, message: "Silakan pilih status pernikahan!" }]}>
+                <Select disabled={!isEditing} size="large"
+                  options={[
+                    { value: "1", label: "Eka Hospital Bekasi" },
+                    { value: "2", label: "Eka Hospital BSD" },
+                    { value: "3", label: "Eka Hospital Jakarta" },
+                    { value: "4", label: "Eka Hospital Lampung" },
+                  ]}
+                />
+              </Form.Item>
+            </>
+          )}
           <div className="col-span-2 mb-6 text-lg text-gray-900">
             Data {role}
             <hr className="h-px bg-gray-700 border-0"></hr>
           </div>
-          <Form.Item
-            label="Nama Lengkap"
-            name="namaLengkap"
-            rules={[
-              { required: true, message: "Silakan masukkan nama lengkap!" },
-            ]}
-          >
+          <Form.Item label="Nama Lengkap" name="namaLengkap" rules={[{ required: true, message: "Silakan masukkan nama lengkap!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item
-            label="Nomor Identitas (NIK, SIM, atau Paspor)"
-            name="nomorIdentitas"
-            rules={[
-              { required: true, message: "Silakan masukkan nomor identitas!" },
-            ]}
-          >
+          <Form.Item label="Nomor Identitas (NIK, SIM, atau Paspor)" name="nomorIdentitas" rules={[{ required: true, message: "Silakan masukkan nomor identitas!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Tempat Lahir"
-            name="tempatLahir"
-            rules={[
-              { required: true, message: "Silakan masukkan tempat lahir!" },
-            ]}
-          >
+          <Form.Item label="Tempat Lahir" name="tempatLahir" rules={[{ required: true, message: "Silakan masukkan tempat lahir!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item
-            label="Tanggal Lahir"
-            name="tanggalLahir"
-            rules={[
-              { required: true, message: "Silakan masukkan tanggal lahir!" },
-            ]}
-          >
+          <Form.Item label="Tanggal Lahir" name="tanggalLahir" rules={[{ required: true, message: "Silakan masukkan tanggal lahir!" }]}>
             <DatePicker
               id="tanggal_lahir"
-              // defaultValue={dayjs("2015/01/01", dateFormat)}
               className="w-full h-auto text-gray-900"
               style={inputStyling}
               size="large"
               format={dateFormat}
               disabled={!isEditing}
-              onChange={(date, dateString) =>
-                handleDateChange(date, dateString, "tanggalLahir")
-              }
-              // onSelect={onSelectTanggalLahir}
-              // onChange={(value) => setTanggalLahir(value)}
+              onChange={(date, dateString) => handleDateChange(date, dateString, "tanggalLahir")}
               required
             />
           </Form.Item>
-          <Form.Item
-            label="Nama Ibu Kandung"
-            name="namaIbu"
-            rules={[
-              { required: true, message: "Silakan masukkan nama ibu kandung!" },
-            ]}
-          >
+          <Form.Item label="Nama Ibu Kandung" name="namaIbu" rules={[{ required: true, message: "Silakan masukkan nama ibu kandung!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Jenis Kelamin"
-            name="gender"
-            rules={[
-              { required: true, message: "Silakan pilih jenis kelamin!" },
-            ]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Jenis Kelamin" name="gender" rules={[{ required: true, message: "Silakan pilih jenis kelamin!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "0", label: "Tidak diketahui" },
                 { value: "1", label: "Laki-laki" },
@@ -411,14 +333,8 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-          <Form.Item
-            label="Agama"
-            name="agama"
-            rules={[{ required: true, message: "Silakan pilih agama!" }]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Agama" name="agama" rules={[{ required: true, message: "Silakan pilih agama!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "1", label: "Islam" },
                 { value: "2", label: "Kristen (Protestan)" },
@@ -431,38 +347,14 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-
-          <Form.Item
-            label="Suku"
-            name="suku"
-            rules={[{ required: true, message: "Silakan masukkan suku!" }]}
-          >
+          <Form.Item label="Suku" name="suku" rules={[{ required: true, message: "Silakan masukkan suku!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Bahasa yang Dikuasai"
-            name="bahasa"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan bahasa yang dikuasai!",
-              },
-            ]}
-          >
+          <Form.Item label="Bahasa yang Dikuasai" name="bahasa" rules={[{ required: true, message: "Silakan masukkan bahasa yang dikuasai!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Golongan Darah"
-            name="golonganDarah"
-            rules={[
-              { required: true, message: "Silakan pilih golongan darah!" },
-            ]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Golongan Darah" name="golonganDarah" rules={[{ required: true, message: "Silakan pilih golongan darah!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "1", label: "A" },
                 { value: "2", label: "B" },
@@ -480,48 +372,17 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-
-          <Form.Item
-            label="Nomor Telepon Rumah"
-            name="telpRumah"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan nomor telepon rumah!",
-              },
-            ]}
-          >
+          <Form.Item label="Nomor Telepon Rumah" name="telpRumah" rules={[{ required: true, message: "Silakan masukkan nomor telepon rumah!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Nomor Telepon Selular"
-            name="telpSelular"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan nomor telepon selular!",
-              },
-            ]}
-          >
+          <Form.Item label="Nomor Telepon Selular" name="telpSelular" rules={[{ required: true, message: "Silakan masukkan nomor telepon selular!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: "Silakan masukkan email!" }]}
-          >
+          <Form.Item label="Email" name="email" rules={[{ required: true, message: "Silakan masukkan email!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item
-            label="Pendidikan"
-            name="pendidikan"
-            rules={[{ required: true, message: "Silakan pilih pendidikan!" }]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Pendidikan" name="pendidikan" rules={[{ required: true, message: "Silakan pilih pendidikan!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "0", label: "Tidak sekolah" },
                 { value: "1", label: "SD" },
@@ -535,15 +396,8 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-
-          <Form.Item
-            label="Pekerjaan"
-            name="pekerjaan"
-            rules={[{ required: true, message: "Silakan pilih pekerjaan!" }]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Pekerjaan" name="pekerjaan" rules={[{ required: true, message: "Silakan pilih pekerjaan!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "0", label: "Tidak Bekerja" },
                 { value: "1", label: "PNS" },
@@ -554,17 +408,8 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-
-          <Form.Item
-            label="Status Pernikahan"
-            name="pernikahan"
-            rules={[
-              { required: true, message: "Silakan pilih status pernikahan!" },
-            ]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
+          <Form.Item label="Status Pernikahan" name="pernikahan" rules={[{ required: true, message: "Silakan pilih status pernikahan!" }]}>
+            <Select disabled={!isEditing} size="large"
               options={[
                 { value: "1", label: "Belum Kawin" },
                 { value: "2", label: "Kawin" },
@@ -573,88 +418,31 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-
-          <Form.Item
-            label="Alamat"
-            name="alamat"
-            rules={[{ required: true, message: "Silakan masukkan alamat!" }]}
-          >
-            <Input.TextArea
-              disabled={!isEditing}
-              style={inputStyling}
-              rows={4}
-            />
+          <Form.Item label="Alamat" name="alamat" rules={[{ required: true, message: "Silakan masukkan alamat!" }]}>
+            <Input.TextArea disabled={!isEditing} style={inputStyling} rows={4} />
           </Form.Item>
-
-          <Form.Item
-            label="RT"
-            name="rt"
-            rules={[{ required: true, message: "Silakan masukkan RT!" }]}
-          >
+          <Form.Item label="RT" name="rt" rules={[{ required: true, message: "Silakan masukkan RT!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="RW"
-            name="rw"
-            rules={[{ required: true, message: "Silakan masukkan RW!" }]}
-          >
+          <Form.Item label="RW" name="rw" rules={[{ required: true, message: "Silakan masukkan RW!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Kelurahan / Desa"
-            name="kelurahan"
-            rules={[
-              { required: true, message: "Silakan masukkan kelurahan / desa!" },
-            ]}
-          >
+          <Form.Item label="Kelurahan / Desa" name="kelurahan" rules={[{ required: true, message: "Silakan masukkan kelurahan / desa!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Kecamatan"
-            name="kecamatan"
-            rules={[{ required: true, message: "Silakan masukkan kecamatan!" }]}
-          >
+          <Form.Item label="Kecamatan" name="kecamatan" rules={[{ required: true, message: "Silakan masukkan kecamatan!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Kota Madya / Kabupaten"
-            name="kota"
-            rules={[
-              { required: true, message: "Silakan masukkan kota / kabupaten!" },
-            ]}
-          >
+          <Form.Item label="Kota Madya / Kabupaten" name="kota" rules={[{ required: true, message: "Silakan masukkan kota / kabupaten!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Kode Pos"
-            name="pos"
-            rules={[{ required: true, message: "Silakan masukkan kode pos!" }]}
-          >
+          <Form.Item label="Kode Pos" name="pos" rules={[{ required: true, message: "Silakan masukkan kode pos!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-
-          <Form.Item
-            label="Provinsi"
-            name="provinsi"
-            rules={[{ required: true, message: "Silakan pilih provinsi!" }]}
-          >
-            <Select
-              disabled={!isEditing}
-              size="large"
-              options={provinsiOptions}
-            />
+          <Form.Item label="Provinsi" name="provinsi" rules={[{ required: true, message: "Silakan pilih provinsi!" }]}>
+            <Select disabled={!isEditing} size="large" options={provinsiOptions} />
           </Form.Item>
-
-          <Form.Item
-            label="Negara"
-            name="negara"
-            rules={[{ required: true, message: "Silakan masukkan negara!" }]}
-          >
+          <Form.Item label="Negara" name="negara" rules={[{ required: true, message: "Silakan masukkan negara!" }]}>
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
 
@@ -665,67 +453,28 @@ export default function UserData({ userDataProps, userAccountData }) {
                 Data Kerabat/Penanggung Jawab
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
-              <Form.Item
-                label="Nama Lengkap"
-                name="namaKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan nama lengkap!" },
-                ]}
-              >
+              <Form.Item label="Nama Lengkap" name="namaKerabat" rules={[{ required: true, message: "Silakan masukkan nama lengkap!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
               {/* Nomor Identitas Kerabat */}
-              <Form.Item
-                label="Nomor Identitas (NIK, SIM, atau Paspor)"
-                name="nomorIdentitasKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan nomor identitas kerabat!",
-                  },
-                ]}
-              >
+              <Form.Item label="Nomor Identitas (NIK, SIM, atau Paspor)" name="nomorIdentitasKerabat" rules={[{ required: true, message: "Silakan masukkan nomor identitas kerabat!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Tanggal Lahir Kerabat */}
-              <Form.Item
-                label="Tanggal Lahir"
-                name="tanggalLahirKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan pilih tanggal lahir kerabat!",
-                  },
-                ]}
-              >
+              <Form.Item label="Tanggal Lahir" name="tanggalLahirKerabat" rules={[{ required: true, message: "Silakan pilih tanggal lahir kerabat!" }]}>
                 <DatePicker
                   id="tanggal_lahir_kerabat"
-                  // defaultValue={parsedTanggalLahirKerabat}
                   className="w-full h-auto text-gray-900"
                   size="large"
                   format={dateFormat}
                   disabled={!isEditing}
-                  onChange={(date, dateString) =>
-                    handleDateChange(date, dateString, "tanggalLahirKerabat")
-                  }
-                  // onSelect={onSelectTanggalLahirKerabat}
-                  // onChange={(value) => setTanggalLahirKerabat(value)}
+                  onChange={(date, dateString) => handleDateChange(date, dateString, "tanggalLahirKerabat")}
                   required
                 />
               </Form.Item>
-
               {/* Jenis Kelamin Kerabat */}
-              <Form.Item
-                label="Jenis Kelamin"
-                name="genderKerabat"
-                rules={[
-                  { required: true, message: "Silakan pilih jenis kelamin!" },
-                ]}
-              >
-                <Select
-                  disabled={!isEditing}
-                  size="large"
+              <Form.Item label="Jenis Kelamin" name="genderKerabat" rules={[{ required: true, message: "Silakan pilih jenis kelamin!" }]}>
+                <Select disabled={!isEditing} size="large"
                   options={[
                     { value: "0", label: "Tidak diketahui" },
                     { value: "1", label: "Laki-laki" },
@@ -735,139 +484,49 @@ export default function UserData({ userDataProps, userAccountData }) {
                   ]}
                 />
               </Form.Item>
-
               {/* Nomor Telepon Kerabat */}
-              <Form.Item
-                label="Nomor Telepon"
-                name="telpKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan nomor telepon kerabat!",
-                  },
-                ]}
-              >
+              <Form.Item label="Nomor Telepon" name="telpKerabat" rules={[{ required: true, message: "Silakan masukkan nomor telepon kerabat!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Hubungan dengan Pasien */}
-              <Form.Item
-                label="Hubungan dengan Pasien"
-                name="hubunganKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan hubungan dengan pasien!",
-                  },
-                ]}
-              >
+              <Form.Item label="Hubungan dengan Pasien" name="hubunganKerabat" rules={[{ required: true, message: "Silakan masukkan hubungan dengan pasien!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Alamat Kerabat */}
-              <Form.Item
-                label="Alamat"
-                name="alamatKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan alamat!" },
-                ]}
-              >
-                <Input.TextArea
-                  disabled={!isEditing}
-                  style={inputStyling}
-                  rows={4}
+              <Form.Item label="Alamat" name="alamatKerabat" rules={[{ required: true, message: "Silakan masukkan alamat!" }]}>
+                <Input.TextArea disabled={!isEditing} style={inputStyling} rows={4}
                 />
               </Form.Item>
-
               {/* RT Kerabat */}
-              <Form.Item
-                label="Rukun Tetangga (RT)"
-                name="rtKerabat"
-                rules={[{ required: true, message: "Silakan masukkan RT!" }]}
-              >
+              <Form.Item label="Rukun Tetangga (RT)" name="rtKerabat" rules={[{ required: true, message: "Silakan masukkan RT!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* RW Kerabat */}
-              <Form.Item
-                label="Rukun Warga (RW)"
-                name="rwKerabat"
-                rules={[{ required: true, message: "Silakan masukkan RW!" }]}
-              >
+              <Form.Item label="Rukun Warga (RW)" name="rwKerabat" rules={[{ required: true, message: "Silakan masukkan RW!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Kelurahan/Desa Kerabat */}
-              <Form.Item
-                label="Kelurahan/Desa"
-                name="kelurahanKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan kelurahan/desa!",
-                  },
-                ]}
-              >
+              <Form.Item label="Kelurahan/Desa" name="kelurahanKerabat" rules={[{ required: true, message: "Silakan masukkan kelurahan/desa!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Kecamatan Kerabat */}
-              <Form.Item
-                label="Kecamatan"
-                name="kecamatanKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan kecamatan!" },
-                ]}
-              >
+              <Form.Item label="Kecamatan" name="kecamatanKerabat" rules={[{ required: true, message: "Silakan masukkan kecamatan!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Kota/Kabupaten Kerabat */}
-              <Form.Item
-                label="Kota Madya/Kabupaten"
-                name="kotaKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan kota madya/kabupaten!",
-                  },
-                ]}
-              >
+              <Form.Item label="Kota Madya/Kabupaten" name="kotaKerabat" rules={[{ required: true, message: "Silakan masukkan kota madya/kabupaten!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Kode Pos Kerabat */}
-              <Form.Item
-                label="Kode Pos"
-                name="posKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan kode pos!" },
-                ]}
-              >
+              <Form.Item label="Kode Pos" name="posKerabat" rules={[{ required: true, message: "Silakan masukkan kode pos!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-
               {/* Provinsi Kerabat */}
-              <Form.Item
-                label="Provinsi"
-                name="provinsiKerabat"
-                rules={[{ required: true, message: "Silakan pilih provinsi!" }]}
-              >
-                <Select
-                  disabled={!isEditing}
-                  size="large"
-                  options={provinsiOptions}
-                />
+              <Form.Item label="Provinsi" name="provinsiKerabat" rules={[{ required: true, message: "Silakan pilih provinsi!" }]}>
+                <Select disabled={!isEditing} size="large" options={provinsiOptions} />
               </Form.Item>
-
               {/* Negara Kerabat */}
-              <Form.Item
-                label="Negara"
-                name="negaraKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan negara!" },
-                ]}
-              >
+              <Form.Item label="Negara" name="negaraKerabat" rules={[{ required: true, message: "Silakan masukkan negara!" }]}>
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
             </>
@@ -876,9 +535,8 @@ export default function UserData({ userDataProps, userAccountData }) {
           )}
         </div>
 
-        {/* UBAH DATA */}
+        {/* TOMBOL UBAH DATA */}
         {isEditing ? (
-          // Tampilan tombol saat sedang dalam mode pengeditan
           <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
             <button
               type="button"
