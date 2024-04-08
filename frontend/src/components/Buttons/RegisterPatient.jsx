@@ -155,6 +155,18 @@ export default function RegisterPatientButton({
       patientAccountData: patientAccountData,
     };
 
+    console.log({formattedPatientData});
+    
+    if (formattedPatientData.rumahSakitAsal === "") {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Rumah Sakit Asal harus diisi!",
+      })
+      setSpinning(false);
+      return;
+    }
+
     // Menandatangani data menggunakan signer
     const signer = await getSigner();
     const signature = await signer.signMessage(
@@ -253,12 +265,10 @@ export default function RegisterPatientButton({
                 id="gender"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 value={patientData.rumahSakitAsal}
-                onChange={(e) =>
-                  setPatientData({ ...patientData, rumahSakitAsal: e.target.value })
-                }
+                onChange={ (e) => setPatientData({ ...patientData, rumahSakitAsal: e.target.value }) }
                 required
               >
-                <option>Pilih Rumah Sakit Asal</option>
+                <option value="">Pilih Rumah Sakit Asal</option>
                 <option value="1">Eka Hospital Bekasi</option>
                 <option value="2">Eka Hospital BSD</option>
                 <option value="3">Eka Hospital Jakarta</option>
