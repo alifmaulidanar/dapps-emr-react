@@ -102,10 +102,10 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 
 26/03/24
 ✅ perbaikan smart contract outpatient dengan menambahkan emrNumber dan referensi patient address, doctor address, dan nurse address secara lengkap ke masing-masing role
+✅ penyesuaian smart contract lagi dalam pengembangan sisi dokter
+✅ lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 next:
-- penyesuaian smart contract lagi dalam pengembangan sisi dokter
-- lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
 ===================================================================================================
 ===================================================================================================
@@ -525,8 +525,8 @@ abis ini ngapain:
 ✅ di dokter tampilkan form lengkap dengan isian dari nurse bisa diubah lagi jika perlu
 ✅ tampilkan EMR di daftar rekam medis pasien
 ✅ remove profil pasien dari akun staf jika status appointment pasien terkait sudah berubah menjadi "done"
-- tampilkan rumah sakit asal di profil pasien
-- perbaiki sort pada setiap tabel dan card
+ tampilkan rumah sakit asal di profil pasien
+✅ perbaiki sort pada setiap tabel dan card
 - dashboard doctor dan nurse yang berisikan jadwal kerja mereka
 - perbaikan di sisi nurse -> harusnya jangan memilih pasien secara langsung, tetapi pilih dokter dahulu baru munculkan pasien yg terdaftar pada jadwal dokter dan nurse itu
 - handle file upload
@@ -536,9 +536,9 @@ abis ini ngapain:
 
 
 🟡 logika penerimaan appointment dari nurse dan dokter: 🟡
-- manfaatkan getAppointmentsByNurse() dan getAppointmentsByDoctor() untuk mendapatkan appointment yang terkait dengan perawat dan dokter tersebut
-- perawat akan mengecek profil pasien (termasuk melihat riwayat pengobatan (EMR)) dan pengajuan rawat jalan (cek userData dan appointmentData)
-- perawat mengisikan informasi awal pemeriksaan (bb, tb, keluhan, dll.) -> pembuatan data pemeriksaan -> masuk ke array 'pengobatan' -> berarti update objek dan cid profil pada struct, array, dan mapping pasien pada akun terkait (update cid updateUserAccount())
-- perawat simpan -> sementara
-- dokter melakukan hal yg sama dengan perawwat tadi -> isian dari perawat bisa diedit dokter juga
-- dokter simpan permanen
+✅ manfaatkan getAppointmentsByNurse() dan getAppointmentsByDoctor() untuk mendapatkan appointment yang terkait dengan perawat dan dokter tersebut
+✅ perawat akan mengecek profil pasien (termasuk melihat riwayat pengobatan (EMR)) dan pengajuan rawat jalan (cek userData dan appointmentData)
+✅ perawat mengisikan informasi awal pemeriksaan (bb, tb, keluhan, dll.) -> pembuatan data pemeriksaan -> masuk ke array 'pengobatan' -> berarti update objek dan cid profil pada struct, array, dan mapping pasien pada akun terkait (update cid updateUserAccount())
+✅ perawat simpan -> sementara
+✅ dokter melakukan hal yg sama dengan perawwat tadi -> isian dari perawat bisa diedit dokter juga
+✅ dokter simpan permanen
