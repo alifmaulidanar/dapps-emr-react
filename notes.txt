@@ -307,9 +307,14 @@ next:
 ✅ menghapus profil pasien dari staf jika EMR telah diisi dokter dan statusnya done
 ✅ tampilkan appointment di daftar rekam medis pasien dalam bentuk card
 
+13/04/24
+✅ membuat upload file fungsional untuk format file terbatas
+✅ upload file ke ipfs dari frontend, lalu cid dikirim dalam field lampiranRekamMedis di json EMR pasien
+✅ retrieve file (baru bisa gambar) dan menampilkan ke div dengan id="lampiran"
+
 next:
+- atur penampilan file lampiran (untuk gambar tampilkan gambarnya dengan ukuran konsisten, untuk file lain cukup nama file dan ekstensi dan open in new tab -> preview)
 - pada dashboard nurse, tampilkan pilihan dokter pada tabel -> baru setelah memilih dokter dapat melihat pasien yang terdaftar pada dokter tersebut
-- perbaiki penanganan upload file -> masih gagal
 - cek ketiga komponen (card detail profil, tabel appointment, dan card emr) agar berfungsi dengan baik dan tampilannya bagus di doctor dan nurse
 - buat 2 tab, 1 tampilkan yg isActive == true, 1 tampilkan yg isActive == false
 - handle state session / token jwt di frontend yg bagus (cari referensi best practice)
@@ -527,9 +532,9 @@ abis ini ngapain:
 ✅ remove profil pasien dari akun staf jika status appointment pasien terkait sudah berubah menjadi "done"
  tampilkan rumah sakit asal di profil pasien
 ✅ perbaiki sort pada setiap tabel dan card
+- handle file upload (udah bisa coba upload multiple files dari frontend langsung ke IPFS -> next cara bundle files biar punya 1 CID per rekam medis (manfaatkan judul rekam medis/appointmentId))
 - dashboard doctor dan nurse yang berisikan jadwal kerja mereka
 - perbaikan di sisi nurse -> harusnya jangan memilih pasien secara langsung, tetapi pilih dokter dahulu baru munculkan pasien yg terdaftar pada jadwal dokter dan nurse itu
-- handle file upload
 - tampilkan data lebih lengkap untuk admin -> total dan daftar akun dan profil pasien, total appointment yang dibuat, total emr yang telah dibuat, dll
 - finishing home page rumah sakit
 - footer di dashboard page tiap role
