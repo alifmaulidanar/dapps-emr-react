@@ -6,14 +6,19 @@ dayjs.extend(timezone);
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 import { ethers } from "ethers";
+import { Buffer } from 'buffer';
+import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { UserOutlined, RightOutlined } from "@ant-design/icons";
-import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, message } from "antd";
+import { InboxOutlined, UserOutlined, RightOutlined } from "@ant-design/icons";
+import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, message } from "antd";
+const { Dragger } = Upload;
 import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
 import BackButton from "../../components/Buttons/Navigations";
 import NavbarController from "../../components/Navbar/NavbarController";
+
+const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 export default function DoctorPatientDetails({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -155,12 +160,38 @@ export default function DoctorPatientDetails({ role }) {
 
   const dateFormat = "YYYY-MM-DD";
   const inputStyling = { border: "1px solid #E2E8F0", borderRadius: "6px", height: "32px" };
-  
+  const inputStylingTextArea = { border: "1px solid #E2E8F0", borderRadius: "6px" };
+
   const EMRForm = ({ appointmentId }) => {
     const [form] = Form.useForm();
     const [isEdit, setIsEdit] = useState(false);
+    const [fileList, setFileList] = useState([]);
     const [selectedAlergi, setSelectedAlergi] = useState('');
     const [selectedPsikologis, setSelectedPsikologis] = useState('');
+
+    const props = {
+      name: 'file',
+      multiple: true,
+      fileList,
+      accept: '.docx,.xlsx,.ppt,.png,.jpg,.jpeg,.pdf',
+      beforeUpload: (file) => {
+        setFileList((prevList) => [...prevList, file]);
+        return false;
+      },
+      onRemove: (file) => {
+        const newFileList = fileList.filter((f) => f !== file);
+        setFileList(newFileList);
+      },
+    };
+
+    const filesToUpload = fileList.map((file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => { resolve({ path: file.name, content: Buffer.from(event.target.result) }) };
+        reader.onerror = (error) => reject(error);
+        reader.readAsArrayBuffer(file);
+      })
+    );
 
     const onAlergiChange = value => { setSelectedAlergi(value) };
     const onPsikologisChange = value => { setSelectedPsikologis(value) };
@@ -182,6 +213,12 @@ export default function DoctorPatientDetails({ role }) {
         return;
       }
 
+      // bundle lampiran rekam medis
+      const filesData = await Promise.all(filesToUpload);
+      const bundleContent = JSON.stringify(filesData);
+      const result = await ipfsClient.add(bundleContent);
+      const cid = result.cid.toString();
+
       const formattedEMR = {
         accountAddress,
         nomorRekamMedis,
@@ -193,7 +230,8 @@ export default function DoctorPatientDetails({ role }) {
         waktuRekamMedis: dayjs().format("HH:mm:ss"),
         datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
         isDokter: true,
-        alamatStaf: selectedData.appointment.alamatStaf
+        alamatStaf: selectedData.appointment.alamatStaf,
+        lampiranRekamMedis: cid,
       };
       const signer = await getSigner();
       const signature = await signer.signMessage(JSON.stringify(formattedEMR));
@@ -221,8 +259,9 @@ export default function DoctorPatientDetails({ role }) {
       }
     };
 
+    const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
     useEffect(() => {
-      const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
+      const cid = selectedHistory ? selectedHistory.lampiranRekamMedis : null;
       if (selectedHistory) {
         // Set initial values
         const initialValues = {
@@ -291,14 +330,30 @@ export default function DoctorPatientDetails({ role }) {
           pasienPenjelasanTindakan: selectedHistory.pasienPenjelasanTindakan,
           saksi1PenjelasanTindakan: selectedHistory.saksi1PenjelasanTindakan,
           saksi2PenjelasanTindakan: selectedHistory.saksi2PenjelasanTindakan,
+          lampiranRekamMedis: selectedHistory.lampiranRekamMedis,
           judulRekamMedis: selectedHistory.judulRekamMedis,
+          catatanRekamMedis: selectedHistory.catatanRekamMedis,
         };
-    
         // Check isDokter & isPerawat
         if (selectedHistory.isDokter) {
           // if isDokter
           setIsEdit(true);
           form.setFieldsValue(initialValues);
+          fetch(`${CONN.IPFS_LOCAL}/${cid}`)
+            .then(response => response.json())
+            .then(bundleContent => {
+              console.log('Fetched data:', bundleContent);
+              bundleContent.forEach(async (fileData) => {
+                const blob = new Blob([new Uint8Array(fileData.content.data)]);
+                const url = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = url;
+                document.getElementById("lampiran").appendChild(img);
+              });
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+            });
         } else if (selectedHistory.isPerawat) {
           // if isPerawat
           setIsEdit(false);
@@ -357,7 +412,9 @@ export default function DoctorPatientDetails({ role }) {
             petugasPendampingTindakan: selectedData.appointment.namaPerawat,
             pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
             tanggalPenjelasanTindakan: dayjs(),
+            lampiranRekamMedis: selectedHistory.lampiranRekamMedis,
             judulRekamMedis: selectedHistory.judulRekamMedis,
+            catatanRekamMedis: selectedHistory.catatanRekamMedis,
           });
         } else {
           // if !isDokter dan !isPerawat
@@ -395,7 +452,6 @@ export default function DoctorPatientDetails({ role }) {
         setIsEdit(false);
       }
     }, [appointmentId, form, profile.riwayatPengobatan, selectedData.appointment]);
-    
 
     return (
       <Form
@@ -702,6 +758,28 @@ export default function DoctorPatientDetails({ role }) {
               <Input style={inputStyling} disabled={isEdit}/>
           </Form.Item>
 
+          {/* LAMPIRAN BERKAS */}
+          <div className="col-span-2">
+            <Divider orientation="left">Lampiran Berkas</Divider>
+          </div>
+          <div className="col-span-2">
+          {selectedHistory.isDokter ? (
+            <>
+              <div id="lampiran"></div>
+            </>
+          ) : (
+            <Dragger {...props}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">Click or drag file to this area to upload</p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.
+              </p>
+            </Dragger>
+          )}
+          </div>
+
           {/* JUDUL REKAM MEDIS */}
           <div className="col-span-2">
             <Divider orientation="left">Judul Rekam Medis</Divider>
@@ -710,8 +788,12 @@ export default function DoctorPatientDetails({ role }) {
             <Form.Item label="Judul Rekam Medis" name="judulRekamMedis">
                 <Input style={inputStyling} disabled={isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
             </Form.Item>
+            <Form.Item label="Catatan" name="catatanRekamMedis">
+              <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
+            </Form.Item>
           </div>
 
+          {/* TERAPI -PENDING- */}
           {/* <div className="col-span-2">
             <Divider orientation="left" orientationMargin="0">4. Terapi</Divider>
           </div>
@@ -747,9 +829,6 @@ export default function DoctorPatientDetails({ role }) {
             <Input style={inputStyling} disabled={isEdit}/>
           </Form.Item> */}
         </div>
-        {/* <Form.Item label="Catatan" name="catatan">
-          <Input.TextArea style={inputStyling} disabled={isEdit} rows={4}/>
-        </Form.Item> */}
         {!isEdit && (
           <Form.Item className="flex justify-center">
             <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
