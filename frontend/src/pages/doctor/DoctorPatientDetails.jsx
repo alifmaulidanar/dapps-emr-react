@@ -1,3 +1,4 @@
+import ReactDOM from 'react-dom';
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -11,7 +12,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { InboxOutlined, UserOutlined, RightOutlined } from "@ant-design/icons";
+import { InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
 import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, message } from "antd";
 const { Dragger } = Upload;
 import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
@@ -168,6 +169,7 @@ export default function DoctorPatientDetails({ role }) {
     const [fileList, setFileList] = useState([]);
     const [selectedAlergi, setSelectedAlergi] = useState('');
     const [selectedPsikologis, setSelectedPsikologis] = useState('');
+    const [history, setHistory] = useState({});
 
     const props = {
       name: 'file',
@@ -259,10 +261,11 @@ export default function DoctorPatientDetails({ role }) {
       }
     };
 
-    const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
     useEffect(() => {
-      const cid = selectedHistory ? selectedHistory.lampiranRekamMedis : null;
+      const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
+      setHistory(selectedHistory);
       if (selectedHistory) {
+        const cid = selectedHistory ? selectedHistory.lampiranRekamMedis : null;
         // Set initial values
         const initialValues = {
           appointmentId: selectedHistory.appointmentId,
@@ -342,13 +345,43 @@ export default function DoctorPatientDetails({ role }) {
           fetch(`${CONN.IPFS_LOCAL}/${cid}`)
             .then(response => response.json())
             .then(bundleContent => {
-              console.log('Fetched data:', bundleContent);
               bundleContent.forEach(async (fileData) => {
                 const blob = new Blob([new Uint8Array(fileData.content.data)]);
                 const url = URL.createObjectURL(blob);
-                const img = document.createElement('img');
-                img.src = url;
-                document.getElementById("lampiran").appendChild(img);
+                let attachmentElement;
+                let previewElement;
+                if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
+                  // Display image file
+                  attachmentElement = document.createElement('img');
+                  attachmentElement.src = url;
+                  attachmentElement.alt = fileData.path;
+                  previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
+                } else {
+                  // Display other file types as download links
+                  attachmentElement = document.createElement('img');
+                  attachmentElement.src = url;
+                  attachmentElement.alt = fileData.path;
+                  previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
+                }
+                const fileName = fileData.path.split('.').slice(0, -1).join('.');
+                const fileExtension = fileData.path.split('.').pop();
+                const cardContent = (
+                  <>
+                    {previewElement}
+                  </>
+                );
+                const card = (
+                  <Card className="w-[120px] hover:shadow">
+                    <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
+                      {cardContent}
+                      <p>{fileName}.{fileExtension}</p>
+                    </a>
+                  </Card>
+                );
+
+                const div = document.createElement('div');
+                ReactDOM.render(card, div);
+                document.getElementById("lampiran").appendChild(div);
               });
             })
             .catch(error => {
@@ -763,9 +796,9 @@ export default function DoctorPatientDetails({ role }) {
             <Divider orientation="left">Lampiran Berkas</Divider>
           </div>
           <div className="col-span-2">
-          {selectedHistory.isDokter ? (
+          {history?.isDokter ? (
             <>
-              <div id="lampiran"></div>
+              <div id="lampiran" className='flex gap-x-4'></div>
             </>
           ) : (
             <Dragger {...props}>
