@@ -26,7 +26,8 @@
     "react-flatpickr": "^3.10.13",
     "react-router-dom": "^6.18.0",
     "sweetalert2": "^11.9.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "viewerjs": "^1.11.6"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
