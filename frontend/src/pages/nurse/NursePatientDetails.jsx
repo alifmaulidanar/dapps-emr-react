@@ -638,7 +638,7 @@ export default function NursePatientDetails({ role }) {
                 </Card>
                 <Table columns={columns} dataSource={appointmentDataSource} size="middle"/>
               </div>
-              <div><EMRCard/></div>
+              <div className="scrollable-column"><EMRCard/></div>
             </div>
           </div>
         </div>

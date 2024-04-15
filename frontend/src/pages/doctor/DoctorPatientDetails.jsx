@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -345,7 +345,8 @@ export default function DoctorPatientDetails({ role }) {
           fetch(`${CONN.IPFS_LOCAL}/${cid}`)
             .then(response => response.json())
             .then(bundleContent => {
-              bundleContent.forEach(async (fileData) => {
+              const root = createRoot(document.getElementById("lampiran"));
+              const cards = bundleContent.map(fileData => {
                 const blob = new Blob([new Uint8Array(fileData.content.data)]);
                 const url = URL.createObjectURL(blob);
                 let attachmentElement;
@@ -370,19 +371,16 @@ export default function DoctorPatientDetails({ role }) {
                     {previewElement}
                   </>
                 );
-                const card = (
-                  <Card className="w-[120px] hover:shadow">
+                return (
+                  <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
                     <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
                       {cardContent}
                       <p>{fileName}.{fileExtension}</p>
                     </a>
                   </Card>
                 );
-
-                const div = document.createElement('div');
-                ReactDOM.render(card, div);
-                document.getElementById("lampiran").appendChild(div);
               });
+              root.render(cards, document.createElement('div'));
             })
             .catch(error => {
               console.error('Error fetching data:', error);
@@ -798,7 +796,7 @@ export default function DoctorPatientDetails({ role }) {
           <div className="col-span-2">
           {history?.isDokter ? (
             <>
-              <div id="lampiran" className='flex gap-x-4'></div>
+              <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>
             </>
           ) : (
             <Dragger {...props}>
@@ -957,9 +955,11 @@ export default function DoctorPatientDetails({ role }) {
                     </div>
                   </div>
                 </Card>
-                <Table columns={columns} dataSource={appointmentDataSource} size="middle"/>
+                <div>
+                  <Table columns={columns} dataSource={appointmentDataSource} size="middle"/>
+                </div>
               </div>
-              <div><EMRCard/></div>
+              <div className="scrollable-column"><EMRCard/></div>
             </div>
           </div>
         </div>

@@ -12,6 +12,11 @@
   background-color: rgb(200 30 30) !important;
 }
 
+.scrollable-column {
+  max-height: 112vh;
+  overflow-y: auto;
+}
+
 /* * {
   outline: 1px solid tomato;
 } */

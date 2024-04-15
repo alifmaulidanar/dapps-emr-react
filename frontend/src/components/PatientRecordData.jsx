@@ -1,4 +1,8 @@
-import { Tag } from "antd";
+import { createRoot } from 'react-dom/client';
+import { Tag, Card } from "antd";
+import { CONN } from "../../../enum-global";
+import { FileOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
 
 const PatientRecordLoop = ({ data }) => {
   return (
@@ -14,6 +18,54 @@ const PatientRecordLoop = ({ data }) => {
 };
 
 function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
+  useEffect(() => {
+    if (record.lampiranRekamMedis) {
+      fetch(`${CONN.IPFS_LOCAL}/${record.lampiranRekamMedis}`)
+      .then(response => response.json())
+      .then(bundleContent => {
+          const root = createRoot(document.getElementById("lampiran"));
+          const cards = bundleContent.map(fileData => {
+            const blob = new Blob([new Uint8Array(fileData.content.data)]);
+            const url = URL.createObjectURL(blob);
+            let attachmentElement;
+            let previewElement;
+            if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
+              // Display image file
+              attachmentElement = document.createElement('img');
+              attachmentElement.src = url;
+              attachmentElement.alt = fileData.path;
+              previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
+            } else {
+              // Display other file types as download links
+              attachmentElement = document.createElement('img');
+              attachmentElement.src = url;
+              attachmentElement.alt = fileData.path;
+              previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
+            }
+            const fileName = fileData.path.split('.').slice(0, -1).join('.');
+            const fileExtension = fileData.path.split('.').pop();
+            const cardContent = (
+              <>
+                {previewElement}
+              </>
+            );
+            return (
+              <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
+                <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
+                  {cardContent}
+                  <p>{fileName}.{fileExtension}</p>
+                </a>
+              </Card>
+            );
+          });
+          root.render(cards, document.createElement('div'));
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+  }, [record.lampiranRekamMedis]);
+
   function convertProfileData(state) {
     const convertedState = {...state};
     const rumahSakitAsalMap = { '1': 'Eka Hospital Bekasi', '2': 'Eka Hospital BSD', '3': 'Eka Hospital Jakarta', '4': 'Eka Hospital Lampung' };
@@ -33,7 +85,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
     convertedState.konfirmasiTindakan = konfirmasiTindakan[convertedState.konfirmasiTindakan];
     return convertedState;
   }
-
   const patientDataProps1 = [
     { key: "nomorIdentitas", value1: "Nomor Identitas", value2: <Tag color="blue" className="m-0">{chosenPatient.nomorIdentitas}</Tag> },
     { key: "nomorRekamMedis", value1: "Nomor Rekam Medis", value2: <Tag color="blue" className="m-0">{chosenPatient.nomorRekamMedis}</Tag> },
@@ -155,6 +206,11 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
             <hr className="h-px bg-gray-700 border-0"></hr>
           </div>
           <PatientRecordLoop data={patientDataProps4} />
+          <div className="col-span-2 mb-6 text-lg text-gray-900">
+            Lampiran Berkas
+            <hr className="h-px bg-gray-700 border-0"></hr>
+          </div>
+          <div id="lampiran" className="flex flex-wrap w-full col-span-2 gap-4"></div>
         </div>
         {/* <div className="mb-6 text-lg text-gray-900">
           Terapi
