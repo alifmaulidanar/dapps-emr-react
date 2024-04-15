@@ -43,6 +43,19 @@ router.use(express.json());
 // const currentDateTime = new Date();
 // const formattedDateTime = formatDateTime(currentDateTime);
 
+// async function getOngoingAppointments(appointments) {
+//   const ongoingAppointments = [];
+//   for (const appointment of appointments) {
+//     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${appointment.cid}`;
+//     const response = await fetch(ipfsGatewayUrl);
+//     const appointmentData = await response.json();
+//     if (appointmentData.status === "ongoing") {
+//       ongoingAppointments.push(appointment);
+//     }
+//   }
+//   return ongoingAppointments;
+// }
+
 // get patient profile list
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
@@ -50,6 +63,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
     const appointments = await outpatientContract.getAppointmentsByDoctor(address);
     const uniquePatientProfilesMap = new Map();
     let patientAccountData = [];
+    // const ongoingAppointments = await getOngoingAppointments(appointments);
 
     for (const appointment of appointments) {
       const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
