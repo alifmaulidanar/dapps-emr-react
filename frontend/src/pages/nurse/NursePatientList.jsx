@@ -49,50 +49,16 @@ export default function NursePatientList({ role }) {
   }
 
   const columns = [
-    {
-      title: 'No.',
-      dataIndex: 'key',
-      key: 'key',
-    },
-    {
-      title: 'Alamat Akun',
-      dataIndex: 'accountAddress',
-      key: 'accountAddress',
-    },
-    {
-      title: 'Nomor Rekam Medis',
-      dataIndex: 'nomorRekamMedis',
-      key: 'nomorRekamMedis',
-    },
-    {
-      title: 'Nomor Identitas',
-      dataIndex: 'nomorIdentitas',
-      key: 'nomorIdentitas',
-    },
-    {
-      title: 'Nama Lengkap',
-      dataIndex: 'namaLengkap',
-      key: 'namaLengkap',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-    },
-    {
-      title: 'Nomor Telepon',
-      dataIndex: 'telpSelular',
-      key: 'telpSelular',
-    },
-    {
-      title: 'RS Asal',
-      dataIndex: 'rumahSakitAsal',
-      key: 'rumahSakitAsal',
-      render: (text) => getHospitalName(text),
-    },
-    {
-      title: 'Aksi',
-      key: 'action',
+    { title: 'No.', dataIndex: 'key', key: 'key' },
+    // { title: 'Alamat Akun', dataIndex: 'accountAddress', key: 'accountAddress' },
+    { title: 'Nomor Rekam Medis', dataIndex: 'nomorRekamMedis', key: 'nomorRekamMedis' },
+    { title: 'Nomor Identitas', dataIndex: 'nomorIdentitas', key: 'nomorIdentitas' },
+    { title: 'Nama Lengkap', dataIndex: 'namaLengkap', key: 'namaLengkap' },
+    { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Nomor Telepon', dataIndex: 'telpSelular', key: 'telpSelular' },
+    { title: 'RS Asal', dataIndex: 'rumahSakitAsal', key: 'rumahSakitAsal', render: (text) => getHospitalName(text) },
+    // { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
+    { title: 'Aksi', key: 'action',
       render: (_, record) => (
         <Button type="primary" ghost onClick={() => navigate('/nurse/patient-list/patient-details', { state: { record } })}>
           {role === 'nurse' ? 'Detail' : 'Lihat'}
@@ -124,7 +90,7 @@ export default function NursePatientList({ role }) {
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,
     telpSelular: profile?.telpSelular,
-    rumahSakitAsal: profile?.rumahSakitAsal,
+    rumahSakitAsal: profile?.rumahSakitAsal
   }));
 
   const mergeAccountAndProfileData = (accounts, profiles) => {
@@ -163,7 +129,7 @@ export default function NursePatientList({ role }) {
         </div>
         <div className="grid justify-center w-3/4 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
-              <Table columns={columns} dataSource={dataSource} />
+            <Table columns={columns} dataSource={dataSource} />
           </div>
         </div>
       </div>
