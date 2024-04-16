@@ -43,29 +43,15 @@ router.use(express.json());
 // const currentDateTime = new Date();
 // const formattedDateTime = formatDateTime(currentDateTime);
 
-// async function getOngoingAppointments(appointments) {
-//   const ongoingAppointments = [];
-//   for (const appointment of appointments) {
-//     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${appointment.cid}`;
-//     const response = await fetch(ipfsGatewayUrl);
-//     const appointmentData = await response.json();
-//     if (appointmentData.status === "ongoing") {
-//       ongoingAppointments.push(appointment);
-//     }
-//   }
-//   return ongoingAppointments;
-// }
-
 // get patient profile list
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const appointments = await outpatientContract.getAppointmentsByDoctor(address);
+    const tempAppointments = await outpatientContract.getTemporaryPatientData(address);
     const uniquePatientProfilesMap = new Map();
     let patientAccountData = [];
-    // const ongoingAppointments = await getOngoingAppointments(appointments);
 
-    for (const appointment of appointments) {
+    for (const appointment of tempAppointments) {
       const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
       const cid = patientData.cid;
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
@@ -85,7 +71,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
         }
       }
     }
-    const patientProfiles = Array.from(uniquePatientProfilesMap.values());
+    const patientProfiles = Array.from(uniquePatientProfilesMap?.values()) || [];
     res.status(200).json({ patientAccountData, patientProfiles });
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -199,6 +185,7 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
     const walletWithProvider = wallet.connect(provider);
     const contractWithSigner = new ethers.Contract(user_contract, userABI, walletWithProvider);
 
+    // push data emr ke blockchain
     const tx = await contractWithSigner.updateUserAccount(
       ipfsData.accountEmail,
       ipfsData.accountUsername,
@@ -220,29 +207,25 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
         ipfsData.status = "done";
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
+        // push updated status ke blockchain
         await contractWithSigner.updateOutpatientData(appointment.id, formattedEMR.accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
-        const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
-        const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-        const newIpfsData = await newIpfsResponse.json();
+
         if (formattedEMR.alamatStaf) {
-          try {
-            const privateKey = accountsPrivate[formattedEMR.alamatStaf];
-            const staffWallet = new Wallet(privateKey);
-            const walletWithProvider = staffWallet.connect(provider);
-            const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
-            await contractWithSigner.removeTemporaryPatientData(formattedEMR.alamatStaf, formattedEMR.nomorRekamMedis);
-            console.log("Temporary patient data removed successfully.");
-            res.status(200).json({ message: "EMR saved", profile: profileData, newStatus: newIpfsData.status });
-          } catch (error) {
-            console.error("Error removing temporary patient data:", error);
-            res.status(500).json({ message: "Failed to remove temporary patient data" });
-          }
+          await contractWithSigner.removeTemporaryPatientData(formattedEMR.alamatStaf, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in staff from doctor removed successfully.");
+        } 
+        if (ipfsData.alamatPerawat) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatPerawat, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in nurse from doctor removed successfully.");
+        }
+        if (ipfsData.alamatDokter) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatDokter, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in doctor from doctor removed successfully.");
         }
         res.status(200).json({ message: "EMR saved", profile: profileData });
         return;
       }
     }
-    res.status(200).json({ message: "EMR saved", profile: profileData });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });

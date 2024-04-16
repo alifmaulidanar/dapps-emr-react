@@ -47,11 +47,11 @@ router.use(express.json());
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const appointments = await outpatientContract.getAppointmentsByNurse(address);
+    const tempAppointments = await outpatientContract.getTemporaryPatientData(address);
     const uniquePatientProfilesMap = new Map();
     let patientAccountData = [];
 
-    for (const appointment of appointments) {
+    for (const appointment of tempAppointments) {
       const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
       const cid = patientData.cid;
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
@@ -62,8 +62,11 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
 
       if (accountData.hasOwnProperty("accountProfiles") && Array.isArray(accountProfiles) && accountProfiles.length) {
         for (const profile of accountData.accountProfiles) {
-          if (!uniquePatientProfilesMap.has(profile.nomorRekamMedis)) {
+          if (profile.nomorRekamMedis === appointment.emrNumber && !uniquePatientProfilesMap.has(profile.nomorRekamMedis)) {
             uniquePatientProfilesMap.set(profile.nomorRekamMedis, { ...profile, accountAddress: accountData.accountAddress });
+            if (!patientAccountData.some(account => account.accountAddress === accountData.accountAddress)) {
+              patientAccountData.push(rest);
+            }
           }
         }
       }

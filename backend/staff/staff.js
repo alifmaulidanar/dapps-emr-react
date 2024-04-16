@@ -31,18 +31,6 @@ const accounts = JSON.parse(accountsJson);
 const router = express.Router();
 router.use(express.json());
 
-// function formatDateTime(date) {
-//   const day = String(date.getDate()).padStart(2, "0");
-//   const month = String(date.getMonth() + 1).padStart(2, "0");
-//   const year = date.getFullYear();
-//   const hours = String(date.getHours()).padStart(2, "0");
-//   const minutes = String(date.getMinutes()).padStart(2, "0");
-//   const seconds = String(date.getSeconds()).padStart(2, "0");
-//   return `${hours}:${minutes}:${seconds}_${day}-${month}-${year}`;
-// }
-// const currentDateTime = new Date();
-// const formattedDateTime = formatDateTime(currentDateTime);
-
 // check patient profile
 router.post("/check-patient-profile", authMiddleware, async (req, res) => {
   try {
@@ -93,10 +81,8 @@ router.post("/add-patient-profile", authMiddleware, async (req, res) => {
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
     const contract = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
-    const addPatientTx = await contract.addTemporaryPatientData(address, patientAddress, emrNumber);
-    await addPatientTx.wait()
-    // const getNewestData = await contract.getTemporaryPatientDataByStaff(address);
-    // console.log({getNewestData});
+    const addStaffTemporary = await contract.addTemporaryPatientData(address, patientAddress, emrNumber);
+    await addStaffTemporary.wait()
     res.status(200).json({ message: "Patient appointment added successfully" });
   } catch (error) {
     console.error("Error adding patient appointment:", error);
@@ -112,8 +98,6 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
     if (!address || !email) return res.status(401).json({ error: "Unauthorized" });
     if (!appointmentId || !nomorRekamMedis) return res.status(400).json({ error: "Missing appointmentId or nomorRekamMedis" });
 
-    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ accountAddress, nomorRekamMedis, appointmentId }), signature);
-    const recoveredSigner = provider.getSigner(recoveredAddress);
     const accountList = await provider.listAccounts();
     let selectedAccountAddress;
     for (let account of accountList) {
@@ -146,6 +130,19 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
+
+        if (ipfsData.alamatStaf) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatStaf, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in staff from staff removed successfully.");
+        } 
+        if (ipfsData.alamatPerawat) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatPerawat, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in nurse from staff removed successfully.");
+        }
+        if (ipfsData.alamatDokter) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatDokter, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+          console.log("Temporary patient data in doctor from staff removed successfully.");
+        }
         res.status(200).json({newStatus: newIpfsData.status});
         return;
       }
@@ -161,7 +158,7 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
+    const appointments = await outpatientContract.getTemporaryPatientData(address);
     let patientAccountData = [];
     let patientProfiles = [];
 
@@ -192,7 +189,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
 router.get("/patient-appointments", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const appointments = await outpatientContract.getTemporaryPatientDataByStaff(address);
+    const appointments = await outpatientContract.getTemporaryPatientData(address);
     let patientAppointments = [];
 
     for (const appointment of appointments) {
