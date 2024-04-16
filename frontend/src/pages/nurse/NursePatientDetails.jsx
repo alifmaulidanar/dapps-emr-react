@@ -543,7 +543,9 @@ export default function NursePatientDetails({ role }) {
         </Form.Item> */}
         {!isEdit && (
           <Form.Item className="flex justify-center">
-            <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
+            <Button type="primary" ghost htmlType="submit" size="medium">
+              {role === 'doctor' ? 'Simpan Permanen' : 'Simpan'}
+            </Button>
           </Form.Item>
         )}
       </Form>

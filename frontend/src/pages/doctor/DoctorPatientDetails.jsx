@@ -208,6 +208,7 @@ export default function DoctorPatientDetails({ role }) {
       }, {});
       const nomorRekamMedis = profile.nomorRekamMedis;
       const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
+      const selectedNurseAddress = profile.riwayatPengobatan.find(h => h.appointmentId === (selectedAppointment?.appointmentId))?.alamatPerawat || null;
       const accountAddress = selectedAppointment ? selectedAppointment.accountAddress : null;
 
       if (!nomorRekamMedis || !accountAddress) {
@@ -225,6 +226,7 @@ export default function DoctorPatientDetails({ role }) {
         accountAddress,
         nomorRekamMedis,
         alamatDokter: selectedData.appointment.alamatDokter,
+        alamatPerawat: selectedNurseAddress,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
