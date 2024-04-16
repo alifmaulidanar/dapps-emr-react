@@ -105,9 +105,15 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ✅ penyesuaian smart contract lagi dalam pengembangan sisi dokter
 ✅ lanjut ke penerimaan appointment oleh nurse, lalu doctor -> berkaitan langsung dengan pengisian emr (TOPIK UTAMA)
 
+15/04/24
+✅ temporary appointment data untuk dokter dan nurse -> agar bisa menghapus profil pasien dari dokter dan nurse ketika appointment sudah selesai (status === done)
+
+16/04/24
+✅ penyesuaian function remove temporary data di SC (kemarin bermasalah di revert)
+✅ function baru untuk getAllTemporaryData
+✅ function add dan remove sudah berjalan dan terintegrasi baik dgn backend
+
 next:
-- temporary appointment data untuk dokter dan nurse -> agar bisa menghapus profil pasien dari dokter dan nurse ketika appointment sudah selesai (status === done)
-- remove temporary appointment data untuk dokter dan nurse
 
 ===================================================================================================
 ===================================================================================================
@@ -484,8 +490,13 @@ next:
 ✅ rencana buat logika agar status appointment yang sudah berubah menjadi done pada seorang dokter ketika selesai dibuat EMR maka pasien tidak tampil lagi di dashboard dokter - PENDING
 ✅ penambahan validasi untuk membuat appointment baru -> bisa mendaftar lagi ke jadwal praktik dokter yang sama persis ketika status appointment sebelumnya tidak ongoing
 
+16/04/24
+✅ menghilangkan/menghapus penampilan profil pasien di dokter dan nurse ketika appointment telah selesai (EMR telah dibuat)
+✅ integrasi function remove temporary data baru dari SC biar lebih reliable
+✅ selalu cek temporary data untuk staff, doctor, dan nurse
+✅ selalu hapus temporary data untuk staff, doctor, dan nurse setelah dokter mengisi EMR
+
 next:
-- menghilangkan/menghapus penampilan profil pasien di dokter dan nurse ketika appointment telah selesai (EMR telah dibuat)
 - nurse memilih dokter dulu baru memilih pasien
 - validasi data pembuatan appointment
 - pengecekan keandalan pembuatan emr
@@ -549,10 +560,11 @@ abis ini ngapain:
 ✅ perbaiki sort pada setiap tabel dan card
 ✅ handle file upload (udah bisa coba upload multiple files dari frontend langsung ke IPFS -> next cara bundle files biar punya 1 CID per rekam medis (manfaatkan judul rekam medis/appointmentId))
 ✅ file downloader
-🟡 temporary appointment data untuk dokter dan nurse (SMART CONTRACT, BACKEND)
-🟡 remove temporary appointment data untuk dokter dan nurse (SMART CONTRACT, BACKEND)
+✅ frontend -> get patient appointment dan patient profile data hanya berdasarkan yg ada di temporary data doctor dan nurse -> cek temporary dulu baru get datanya
+✅ kalau EMR sudah diisi dokter, maka remove temporary di doctor dan nurse -> backend
+✅ temporary appointment data untuk dokter dan nurse (SMART CONTRACT, BACKEND)
+✅ remove temporary appointment data untuk dokter dan nurse (SMART CONTRACT, BACKEND)
 🟡 display table dokter -> pilih dokter -> display tabel profil pasien -> pilih appointment dari profil pasien (SMART CONTRACT, BACKEND, FRONTEND)
-
 - file viewer
 - dashboard doctor dan nurse yang berisikan jadwal kerja mereka
 - perbaikan di sisi nurse -> harusnya jangan memilih pasien secara langsung, tetapi pilih dokter dahulu baru munculkan pasien yg terdaftar pada jadwal dokter dan nurse itu
@@ -568,3 +580,8 @@ abis ini ngapain:
 ✅ perawat simpan -> sementara
 ✅ dokter melakukan hal yg sama dengan perawwat tadi -> isian dari perawat bisa diedit dokter juga
 ✅ dokter simpan permanen
+
+
+1,0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253435
+2,0xadc8158B4d4b63126C18B258BAFd94d7e4614e58,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253463
+3,0x7837Eb4C4388842335f8d51De5C003f2a5c42169,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253463
