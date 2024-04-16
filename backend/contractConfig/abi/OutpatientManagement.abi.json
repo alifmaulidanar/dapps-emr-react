@@ -141,7 +141,7 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_staffAddress",
+				"name": "_nakesAddress",
 				"type": "address"
 			},
 			{
@@ -272,6 +272,46 @@
 					}
 				],
 				"internalType": "struct OutpatientManagement.AppointmentData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllTemporaryPatientData",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "nakesAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "patientAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "emrNumber",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "addedAt",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct OutpatientManagement.TemporaryPatientData[]",
 				"name": "",
 				"type": "tuple[]"
 			}
@@ -436,11 +476,11 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_staffAddress",
+				"name": "_nakesAddress",
 				"type": "address"
 			}
 		],
-		"name": "getTemporaryPatientDataByStaff",
+		"name": "getTemporaryPatientData",
 		"outputs": [
 			{
 				"components": [
@@ -448,6 +488,11 @@
 						"internalType": "uint256",
 						"name": "id",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "nakesAddress",
+						"type": "address"
 					},
 					{
 						"internalType": "address",
@@ -477,7 +522,12 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_staffAddress",
+				"name": "_nakesAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_patientAddress",
 				"type": "address"
 			},
 			{

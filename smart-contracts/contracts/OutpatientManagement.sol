@@ -7,12 +7,12 @@ contract OutpatientManagement {
     event TemporaryPatientDataAdded(uint id, address staffAddress, address patientAddress, string emrNumber);
 
     struct AppointmentData { uint id; address patientAddress; address doctorAddress; address nurseAddress; string emrNumber; string cid; }
-    struct TemporaryPatientData {uint id; address patientAddress; string emrNumber; uint addedAt;}
+    struct TemporaryPatientData {uint id; address nakesAddress; address patientAddress; string emrNumber; uint addedAt;}
 
     mapping(address => uint[]) private appointmentsByPatient;
     mapping(address => uint[]) private appointmentsByDoctor;
     mapping(address => uint[]) private appointmentsByNurse;
-    mapping(address => uint[]) private temporaryPatientDataByStaff;
+    mapping(address => uint[]) private temporaryPatientDataByNakes;
 
     uint private appointmentCounter = 1;
     uint private temporaryPatientDataCounter = 1;
@@ -68,32 +68,31 @@ contract OutpatientManagement {
         return appointments;
     }
 
-    function addTemporaryPatientData(address _staffAddress, address _patientAddress, string memory _emrNumber) external {
-        TemporaryPatientData memory newTemporaryPatientData = TemporaryPatientData( temporaryPatientDataCounter, _patientAddress, _emrNumber, block.timestamp);
+    function addTemporaryPatientData(address _nakesAddress, address _patientAddress, string memory _emrNumber) external {
+        TemporaryPatientData memory newTemporaryPatientData = TemporaryPatientData( temporaryPatientDataCounter, _nakesAddress, _patientAddress, _emrNumber, block.timestamp);
         temporaryPatientData.push(newTemporaryPatientData);
-        temporaryPatientDataByStaff[_staffAddress].push(temporaryPatientDataCounter);
+        temporaryPatientDataByNakes[_nakesAddress].push(temporaryPatientDataCounter);
         temporaryPatientDataCounter++;
-        emit TemporaryPatientDataAdded(newTemporaryPatientData.id, _staffAddress, _patientAddress, _emrNumber);
+        emit TemporaryPatientDataAdded(newTemporaryPatientData.id, _nakesAddress, _patientAddress, _emrNumber);
     }
 
-    function removeTemporaryPatientData(address _staffAddress, string memory _emrNumber) external {
-        uint[] storage dataIds = temporaryPatientDataByStaff[_staffAddress];
-        for (uint i = 0; i < dataIds.length; i++) {
-            uint dataId = dataIds[i];
-            TemporaryPatientData storage data = temporaryPatientData[dataId - 1];
-            if (keccak256(abi.encodePacked(data.emrNumber)) == keccak256(abi.encodePacked(_emrNumber))) {
-                uint lastDataId = temporaryPatientData.length;
-                temporaryPatientData[dataId - 1] = temporaryPatientData[lastDataId - 1];
-                temporaryPatientData.pop();
-                dataIds[i] = dataIds[dataIds.length - 1];
-                dataIds.pop();
-                break;
-            }
+    function removeTemporaryPatientData(address _nakesAddress, address _patientAddress, string memory _emrNumber) external {
+    uint[] storage dataIds = temporaryPatientDataByNakes[_nakesAddress];
+    for (uint i = 0; i < dataIds.length; i++) {
+        uint dataId = dataIds[i];
+        TemporaryPatientData storage data = temporaryPatientData[dataId - 1];
+        if (data.nakesAddress == _nakesAddress && data.patientAddress == _patientAddress &&
+            keccak256(abi.encodePacked(data.emrNumber)) == keccak256(abi.encodePacked(_emrNumber))) {
+            delete temporaryPatientData[dataId - 1];
+            dataIds[i] = dataIds[dataIds.length - 1];
+            dataIds.pop();
+            break;
         }
     }
+}
 
-    function getTemporaryPatientDataByStaff(address _staffAddress) external view returns (TemporaryPatientData[] memory) {
-        uint[] memory dataIds = temporaryPatientDataByStaff[_staffAddress];
+    function getTemporaryPatientData(address _nakesAddress) external view returns (TemporaryPatientData[] memory) {
+        uint[] memory dataIds = temporaryPatientDataByNakes[_nakesAddress];
         TemporaryPatientData[] memory data = new TemporaryPatientData[](dataIds.length);
         for (uint i = 0; i < dataIds.length; i++) {
             for (uint j = 0; j < temporaryPatientData.length; j++) {
@@ -101,5 +100,9 @@ contract OutpatientManagement {
             }
         }
         return data;
+    }
+
+    function getAllTemporaryPatientData() external view returns (TemporaryPatientData[] memory) {
+        return temporaryPatientData;
     }
 }
