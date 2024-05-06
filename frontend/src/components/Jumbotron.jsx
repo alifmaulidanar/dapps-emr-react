@@ -1,7 +1,7 @@
 function Jumbotron({ title, description, buttons }) {
   return (
     <div className="w-screen">
-      <section className="flex bg-center h-screen bg-no-repeat bg-[url('https://flowbite.s3.amazonaws.com/docs/jumbotron/conference.jpg')] bg-gray-700 bg-blend-multiply">
+      <section className="flex bg-center h-screen bg-repeat bg-[url('/images/jumbotron.jpg')] bg-gray-700 bg-blend-multiply">
         <div className="max-w-screen-xl px-4 my-auto mx-auto text-center py-24 lg:py-56">
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight leading-none text-white md:text-5xl lg:text-6xl">
             {title}

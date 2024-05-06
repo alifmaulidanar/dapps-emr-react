@@ -75,18 +75,6 @@ function App() {
                 }
               />
               <Route path="/staff/signup" element={<SignUp role="staff" />} />
-
-              {/* Admin */}
-              <Route
-                path="/admin/signin"
-                element={
-                  <SignIn
-                    role="admin"
-                    resetLink="/patient/reset-password"
-                    signupLink="/patient/signup"
-                  />
-                }
-              />
             </>
 
             {/* Routing Patient */}
@@ -180,20 +168,18 @@ function App() {
             {/* Routing Admin */}
             <>
               <Route
+                path="/admin/signin"
+                element={
+                  <SignIn
+                    role="admin"
+                    resetLink="/patient/reset-password"
+                    signupLink="/patient/signup"
+                  />
+                }
+              />
+              <Route
                 path={`/admin/dashboard`}
                 element={<AdminDashboard role="staff" />}
-              />
-              <Route
-                path={`/staff/appointment`}
-                element={<PatientAppointmentList />}
-              />
-              <Route
-                path={`/staff/profile`}
-                element={<UserProfile role="staff" />}
-              />
-              <Route
-                path={`/staff/account`}
-                element={<UserAccount role="staff" />}
               />
             </>
           </Routes>

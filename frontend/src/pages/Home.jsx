@@ -3,7 +3,7 @@ import Jumbotron from "../components/Jumbotron";
 
 function Home() {
   const jumbotronProps = {
-    title: "Blockchain-based Electronic Medical Records System",
+    title: "Blockchain Medical Records System",
     description:
       "Revolutionizing healthcare data management, with a strong emphasis on technology, innovation, and investment to unlock lasting value and drive economic growth.",
     buttons: [
