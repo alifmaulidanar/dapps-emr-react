@@ -259,7 +259,7 @@ export default function RegisterPatientButton({
                 htmlFor="name"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Pilih Eka Hospital terdekat dari tempat tinggal Anda:
+                Pilih Wilayah Tempat Tinggal Pasien:
               </label>
               <select
                 id="gender"
@@ -268,11 +268,11 @@ export default function RegisterPatientButton({
                 onChange={ (e) => setPatientData({ ...patientData, rumahSakitAsal: e.target.value }) }
                 required
               >
-                <option value="">Pilih Rumah Sakit Asal</option>
-                <option value="1">Eka Hospital Bekasi</option>
-                <option value="2">Eka Hospital BSD</option>
-                <option value="3">Eka Hospital Jakarta</option>
-                <option value="4">Eka Hospital Lampung</option>
+                <option value="">Pilih Wilayah</option>
+                <option value="1">Harapan Mulya</option>
+                <option value="2">Medan Satria</option>
+                <option value="3">Pejuang</option>
+                <option value="4">Luar</option>
               </select>
             </div>
             <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
@@ -342,7 +342,7 @@ export default function RegisterPatientButton({
                     tempatLahir: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -359,7 +359,7 @@ export default function RegisterPatientButton({
                 format={customFormat}
                 value={tanggalLahir}
                 onChange={setTanggalLahir}
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -378,7 +378,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, namaIbu: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -419,7 +419,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, agama: e.target.value })
                 }
-                required
+                // required
               >
                 <option>Pilih Agama</option>
                 <option value="1">Islam</option>
@@ -448,7 +448,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, suku: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -467,7 +467,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, bahasa: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -487,7 +487,7 @@ export default function RegisterPatientButton({
                     golonganDarah: e.target.value,
                   })
                 }
-                required
+                // required
               >
                 <option>Pilih Golongan Darah</option>
                 <option value="1">A</option>
@@ -522,7 +522,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, telpRumah: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -544,7 +544,7 @@ export default function RegisterPatientButton({
                     telpSelular: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -563,7 +563,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, email: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -580,7 +580,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, pendidikan: e.target.value })
                 }
-                required
+                // required
               >
                 <option>Pilih Pendidikan</option>
                 <option value="0">Tidak sekolah</option>
@@ -608,7 +608,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, pekerjaan: e.target.value })
                 }
-                required
+                // required
               >
                 <option>Pilih Pekerjaan</option>
                 <option value="0">Tidak Bekerja</option>
@@ -633,7 +633,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, pernikahan: e.target.value })
                 }
-                required
+                // required
               >
                 <option>Pilih Status Pernikahan</option>
                 <option value="1">Belum Kawin</option>
@@ -658,7 +658,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, alamat: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -677,7 +677,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, rt: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -696,7 +696,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, rw: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -715,7 +715,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, kelurahan: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -734,7 +734,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, kecamatan: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -753,7 +753,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, kota: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -772,7 +772,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, pos: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -789,7 +789,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, provinsi: e.target.value })
                 }
-                required
+                // required
               >
                 <option>Pilih Provinsi</option>
                 <option value="Aceh">Aceh</option>
@@ -848,7 +848,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, negara: e.target.value })
                 }
-                required
+                // required
               />
             </div>
 
@@ -876,7 +876,7 @@ export default function RegisterPatientButton({
                     namaKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -898,7 +898,7 @@ export default function RegisterPatientButton({
                     nomorIdentitasKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -934,7 +934,7 @@ export default function RegisterPatientButton({
                     genderKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               >
                 <option>Pilih Jenis Kelamin</option>
                 <option value="0">Tidak diketahui</option>
@@ -963,7 +963,7 @@ export default function RegisterPatientButton({
                     telpKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -985,7 +985,7 @@ export default function RegisterPatientButton({
                     hubunganKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="flex items-center mb-4">
@@ -1020,7 +1020,7 @@ export default function RegisterPatientButton({
                     alamatKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1039,7 +1039,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, rtKerabat: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1058,7 +1058,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, rwKerabat: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1080,7 +1080,7 @@ export default function RegisterPatientButton({
                     kelurahanKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1102,7 +1102,7 @@ export default function RegisterPatientButton({
                     kecamatanKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1124,7 +1124,7 @@ export default function RegisterPatientButton({
                     kotaKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1143,7 +1143,7 @@ export default function RegisterPatientButton({
                 onChange={(e) =>
                   setPatientData({ ...patientData, posKerabat: e.target.value })
                 }
-                required
+                // required
               />
             </div>
             <div className="mb-6">
@@ -1163,7 +1163,7 @@ export default function RegisterPatientButton({
                     provinsiKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               >
                 <option>Pilih Provinsi</option>
                 <option value="Aceh">Aceh</option>
@@ -1225,7 +1225,7 @@ export default function RegisterPatientButton({
                     negaraKerabat: e.target.value,
                   })
                 }
-                required
+                // required
               />
             </div>
           </div>
