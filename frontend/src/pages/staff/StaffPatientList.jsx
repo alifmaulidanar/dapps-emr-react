@@ -4,6 +4,7 @@ import AddPatientButton from "../../components/Buttons/AddPatientButton";
 import PatientData from "../staff/PatientData";
 import { Table, Button, Modal } from "antd";
 import { CONN } from "../../../../enum-global";
+import RegisterPatientButton from "../../components/Buttons/RegisterPatientStaff";
 
 export default function StaffPatientList({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -37,7 +38,7 @@ export default function StaffPatientList({ role }) {
           },
         });
         const data = await response.json();
-        console.log({data})
+        // console.log({data})
         if (!response.ok) console.log(data.error, data.message);
         setAccounts(data.patientAccountData);
         setProfiles(data.patientProfiles);
@@ -165,6 +166,7 @@ export default function StaffPatientList({ role }) {
         <div className="grid items-center justify-center w-3/4 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
             <AddPatientButton token={token} />
+            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
             {/* <ListSearchBar /> */}
           </div>
         </div>
