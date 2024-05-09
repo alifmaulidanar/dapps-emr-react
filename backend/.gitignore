@@ -26,3 +26,7 @@ dist-ssr
 *.sw?
 
 SimpleEMR.abi.json
+
+patient/data/
+patient/dmrList.txt
+patient/emrList.txt
