@@ -164,11 +164,14 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     console.log({ getPatient });
     const responseData = {
       message: `Patient Registration Successful`,
-      namaLengkap,
-      nomorIdentitas,
+      username: namaLengkap,
+      nomorIdentitas: nomorIdentitas,
       dmrNumber,
       dmrCid,
       emrNumber,
+      password,
+      publicKey: selectedAccountAddress,
+      privateKey,
     };
     console.log({ responseData });
     return res.status(200).json(responseData);
