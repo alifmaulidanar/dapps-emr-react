@@ -29,11 +29,17 @@ async function main() {
     // await userManagement.waitForDeployment();
     // console.log(`UserManagement deployed! Contract address: ${userManagement.target}`);
 
+    // Patient Management
+    const PatientManagement = await ethers.getContractFactory("PatientManagement");
+    const patientManagement = await PatientManagement.deploy();
+    await patientManagement.waitForDeployment();
+    console.log(`PatientManagement deployed! Contract address: ${patientManagement.target}`);
+
     // Outpatient Data Management
-    const OutpatientManagement = await ethers.getContractFactory("OutpatientManagement");
-    const outpatientManagement = await OutpatientManagement.deploy();
-    await outpatientManagement.waitForDeployment();
-    console.log(`OutpatientManagement deployed! Contract address: ${outpatientManagement.target}`);
+    // const OutpatientManagement = await ethers.getContractFactory("OutpatientManagement");
+    // const outpatientManagement = await OutpatientManagement.deploy();
+    // await outpatientManagement.waitForDeployment();
+    // console.log(`OutpatientManagement deployed! Contract address: ${outpatientManagement.target}`);
   } catch (err) {
     console.error(err);
   }

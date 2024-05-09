@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 contract UserManagement {
-    event PatientAccountAdded(address indexed userAddress, string email);
+    // event PatientAccountAdded(address indexed userAddress, string email);
     event DoctorAccountAdded(address indexed userAddress, string email);
     event NurseAccountAdded(address indexed userAddress, string email);
     event StaffAccountAdded(address indexed userAddress, string email);
@@ -14,7 +14,7 @@ contract UserManagement {
     event AccountDeactivated(address indexed userAddress);
 
     struct UserAccount {uint id; address accountAddress; string username; string email; string role; string phone; uint createdAt; string cid; bool isActive;}
-    struct Patients {uint id; address accountAddress; string emrNumber; string idNumber;}
+    // struct Patients {uint id; address accountAddress; string emrNumber; string idNumber;}
 
     UserAccount[] internal userAccounts;
     UserAccount[] internal patientAccounts;
@@ -22,7 +22,7 @@ contract UserManagement {
     UserAccount[] internal nurseAccounts;
     UserAccount[] internal staffAccounts;
     UserAccount[] internal adminAccounts;
-    Patients[] private patientRecords;
+    // Patients[] private patientRecords;
 
     mapping(address => UserAccount) private userAccountsMap;
     mapping(string => address) private emailToAddressMap;
@@ -37,10 +37,11 @@ contract UserManagement {
         emailToAddressMap[_email] = msg.sender;
         userAccountCounter++;
         // Role segregation logic
-        if (keccak256(bytes(_role)) == keccak256(bytes("patient"))) {
-            patientAccounts.push(newUserAccount);
-            emit PatientAccountAdded(msg.sender, _email);
-        } else if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
+        // if (keccak256(bytes(_role)) == keccak256(bytes("patient"))) {
+        //     patientAccounts.push(newUserAccount);
+        //     emit PatientAccountAdded(msg.sender, _email);
+        // } else if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
+        if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
             doctorAccounts.push(newUserAccount);
             emit DoctorAccountAdded(msg.sender, _email);
         } else if (keccak256(bytes(_role)) == keccak256(bytes("nurse"))) {
@@ -113,14 +114,14 @@ contract UserManagement {
     }
 
     // Add a new patient record
-    function addPatient(address _accountAddress, string memory _emrNumber, string memory _idNumber) external {
-        Patients memory newPatientRecord = Patients(patientRecordCounter, _accountAddress, _emrNumber, _idNumber);
-        patientRecords.push(newPatientRecord);
-        patientRecordCounter++;
-    }
+    // function addPatient(address _accountAddress, string memory _emrNumber, string memory _idNumber) external {
+    //     Patients memory newPatientRecord = Patients(patientRecordCounter, _accountAddress, _emrNumber, _idNumber);
+    //     patientRecords.push(newPatientRecord);
+    //     patientRecordCounter++;
+    // }
 
     // GET All Patients
-    function getAllPatients() external view returns (Patients[] memory) { return patientRecords; }
+    // function getAllPatients() external view returns (Patients[] memory) { return patientRecords; }
 
     // GET All Acounts
     function getAllAccounts() public view returns (UserAccount[] memory) { return userAccounts; }
@@ -171,9 +172,10 @@ contract UserManagement {
 
     // GET Accounts by Role directly from Role Arrays
     function getAccountsByRoleInArray(string memory role) public view returns (UserAccount[] memory) {
-        if (keccak256(bytes(role)) == keccak256(bytes("patient"))) {
-            return patientAccounts;
-        } else if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
+        // if (keccak256(bytes(role)) == keccak256(bytes("patient"))) {
+        //     return patientAccounts;
+        // } else if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
+        if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
             return doctorAccounts;
         } else if (keccak256(bytes(role)) == keccak256(bytes("nurse"))) {
             return nurseAccounts;
