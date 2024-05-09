@@ -1,5 +1,7 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-key */
 import React, { useState, useCallback } from "react";
-import { DatePicker, Modal, Button, Spin, Segmented } from "antd";
+import { DatePicker, Modal, Button, Spin, Segmented, Alert, Card, message } from "antd";
 import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -10,16 +12,39 @@ export default function RegisterPatientButton({ buttonText }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [accountData, setAccountData] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [spinning, setSpinning] = React.useState(false);
   const [selectedTab, setSelectedTab] = useState("Akun Baru");
+  const [finishModalOpen, setFinishModalOpen] = useState(false);
 
   const showLoader = () => { setSpinning(true) };
   const showModal = () => { setIsModalOpen(true) };
   const handleOk = () => { setIsModalOpen(false) };
   const handleCancel = () => { setIsModalOpen(false) };
+  const hideModal = () => setFinishModalOpen(false);
+  const showFinishModal = () => setFinishModalOpen(true);
   const handleTabChange = (newTab) => { setSelectedTab(newTab) };
   const dateFormat = "YYYY-MM-DD";
   const customFormat = (value) => `${value.format(dateFormat)}`;
+
+  const copyToClipboard = () => {
+    const accountInfo = `Nomor EMR: ${accountData.emrNumber}\nNo. Dok. RM: ${accountData.dmrNumber}\nNomor Identitas (NIK): ${accountData.nomorIdentitas}\nUsername: ${accountData.username}\nPassword: ${accountData.password}\nAddress: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
+    navigator.clipboard.writeText(accountInfo).then(
+      () => {
+        setCopySuccess(true);
+        message.success("Account information copied to clipboard!");
+      },
+      () => {
+        message.error("Failed to copy account information.");
+      }
+    );
+  };
+
+  const onConfirmAndClose = () => {
+    hideModal();
+    window.location.reload();
+  };
 
   const Tab = () => (
     <Segmented
@@ -171,25 +196,38 @@ export default function RegisterPatientButton({ buttonText }) {
         }
       );
 
-      const responseData = await response.json();
-
       if (response.ok) {
-        console.log({ responseData });
+        const data = await response.json();
+        console.log({ data });
         setSpinning(false);
         Swal.fire({
           icon: "success",
           title: "Pendaftaran Profil Pasien Berhasil!",
           text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
         }).then(() => {
-          window.location.reload();
+          if (selectedTab === "Akun Baru") {
+            setAccountData({
+              emrNumber: data.emrNumber,
+              dmrNumber: data.dmrNumber,
+              // dmrCid: data.dmrCid,
+              nomorIdentitas: data.nomorIdentitas,
+              username: data.username,
+              password: data.password,
+              publicKey: data.publicKey,
+              privateKey: data.privateKey,
+            });
+            setIsModalOpen(false);
+            showFinishModal();
+          }
         });
       } else {
-        console.log(responseData.error, responseData.message);
+        const data = await response.json();
+        console.log(data.error, data.message);
         setSpinning(false);
         Swal.fire({
           icon: "error",
           title: "Pendaftaran Profil Pasien Gagal",
-          text: responseData.error,
+          text: data.error,
         });
       }
     } catch (error) {
@@ -1269,6 +1307,74 @@ export default function RegisterPatientButton({ buttonText }) {
           </div>
         </form>
       </Modal>
+      <Modal
+          title="Simpan data akun Anda"
+          centered
+          open={finishModalOpen}
+          onOk={hideModal}
+          width={700}
+          footer={[
+            <div className="flex flex-col items-center pt-4 gap-y-4">
+              <Button
+                type="default"
+                key="copy"
+                onClick={copyToClipboard}
+                className="flex items-stretch justify-center w-1/2 gap-x-2"
+                disabled={!accountData}
+              >
+                <p>Salin informasi akun</p>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+                  />
+                </svg>
+              </Button>
+              <Button
+                key="submit"
+                type="primary"
+                disabled={!copySuccess}
+                className="w-1/2 text-white bg-blue-600"
+                onClick={onConfirmAndClose}
+              >
+                Oke, sudah disimpan!
+              </Button>
+            </div>,
+          ]}
+        >
+          <div className="grid gap-y-4">
+            <p>
+              Salin dan simpan data akun Anda berikut ini di tempat yang aman
+              dan mudah diakses.
+            </p>
+            <Card className="w-full">
+              <p>Nomor EMR: {accountData?.emrNumber}</p>
+              <p>No. Dok. RM: {accountData?.dmrNumber}</p>
+              {/* <p>CID Dok. RM: {accountData?.dmrCid}</p> */}
+              <p>Nomor Identitas: {accountData?.nomorIdentitas}</p>
+              <p>Username: {accountData?.username}</p>
+              <p>Password: {accountData?.password}</p>
+              <p>Public Key: {accountData?.publicKey}</p>
+              <p>Private Key: {accountData?.privateKey}</p>
+            </Card>
+            <Alert
+              message="Private Key akan digunakan untuk konfirmasi saat Sign In menggunakan e-wallet MetaMask"
+              type="warning"
+            />
+            <Alert
+              message="Jangan berikan Private Key ke orang lain"
+              type="error"
+            />
+          </div>
+        </Modal>
     </>
   );
 }
