@@ -15,7 +15,7 @@ const generateToken = (userData) => jwt.sign({ ...userData }, JWT_SECRET);
 const verifyToken = (token) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded.email;
+    return decoded.nik;
   } catch (error) {
     throw new Error("Invalid token");
   }
