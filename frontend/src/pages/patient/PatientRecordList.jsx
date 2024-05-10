@@ -41,6 +41,7 @@ export default function PatientRecordList() {
     }
   }, [token, accountAddress]);
 
+  const dmrNumber = patientAccountData?.ipfs?.data?.dmrNumber;
   const handlePatientClick = (index) => { setChosenIndex(index) };
   const accountProfiles = patientAccountData?.ipfs?.data?.accountProfiles;
   const patientListProps = accountProfiles?.length > 0 ? accountProfiles.map((patient, index) => ({ patientIsChosen: index === chosenIndex, ...patient })) : [];
@@ -69,7 +70,7 @@ export default function PatientRecordList() {
         <div className="grid items-center grid-cols-1 col-span-3 h-fit"><RecordControl search={"Cari rekam medis"} /></div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
-            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} patientAccountData={patientAccountData} />
+            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} patientAccountData={patientAccountData} dmrNumber={dmrNumber} />
           </div>
         </div>
       </div>

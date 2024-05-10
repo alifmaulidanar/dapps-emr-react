@@ -313,7 +313,7 @@ export default function RegisterPatientButton({ buttonText }) {
                     htmlFor="dmrNumber"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Nomor DMR (Dokumen Rekam Medis)
+                    Nomor Dokumen Rekam Medis (DMR)
                   </label>
                   <input
                     type="text"

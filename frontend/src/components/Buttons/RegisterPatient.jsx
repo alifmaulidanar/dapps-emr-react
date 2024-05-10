@@ -5,12 +5,9 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
-export default function RegisterPatientButton({
-  buttonText,
-  patientAccountData,
-}) {
+export default function RegisterPatientButton({ buttonText, patientAccountData, dmrNumber }) {
   const token = sessionStorage.getItem("userToken");
-
+  const accountAddress = sessionStorage.getItem("accountAddress");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
@@ -96,7 +93,8 @@ export default function RegisterPatientButton({
   // }, []);
 
   const [patientData, setPatientData] = useState({
-    rumahSakitAsal: "",
+    accountAddress,
+    dmrNumber,
     namaLengkap: "",
     nomorIdentitas: "",
     tempatLahir: "",
@@ -152,35 +150,19 @@ export default function RegisterPatientButton({
       tanggalLahirKerabat: tanggalLahirKerabat
         ? tanggalLahirKerabat.format(dateFormat)
         : "",
-      patientAccountData: patientAccountData,
     };
-
-    console.log({formattedPatientData});
-    
-    if (formattedPatientData.rumahSakitAsal === "") {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Rumah Sakit Asal harus diisi!",
-      })
-      setSpinning(false);
-      return;
-    }
 
     // Menandatangani data menggunakan signer
     const signer = await getSigner();
-    const signature = await signer.signMessage(
-      JSON.stringify(formattedPatientData)
-    );
+    const signature = await signer.signMessage(JSON.stringify(formattedPatientData));
     formattedPatientData.signature = signature;
     console.log("Register Patient Profile Signature:", signature);
-    formattedPatientData.role = patientAccountData.accountRole;
     formattedPatientData.foto = null;
-    formattedPatientData.riwayatPengobatan = [];
+    console.log({ formattedPatientData });
 
     try {
       const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/patient/add-profile`,
+        `${CONN.BACKEND_LOCAL}/staff/register/patient-profile`,
         {
           method: "POST",
           headers: {
@@ -251,6 +233,27 @@ export default function RegisterPatientButton({
               Pendaftaran Profil Pasien Baru
             </div>
             <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
+              Data Rekam Medis Keluarga
+              <hr className="h-px bg-gray-700 border-0"></hr>
+            </div>
+            <div className="mb-6">
+              <label
+                htmlFor="dmrNumber"
+                className="block mb-2 text-sm font-medium text-gray-900"
+              >
+                Nomor Dokumen Rekam Medis (DMR)
+              </label>
+              <input
+                type="text"
+                id="dmrNumber"
+                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                placeholder="Nomor DMR"
+                defaultValue={dmrNumber}
+                disabled
+                required
+              />
+            </div>
+            {/* <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
               Data Rumah Sakit
               <hr className="h-px bg-gray-700 border-0"></hr>
             </div>
@@ -274,7 +277,7 @@ export default function RegisterPatientButton({
                 <option value="3">Pejuang</option>
                 <option value="4">Luar</option>
               </select>
-            </div>
+            </div> */}
             <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
               Data Pasien
               <hr className="h-px bg-gray-700 border-0"></hr>
