@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
+import SignInPatient from "./pages/SignInPatient";
 import PatientRecordList from "./pages/patient/PatientRecordList";
 import PatientRecord from "./pages/patient/PatientRecordDetails";
 import PatientAppointmentList from "./pages/patient/PatientAppointmentList";
@@ -31,7 +32,7 @@ function App() {
               <Route
                 path="/patient/signin"
                 element={
-                  <SignIn
+                  <SignInPatient
                     role="patient"
                     resetLink="/patient/reset-password"
                     signupLink="/patient/signup"
