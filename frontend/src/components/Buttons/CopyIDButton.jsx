@@ -17,7 +17,7 @@ const CopyIDButton = ({ textToCopy }) => {
   return (
     <Tooltip
       placement="top"
-      title="Alamat Tersalin!"
+      title="Berhasil tersalin!"
       open={showTooltip}
       onClick={handleCopyClick}
     >

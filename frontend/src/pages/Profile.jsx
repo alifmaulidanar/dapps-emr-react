@@ -40,13 +40,7 @@ export default function UserProfile({ role }) {
             })) || [];
           setUsers(profiles);
           const accountData = {
-            accountAddress: data.ipfs.data.accountAddress,
-            accountEmail: data.ipfs.data.accountEmail,
-            accountPhone: data.ipfs.data.accountPhone,
-            accountPassword: data.ipfs.data.accountPassword,
-            accountCreated: data.ipfs.data.accountCreated,
-            accountRole: data.ipfs.data.accountRole,
-            accountUsername: data.ipfs.data.accountUsername,
+            ...data.ipfs.data,
           };
           setUserAccountData(accountData);
           if (profiles.length > 0) {

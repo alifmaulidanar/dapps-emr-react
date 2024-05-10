@@ -39,6 +39,7 @@ export default function UserData({ userDataProps, userAccountData }) {
   }
 
   // user identifier
+  const dmrNmber = userAccountData.dmrNumber;
   const userName = userDataProps.namaLengkap;
   const userIdentification = userDataProps.nomorRekamMedis;
   const userImage = userDataProps.foto;
@@ -68,6 +69,7 @@ export default function UserData({ userDataProps, userAccountData }) {
   useEffect(() => {
     const initialFormData = {
       ...userDataProps,
+      dmrNmber: userAccountData.dmrNumber || null,
       rumahSakitAsal: userDataProps.rumahSakitAsal || null,
       tanggalLahir: userDataProps.tanggalLahir
         ? dayjs(userDataProps.tanggalLahir, dateFormat)
@@ -78,7 +80,7 @@ export default function UserData({ userDataProps, userAccountData }) {
     };
     setInitialData(initialFormData);
     form.setFieldsValue(initialFormData);
-  }, [userDataProps, form]);
+  }, [userDataProps, userAccountData, form]);
 
   // const handleCheckboxChange = () => {
   //   setIsChecked(!isChecked);
@@ -280,18 +282,19 @@ export default function UserData({ userDataProps, userAccountData }) {
           {role === "Pasien" && (
             <>
               <div className="col-span-2 mb-6 text-lg font-medium text-gray-900">
-              Data Rumah Sakit
+              Data Rekam Medis
               <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
-              <Form.Item label="Rumah Sakit Asal" name="rumahSakitAsal" rules={[{ required: true, message: "Silakan pilih status pernikahan!" }]}>
-                <Select disabled={!isEditing} size="large"
+              <Form.Item label="Nomor Dokumen Rekam Medis (DMR)">
+                <Input disabled style={inputStyling} defaultValue={dmrNmber} />
+                {/* <Select disabled={!isEditing} size="large"
                   options={[
                     { value: "1", label: "Eka Hospital Bekasi" },
                     { value: "2", label: "Eka Hospital BSD" },
                     { value: "3", label: "Eka Hospital Jakarta" },
                     { value: "4", label: "Eka Hospital Lampung" },
                   ]}
-                />
+                /> */}
               </Form.Item>
             </>
           )}
