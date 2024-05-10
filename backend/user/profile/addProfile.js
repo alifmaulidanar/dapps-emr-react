@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
-import { generatePatientDMR, generatePatientEMR } from "./generatePatientCode.js";
+import { generatePatientDMR, generatePatientEMR } from "../../patient/generatePatientCode.js";
 
 import { USER_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
@@ -38,7 +38,6 @@ async function prepareFilesForUpload(dirPath, basePath = dirPath) {
   }
   return files;
 }
-
 
 // Skema validasi Joi untuk data pasien
 const patientSchema = Joi.object({
@@ -230,13 +229,6 @@ router.post("/patient/add-profile", authMiddleware, async (req, res) => {
     // NOTES:
     // direktori DMR berhasil diupload ke IPFS dengan sempurna secara hirarkis
     // belum melakukan penyimpanan CID DMR ke blockchain
-
-
-
-
-
-
-
     
     // Menyimpan data pasien ke IPFS
     // const result = await client.add(JSON.stringify(accountData));
