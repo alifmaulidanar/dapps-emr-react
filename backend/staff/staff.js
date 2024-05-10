@@ -97,8 +97,6 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     // const { error } = schema.validate({ username, nik, password, confirmPassword });
     // if (error) return res.status(400).json({ error: error.details[0].message });
 
-    console.log("Received request for /register/patient-account");
-
     const accountList = await provider.listAccounts();
     const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
     if (nikExists) {
@@ -114,7 +112,6 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
         break;
       }
     }
-
     if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
 
     const privateKey = accounts[selectedAccountAddress];
@@ -160,8 +157,6 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     const accountTX = await contractWithSigner.addPatientAccount( namaLengkap, nomorIdentitas, dmrNumber, dmrCid);
     await accountTX.wait();
 
-    const getPatient = await contractWithSigner.getPatientByAddress(selectedAccountAddress);
-    console.log({ getPatient });
     const responseData = {
       message: `Patient Registration Successful`,
       username: namaLengkap,
@@ -184,29 +179,27 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
 // Add New Patient Profile
 router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   try {
-    const { dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto } = req.body;
+    const { accountAddress = null, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
 
-    console.log("Received request for /register/patient-profile");
-
-    const accountList = await provider.listAccounts();
+    // const accountList = await provider.listAccounts();
     const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
     if (nikExists) {
       console.log({ existingPatientData });
       return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
     }
 
-    let selectedAccountAddress;
-    for (let account of accountList) {
-      const [exists, accountData] = await patientContract.getPatientByAddress(account);
-      if (!exists) {
-        selectedAccountAddress = account;
-        break;
-      }
-    }
+    // let selectedAccountAddress;
+    // for (let account of accountList) {
+    //   const [exists, accountData] = await patientContract.getPatientByAddress(account);
+    //   if (!exists) {
+    //     selectedAccountAddress = account;
+    //     break;
+    //   }
+    // }
 
-    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
+    // if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
 
-    const privateKey = accounts[selectedAccountAddress];
+    const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
     const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
@@ -214,9 +207,7 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     // Cek apakah DMR number terdaftar di smart contract
     const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
     if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
-
     const emrNumber = await generatePatientEMR();
-
     const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     const dmrPath = path.join(basePath, dmrNumber);
