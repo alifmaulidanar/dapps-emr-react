@@ -5,9 +5,10 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
-export default function RegisterPatientButton({ buttonText, patientAccountData, dmrNumber }) {
+export default function RegisterPatientButton({ buttonText }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
+  const dmrNumber = sessionStorage.getItem("dmrNumber");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
@@ -94,7 +95,6 @@ export default function RegisterPatientButton({ buttonText, patientAccountData, 
 
   const [patientData, setPatientData] = useState({
     accountAddress,
-    dmrNumber,
     namaLengkap: "",
     nomorIdentitas: "",
     tempatLahir: "",
@@ -145,6 +145,7 @@ export default function RegisterPatientButton({ buttonText, patientAccountData, 
     showLoader();
     event.preventDefault();
     const formattedPatientData = {
+      dmrNumber,
       ...patientData,
       tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
       tanggalLahirKerabat: tanggalLahirKerabat
@@ -154,7 +155,9 @@ export default function RegisterPatientButton({ buttonText, patientAccountData, 
 
     // Menandatangani data menggunakan signer
     const signer = await getSigner();
-    const signature = await signer.signMessage(JSON.stringify(formattedPatientData));
+    const signature = await signer.signMessage(
+      JSON.stringify(formattedPatientData)
+    );
     formattedPatientData.signature = signature;
     console.log("Register Patient Profile Signature:", signature);
     formattedPatientData.foto = null;
@@ -162,7 +165,7 @@ export default function RegisterPatientButton({ buttonText, patientAccountData, 
 
     try {
       const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/staff/register/patient-profile`,
+        `${CONN.BACKEND_LOCAL}/patient/register-profile`,
         {
           method: "POST",
           headers: {
@@ -248,7 +251,7 @@ export default function RegisterPatientButton({ buttonText, patientAccountData, 
                 id="dmrNumber"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor DMR"
-                defaultValue={dmrNumber}
+                value={dmrNumber}
                 disabled
                 required
               />
