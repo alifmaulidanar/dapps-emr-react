@@ -84,6 +84,8 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     // generate nomor rekam medis
     const dmrNumber = await generatePatientDMR(areaCode);
     const emrNumber = await generatePatientEMR();
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
 
     // Membuat objek data akun pasien
     const dmrData = {
@@ -100,13 +102,13 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     // Prepare directory for IPFS upload
-    const dmrPath = path.join(basePath, dmrNumber);
+    const dmrPath = path.join(basePath, dmrFolderName);
     fs.mkdirSync(dmrPath, { recursive: true });
-    fs.writeFileSync(path.join(dmrPath, "account.json"), JSON.stringify(dmrData));
+    fs.writeFileSync(path.join(dmrPath, `J${dmrNumber}.json`), JSON.stringify(dmrData));
 
-    const emrPath = path.join(dmrPath, emrNumber);
+    const emrPath = path.join(dmrPath, emrFolderName);
     fs.mkdirSync(emrPath);
-    fs.writeFileSync(path.join(emrPath, "profile.json"), JSON.stringify(patientData));
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(patientData));
 
     // Prepare files and directories for upload
     const files = await prepareFilesForUpload(dmrPath);
