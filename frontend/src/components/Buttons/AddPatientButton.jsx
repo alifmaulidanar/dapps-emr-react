@@ -242,10 +242,10 @@ export default function AddPatientButton({ token }) {
       <Button
         type="primary"
         onClick={handleModal}
-        className="text-white bg-blue-600 blue-button w-full max-w-[150px]"
+        className="text-white bg-orange-600 blue-button w-full max-w-[150px]"
         // className="px-2 py-2 bg-blue-700 text-white rounded-lg w-full max-w-[150px] hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium"
       >
-        Pasien Baru
+        Pasien Baru [OLD]
       </Button>
     </>
   );
