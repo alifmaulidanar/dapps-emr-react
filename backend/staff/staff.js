@@ -9,6 +9,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
 import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
+import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -45,47 +46,8 @@ router.use(express.json());
 //   confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
 // });
 
-function formatDateTime(date) {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}_${day}-${month}-${year}`;
-}
-
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
-
-async function prepareFilesForUpload(dirPath, basePath = dirPath) {
-  const files = [];
-  const items = fs.readdirSync(dirPath, { withFileTypes: true });
-  for (let item of items) {
-    const itemPath = path.join(dirPath, item.name);
-    if (item.isDirectory()) {
-      const subFiles = await prepareFilesForUpload(itemPath, basePath);
-      files.push(...subFiles);
-    } else {
-      files.push({
-        path: itemPath.replace(basePath, "").replace(/\\/g, "/").substring(1),
-        content: fs.readFileSync(itemPath),
-      });
-    }
-  }
-  return files;
-}
-
-function generatePassword() {
-  const length = 8;
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    password += charset[randomIndex];
-  }
-  return password;
-}
 
 // Add New Patient Account
 router.post("/register/patient-account", authMiddleware, async (req, res) => {
@@ -179,7 +141,8 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
 // Add New Patient Profile
 router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   try {
-    const { accountAddress = null, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
+    const { accountAddress, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
+    // console.log({ accountAddress, dmrNumber, namaLengkap, nomorIdentitas });
 
     // const accountList = await provider.listAccounts();
     const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
@@ -187,17 +150,6 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
       console.log({ existingPatientData });
       return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
     }
-
-    // let selectedAccountAddress;
-    // for (let account of accountList) {
-    //   const [exists, accountData] = await patientContract.getPatientByAddress(account);
-    //   if (!exists) {
-    //     selectedAccountAddress = account;
-    //     break;
-    //   }
-    // }
-
-    // if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
 
     const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
