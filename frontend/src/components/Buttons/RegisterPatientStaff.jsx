@@ -9,6 +9,7 @@ import { CONN } from "../../../../enum-global";
 
 export default function RegisterPatientButton({ buttonText }) {
   const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -144,6 +145,7 @@ export default function RegisterPatientButton({ buttonText }) {
     showLoader();
     event.preventDefault();
     const formattedPatientData = {
+      accountAddress,
       ...patientData,
       tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
       tanggalLahirKerabat: tanggalLahirKerabat
@@ -167,6 +169,7 @@ export default function RegisterPatientButton({ buttonText }) {
     formattedPatientData.signature = signature;
     console.log("Register Patient Profile Signature:", signature);
     formattedPatientData.foto = null;
+    console.log({formattedPatientData});
 
     let endpoint = `${CONN.BACKEND_LOCAL}/staff/register/patient-account`;
     console.log("Submitting form for", selectedTab);
