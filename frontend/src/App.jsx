@@ -12,6 +12,7 @@ import NursePatientDetails from "./pages/nurse/NursePatientDetails";
 
 // global page routes
 import UserAccount from "./pages/Account";
+import PatientAccount from "./pages/AccountPatient";
 import UserProfile from "./pages/Profile";
 import DoctorPatientList from "./pages/doctor/DoctorPatientList";
 import NursePatientList from "./pages/nurse/NursePatientList";
@@ -102,7 +103,7 @@ function App() {
               />
               <Route
                 path={`/patient/account`}
-                element={<UserAccount role="patient" />}
+                element={<PatientAccount />}
               />
             </>
 
