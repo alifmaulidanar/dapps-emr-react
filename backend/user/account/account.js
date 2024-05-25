@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../../middleware/auth-middleware.js";
-import { getUserAccountData } from "../../middleware/userData.js";
+import { getUserAccountData, getUserAccountDataPatient } from "../../middleware/userData.js";
 
 const router = express.Router();
 router.use(express.json());
@@ -8,8 +8,8 @@ router.use(express.json());
 router.get("/patient/account", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const data = await getUserAccountData(address);
-    // console.log({ ...data });
+    const data = await getUserAccountDataPatient(address);
+    console.log({ ...data });
     res.status(200).json(data);
   } catch (error) {
     console.error(error);
