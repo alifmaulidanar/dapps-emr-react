@@ -140,19 +140,52 @@ export default function RegisterPatientButton({ buttonText }) {
   // Menambahkan state untuk DatePicker
   const [tanggalLahir, setTanggalLahir] = useState(null);
   const [tanggalLahirKerabat, setTanggalLahirKerabat] = useState(null);
+  const getKelurahan = (areaCode) => {
+    switch (areaCode) {
+      case "1":
+        return "Harapan Mulya";
+      case "2":
+        return "Medan Satria";
+      case "3":
+        return "Pejuang";
+      case "4":
+        return "Luar";
+      default:
+        return "";
+    }
+  };
+
+  const getKelurahanByDMR = (dmrNumber) => {
+    const fourthChar = dmrNumber[3];
+    switch (fourthChar) {
+      case "H":
+        return "Harapan Mulya";
+      case "M":
+        return "Medan Satria";
+      case "P":
+        return "Pejuang";
+      case "L":
+        return "Luar";
+      default:
+        return "";
+    }
+  };
 
   const handleSubmit = async (event) => {
     showLoader();
     event.preventDefault();
+    let kelurahan = getKelurahan(patientData.areaCode);
+    if (selectedTab === "Profil Baru") kelurahan = getKelurahanByDMR(patientData.dmrNumber);
     const formattedPatientData = {
       accountAddress,
       ...patientData,
+      kelurahan,
       tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
       tanggalLahirKerabat: tanggalLahirKerabat
         ? tanggalLahirKerabat.format(dateFormat)
         : "",
     };
-    
+
     if (selectedTab === "Akun Baru" && formattedPatientData.areaCode === "") {
       Swal.fire({
         icon: "error",
@@ -188,16 +221,14 @@ export default function RegisterPatientButton({ buttonText }) {
     }
 
     try {
-      const response = await fetch(endpoint,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify(formattedPatientData),
-        }
-      );
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(formattedPatientData),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -316,7 +347,7 @@ export default function RegisterPatientButton({ buttonText }) {
                     htmlFor="dmrNumber"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Nomor Dokumen Rekam Medis (DMR)
+                    Nomor Dokumen Rekam Medis (DRM)
                   </label>
                   <input
                     type="text"

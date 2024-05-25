@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
 
-export default function RegisterPatientButton({ buttonText }) {
+export default function RegisterPatientButton({ buttonText, mainNeighborhood }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const dmrNumber = sessionStorage.getItem("dmrNumber");
@@ -31,13 +31,6 @@ export default function RegisterPatientButton({ buttonText }) {
 
   const dateFormat = "YYYY-MM-DD";
   const customFormat = (value) => `${value.format(dateFormat)}`;
-
-  // const Tab = () => (
-  //   <Segmented
-  //     options={["Identitas Pasien", "Identitas Bayi Baru Lahir"]}
-  //     block
-  //   />
-  // );
 
   // Connect MetaMask to Ganache lokal
   const getSigner = useCallback(async () => {
@@ -75,24 +68,6 @@ export default function RegisterPatientButton({ buttonText }) {
     }
   }, []);
 
-  // Connect MetaMask to Ganache VPS
-  // const getSigner = useCallback(async () => {
-  //   const win = window;
-  //   if (!win.ethereum) {
-  //     console.error("Metamask not detected");
-  //     return;
-  //   }
-
-  //   try {
-  //     await win.ethereum.request({ method: "eth_requestAccounts" });
-  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     const signer = provider.getSigner();
-  //     return signer;
-  //   } catch (error) {
-  //     console.error("Error setting up Web3Provider:", error);
-  //   }
-  // }, []);
-
   const [patientData, setPatientData] = useState({
     accountAddress,
     namaLengkap: "",
@@ -114,7 +89,6 @@ export default function RegisterPatientButton({ buttonText }) {
     alamat: "",
     rt: "",
     rw: "",
-    kelurahan: "",
     kecamatan: "",
     kota: "",
     pos: "",
@@ -147,6 +121,7 @@ export default function RegisterPatientButton({ buttonText }) {
     const formattedPatientData = {
       dmrNumber,
       ...patientData,
+      kelurahan: mainNeighborhood,
       tanggalLahir: tanggalLahir ? tanggalLahir.format(dateFormat) : "",
       tanggalLahirKerabat: tanggalLahirKerabat
         ? tanggalLahirKerabat.format(dateFormat)
@@ -177,7 +152,6 @@ export default function RegisterPatientButton({ buttonText }) {
       );
 
       const responseData = await response.json();
-
       if (response.ok) {
         console.log({ responseData });
         setSpinning(false);
@@ -244,7 +218,7 @@ export default function RegisterPatientButton({ buttonText }) {
                 htmlFor="dmrNumber"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Nomor Dokumen Rekam Medis (DMR)
+                Nomor Dokumen Rekam Medis (DRM)
               </label>
               <input
                 type="text"
@@ -717,10 +691,8 @@ export default function RegisterPatientButton({ buttonText }) {
                 id="kelurahan"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Kelurahan / Desa"
-                value={patientData.kelurahan}
-                onChange={(e) =>
-                  setPatientData({ ...patientData, kelurahan: e.target.value })
-                }
+                value={mainNeighborhood}
+                disabled
                 // required
               />
             </div>
