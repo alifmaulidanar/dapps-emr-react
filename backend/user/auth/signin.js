@@ -20,7 +20,7 @@ router.use(express.json());
 
 // POST Sign In Account Patient
 router.post("/patient/signin", async (req, res) => {
-  const schema = Joi.object({ nik: Joi.string().min(16).max(16).required(), password: Joi.string().min(8).max(12).required() });
+  const schema = Joi.object({ nik: Joi.string().max(16).required(), password: Joi.string().min(8).max(12).required() });
 
   try {
     const { nik, password, signature } = req.body;
@@ -40,12 +40,13 @@ router.post("/patient/signin", async (req, res) => {
     const [exists, account] = await patientContract.getPatientByNik(nik);
     if (!exists) throw new Error("Account not found");
     const dmrCid = account.dmrCid;
-    const data = await retrieveFolderData(dmrCid);
+    const dmrNumber = account.dmrNumber;
+    const data = await retrieveFolderData(dmrNumber, dmrCid);
 
     // account
-    const accountJsonString = data.accountData['account.json'];
+    const accountJsonString = data.accountData[`J${dmrNumber}.json`];
     const accountObj = JSON.parse(accountJsonString);
-    const { accountNik, accountPassword, dmrNumber, accountRole } = accountObj;
+    const { accountNik, accountPassword, accountRole } = accountObj;
 
     // Cek password
     const validPassword = await bcrypt.compare(password, accountPassword);
@@ -62,7 +63,7 @@ router.post("/patient/signin", async (req, res) => {
         accountRole,
       },
     };
-    console.log(responseData);
+    // console.log(responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error(error);

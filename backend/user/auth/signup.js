@@ -7,12 +7,17 @@ import { fileURLToPath } from "url";
 import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
+import { generatePassword, prepareFilesForUpload } from "../../utils/utils.js";
+import { generatePatientDMR, generatePatientEMR } from "../../patient/generatePatientCode.js";
 
 // Contract & ABI
-import { USER_CONTRACT } from "../../dotenvConfig.js";
+import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+import patientABI from "../../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
 const userContract = USER_CONTRACT.toString();
+const patient_contract = PATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
 const contract = new ethers.Contract(userContract, userABI, provider);
 
 // IPFS
@@ -25,6 +30,7 @@ const client = create({
 // Dapatkan __dirname yang setara
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const basePath = path.join(__dirname, "../../patient/data");
 const accountsPath = path.join(__dirname, "../../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
 const accounts = JSON.parse(accountsJson);
@@ -52,6 +58,94 @@ function formatDateTime(date) {
 
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
+
+// Add New Patient Account
+router.post("/patient/register-account", async (req, res) => {
+  try {
+    const { areaCode, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto } = req.body;
+    const password = generatePassword();
+    const encryptedPassword = await bcrypt.hash(password, 10);
+
+    const accountList = await provider.listAccounts();
+    const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
+    if (nikExists) {
+      console.log({ existingPatientData });
+      return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
+    }
+
+    let selectedAccountAddress;
+    for (let account of accountList) {
+      const [exists, accountData] = await patientContract.getPatientByAddress(account);
+      if (!exists) {
+        selectedAccountAddress = account;
+        break;
+      }
+    }
+    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
+
+    const privateKey = accounts[selectedAccountAddress];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
+
+    // generate nomor rekam medis
+    const dmrNumber = await generatePatientDMR(areaCode);
+    const emrNumber = await generatePatientEMR();
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+
+    // Membuat objek data akun pasien
+    const dmrData = {
+      accountAddress: selectedAccountAddress,
+      accountUsername: namaLengkap,
+      accountNik: nomorIdentitas,
+      accountPassword: encryptedPassword,
+      accountRole: "patient",
+      accountCreated: formattedDateTime,
+      dmrNumber: dmrNumber,
+    };
+
+    // Membuat objek data profil pasien
+    const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+
+    // Prepare directory for IPFS upload
+    const dmrPath = path.join(basePath, dmrFolderName);
+    fs.mkdirSync(dmrPath, { recursive: true });
+    fs.writeFileSync(path.join(dmrPath, `J${dmrNumber}.json`), JSON.stringify(dmrData));
+
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath);
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(patientData));
+
+    // Prepare files and directories for upload
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+
+    const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
+    const accountTX = await contractWithSigner.addPatientAccount( namaLengkap, nomorIdentitas, dmrNumber, dmrCid);
+    await accountTX.wait();
+
+    const responseData = {
+      message: `Patient Registration Successful`,
+      username: namaLengkap,
+      nomorIdentitas: nomorIdentitas,
+      dmrNumber,
+      dmrCid,
+      emrNumber,
+      password,
+      publicKey: selectedAccountAddress,
+      privateKey,
+    };
+    console.log({ responseData });
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ error: error.message });
+  }
+});
 
 // POST Sign Up Account Patient & Doctor
 router.post("/:role/signup", async (req, res) => {

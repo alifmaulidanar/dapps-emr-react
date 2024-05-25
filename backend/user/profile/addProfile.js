@@ -106,10 +106,10 @@ const userSchema = Joi.object({
 });
 
 // Add New Patient Profile
-router.post("/patient/register-profile", authMiddleware, async (req, res) => {
+router.post("/patient/register-profile", async (req, res) => {
   try {
-    const { accountAddress, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
-    console.log({ accountAddress, dmrNumber, namaLengkap, nomorIdentitas });
+    const { dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
+    console.log({ dmrNumber, namaLengkap, nomorIdentitas });
 
     const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
     if (nikExists) {
@@ -117,6 +117,7 @@ router.post("/patient/register-profile", authMiddleware, async (req, res) => {
       return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
     }
 
+    const accountAddress = "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D";
     const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
@@ -128,10 +129,12 @@ router.post("/patient/register-profile", authMiddleware, async (req, res) => {
     const emrNumber = await generatePatientEMR();
     const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
-    const dmrPath = path.join(basePath, dmrNumber);
-    const emrPath = path.join(dmrPath, emrNumber);
-    fs.mkdirSync(emrPath, { recursive: true });
-    fs.writeFileSync(path.join(emrPath, "profile.json"), JSON.stringify(patientData));
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath);
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(patientData));
 
     // Update IPFS dengan file baru
     const files = await prepareFilesForUpload(dmrPath);

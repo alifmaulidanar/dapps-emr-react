@@ -164,10 +164,12 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     const emrNumber = await generatePatientEMR();
     const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
-    const dmrPath = path.join(basePath, dmrNumber);
-    const emrPath = path.join(dmrPath, emrNumber);
-    fs.mkdirSync(emrPath, { recursive: true });
-    fs.writeFileSync(path.join(emrPath, "profile.json"), JSON.stringify(patientData));
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath);
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(patientData));
 
     // Update IPFS dengan file baru
     const files = await prepareFilesForUpload(dmrPath);

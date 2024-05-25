@@ -22,54 +22,14 @@ router.use(express.json());
 
 async function getUserAccountData(address) {
   try {
-    const account = await userContract.getAccountByAddress(address);
-    const cid = account.cid;
-    if (account.accountAddress === ethers.constants.AddressZero) { throw new Error("Account not found") }
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-    const response = await fetch(ipfsGatewayUrl);
-    const ipfsData = await response.json();
-
-    let appointments = [];
-    appointments = await outpatientContract.getAppointmentsByPatient(address);
-    const appointmentDetails = await Promise.all(appointments.map(async (appointment) => {
-      const appointmentCid = appointment.cid;
-      const appointmentIpfsUrl = `${CONN.IPFS_LOCAL}/${appointmentCid}`;
-      const appointmentResponse = await fetch(appointmentIpfsUrl);
-      const appointmentData = await appointmentResponse.json();
-      return {
-        id: appointment.id.toString(),
-        patientAddress: appointment.patientAddress,
-        doctorAddress: appointment.doctorAddress,
-        nurseAddress: appointment.nurseAddress,
-        emrNumber: appointment.emrNumber,
-        cid: appointment.cid,
-        data: appointmentData
-      };
-    }));
-
-    const responseData = {
-      message: "GET User Data from IPFS Succesful",
-      account: { accountAddress: ipfsData.accountAddress, accountEmail: ipfsData.accountEmail, role: ipfsData.accountRole },
-      ipfs: { cid: cid, data: ipfsData },
-      appointments: appointmentDetails
-    };
-    return responseData;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-async function getUserAccountDataNew(address) {
-  try {
     const [exists, account] = await patientContract.getPatientByAddress(address);
     if (!exists) throw new Error("Account not found");
+    const dmrNumber = account.dmrNumber;
     const dmrCid = account.dmrCid;
-    // console.log(dmrCid);
-    const data = await retrieveFolderData(dmrCid);
+    const data = await retrieveFolderData(dmrNumber, dmrCid);
 
     // account
-    const accountJsonString = data.accountData['account.json'];
+    const accountJsonString = data.accountData[`J${dmrNumber}.json`];
     const accountObj = JSON.parse(accountJsonString);
 
     // profiles
@@ -107,7 +67,7 @@ async function getUserAccountDataNew(address) {
   }
 }
 
-async function retrieveFolderData(cid) {
+async function retrieveFolderData(dmrNumber, cid) {
   try {
     const accountData = {};
     const emrProfiles = [];
@@ -115,7 +75,7 @@ async function retrieveFolderData(cid) {
     // Mendapatkan daftar isi dari CID folder
     for await (const file of client.ls(cid)) {
       // console.log({file});
-      if (file.type === 'file' && file.name === 'account.json') {
+      if (file.type === 'file' && file.name === `J${dmrNumber}.json`) {
         // Mengambil dan mengurai konten account.json
         const content = [];
         for await (const chunk of client.cat(file.cid)) {
@@ -126,7 +86,8 @@ async function retrieveFolderData(cid) {
       
       if (file.type === 'dir') {
         // Menggali ke dalam direktori EMR untuk mencari profile.json
-        const profileData = await retrieveEMRData(file.cid);
+        const updatedFileName = file.name.substring(16);
+        const profileData = await retrieveEMRData(file.cid, updatedFileName);
         emrProfiles.push({ emrFolder: file.name, profile: profileData });
         // console.log({profileData});
       }
@@ -138,10 +99,10 @@ async function retrieveFolderData(cid) {
   }
 }
 
-async function retrieveEMRData(emrCid) {
+async function retrieveEMRData(emrCid, emrNumber) {
   // Mencari dan mengambil profile.json di dalam folder EMR
   for await (const file of client.ls(emrCid)) {
-    if (file.type === 'file' && file.name === 'profile.json') {
+    if (file.type === 'file' && file.name === `${emrNumber}.json`) {
       const content = [];
       for await (const chunk of client.cat(file.cid)) {
         content.push(chunk);
@@ -152,4 +113,4 @@ async function retrieveEMRData(emrCid) {
   return null;
 }
 
-export { getUserAccountData, getUserAccountDataNew, retrieveEMRData, retrieveFolderData };
+export { getUserAccountData, retrieveEMRData, retrieveFolderData };
