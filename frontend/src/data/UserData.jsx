@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Avatar, Upload, message, Button, Form, Input, Select, Checkbox, DatePicker, Spin } from "antd";
+import { Avatar, Upload, message, Button, Form, Input, Select, DatePicker, Spin } from "antd";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -40,9 +40,10 @@ export default function UserData({ userDataProps, userAccountData }) {
 
   // user identifier
   const dmrNmber = userAccountData.dmrNumber;
+  const emrNumber = userDataProps.nomorRekamMedis;
   const userName = userDataProps.namaLengkap;
-  const userIdentification = userDataProps.nomorRekamMedis;
   const userImage = userDataProps.foto;
+  const neighborhood = userDataProps.kelurahan;
 
   const handleFileChange = async (info) => { if (info.file.status === "done") setSelectedFile(info.file.originFileObj) };
   const handleDateChange = (date, dateString, fieldName) => { form.setFieldsValue({ [fieldName]: date }) };
@@ -138,7 +139,7 @@ export default function UserData({ userDataProps, userAccountData }) {
 
         const updatedValues = {
           ...values,
-          nomorRekamMedis: userIdentification,
+          nomorRekamMedis: emrNumber,
           tanggalLahir: values.tanggalLahir
             ? dayjs(values.tanggalLahir).format(dateFormat)
             : "",
@@ -274,7 +275,8 @@ export default function UserData({ userDataProps, userAccountData }) {
         {renderUploadButton()}
         <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
         <div>
-          <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">{userIdentification}</span>
+          {/* <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">{emrNumber}</span> */}
+          <h5 className="mb-1 text-lg text-gray-900">{neighborhood || null }</h5>
         </div>
       </div>
       <Form form={form} layout="vertical" className="col-span-2 p-8" onFinish={handleFormSubmit} disabled={!isEditing}>
@@ -285,16 +287,11 @@ export default function UserData({ userDataProps, userAccountData }) {
               Data Rekam Medis
               <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
-              <Form.Item label="Nomor Dokumen Rekam Medis (DMR)">
+              <Form.Item label="Nomor Dokumen Rekam Medis (DRM)">
                 <Input disabled style={inputStyling} defaultValue={dmrNmber} />
-                {/* <Select disabled={!isEditing} size="large"
-                  options={[
-                    { value: "1", label: "Eka Hospital Bekasi" },
-                    { value: "2", label: "Eka Hospital BSD" },
-                    { value: "3", label: "Eka Hospital Jakarta" },
-                    { value: "4", label: "Eka Hospital Lampung" },
-                  ]}
-                /> */}
+              </Form.Item>
+              <Form.Item label="Nomor Rekam Medis Elektronik (RME)" name="nomorRekamMedis" >
+                <Input disabled style={inputStyling} defaultValue={emrNumber} />
               </Form.Item>
             </>
           )}

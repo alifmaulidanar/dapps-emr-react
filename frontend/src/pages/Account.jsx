@@ -218,6 +218,39 @@ export default function UserAccount({ role }) {
             className="grid items-center max-w-4xl grid-cols-1 mx-auto rounded gap-y-8 h-fit"
             onFinish={onFinish}
           >
+            {/* DMR Pengguna */}
+            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
+              <div className="p-8">
+                <div className="grid items-center grid-cols-1 mb-4">
+                  <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="#5a5a5a" stroke="#5a5a5a" viewBox="0 0 1920 1920" className="w-5 h-5">
+                    <path
+                      fillRule="evenodd"
+                      d="M1706.235 1807.059H350.941V112.94h903.53v451.765h451.764v1242.353zm-338.823-1670.74l315.443 315.447h-315.443V136.32zm402.182 242.487L1440.372 49.58C1408.296 17.62 1365.717 0 1320.542 0H238v1920h1581.175V498.635c0-45.176-17.618-87.755-49.58-119.83zM576.823 1242.353h790.589v-112.94H576.823v112.94zm0-451.765h903.53V677.647h-903.53v112.941zm0 677.647h451.765v-112.941H576.823v112.941zm0-451.764h677.648V903.53H576.823v112.941zm0-451.765h451.765V451.765H576.823v112.941z"
+                    ></path>
+                  </svg>
+
+                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
+                      Nomor Dokumen Rekam Medis
+                    </h5>
+                  </div>
+                  <p className="my-2 text-md">
+                    Nomor Dokumen Rekam Medis Anda yang terdaftar berdasarkan kelurahan.
+                  </p>
+                </div>
+                <Form.Item name="dmrNumber">
+                  <div className="flex items-center gap-x-2">
+                    <Input
+                      id="dmrNumber"
+                      className="flex-1 bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                      disabled
+                      value={fetchData.dmrNumber}
+                    />
+                  </div>
+                </Form.Item>
+              </div>
+            </div>
+            
             {/* Address Pengguna */}
             <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
               <div className="p-8">
@@ -255,39 +288,6 @@ export default function UserAccount({ role }) {
                       value={accountAddress}
                     />
                     <CopyIDButton textToCopy={accountAddress} />
-                  </div>
-                </Form.Item>
-              </div>
-            </div>
-
-            {/* DMR Pengguna */}
-            <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
-              <div className="p-8">
-                <div className="grid items-center grid-cols-1 mb-4">
-                  <div className="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="#5a5a5a" stroke="#5a5a5a" viewBox="0 0 1920 1920" className="w-5 h-5">
-                    <path
-                      fillRule="evenodd"
-                      d="M1706.235 1807.059H350.941V112.94h903.53v451.765h451.764v1242.353zm-338.823-1670.74l315.443 315.447h-315.443V136.32zm402.182 242.487L1440.372 49.58C1408.296 17.62 1365.717 0 1320.542 0H238v1920h1581.175V498.635c0-45.176-17.618-87.755-49.58-119.83zM576.823 1242.353h790.589v-112.94H576.823v112.94zm0-451.765h903.53V677.647h-903.53v112.941zm0 677.647h451.765v-112.941H576.823v112.941zm0-451.764h677.648V903.53H576.823v112.941zm0-451.765h451.765V451.765H576.823v112.941z"
-                    ></path>
-                  </svg>
-
-                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
-                      Nomor Dokumen Rekam Medis
-                    </h5>
-                  </div>
-                  <p className="my-2 text-md">
-                    Nomor Dokumen Rekam Medis Anda yang terdaftar berdasarkan kelurahan.
-                  </p>
-                </div>
-                <Form.Item name="dmrNumber">
-                  <div className="flex items-center gap-x-2">
-                    <Input
-                      id="dmrNumber"
-                      className="flex-1 bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                      disabled
-                      value={fetchData.dmrNumber}
-                    />
                   </div>
                 </Form.Item>
               </div>

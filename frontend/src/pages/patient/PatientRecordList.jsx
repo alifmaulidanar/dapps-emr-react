@@ -42,6 +42,7 @@ export default function PatientRecordList() {
     }
   }, [token, accountAddress]);
 
+  const mainNeighborhood = patientAccountData?.ipfs?.data?.accountProfiles[0]?.kelurahan;
   const dmrNumber = patientAccountData?.ipfs?.data?.dmrNumber;
   sessionStorage.setItem("dmrNumber", dmrNumber);
   const handlePatientClick = (index) => {
@@ -90,7 +91,7 @@ export default function PatientRecordList() {
         </div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
-            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
+            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} mainNeighborhood={mainNeighborhood} />
           </div>
         </div>
       </div>
