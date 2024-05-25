@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { ethers } from "ethers";
 import { CONN } from "../../../enum-global.js";
 import { generateToken } from "../../middleware/auth.js";
-import { retrieveFolderData } from "../../middleware/userData.js";
+import { retrieveDMRData } from "../../middleware/userData.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
@@ -41,7 +41,7 @@ router.post("/patient/signin", async (req, res) => {
     if (!exists) throw new Error("Account not found");
     const dmrCid = account.dmrCid;
     const dmrNumber = account.dmrNumber;
-    const data = await retrieveFolderData(dmrNumber, dmrCid);
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
 
     // account
     const accountJsonString = data.accountData[`J${dmrNumber}.json`];
