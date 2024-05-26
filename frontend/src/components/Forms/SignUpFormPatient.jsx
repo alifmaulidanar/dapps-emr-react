@@ -20,7 +20,7 @@ export default function SignUpFormPatient({ role }) {
   const handleTabChange = (newTab) => { setSelectedTab(newTab) };
 
   const copyToClipboard = () => {
-    const accountInfo = `Nomor EMR: ${accountData.emrNumber}\nNo. Dok. RM: ${accountData.dmrNumber}\nNomor Identitas (NIK): ${accountData.nomorIdentitas}\nUsername: ${accountData.username}\nPassword: ${accountData.password}\nAddress: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
+    const accountInfo = `Nomor DRM: ${accountData.dmrNumber}\nNomor RME: ${accountData.emrNumber}\nKata Sandi: ${accountData.password}\nPublic Key: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
     navigator.clipboard.writeText(accountInfo).then(
       () => {
         setCopySuccess(true);
@@ -181,13 +181,11 @@ export default function SignUpFormPatient({ role }) {
               Swal.fire({
                 icon: "success",
                 title: "Pendaftaran Akun Pasien Berhasil!",
-                text: "Gunakan NIK dan Password untuk melakukan Sign In.",
+                text: "Gunakan Nomor DRM dan Kata Sandi untuk melakukan Sign In.",
               }).then(() => {
                 setAccountData({
-                  emrNumber: data.emrNumber,
                   dmrNumber: data.dmrNumber,
-                  nomorIdentitas: data.nomorIdentitas,
-                  username: data.username,
+                  emrNumber: data.emrNumber,
                   password: data.password,
                   publicKey: data.publicKey,
                   privateKey: data.privateKey,
@@ -200,7 +198,7 @@ export default function SignUpFormPatient({ role }) {
               Swal.fire({
                 icon: "success",
                 title: "Pendaftaran Profil Pasien Berhasil!",
-                text: "Gunakan NIK dan Password utama untuk melakukan Sign In.",
+                text: "Gunakan Nomor DRM dan Kata Sandi untuk melakukan Sign In.",
               }).then(() => {
                 window.location.assign(`/${role}/signin`);
               });
@@ -411,11 +409,9 @@ export default function SignUpFormPatient({ role }) {
               dan mudah diakses.
             </p>
             <Card className="w-full">
-              <p>Nomor EMR: {accountData?.emrNumber}</p>
-              <p>No. Dok. RM: {accountData?.dmrNumber}</p>
-              <p>Nomor Identitas: {accountData?.nomorIdentitas}</p>
-              <p>Username: {accountData?.username}</p>
-              <p>Password: {accountData?.password}</p>
+              <p>Nomor DRM: {accountData?.dmrNumber}</p>
+              <p>Nomor RME: {accountData?.emrNumber}</p>
+              <p>Kata Sandi: {accountData?.password}</p>
               <p>Public Key: {accountData?.publicKey}</p>
               <p>Private Key: {accountData?.privateKey}</p>
             </Card>

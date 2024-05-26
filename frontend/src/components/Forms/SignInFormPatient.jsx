@@ -86,7 +86,7 @@ export default function SignInFormPatient({ role, resetLink, signupLink }) {
 
         // Buat objek data pasien dari formulir
         const newPatient = {
-          nik: values.nik,
+          dmrNumber: values.dmrNumber,
           password: values.password,
         };
 
@@ -192,50 +192,50 @@ export default function SignInFormPatient({ role, resetLink, signupLink }) {
           className="grid grid-cols-1 gap-x-12"
           onFinish={handleSubmit}
         >
-          <div className="mb-6">
+          <div className="mb-4">
             <label
               htmlFor="name"
-              className="block mb-2 text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900"
             >
-              Nomor Identitas (NIK)
+              Nomor Dokumen Rekam Medis (DRM)
             </label>
             <Form.Item
-              name="nik"
+              name="dmrNumber"
               rules={[
                 {
                   required: true,
-                  message: "Harap isi nomor identitas (NIK) Anda.",
+                  message: "Harap isi Nomor DRM keluarga Anda.",
                 },
               ]}
             >
               <Input
                 type="text"
-                name="nik"
-                placeholder="NIK"
+                name="dmrNumber"
+                placeholder="Nomor DMR"
                 className="border-gray-300 text-sm rounded-lg py-2 px-2.5"
               />
             </Form.Item>
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <label
               htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-900"
+              className="block text-sm font-medium text-gray-900"
             >
-              Password
+              Kata sandi
             </label>
             <Form.Item
               name="password"
               rules={[
                 {
                   required: true,
-                  message: "Harap isi password Anda.",
+                  message: "Harap isi kata sandi Anda.",
                 },
               ]}
             >
               <Input.Password
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Kata sandi"
                 className="border-gray-300 text-sm rounded-lg py-1.5 px-2.5"
               />
             </Form.Item>

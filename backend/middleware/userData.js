@@ -82,19 +82,21 @@ async function getUserAccountDataPatient(address) {
       message: "GET User Data from IPFS Succesful",
       account: {
         accountAddress: accountObj.accountAddress,
-        accountNik: accountObj.accountNik,
+        dmrNumber: accountObj.dmrNumber,
+        accountPassword: accountObj.accountPassword,
+        accountRole: accountObj.accountRole,
+        accountCreated: accountObj.accountCreated,
         role: "patient"
       },
       ipfs: {
         dmrCid: dmrCid,
         data: {
           accountAddress: accountObj.accountAddress,
-          accountNik: accountObj.accountNik,
-          accountUsername: accountObj.accountUsername,
+          dmrNumber: accountObj.dmrNumber,
           accountPassword: accountObj.accountPassword,
           accountRole: accountObj.accountRole,
           accountCreated: accountObj.accountCreated,
-          dmrNumber: accountObj.dmrNumber,
+          role: "patient",
           accountProfiles: accountProfiles
         }
       },

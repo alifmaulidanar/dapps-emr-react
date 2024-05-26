@@ -60,11 +60,11 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     // if (error) return res.status(400).json({ error: error.details[0].message });
 
     const accountList = await provider.listAccounts();
-    const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    if (nikExists) {
-      console.log({ existingPatientData });
-      return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    }
+    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
+    // if (nikExists) {
+    //   console.log({ existingPatientData });
+    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
+    // }
 
     let selectedAccountAddress;
     for (let account of accountList) {
@@ -90,8 +90,6 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     // Membuat objek data akun pasien
     const dmrData = {
       accountAddress: selectedAccountAddress,
-      accountUsername: namaLengkap,
-      accountNik: nomorIdentitas,
       accountPassword: encryptedPassword,
       accountRole: "patient",
       accountCreated: formattedDateTime,
@@ -118,7 +116,7 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     }
 
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
-    const accountTX = await contractWithSigner.addPatientAccount( namaLengkap, nomorIdentitas, dmrNumber, dmrCid);
+    const accountTX = await contractWithSigner.addPatientAccount( dmrNumber, dmrCid);
     await accountTX.wait();
 
     const responseData = {
@@ -147,11 +145,11 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     // console.log({ accountAddress, dmrNumber, namaLengkap, nomorIdentitas });
 
     // const accountList = await provider.listAccounts();
-    const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    if (nikExists) {
-      console.log({ existingPatientData });
-      return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    }
+    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
+    // if (nikExists) {
+    //   console.log({ existingPatientData });
+    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
+    // }
 
     const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
@@ -182,8 +180,6 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     // Update informasi DMR di blockchain jika perlu
     const updateTX = await contractWithSigner.updatePatientAccount(
       dmrData.accountAddress,
-      dmrData.username,
-      dmrData.nik,
       dmrNumber,
       dmrCid,
       dmrData.isActive

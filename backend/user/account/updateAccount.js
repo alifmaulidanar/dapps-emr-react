@@ -28,20 +28,19 @@ router.use(express.json());
 
 // Update Patient Account
 router.post("/patient/update", async (req, res) => {
-  const { address, username, nik, dmrNumber, oldPass, newPass, confirmPass, signature } = req.body;
+  const { address, dmrNumber, oldPass, newPass, confirmPass, signature } = req.body;
   const schema = Joi.object({
-    username: Joi.string().pattern(/^\S.*$/).alphanum().min(3).max(50).required(),
     oldPass: Joi.string().required(),
     newPass: Joi.string().pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$")).required(),
     confirmPass: Joi.string().valid(Joi.ref("newPass")).required(),
   });
 
-  if (username && oldPass && newPass && confirmPass) {
-    const { error } = schema.validate({ username, oldPass, newPass, confirmPass });
+  if (oldPass && newPass && confirmPass) {
+    const { error } = schema.validate({ oldPass, newPass, confirmPass });
     if (error) return res.status(400).json({ error: error.details[0].message });
   }
 
-  const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ dmrNumber, address, nik, username, oldPass, newPass, confirmPass }), signature);
+  const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ dmrNumber, address, oldPass, newPass, confirmPass }), signature);
   const recoveredSigner = provider.getSigner(recoveredAddress);
   const accounts = await provider.listAccounts();
   const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
@@ -58,13 +57,8 @@ router.post("/patient/update", async (req, res) => {
   // account
   const accountJsonString = data.accountData[`J${dmrNumber}.json`];
   const patientAccount = JSON.parse(accountJsonString);
-
   // Initialize updatedData with current patientAccount data
   let updatedData = { ...patientAccount };
-
-  // Update patientAccount fields with new values from req.body
-  if (username) updatedData.accountUsername = username;
-  if (nik) updatedData.accountNik = nik;
 
   // Check and update password using bcrypt
   if (confirmPass && newPass && oldPass) {
@@ -91,8 +85,6 @@ router.post("/patient/update", async (req, res) => {
   // Update DMR info on blockchain if necessary
   const updateTX = await patientContractWithSigner.updatePatientAccount(
     dmrData.accountAddress,
-    updatedData.accountUsername,
-    updatedData.accountNik,
     dmrNumber,
     newDmrCid,
     dmrData.isActive

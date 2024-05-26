@@ -43,7 +43,7 @@ export default function PatientRecordList() {
   }, [token, accountAddress]);
 
   const mainNeighborhood = patientAccountData?.ipfs?.data?.accountProfiles[0]?.kelurahan;
-  const dmrNumber = patientAccountData?.ipfs?.data?.dmrNumber;
+  const dmrNumber = patientAccountData?.account?.dmrNumber;
   sessionStorage.setItem("dmrNumber", dmrNumber);
   const handlePatientClick = (index) => {
     setChosenIndex(index);

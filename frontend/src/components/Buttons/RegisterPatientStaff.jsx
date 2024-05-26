@@ -30,7 +30,7 @@ export default function RegisterPatientButton({ buttonText }) {
   const customFormat = (value) => `${value.format(dateFormat)}`;
 
   const copyToClipboard = () => {
-    const accountInfo = `Nomor EMR: ${accountData.emrNumber}\nNo. Dok. RM: ${accountData.dmrNumber}\nNomor Identitas (NIK): ${accountData.nomorIdentitas}\nUsername: ${accountData.username}\nPassword: ${accountData.password}\nAddress: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
+    const accountInfo = `Nomor DRM: ${accountData.dmrNumber}\nNomor RME: ${accountData.emrNumber}\nKata Sandi: ${accountData.password}\nPublic Key: ${accountData.publicKey}\nPrivate Key: ${accountData.privateKey}`;
     navigator.clipboard.writeText(accountInfo).then(
       () => {
         setCopySuccess(true);
@@ -1390,12 +1390,9 @@ export default function RegisterPatientButton({ buttonText }) {
               dan mudah diakses.
             </p>
             <Card className="w-full">
-              <p>Nomor EMR: {accountData?.emrNumber}</p>
-              <p>No. Dok. RM: {accountData?.dmrNumber}</p>
-              {/* <p>CID Dok. RM: {accountData?.dmrCid}</p> */}
-              <p>Nomor Identitas: {accountData?.nomorIdentitas}</p>
-              <p>Username: {accountData?.username}</p>
-              <p>Password: {accountData?.password}</p>
+              <p>Nomor DRM: {accountData?.dmrNumber}</p>
+              <p>Nomor RME: {accountData?.emrNumber}</p>
+              <p>Kata Sandi: {accountData?.password}</p>
               <p>Public Key: {accountData?.publicKey}</p>
               <p>Private Key: {accountData?.privateKey}</p>
             </Card>

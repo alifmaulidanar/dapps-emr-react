@@ -138,11 +138,11 @@ function NavbarController({ type, page, color, accountData = null }) {
         linkToPage: `/staff/appointment-list`,
         color: page === "Appointment" ? color : defaultColor,
       },
-      {
-        text: "Profil Staff",
-        linkToPage: `/staff/profile`,
-        color: page === "Profil Staff" ? color : defaultColor,
-      },
+      // {
+      //   text: "Profil Staff",
+      //   linkToPage: `/staff/profile`,
+      //   color: page === "Profil Staff" ? color : defaultColor,
+      // },
     ];
 
     buttons = [

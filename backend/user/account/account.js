@@ -9,7 +9,7 @@ router.get("/patient/account", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     const data = await getUserAccountDataPatient(address);
-    console.log({ ...data });
+    // console.log({ ...data });
     res.status(200).json(data);
   } catch (error) {
     console.error(error);

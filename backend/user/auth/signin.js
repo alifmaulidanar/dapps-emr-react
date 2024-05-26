@@ -20,15 +20,15 @@ router.use(express.json());
 
 // POST Sign In Account Patient
 router.post("/patient/signin", async (req, res) => {
-  const schema = Joi.object({ nik: Joi.string().max(16).required(), password: Joi.string().min(8).max(12).required() });
+  const schema = Joi.object({ dmrNumber: Joi.string().min(7).max(7).required(), password: Joi.string().min(8).max(12).required() });
 
   try {
-    const { nik, password, signature } = req.body;
-    const { error } = schema.validate({ nik, password });
+    const { dmrNumber, password, signature } = req.body;
+    const { error } = schema.validate({ dmrNumber, password });
     if (error) return res.status(400).json({ error: error.details[0].message });
 
     // Verifikasi tanda tangan
-    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ nik, password }), signature);
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ dmrNumber, password }), signature);
     const recoveredSigner = provider.getSigner(recoveredAddress);
     const accounts = await provider.listAccounts();
     const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
@@ -37,28 +37,26 @@ router.post("/patient/signin", async (req, res) => {
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) return res.status(400).json({ error: "Invalid signature" });
 
     // get account info by NIK
-    const [exists, account] = await patientContract.getPatientByNik(nik);
+    const [exists, account] = await patientContract.getPatientByDmrNumber(dmrNumber);
     if (!exists) throw new Error("Account not found");
     const dmrCid = account.dmrCid;
-    const dmrNumber = account.dmrNumber;
     const data = await retrieveDMRData(dmrNumber, dmrCid);
 
     // account
     const accountJsonString = data.accountData[`J${dmrNumber}.json`];
     const accountObj = JSON.parse(accountJsonString);
-    const { accountNik, accountPassword, accountRole } = accountObj;
+    const { accountPassword, accountRole } = accountObj;
 
     // Cek password
     const validPassword = await bcrypt.compare(password, accountPassword);
     if (!validPassword) return res.status(400).json({ error: "Invalid password" });
 
-    const token = generateToken({ address: accountAddress, nik: accountNik, dmrNumber: dmrNumber, role: accountRole });
+    const token = generateToken({ address: accountAddress, dmrNumber: dmrNumber, role: accountRole });
     const responseData = {
       message: "Sign In Succesful",
       token: token,
       account: {
         accountAddress,
-        accountNik,
         dmrNumber,
         accountRole,
       },

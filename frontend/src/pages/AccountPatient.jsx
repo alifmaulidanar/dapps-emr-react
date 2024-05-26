@@ -75,12 +75,10 @@ export default function PatientAccount() {
             }
           );
           const data = await response.json();
-          const { dmrNumber, accountUsername, accountNik } = data.ipfs.data;
+          const { dmrNumber } = data.ipfs.data;
           const formattedData = {
             dmrNumber: dmrNumber,
             address: accountAddress,
-            username: accountUsername,
-            nik: accountNik,
           };
           setFetchData(formattedData);
           form.setFieldsValue(formattedData);
@@ -271,96 +269,6 @@ export default function PatientAccount() {
 
             {/* Nama Pengguna */}
             <div className="grid w-full max-w-full grid-cols-1 pb-0 bg-white border border-gray-200 divide-y shadow rounded-xl md:min-h-full md:max-w-full">
-              {/* NIK / Nomor Identitas */}
-              <div className="p-8">
-                <div className="grid items-center grid-cols-1 mb-4">
-                  <div>
-                    <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      stroke="#5a5a5a"
-                      viewBox="0 -0.5 25 25"
-                      className="w-5 h-5"
-                    >
-                      <g stroke="#000" strokeLinecap="round" strokeWidth="1.5">
-                        <path
-                          fillRule="evenodd"
-                          strokeLinejoin="round"
-                          d="M3.5 7v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2h-14a2 2 0 00-2 2z"
-                          clipRule="evenodd"
-                        ></path>
-                        <path d="M15.5 10h3M15.5 13h3"></path>
-                        <path
-                          fillRule="evenodd"
-                          strokeLinejoin="round"
-                          d="M11.5 10a2 2 0 11-4 0 2 2 0 014 0z"
-                          clipRule="evenodd"
-                        ></path>
-                        <path d="M5.5 16c2.783-3.137 6.052-2.151 8 0"></path>
-                      </g>
-                    </svg>
-                      <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
-                        Nomor Identitas (NIK)
-                      </h5>
-                    </div>
-                    <p className="my-2 text-md">
-                      Nomor identitas (NIK) pasien yang didaftarkan pada DMR ini.
-                    </p>
-                  </div>
-                </div>
-                <Form.Item
-                  name="nik"
-                  rules={[
-                    { required: true, message: "Mohon isi nomor identitas (NIK)" },
-                  ]}
-                >
-                  <Input
-                    type="text"
-                    name="nik"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing}
-                  />
-                </Form.Item>
-              </div>
-
-              {/* Nama Pengguna / Username */}
-              <div className="p-8">
-                <div className="grid items-center grid-cols-1 mb-4">
-                  <div className="flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M12.72 2.03A9.991 9.991 0 0 0 2.03 12.72C2.39 18.01 7.01 22 12.31 22H16c.55 0 1-.45 1-1s-.45-1-1-1h-3.67c-3.73 0-7.15-2.42-8.08-6.03c-1.49-5.8 3.91-11.21 9.71-9.71C17.58 5.18 20 8.6 20 12.33v1.1c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57v-1.25c0-2.51-1.78-4.77-4.26-5.12a5.008 5.008 0 0 0-5.66 5.87a4.996 4.996 0 0 0 3.72 3.94c1.84.43 3.59-.16 4.74-1.33c.89 1.22 2.67 1.86 4.3 1.21c1.34-.53 2.16-1.9 2.16-3.34v-1.09c0-5.31-3.99-9.93-9.28-10.29zM12 15c-1.66 0-3-1.34-3-3s1.34-3 3-3s3 1.34 3 3s-1.34 3-3 3z"
-                      />
-                    </svg>
-                    <h5 className="ml-2 font-bold tracking-tight text-gray-900 text-md">
-                      Nama Pengguna
-                    </h5>
-                  </div>
-                  <p className="my-2 text-md">Nama pengguna akun Anda.</p>
-                </div>
-                <Form.Item
-                  name="username"
-                  rules={[
-                    { required: true, message: "Mohon isi nama pengguna" },
-                  ]}
-                >
-                  <Input
-                    type="text"
-                    name="username"
-                    className="bg-white-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    disabled={!isEditing}
-                  />
-                </Form.Item>
-              </div>
-
               {/* password */}
               <div className="p-8">
                 <div className="grid items-center grid-cols-1 mb-4">
