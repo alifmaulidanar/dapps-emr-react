@@ -11,12 +11,6 @@
 			{
 				"indexed": false,
 				"internalType": "string",
-				"name": "nik",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
 				"name": "dmrNumber",
 				"type": "string"
 			}
@@ -36,12 +30,6 @@
 			{
 				"indexed": false,
 				"internalType": "string",
-				"name": "newNik",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
 				"name": "newDmrNumber",
 				"type": "string"
 			}
@@ -51,16 +39,6 @@
 	},
 	{
 		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_username",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_nik",
-				"type": "string"
-			},
 			{
 				"internalType": "string",
 				"name": "_dmrNumber",
@@ -153,16 +131,6 @@
 					},
 					{
 						"internalType": "string",
-						"name": "username",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "nik",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
 						"name": "role",
 						"type": "string"
 					},
@@ -221,16 +189,6 @@
 						"internalType": "address",
 						"name": "accountAddress",
 						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "username",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "nik",
-						"type": "string"
 					},
 					{
 						"internalType": "string",
@@ -295,87 +253,6 @@
 					},
 					{
 						"internalType": "string",
-						"name": "username",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "nik",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "role",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "createdAt",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "dmrNumber",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "dmrCid",
-						"type": "string"
-					},
-					{
-						"internalType": "bool",
-						"name": "isActive",
-						"type": "bool"
-					}
-				],
-				"internalType": "struct PatientManagement.PatientAccount",
-				"name": "",
-				"type": "tuple"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_nik",
-				"type": "string"
-			}
-		],
-		"name": "getPatientByNik",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			},
-			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "accountAddress",
-						"type": "address"
-					},
-					{
-						"internalType": "string",
-						"name": "username",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "nik",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
 						"name": "role",
 						"type": "string"
 					},
@@ -414,16 +291,6 @@
 				"internalType": "address",
 				"name": "_accountAddress",
 				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "_newUsername",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_newNik",
-				"type": "string"
 			},
 			{
 				"internalType": "string",
