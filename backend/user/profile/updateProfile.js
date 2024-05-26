@@ -1,20 +1,31 @@
 /* eslint-disable prettier/prettier */
+import fs from "fs";
 import Joi from "joi";
+import path from "path";
 import express from "express";
-import { ethers } from "ethers";
+import { fileURLToPath } from "url";
+import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
+import { prepareFilesForUpload } from "../../utils/utils.js";
+import { retrieveDMRData, retrieveEMRData } from "../../middleware/userData.js";
 
 // Contract & ABI
-import { USER_CONTRACT } from "../../dotenvConfig.js";
+import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+import patientABI from "../../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
+const patient_contract = PATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
 router.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const basePath = path.join(__dirname, "../../patient/data");
 
 // Skema validasi Joi untuk data pasien
 const patientSchema = Joi.object({
@@ -96,34 +107,34 @@ const userSchema = Joi.object({
 router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      dmrNumber, nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-      negaraKerabat, userAccountData, role, signature, foto, riwayatPengobatan
+      negaraKerabat, signature, foto,
     } = req.body;
 
     // Validasi input menggunakan Joi
-    const { error } = patientSchema.validate({
-      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
-      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-      negaraKerabat, userAccountData
-    });
-    if (error) { return res.status(400).json({ error: error.details[0].message }) }
+    // const { error } = patientSchema.validate({
+    //   nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+    //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+    //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+    //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+    //   rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+    //   negaraKerabat, userAccountData
+    // });
+    // if (error) { return res.status(400).json({ error: error.details[0].message }) }
 
     // Verifikasi tanda tangan
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        dmrNumber, nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
-        negaraKerabat, nomorRekamMedis, userAccountData, role
+        negaraKerabat
       }),
       signature
     );
@@ -135,50 +146,59 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
     if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
 
-    // Mengambil CID dari blockchain dan data dari IPFS
-    const contract = new ethers.Contract(user_contract, userABI, recoveredSigner);
-    const getIpfs = await contract.getAccountByAddress(accountAddress);
-    const cidFromBlockchain = getIpfs.cid;
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cidFromBlockchain}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
+    const patientContractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const [dmrExists, dmrData] = await patientContractWithSigner.getPatientByDmrNumber(dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
 
-    // Mencari dan memperbarui profil pasien dalam array accountProfiles
-    const indexToUpdate = ipfsData.accountProfiles.findIndex((profile) => profile.nomorIdentitas === nomorIdentitas);
-    if (indexToUpdate !== -1) {
-      ipfsData.accountProfiles[indexToUpdate] = {
-        nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
-        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
-        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
-        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto, riwayatPengobatan
-      };
-    } else {
-      return res.status(404).json({ error: "Profile not found" });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+
+    // Find matched profile with nomorRekamMedis
+    const matchedProfile = accountProfiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
+    if (!matchedProfile) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${nomorRekamMedis} tidak ditemukan.` });
     }
 
-    // Menyimpan data yang diperbarui ke IPFS
-    const updatedResult = await client.add(JSON.stringify(ipfsData));
-    const updatedCid = updatedResult.cid.toString();
-    await client.pin.add(updatedCid);
+    const emrNumber = matchedProfile.nomorRekamMedis;
+    const updatedPatientData = {
+      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, foto
+    }
 
-    // Fetch data dari IPFS Desktop untuk mengakses data baru di IPFS
-    const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid}`;
-    const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    const newIpfsData = await newIpfsResponse.json();
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath, { recursive: true });
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(updatedPatientData));
 
-    // Update user account di blockchain
-    const tx = await contract.updateUserAccount(
-      getIpfs.email,
-      getIpfs.username,
-      getIpfs.email,
-      getIpfs.phone,
-      updatedCid
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    
+    // Update DMR info on blockchain
+    const updateTX = await patientContractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      dmrNumber,
+      newDmrCid,
+      dmrData.isActive
     );
-    await tx.wait();
-    const getAccount = await contract.getAccountByAddress(accountAddress);
-    const responseData = { message: `${role} Profile Updated`, account: getAccount, ipfs: newIpfsData };
-    res.status(200).json(responseData);
+    await updateTX.wait();
+
+    res.status(200).json({ updatedPatientData });
   } catch (error) {
     console.error(error);
     const stackLines = error.stack.split("\n");

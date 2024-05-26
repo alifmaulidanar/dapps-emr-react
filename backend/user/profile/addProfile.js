@@ -2,8 +2,8 @@ import fs from "fs";
 import Joi from "joi";
 import path from "path";
 import express from "express";
-import { ethers, Wallet } from "ethers";
 import { fileURLToPath } from "url";
+import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
@@ -111,11 +111,11 @@ router.post("/patient/register-profile", async (req, res) => {
     const { dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
     console.log({ dmrNumber, namaLengkap, nomorIdentitas });
 
-    const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    if (nikExists) {
-      console.log({ existingPatientData });
-      return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    }
+    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
+    // if (nikExists) {
+    //   console.log({ existingPatientData });
+    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
+    // }
 
     const accountAddress = "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D";
     const privateKey = accounts[accountAddress];
@@ -147,8 +147,6 @@ router.post("/patient/register-profile", async (req, res) => {
     // Update informasi DMR di blockchain jika perlu
     const updateTX = await contractWithSigner.updatePatientAccount(
       dmrData.accountAddress,
-      dmrData.username,
-      dmrData.nik,
       dmrNumber,
       dmrCid,
       dmrData.isActive
