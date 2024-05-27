@@ -295,7 +295,7 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
         ipfsData.status = "canceled";
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
-        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
+        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.accountAddressDoctor, ipfsData.accountAddressNurse, updatedCid.path);
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
@@ -304,12 +304,12 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
           await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatStaf, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in staff from staff removed successfully.");
         } 
-        if (ipfsData.alamatPerawat) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatPerawat, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.accountAddressNurse) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressNurse, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in nurse from staff removed successfully.");
         }
-        if (ipfsData.alamatDokter) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatDokter, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.accountAddressDoctor) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressDoctor, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in doctor from staff removed successfully.");
         }
         res.status(200).json({newStatus: newIpfsData.status});
@@ -381,7 +381,7 @@ router.get("/patient-appointments", authMiddleware, async (req, res) => {
               telpSelular: patientData.telpSelular,
               rumahSakit: patientData.rumahSakit,
               idDokter: patientData.idDokter,
-              alamatDokter: patientData.alamatDokter,
+              accountAddressDoctor: patientData.accountAddressDoctor,
               namaDokter: patientData.namaDokter,
               spesialisasiDokter: patientData.spesialisasiDokter,
               idJadwal: patientData.idJadwal,
@@ -389,7 +389,7 @@ router.get("/patient-appointments", authMiddleware, async (req, res) => {
               tanggalTerpilih: patientData.tanggalTerpilih,
               waktuTerpilih: patientData.waktuTerpilih,
               idPerawat: patientData.idPerawat,
-              alamatPerawat: patientData.alamatPerawat,
+              accountAddressNurse: patientData.accountAddressNurse,
               namaPerawat: patientData.namaPerawat,
               status: patientData.status,
               createdAt: patientData.createdAt

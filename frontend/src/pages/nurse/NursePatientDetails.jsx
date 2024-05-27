@@ -185,7 +185,7 @@ export default function NursePatientDetails({ role }) {
       const formattedEMR = {
         accountAddress,
         nomorRekamMedis,
-        alamatPerawat: selectedData.appointment.alamatPerawat,
+        accountAddressNurse: selectedData.appointment.accountAddressNurse,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
@@ -554,7 +554,7 @@ export default function NursePatientDetails({ role }) {
 
   const EMRCard = () => {
     if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Appointment"/></Card>;
-    const nurse = { idPerawat: selectedData.appointment?.idPerawat, namaPerawat: selectedData.appointment?.namaPerawat, alamat: selectedData.appointment?.alamatPerawat };
+    const nurse = { idPerawat: selectedData.appointment?.idPerawat, namaPerawat: selectedData.appointment?.namaPerawat, alamat: selectedData.appointment?.accountAddressNurse };
     const patient = { gender: profile.gender, usia: calculateAge(profile.tanggalLahir), golonganDarah: profile.golonganDarah };
     return (
       <Card>

@@ -17,7 +17,7 @@ export default function AppointmentList({ appointmentData }) {
                     <h5 className="font-bold text-gray-900">
                       {appointment.data.namaDokter}
                     </h5>
-                    <Tag color="gold" className="m-0">{appointment.data.alamatDokter}</Tag>
+                    <Tag color="gold" className="m-0">{appointment.data.accountAddressDoctor}</Tag>
                   </div>
                   <div className="grid justify-end w-full mr-auto">
                     <Tag className="m-0" color={

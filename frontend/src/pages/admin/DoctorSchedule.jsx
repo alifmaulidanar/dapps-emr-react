@@ -33,13 +33,13 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
         dokter.jadwal.forEach((schedule, index) => {
           flattenedData.push({
             key: dokter.idDokter,
-            alamatDokter: dokter.alamatDokter,
+            accountAddressDoctor: dokter.accountAddressDoctor,
             namaDokter: dokter.namaDokter,
             spesialisasiDokter: dokter.spesialisasiDokter,
             lokasiPraktik: dokter.lokasiPraktik,
             hari: schedule.hari,
             waktu: schedule.waktu,
-            alamatPerawat: schedule.alamatPerawat,
+            accountAddressNurse: schedule.accountAddressNurse,
             namaPerawat: schedule.namaPerawat,
             rowSpan: index === 0 ? dokter.jadwal.length : 0,
           });
@@ -84,8 +84,8 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
     },
     {
       title: "Alamat Dokter",
-      dataIndex: "alamatDokter",
-      key: "alamatDokter",
+      dataIndex: "accountAddressDoctor",
+      key: "accountAddressDoctor",
       render: (value, row, index) => {
         const obj = {
           children: value,
@@ -135,8 +135,8 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
     },
     {
       title: "Perawat",
-      dataIndex: "alamatPerawat",
-      key: "alamatPerawat",
+      dataIndex: "accountAddressNurse",
+      key: "accountAddressNurse",
       render: (nurse) => <Tag color={getTagColor(nurse)}>{nurse}</Tag>,
     },
   ];

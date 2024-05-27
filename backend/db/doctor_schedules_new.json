@@ -2,7 +2,7 @@
   "dokter": [
     {
       "idDokter": 1,
-      "alamatDokter": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+      "accountAddressDoctor": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
       "namaDokter": "dr. Budi",
       "spesialisasiDokter": "Umum",
       "lokasiPraktik": "Bekasi",
@@ -12,7 +12,7 @@
           "hari": "Senin",
           "waktu": "08:00-12:00",
           "idPerawat": 1,
-          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "accountAddressNurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "namaPerawat": "Siti"
         },
         {
@@ -20,7 +20,7 @@
           "hari": "Rabu",
           "waktu": "14:00-18:00",
           "idPerawat": 2,
-          "alamatPerawat": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "accountAddressNurse": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaPerawat": "Nurul"
         },
         {
@@ -28,14 +28,14 @@
           "hari": "Jumat",
           "waktu": "09:00-13:00",
           "idPerawat": 2,
-          "alamatPerawat": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "accountAddressNurse": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaPerawat": "Nurul"
         }
       ]
     },
     {
       "idDokter": 2,
-      "alamatDokter": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+      "accountAddressDoctor": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
       "namaDokter": "dr. Andi",
       "spesialisasiDokter": "Umum",
       "lokasiPraktik": "BSD",
@@ -45,7 +45,7 @@
           "hari": "Selasa",
           "waktu": "10:00-14:00",
           "idPerawat": 1,
-          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "accountAddressNurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "namaPerawat": "Siti"
         },
         {
@@ -53,7 +53,7 @@
           "hari": "Kamis",
           "waktu": "15:00-19:00",
           "idPerawat": 3,
-          "alamatPerawat": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+          "accountAddressNurse": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
           "namaPerawat": "Hani"
         },
         {
@@ -61,14 +61,14 @@
           "hari": "Sabtu",
           "waktu": "10:00-14:00",
           "idPerawat": 2,
-          "alamatPerawat": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "accountAddressNurse": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaPerawat": "Nurul"
         }
       ]
     },
     {
       "idDokter": 3,
-      "alamatDokter": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+      "accountAddressDoctor": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
       "namaDokter": "dr. Doni",
       "spesialisasiDokter": "Gigi",
       "lokasiPraktik": "Bekasi",
@@ -78,7 +78,7 @@
           "hari": "Rabu",
           "waktu": "09:00-12:00",
           "idPerawat": 3,
-          "alamatPerawat": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+          "accountAddressNurse": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
           "namaPerawat": "Hani"
         },
         {
@@ -86,7 +86,7 @@
           "hari": "Kamis",
           "waktu": "13:00-17:00",
           "idPerawat": 3,
-          "alamatPerawat": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+          "accountAddressNurse": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
           "namaPerawat": "Hani"
         },
         {
@@ -94,7 +94,7 @@
           "hari": "Minggu",
           "waktu": "08:00-12:00",
           "idPerawat": 1,
-          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "accountAddressNurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "namaPerawat": "Siti"
         },
         {
@@ -102,7 +102,7 @@
           "hari": "Minggu",
           "waktu": "16:00-18:00",
           "idPerawat": 1,
-          "alamatPerawat": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "accountAddressNurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "namaPerawat": "Siti"
         }
       ]

@@ -113,7 +113,7 @@ router.post("/patient-list/patient-details", authMiddleware, async (req, res) =>
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
-      if (ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.alamatDokter === address) patientAppointments.push(ipfsData);
+      if (ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.accountAddressDoctor === address) patientAppointments.push(ipfsData);
     }
     res.status(200).json({ foundPatientProfile, patientAppointments });
   } catch (error) {
@@ -208,18 +208,18 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
         // push updated status ke blockchain
-        await contractWithSigner.updateOutpatientData(appointment.id, formattedEMR.accountAddress, ipfsData.alamatDokter, ipfsData.alamatPerawat, updatedCid.path);
+        await contractWithSigner.updateOutpatientData(appointment.id, formattedEMR.accountAddress, ipfsData.accountAddressDoctor, ipfsData.accountAddressNurse, updatedCid.path);
 
         if (formattedEMR.alamatStaf) {
           await contractWithSigner.removeTemporaryPatientData(formattedEMR.alamatStaf, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in staff from doctor removed successfully.");
         } 
-        if (ipfsData.alamatPerawat) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatPerawat, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.accountAddressNurse) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressNurse, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in nurse from doctor removed successfully.");
         }
-        if (ipfsData.alamatDokter) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatDokter, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.accountAddressDoctor) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressDoctor, formattedEMR.accountAddress, formattedEMR.nomorRekamMedis, {gasLimit: 1000000});
           console.log("Temporary patient data in doctor from doctor removed successfully.");
         }
         res.status(200).json({ message: "EMR saved", profile: profileData });

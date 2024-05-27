@@ -56,9 +56,9 @@ function PatientAppointmentDisplay({ data, token }) {
   ];
   const patientDataProps2 = [
     { key: "namaDokter", value1: "Nama Dokter", value2: (<p>{data.appointment.data.namaDokter}</p>), },
-    { key: "alamatDokter", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.alamatDokter}</Tag>), },
+    { key: "accountAddressDoctor", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.accountAddressDoctor}</Tag>), },
     { key: "namaPerawat", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaPerawat}</p>), },
-    { key: "alamatPerawat", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.alamatPerawat}</Tag>), },
+    { key: "accountAddressNurse", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.accountAddressNurse}</Tag>), },
     { key: "namaLengkap", value1: "Nama Pasien", value2: (<p>{data.appointment.data.namaLengkap}</p>), },
     { key: "nomorIdentitas", value1: "Nomor Identitas Pasien (NIK/SIM/Paspor)", value2: (<p>{data.appointment.data.nomorIdentitas}</p>), },
     { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.data.email}</p>), },

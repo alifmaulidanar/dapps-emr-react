@@ -113,7 +113,7 @@ router.post("/patient-list/patient-details", authMiddleware, async (req, res) =>
       const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
-      if (ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.alamatPerawat === address) patientAppointments.push(ipfsData);
+      if (ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.accountAddressNurse === address) patientAppointments.push(ipfsData);
     }
     res.status(200).json({ foundPatientProfile, patientAppointments });
   } catch (error) {

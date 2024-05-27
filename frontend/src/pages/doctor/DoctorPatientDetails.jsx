@@ -208,7 +208,7 @@ export default function DoctorPatientDetails({ role }) {
       }, {});
       const nomorRekamMedis = profile.nomorRekamMedis;
       const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
-      const selectedNurseAddress = profile.riwayatPengobatan.find(h => h.appointmentId === (selectedAppointment?.appointmentId))?.alamatPerawat || null;
+      const selectedNurseAddress = profile.riwayatPengobatan.find(h => h.appointmentId === (selectedAppointment?.appointmentId))?.accountAddressNurse || null;
       const accountAddress = selectedAppointment ? selectedAppointment.accountAddress : null;
 
       if (!nomorRekamMedis || !accountAddress) {
@@ -225,8 +225,8 @@ export default function DoctorPatientDetails({ role }) {
       const formattedEMR = {
         accountAddress,
         nomorRekamMedis,
-        alamatDokter: selectedData.appointment.alamatDokter,
-        alamatPerawat: selectedNurseAddress,
+        accountAddressDoctor: selectedData.appointment.accountAddressDoctor,
+        accountAddressNurse: selectedNurseAddress,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
@@ -873,7 +873,7 @@ export default function DoctorPatientDetails({ role }) {
 
   const EMRCard = () => {
     if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Appointment"/></Card>;
-    const doctor = { idDokter: selectedData.appointment?.idDokter, namaDokter: selectedData.appointment?.namaDokter, alamat: selectedData.appointment?.alamatDokter };
+    const doctor = { idDokter: selectedData.appointment?.idDokter, namaDokter: selectedData.appointment?.namaDokter, alamat: selectedData.appointment?.accountAddressDoctor };
     const patient = { gender: profile.gender, usia: calculateAge(profile.tanggalLahir), golonganDarah: profile.golonganDarah };
     return (
       <Card>

@@ -293,7 +293,7 @@ next:
 ✅ diplay data EMR dengan struktur baru di patient record list
 ✅ display data details EMR
 ✅ penambahan informasi detail appointment di card EMR -> karena dari tabel saja terlalu sedikit informasi
-✅ penggantian warna tag -> biru untuk nomorIdentitas dan nomorRekamMedis pasien, hijau untuk appointmentId, gold untuk alamatDokter dan alamatPerawat
+✅ penggantian warna tag -> biru untuk nomorIdentitas dan nomorRekamMedis pasien, hijau untuk appointmentId, gold untuk accountAddressDoctor dan accountAddressNurse
 ✅ display hasil opsi select dengan benar menggunakan convertProfileData()
 ✅ detail EMR dibuat menjadi card yang lebih lebar terbagi menjadi 4 cols dan terbagi lagi menjadi 4 bagian data rekam medis dengan masing-masing 2 cols
 ✅ mengurutkan appointment dari tanggal paling baru untuk dokter

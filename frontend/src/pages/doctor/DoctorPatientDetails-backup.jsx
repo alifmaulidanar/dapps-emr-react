@@ -303,7 +303,7 @@ export default function DoctorPatientDetails({ role }) {
     const doctor = {
       idDokter: selectedData.appointment?.idDokter,
       namaDokter: selectedData.appointment?.namaDokter,
-      alamat: selectedData.appointment?.alamatDokter
+      alamat: selectedData.appointment?.accountAddressDoctor
     };
 
     const patient = {
