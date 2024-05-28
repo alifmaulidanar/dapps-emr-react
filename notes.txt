@@ -77,8 +77,8 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
 ✅ bisa get appointment by patient address dan ditampilkan di detail appointment
 
 18/03/24
-✅ bikin struct Patient untuk menampung profile pasien dan nomorRekamMedis (emrNumber) -> biar emrNumber ga terduplikat
-✅ untuk pembuatan profil pasien baru harus cek di getAllPatients() -> cek nomorRekamMedis (emrNumber) kalo ada yang sama auto increment 1, baru setelah masuk ke UserAccount[] masukkan juga ke Patients[] pakai addPatient()
+✅ bikin struct Patient untuk menampung profile pasien dan emrNumber (emrNumber) -> biar emrNumber ga terduplikat
+✅ untuk pembuatan profil pasien baru harus cek di getAllPatients() -> cek emrNumber (emrNumber) kalo ada yang sama auto increment 1, baru setelah masuk ke UserAccount[] masukkan juga ke Patients[] pakai addPatient()
 
 19/03/24
 ✅ penyesuaian schedule dokter, data pasien, dan data appointment yang diubah ke bahasa indonesia
@@ -90,7 +90,7 @@ internal: Dapat diakses dari dalam kontrak dan kontrak turunan.
     ✅ data appointment punya struct, array, dan mapping masing-masing
     ✅ di dalamya ada nomorIdentitas pasien, address pasien, dokter, dan perawat -> saling terkoneksi
     ✅ bisa dipanggil dari masing-masing role
-    ✅ harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan nomorRekamMedis atau record_id untuk terhubung ke struct/array/mapping appointment
+    ✅ harus terkait dengan data di array accountProfiles[] -> array records[]. gunakan emrNumber atau record_id untuk terhubung ke struct/array/mapping appointment
 
 21/03/24
 ❌ ga nyentuh smart contract
@@ -217,8 +217,8 @@ next:
 
 19/03/24
 ✅ ubah data schedule dan appointment ke bahasa indonesia, dan data pasien kembali ke bahasa indonesia juga
-✅ perbaikan pembuatan appointment -> cek nomorRekamMedis, idDokter, dan idJadwal sebelum membuat appointment agar pasien tidak bisa membuat appointment yang sama persis lebih dari 1 kali
-✅ lanjut ke bagian staff -> patient list -> bisa cari pasien lewat modal (pakai address dan nomorRekamMedis)
+✅ perbaikan pembuatan appointment -> cek emrNumber, idDokter, dan idJadwal sebelum membuat appointment agar pasien tidak bisa membuat appointment yang sama persis lebih dari 1 kali
+✅ lanjut ke bagian staff -> patient list -> bisa cari pasien lewat modal (pakai address dan emrNumber)
 ✅ ada 2 tombol, 1 untuk cek ketersediaan profil pasien, 1 lagi untuk menambahkan profil pasien tersebut ke akun staff (sementara/temporary)
 ✅ bisa kirim data ke backend untuk save ke temporary patient data di SC -> masih error⚠️
 
@@ -293,7 +293,7 @@ next:
 ✅ diplay data EMR dengan struktur baru di patient record list
 ✅ display data details EMR
 ✅ penambahan informasi detail appointment di card EMR -> karena dari tabel saja terlalu sedikit informasi
-✅ penggantian warna tag -> biru untuk nomorIdentitas dan nomorRekamMedis pasien, hijau untuk appointmentId, gold untuk accountAddressDoctor dan accountAddressNurse
+✅ penggantian warna tag -> biru untuk nomorIdentitas dan emrNumber pasien, hijau untuk appointmentId, gold untuk doctorAddress dan nurseAddress
 ✅ display hasil opsi select dengan benar menggunakan convertProfileData()
 ✅ detail EMR dibuat menjadi card yang lebih lebar terbagi menjadi 4 cols dan terbagi lagi menjadi 4 bagian data rekam medis dengan masing-masing 2 cols
 ✅ mengurutkan appointment dari tanggal paling baru untuk dokter
@@ -411,7 +411,7 @@ next:
 ❌ ga nyentuh backend
 
 18/03/24
-✅ di addProfile buat function baru generateNomorRekamMedis() untuk generate 10 digit nomorRekamMedis -> dicek menggunakan getAllPatients() -> auto increment
+✅ di addProfile buat function baru generateNomorRekamMedis() untuk generate 10 digit emrNumber -> dicek menggunakan getAllPatients() -> auto increment
 ✅ menambahkan rumahSakitAsal di profile pasien
 
 19/03/24
