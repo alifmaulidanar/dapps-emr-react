@@ -97,7 +97,7 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     };
 
     // Membuat objek data profil pasien
-    const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     // Prepare directory for IPFS upload
     const dmrPath = path.join(basePath, dmrFolderName);
@@ -160,7 +160,7 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
     if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
     const emrNumber = await generatePatientEMR();
-    const patientData = { nomorRekamMedis: emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
     const emrFolderName = `${emrNumber}J${emrNumber}`;
@@ -219,7 +219,7 @@ router.post("/check-patient-profile", authMiddleware, async (req, res) => {
 
     if (ipfsData.accountProfiles) {
       for (const profile of ipfsData.accountProfiles) {
-        if (profile.nomorRekamMedis === emrNumber) {
+        if (profile.emrNumber === emrNumber) {
           foundProfile = true;
           foundPatientProfile = profile;
           break;
@@ -263,9 +263,9 @@ router.post("/add-patient-profile", authMiddleware, async (req, res) => {
 router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
   try {
     const { address, email } = req.auth;
-    const { accountAddress, appointmentId, nomorRekamMedis, signature } = req.body;
+    const { accountAddress, appointmentId, emrNumber, signature } = req.body;
     if (!address || !email) return res.status(401).json({ error: "Unauthorized" });
-    if (!appointmentId || !nomorRekamMedis) return res.status(400).json({ error: "Missing appointmentId or nomorRekamMedis" });
+    if (!appointmentId || !emrNumber) return res.status(400).json({ error: "Missing appointmentId or emrNumber" });
 
     const accountList = await provider.listAccounts();
     let selectedAccountAddress;
@@ -291,25 +291,25 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
       const ipfsResponse = await fetch(ipfsGatewayUrl);
       const ipfsData = await ipfsResponse.json();
 
-      if (ipfsData.appointmentId === appointmentId && ipfsData.nomorRekamMedis === nomorRekamMedis && ipfsData.status === "ongoing") {
+      if (ipfsData.appointmentId === appointmentId && ipfsData.emrNumber === emrNumber && ipfsData.status === "ongoing") {
         ipfsData.status = "canceled";
         const updatedCid = await client.add(JSON.stringify(ipfsData));
         const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
-        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.accountAddressDoctor, ipfsData.accountAddressNurse, updatedCid.path);
+        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.doctorAddress, ipfsData.nurseAddress, updatedCid.path);
         const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
         const newIpfsResponse = await fetch(newIpfsGatewayUrl);
         const newIpfsData = await newIpfsResponse.json();
 
         if (ipfsData.alamatStaf) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatStaf, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatStaf, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
           console.log("Temporary patient data in staff from staff removed successfully.");
         } 
-        if (ipfsData.accountAddressNurse) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressNurse, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.nurseAddress) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.nurseAddress, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
           console.log("Temporary patient data in nurse from staff removed successfully.");
         }
-        if (ipfsData.accountAddressDoctor) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.accountAddressDoctor, ipfsData.accountAddress, ipfsData.nomorRekamMedis, {gasLimit: 1000000});
+        if (ipfsData.doctorAddress) {
+          await contractWithSigner.removeTemporaryPatientData(ipfsData.doctorAddress, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
           console.log("Temporary patient data in doctor from staff removed successfully.");
         }
         res.status(200).json({newStatus: newIpfsData.status});
@@ -340,7 +340,7 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
       const { accountProfiles, ...rest } = accountData;
       patientAccountData.push(rest);
       for (const profile of accountData.accountProfiles) {
-        if (profile.nomorRekamMedis === appointment.emrNumber) {
+        if (profile.emrNumber === appointment.emrNumber) {
           const profileWithAddress = { ...profile, accountAddress: rest.accountAddress };
           patientProfiles.push(profileWithAddress);
           break;
@@ -368,20 +368,20 @@ router.get("/patient-appointments", authMiddleware, async (req, res) => {
         const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
         const response = await fetch(ipfsGatewayUrl);
         const patientData = await response.json();
-        if (patientData.nomorRekamMedis === appointment.emrNumber) {
+        if (patientData.emrNumber === appointment.emrNumber) {
           patientAppointments.push({
             data: {
               appointmentId: patientData.appointmentId,
               accountAddress: patientData.accountAddress,
               accountEmail: patientData.accountEmail,
-              nomorRekamMedis: patientData.nomorRekamMedis,
+              emrNumber: patientData.emrNumber,
               namaLengkap: patientData.namaLengkap,
               nomorIdentitas: patientData.nomorIdentitas,
               email: patientData.email,
               telpSelular: patientData.telpSelular,
               rumahSakit: patientData.rumahSakit,
               idDokter: patientData.idDokter,
-              accountAddressDoctor: patientData.accountAddressDoctor,
+              doctorAddress: patientData.doctorAddress,
               namaDokter: patientData.namaDokter,
               spesialisasiDokter: patientData.spesialisasiDokter,
               idJadwal: patientData.idJadwal,
@@ -389,8 +389,8 @@ router.get("/patient-appointments", authMiddleware, async (req, res) => {
               tanggalTerpilih: patientData.tanggalTerpilih,
               waktuTerpilih: patientData.waktuTerpilih,
               idPerawat: patientData.idPerawat,
-              accountAddressNurse: patientData.accountAddressNurse,
-              namaPerawat: patientData.namaPerawat,
+              nurseAddress: patientData.nurseAddress,
+              namaAsisten: patientData.namaAsisten,
               status: patientData.status,
               createdAt: patientData.createdAt
             },

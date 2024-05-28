@@ -9,7 +9,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 import { prepareFilesForUpload } from "../../utils/utils.js";
-import { retrieveDMRData, retrieveEMRData } from "../../middleware/userData.js";
+import { retrieveDMRData } from "../../middleware/userData.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
@@ -29,7 +29,7 @@ const basePath = path.join(__dirname, "../../patient/data");
 
 // Skema validasi Joi untuk data pasien
 const patientSchema = Joi.object({
-  nomorRekamMedis: Joi.string().required(),
+  emrNumber: Joi.string().required(),
   namaLengkap: Joi.string().required(),
   nomorIdentitas: Joi.string().required(),
   tempatLahir: Joi.string().required(),
@@ -107,7 +107,7 @@ const userSchema = Joi.object({
 router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      dmrNumber, nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      dmrNumber, emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -117,7 +117,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
 
     // Validasi input menggunakan Joi
     // const { error } = patientSchema.validate({
-    //   nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+    //   emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
     //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
     //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
     //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -129,7 +129,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     // Verifikasi tanda tangan
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        dmrNumber, nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        dmrNumber, emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -158,15 +158,14 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
       return JSON.parse(profileInfo.profile);
     });
 
-    // Find matched profile with nomorRekamMedis
-    const matchedProfile = accountProfiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
+    // Find matched profile with emrNumber
+    const matchedProfile = accountProfiles.find(profile => profile.emrNumber === emrNumber);
     if (!matchedProfile) {
-      return res.status(404).json({ error: `Profile with nomor rekam medis ${nomorRekamMedis} tidak ditemukan.` });
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
     }
 
-    const emrNumber = matchedProfile.nomorRekamMedis;
     const updatedPatientData = {
-      nomorRekamMedis, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
