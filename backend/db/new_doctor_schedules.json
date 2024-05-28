@@ -1,0 +1,383 @@
+{
+  "dokter": [
+    {
+      "idDokter": 1,
+      "doctorAddress": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+      "namaDokter": "dr. Hani SP Wijaya",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 1,
+          "nurseAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaAsisten": "Herningsih",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 2,
+          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "namaAsisten": "Nur Khoffiah, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 3,
+          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "namaAsisten": "Yuliani, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 4,
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "namaAsisten": "Fitri Anisa Lestari, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 5,
+          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
+          "namaAsisten": "Ipong Siti Khodijah, SST",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 6,
+          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
+          "namaAsisten": "Elfi",
+          "jabatanAsisten": "Bidan"
+        }
+      ]
+    },
+    {
+      "idDokter": 2,
+      "doctorAddress": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+      "namaDokter": "dr. Siwi Ika Haryanti",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 7,
+          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
+          "namaAsisten": "Hj. Istin Murbiyanti",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 8,
+          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
+          "namaAsisten": "Ika Meinawati F. Amd.Keb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 9,
+          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+          "namaAsisten": "Lisha Guswari, Amd.Keb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 10,
+          "nurseAddress": "0xdD76Ce44d1A22D5a3bCeD70e766AAAC95dc06f1b",
+          "namaAsisten": "Zubaidah, AMdKeb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 11,
+          "nurseAddress": "0xd078d842A58Df0A2282Ea626ce0629Af1C542A84",
+          "namaAsisten": "Elly Yunita",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 1,
+          "nurseAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaAsisten": "Herningsih",
+          "jabatanAsisten": "Perawat"
+        }
+      ]
+    },
+    {
+      "idDokter": 3,
+      "doctorAddress": "0x119d6536434c434fa68CFFAFE104686a50E4Ef56",
+      "namaDokter": "dr. Amalia Meihati",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 11,
+          "nurseAddress": "0xd078d842A58Df0A2282Ea626ce0629Af1C542A84",
+          "namaAsisten": "Elly Yunita",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 1,
+          "nurseAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "namaAsisten": "Herningsih",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 2,
+          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "namaAsisten": "Nur Khoffiah, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 3,
+          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "namaAsisten": "Yuliani, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 4,
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "namaAsisten": "Fitri Anisa Lestari, AMK",
+          "jabatanAsisten": "Perawat"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 5,
+          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
+          "namaAsisten": "Ipong Siti Khodijah, SST",
+          "jabatanAsisten": "Bidan"
+        }
+      ]
+    },
+    {
+      "idDokter": 4,
+      "doctorAddress": "0x76bB4cb8050CFc0635E007B84C6D01b25c80326e",
+      "namaDokter": "dr. Milawati",
+      "spesialisasiDokter": "Umum",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 6,
+          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
+          "namaAsisten": "Elfi",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 7,
+          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
+          "namaAsisten": "Hj. Istin Murbiyanti",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 8,
+          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
+          "namaAsisten": "Ika Meinawati F. Amd.Keb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 9,
+          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+          "namaAsisten": "Lisha Guswari, Amd.Keb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 10,
+          "nurseAddress": "0xdD76Ce44d1A22D5a3bCeD70e766AAAC95dc06f1b",
+          "namaAsisten": "Zubaidah, AMdKeb",
+          "jabatanAsisten": "Bidan"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 11,
+          "nurseAddress": "0xd078d842A58Df0A2282Ea626ce0629Af1C542A84",
+          "namaAsisten": "Elly Yunita",
+          "jabatanAsisten": "Bidan"
+        }
+      ]
+    },
+    {
+      "idDokter": 5,
+      "doctorAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+      "namaDokter": "drg. Hj. Dian Mardiana",
+      "spesialisasiDokter": "Gigi",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 13,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 12,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 13,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 12,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 13,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 12,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        }
+      ]
+    },
+    {
+      "idDokter": 6,
+      "doctorAddress": "0x5b5ef7fb6747e685D9aB23Aba8af1593283c1366",
+      "namaDokter": "drg. Ulfa",
+      "spesialisasiDokter": "Gigi",
+      "lokasiPraktik": "Puskesmas Pejuang",
+      "jadwal": [
+        {
+          "idJadwal": 1,
+          "hari": "Senin",
+          "waktu": "07:30-14:30",
+          "idPerawat": 5,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 2,
+          "hari": "Selasa",
+          "waktu": "07:30-14:30",
+          "idPerawat": 6,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 3,
+          "hari": "Rabu",
+          "waktu": "07:30-14:30",
+          "idPerawat": 5,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 4,
+          "hari": "Kamis",
+          "waktu": "07:30-14:30",
+          "idPerawat": 6,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 5,
+          "hari": "Jumat",
+          "waktu": "07:30-14:00",
+          "idPerawat": 5,
+          "nurseAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+          "namaAsisten": "Sari Kistiningrum",
+          "jabatanAsisten": "Perawat Gigi"
+        },
+        {
+          "idJadwal": 6,
+          "hari": "Sabtu",
+          "waktu": "07:30-14:00",
+          "idPerawat": 6,
+          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "namaAsisten": "Soffi Deviana",
+          "jabatanAsisten": "Perawat Gigi"
+        }
+      ]
+    }
+  ]
+}
+    
