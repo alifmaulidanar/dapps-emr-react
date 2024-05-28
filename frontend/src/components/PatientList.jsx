@@ -2,7 +2,7 @@ import { Avatar, Tag } from "antd";
 import { CONN } from "../../../enum-global";
 import { UserOutlined } from "@ant-design/icons";
 
-export default function PatientList({ patientIsChosen = false, nomorRekamMedis, namaLengkap, foto, onClick }) {
+export default function PatientList({ patientIsChosen = false, emrNumber, namaLengkap, foto, onClick }) {
   return (
     <li onClick={onClick} className="py-2 cursor-pointer">
       <div className="flex items-center px-4 space-x-4">
@@ -15,7 +15,7 @@ export default function PatientList({ patientIsChosen = false, nomorRekamMedis, 
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">{namaLengkap}</p>
-          <div><Tag color="blue" className="m-0">{nomorRekamMedis}</Tag></div>
+          <div><Tag color="blue" className="m-0">{emrNumber}</Tag></div>
         </div>
         <div className="inline-flex items-center text-base font-semibold text-gray-900">
           {patientIsChosen && (

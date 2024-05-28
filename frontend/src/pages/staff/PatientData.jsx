@@ -42,7 +42,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
 
   // user identifier
   const userName = userDataProps.namaLengkap;
-  const userIdentification = userDataProps.nomorRekamMedis;
+  const userIdentification = userDataProps.emrNumber;
   const userImage = userDataProps.foto;
 
   const handleFileChange = async (info) => {

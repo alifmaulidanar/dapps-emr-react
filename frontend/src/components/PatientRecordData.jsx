@@ -87,7 +87,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
   }
   const patientDataProps1 = [
     { key: "nomorIdentitas", value1: "Nomor Identitas", value2: <Tag color="blue" className="m-0">{chosenPatient.nomorIdentitas}</Tag> },
-    { key: "nomorRekamMedis", value1: "Nomor Rekam Medis", value2: <Tag color="blue" className="m-0">{chosenPatient.nomorRekamMedis}</Tag> },
+    { key: "emrNumber", value1: "Nomor Rekam Medis", value2: <Tag color="blue" className="m-0">{chosenPatient.emrNumber}</Tag> },
     { key: "namaLengkap", value1: "Nama Lengkap Pasien", value2: <p>{chosenPatient.namaLengkap}</p> },
     { key: "rumahSakitAsal", value1: "Rumah Sakit Asal", value2: <p>{convertProfileData(chosenPatient).rumahSakitAsal}</p> },
     { key: "tempatLahir", value1: "Tempat Lahir", value2: <p>{chosenPatient.tempatLahir}</p> },
@@ -102,9 +102,9 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
     { key: "judulRekamMedis", value1: "Judul Rekam Medis", value2: <p>{record.judulRekamMedis}</p> },
     { key: "tanggalRekamMedis", value1: "Tanggal dan Waktu Rekam Medis", value2: <p>{new Date(record.tanggalRekamMedis).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })} pukul {record.waktuPenjelasanTindakan?.split(":").slice(0, 2).join(":")}</p> },
     { key: "namaDokter", value1: "Nama Dokter", value2: <p>{appointmentData.namaDokter}</p> },
-    { key: "accountAddressDoctor", value1: "Alamat Dokter", value2: <Tag color="gold" className="m-0">{appointmentData.accountAddressDoctor}</Tag> },
-    { key: "namaPerawat", value1: "Nama Perawat", value2: <p>{appointmentData.namaPerawat}</p> },
-    { key: "accountAddressNurse", value1: "Alamat Perawat", value2: <Tag color="gold" className="m-0">{appointmentData.accountAddressNurse}</Tag> },
+    { key: "doctorAddress", value1: "Alamat Dokter", value2: <Tag color="gold" className="m-0">{appointmentData.doctorAddress}</Tag> },
+    { key: "namaAsisten", value1: "Nama Perawat", value2: <p>{appointmentData.namaAsisten}</p> },
+    { key: "nurseAddress", value1: "Alamat Perawat", value2: <Tag color="gold" className="m-0">{appointmentData.nurseAddress}</Tag> },
   ];
   const patientDataProps3 = [
     { key: "keluhanUtama", value1: "Keluhan Utama", value2: <p>{record.keluhanUtama || "(Tidak ada kelainan/Tidak diperiksa)"}</p> },

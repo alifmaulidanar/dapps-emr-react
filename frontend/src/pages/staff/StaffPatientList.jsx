@@ -17,8 +17,8 @@ export default function StaffPatientList({ role }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCancel = () => {setIsModalOpen(false) };
-  const showModal = (nomorRekamMedis) => {
-    const selectedProfile = profiles.find(profile => profile.nomorRekamMedis === nomorRekamMedis);
+  const showModal = (emrNumber) => {
+    const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
     const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
     setSelectedData({
       account: selectedAccount,
@@ -75,8 +75,8 @@ export default function StaffPatientList({ role }) {
     },
     {
       title: 'Nomor Rekam Medis',
-      dataIndex: 'nomorRekamMedis',
-      key: 'nomorRekamMedis',
+      dataIndex: 'emrNumber',
+      key: 'emrNumber',
     },
     {
       title: 'Nomor Identitas',
@@ -107,7 +107,7 @@ export default function StaffPatientList({ role }) {
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.nomorRekamMedis)}>Lihat</Button>),
+      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.emrNumber)}>Lihat</Button>),
     },
   ];
 
@@ -129,7 +129,7 @@ export default function StaffPatientList({ role }) {
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
     accountAddress: profile?.accountAddress,
-    nomorRekamMedis: profile?.nomorRekamMedis,
+    emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,

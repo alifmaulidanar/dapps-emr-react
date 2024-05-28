@@ -40,10 +40,11 @@ export default function UserData({ userDataProps, userAccountData }) {
 
   // user identifier
   const dmrNmber = userAccountData.dmrNumber;
-  const emrNumber = userDataProps.nomorRekamMedis;
+  const emrNumber = userDataProps.emrNumber;
   const userName = userDataProps.namaLengkap;
   const userImage = userDataProps.foto;
-  const neighborhood = userDataProps.kelurahan;
+  // const neighborhood = userDataProps.kelurahan;
+  const faskesAsal = userDataProps.faskesAsal;
 
   const handleFileChange = async (info) => { if (info.file.status === "done") setSelectedFile(info.file.originFileObj) };
   const handleDateChange = (date, dateString, fieldName) => { form.setFieldsValue({ [fieldName]: date }) };
@@ -138,7 +139,7 @@ export default function UserData({ userDataProps, userAccountData }) {
 
         const updatedValues = {
           dmrNumber: userAccountData.dmrNumber,
-          nomorRekamMedis: emrNumber,
+          emrNumber: emrNumber,
           ...values,
           tanggalLahir: values.tanggalLahir
           ? dayjs(values.tanggalLahir).format(dateFormat)
@@ -273,9 +274,10 @@ export default function UserData({ userDataProps, userAccountData }) {
         )}
         {renderUploadButton()}
         <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
-        <div>
+        <div className="text-center">
           {/* <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">{emrNumber}</span> */}
-          <h5 className="mb-1 text-lg text-gray-900">{neighborhood || null }</h5>
+          {/* <h5 className="mb-1 text-lg text-gray-900">Kel. {neighborhood || null }</h5> */}
+          <h5 className="mb-1 text-lg text-gray-900">{faskesAsal || null }</h5>
         </div>
       </div>
       <Form form={form} layout="vertical" className="col-span-2 p-8" onFinish={handleFormSubmit} disabled={!isEditing}>
@@ -289,7 +291,7 @@ export default function UserData({ userDataProps, userAccountData }) {
               <Form.Item label="Nomor Dokumen Rekam Medis (DRM)">
                 <Input disabled style={inputStyling} defaultValue={dmrNmber} />
               </Form.Item>
-              <Form.Item label="Nomor Rekam Medis Elektronik (RME)" name="nomorRekamMedis" >
+              <Form.Item label="Nomor Rekam Medis Elektronik (RME)" name="emrNumber" >
                 <Input disabled style={inputStyling} defaultValue={emrNumber} />
               </Form.Item>
             </>

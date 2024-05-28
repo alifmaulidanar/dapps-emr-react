@@ -8,7 +8,7 @@
   "accountCreated": "19:12:20_12-03-2024",
   "accountProfiles": [
     {
-      "nomorRekamMedis": "2401010001",
+      "emrNumber": "2401010001",
       "rumahSakitAsal": "1",
       "namaLengkap": "Budi",
       "nomorIdentitas": "1113613151531577",
@@ -55,12 +55,12 @@
         {
           "id": 43,
           "accountAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
-          "nomorRekamMedis": "24010147cA60001",
-          "accountAddressNurse": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "emrNumber": "24010147cA60001",
+          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "appointmentId": "AySksEa4n2FFeNjbBipgd",
           "appointmentCreatedAt": "16-04-2024",
           "namaDokter": "dr. Budi",
-          "namaPerawat": "Siti",
+          "namaAsisten": "Siti",
           "keluhanUtama": "liauviabv",
           "riwayatPenyakit": null,
           "riwayatAlergi": "1",
@@ -111,7 +111,7 @@
           "waktuRekamMedis": "16:23:44",
           "datetimeEMR": "2024-04-16T16:23:44+07:00",
           "isPerawat": true,
-          "accountAddressDoctor": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
           "namaObat": null,
           "dosisObat": null,
           "waktuPenggunaanObat": null,

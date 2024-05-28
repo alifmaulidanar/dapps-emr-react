@@ -47,7 +47,7 @@ export default function DoctorPatientDetails({ role }) {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
           },
-          body: JSON.stringify({ accountAddress: record.accountAddress, nomorRekamMedis: record.nomorRekamMedis }),
+          body: JSON.stringify({ accountAddress: record.accountAddress, emrNumber: record.emrNumber }),
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
@@ -58,7 +58,7 @@ export default function DoctorPatientDetails({ role }) {
       }
     };
     fetchAppointments();
-  }, [token, record.accountAddress, record.nomorRekamMedis]);
+  }, [token, record.accountAddress, record.emrNumber]);
 
   const getSigner = useCallback(async () => {
     const win = window;
@@ -121,8 +121,8 @@ export default function DoctorPatientDetails({ role }) {
     },
     {
       title: 'No. Rekam Medis',
-      dataIndex: 'nomorRekamMedis',
-      key: 'nomorRekamMedis',
+      dataIndex: 'emrNumber',
+      key: 'emrNumber',
     },
     {
       title: 'Lokasi Berobat',
@@ -150,7 +150,7 @@ export default function DoctorPatientDetails({ role }) {
   const appointmentDataSource = appointments?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment?.appointmentId,
-    nomorRekamMedis: appointment?.nomorRekamMedis,
+    emrNumber: appointment?.emrNumber,
     rumahSakit: "Eka Hospital " + appointment?.rumahSakit,
     namaDokter: appointment?.namaDokter,
     tanggalTerpilih: (
@@ -303,7 +303,7 @@ export default function DoctorPatientDetails({ role }) {
     const doctor = {
       idDokter: selectedData.appointment?.idDokter,
       namaDokter: selectedData.appointment?.namaDokter,
-      alamat: selectedData.appointment?.accountAddressDoctor
+      alamat: selectedData.appointment?.doctorAddress
     };
 
     const patient = {
@@ -388,7 +388,7 @@ export default function DoctorPatientDetails({ role }) {
                     </div>
                     <div>
                       <p className="font-medium">Nomor Rekam Medis</p>
-                      <p>{convertProfileData(profile).nomorRekamMedis}</p>
+                      <p>{convertProfileData(profile).emrNumber}</p>
                     </div>
                     <div>
                       <p className="font-medium">Tanggal Lahir</p>

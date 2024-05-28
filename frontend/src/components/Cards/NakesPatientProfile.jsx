@@ -64,8 +64,8 @@ function NakesPatientProfile({ data, convert, foto }) {
       <div className="grid items-center mx-auto text-center text-gray-900 justify-items-center w-fit gap-y-4">
         <h1 className="text-xl font-medium">Data Profil Pasien</h1>
         {foto}
-        {/* <p>Nomor Rekam Medis: {convertedData.nomorRekamMedis}</p> */}
-        <Tag color="blue" className="m-0 mx-auto w-fit">{convertedData.nomorRekamMedis}</Tag>
+        {/* <p>Nomor Rekam Medis: {convertedData.emrNumber}</p> */}
+        <Tag color="blue" className="m-0 mx-auto w-fit">{convertedData.emrNumber}</Tag>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-6">
         <div className="col-span-2 text-lg text-gray-900">

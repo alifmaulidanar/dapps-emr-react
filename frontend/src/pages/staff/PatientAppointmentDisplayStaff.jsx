@@ -52,14 +52,14 @@ function PatientAppointmentDisplayStaff({ data, token }) {
         <p>{new Date(data.appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
       ),
     },
-    { key: "nomorRekamMedis", value1: "Nomor Rekam Medis", value2: (<p>{data.appointment.data.nomorRekamMedis}</p>) },
+    { key: "emrNumber", value1: "Nomor Rekam Medis", value2: (<p>{data.appointment.data.emrNumber}</p>) },
     { key: "waktuTerpilih", value1: "Waktu Praktik", value2: (<p>{data.appointment.data.waktuTerpilih}</p>) },
   ];
   const patientDataProps2 = [
     { key: "namaDokter", value1: "Nama Dokter", value2: (<p>{data.appointment.data.namaDokter}</p>) },
-    { key: "accountAddressDoctor", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.accountAddressDoctor}</Tag>) },
-    { key: "namaPerawat", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaPerawat}</p>) },
-    { key: "accountAddressNurse", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.accountAddressNurse}</Tag>) },
+    { key: "doctorAddress", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.doctorAddress}</Tag>) },
+    { key: "namaAsisten", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaAsisten}</p>) },
+    { key: "nurseAddress", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.nurseAddress}</Tag>) },
     { key: "namaLengkap", value1: "Nama Pasien", value2: (<p>{data.appointment.data.namaLengkap}</p>) },
     { key: "nomorIdentitas", value1: "Nomor Identitas Pasien (NIK/SIM/Paspor)", value2: (<p>{data.appointment.data.nomorIdentitas}</p>) },
     { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.data.email}</p>) },
@@ -77,7 +77,7 @@ function PatientAppointmentDisplayStaff({ data, token }) {
   ];
 
   const cancelAppointment = async () => {
-    const signedData = { accountAddress: data.appointment.data.accountAddress, nomorRekamMedis: data.appointment.data.nomorRekamMedis, appointmentId: data.appointment.data.appointmentId }
+    const signedData = { accountAddress: data.appointment.data.accountAddress, emrNumber: data.appointment.data.emrNumber, appointmentId: data.appointment.data.appointmentId }
     const signer = await getSigner();
     const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;

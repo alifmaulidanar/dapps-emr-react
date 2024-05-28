@@ -51,7 +51,7 @@ export default function DoctorPatientList({ role }) {
   const columns = [
     { title: 'No.', dataIndex: 'key', key: 'key' },
     { title: 'Alamat Akun', dataIndex: 'accountAddress', key: 'accountAddress' },
-    { title: 'Nomor Rekam Medis', dataIndex: 'nomorRekamMedis', key: 'nomorRekamMedis' },
+    { title: 'Nomor Rekam Medis', dataIndex: 'emrNumber', key: 'emrNumber' },
     { title: 'Nomor Identitas', dataIndex: 'nomorIdentitas', key: 'nomorIdentitas' },
     { title: 'Nama Lengkap', dataIndex: 'namaLengkap', key: 'namaLengkap' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
@@ -84,7 +84,7 @@ export default function DoctorPatientList({ role }) {
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
     accountAddress: profile?.accountAddress,
-    nomorRekamMedis: profile?.nomorRekamMedis,
+    emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,

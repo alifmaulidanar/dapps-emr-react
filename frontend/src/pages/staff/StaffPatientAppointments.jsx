@@ -85,7 +85,7 @@ export default function StaffPatientAppointments({ role }) {
     },
   ];
 
-  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.data.nomorRekamMedis === selectedProfile);
+  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.data.emrNumber === selectedProfile);
   const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
   const dataSource = sortedAppointmentData?.map((appointment, index) => ({
     key: index + 1,
@@ -119,7 +119,7 @@ export default function StaffPatientAppointments({ role }) {
               >
                 <Select.Option value="Semua">Semua</Select.Option>
                 {profiles.map(profile => (
-                  <Select.Option key={profile.nomorRekamMedis} value={profile.nomorRekamMedis}>{profile.namaLengkap}</Select.Option>
+                  <Select.Option key={profile.emrNumber} value={profile.emrNumber}>{profile.namaLengkap}</Select.Option>
                 ))}
               </Select>
             </div>

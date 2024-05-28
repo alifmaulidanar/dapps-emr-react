@@ -44,7 +44,7 @@ export default function NursePatientDetails({ role }) {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
           },
-          body: JSON.stringify({ accountAddress: record.accountAddress, nomorRekamMedis: record.nomorRekamMedis }),
+          body: JSON.stringify({ accountAddress: record.accountAddress, emrNumber: record.emrNumber }),
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
@@ -55,7 +55,7 @@ export default function NursePatientDetails({ role }) {
       }
     };
     fetchAppointments();
-  }, [token, record.accountAddress, record.nomorRekamMedis]);
+  }, [token, record.accountAddress, record.emrNumber]);
 
   const getSigner = useCallback(async () => {
     const win = window;
@@ -105,7 +105,7 @@ export default function NursePatientDetails({ role }) {
   const columns = [
     { title: 'No.', dataIndex: 'key', key: 'key' },
     { title: 'ID Pendaftaran', dataIndex: 'appointmentId', key: 'appointmentId' },
-    { title: 'No. Rekam Medis', dataIndex: 'nomorRekamMedis', key: 'nomorRekamMedis' },
+    { title: 'No. Rekam Medis', dataIndex: 'emrNumber', key: 'emrNumber' },
     { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
     { title: 'Jadwal Berobat', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
     { title: 'Status', dataIndex: 'status',
@@ -121,7 +121,7 @@ export default function NursePatientDetails({ role }) {
   const appointmentDataSource = appointments?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment?.appointmentId,
-    nomorRekamMedis: appointment?.nomorRekamMedis,
+    emrNumber: appointment?.emrNumber,
     namaDokter: appointment?.namaDokter,
     tanggalTerpilih: (
       <>
@@ -173,19 +173,19 @@ export default function NursePatientDetails({ role }) {
         acc[key] = value === undefined ? null : value;
         return acc;
       }, {});
-      const nomorRekamMedis = profile.nomorRekamMedis;
+      const emrNumber = profile.emrNumber;
       const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
       const accountAddress = selectedAppointment ? selectedAppointment.accountAddress : null;
 
-      if (!nomorRekamMedis || !accountAddress) {
+      if (!emrNumber || !accountAddress) {
         message.error("Missing required patient or appointment information.");
         return;
       }
 
       const formattedEMR = {
         accountAddress,
-        nomorRekamMedis,
-        accountAddressNurse: selectedData.appointment.accountAddressNurse,
+        emrNumber,
+        nurseAddress: selectedData.appointment.nurseAddress,
         ...transformedValues,
         waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
         tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
@@ -227,7 +227,7 @@ export default function NursePatientDetails({ role }) {
           appointmentId: selectedHistory.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
           namaDokter: selectedData.appointment.namaDokter,
-          namaPerawat: selectedData.appointment.namaPerawat,
+          namaAsisten: selectedData.appointment.namaAsisten,
           tanggalRekamMedis: dayjs(selectedHistory.tanggalRekamMedis),
           namaLengkap: selectedHistory.namaLengkap,
           keluhanUtama: selectedHistory.keluhanUtama,
@@ -282,7 +282,7 @@ export default function NursePatientDetails({ role }) {
           appointmentId: selectedData.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
           namaDokter: selectedData.appointment.namaDokter,
-          namaPerawat: selectedData.appointment.namaPerawat,
+          namaAsisten: selectedData.appointment.namaAsisten,
           tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
           namaLengkap: selectedData.appointment.namaLengkap,
         });
@@ -315,7 +315,7 @@ export default function NursePatientDetails({ role }) {
           <Form.Item label="Dokter" name="namaDokter">
             <Input disabled style={inputStyling}/>
           </Form.Item>
-          <Form.Item label="Perawat" name="namaPerawat">
+          <Form.Item label="Perawat" name="namaAsisten">
             <Input disabled style={inputStyling}/>
           </Form.Item>
 
@@ -554,7 +554,7 @@ export default function NursePatientDetails({ role }) {
 
   const EMRCard = () => {
     if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Appointment"/></Card>;
-    const nurse = { idPerawat: selectedData.appointment?.idPerawat, namaPerawat: selectedData.appointment?.namaPerawat, alamat: selectedData.appointment?.accountAddressNurse };
+    const nurse = { idPerawat: selectedData.appointment?.idPerawat, namaAsisten: selectedData.appointment?.namaAsisten, alamat: selectedData.appointment?.nurseAddress };
     const patient = { gender: profile.gender, usia: calculateAge(profile.tanggalLahir), golonganDarah: profile.golonganDarah };
     return (
       <Card>
@@ -617,7 +617,7 @@ export default function NursePatientDetails({ role }) {
                     </div>
                     <div>
                       <p className="font-medium">Nomor Rekam Medis</p>
-                      <p>{convertProfileData(profile).nomorRekamMedis}</p>
+                      <p>{convertProfileData(profile).emrNumber}</p>
                     </div>
                     <div>
                       <p className="font-medium">Tanggal Lahir</p>
