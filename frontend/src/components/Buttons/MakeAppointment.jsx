@@ -55,7 +55,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
     }
   }, []);
 
-  const selectedDoctor = scheduleData?.find((doc) => doc.alamatDokter === selectedDoctorInfo.address);
+  const selectedDoctor = scheduleData?.find((doc) => doc.doctorAddress === selectedDoctorInfo.address);
   const locations = ["all", ...new Set(scheduleData?.map(doc => doc.lokasiPraktik))];
   let specializations = ["all"];
   if(selectedLocation !== "all") {
@@ -139,9 +139,9 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   };
   const items = [{ title: "Pilih Jadwal Dokter" }, { title: "Pilih Pasien" }, { title: "Konfirmasi" }];
   const handleDoctorChange = (value) => {
-    const dokter = scheduleData.find((doc) => doc.alamatDokter === value);
+    const dokter = scheduleData.find((doc) => doc.doctorAddress === value);
     if (!dokter) setSelectedDoctorInfo({ address: "default", name: "", jadwal: [] });
-    setSelectedDoctorInfo({ address: dokter.alamatDokter, name: dokter.namaDokter, jadwal: dokter.jadwal });
+    setSelectedDoctorInfo({ address: dokter.doctorAddress, name: dokter.namaDokter, jadwal: dokter.jadwal });
     setSelectedDate(null);
     setAvailableTimes([]);
   };
@@ -203,51 +203,55 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   );
   const handleCreateAppointment = async (event) => {
     try {
-    showLoader();
-    event.preventDefault();
-    const nurseInfo = selectedDoctor.jadwal.find(schedule => schedule.hari === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.waktu === selectedTimeSlot);
-    const appointmentData = {
-      accountAddress: userData.accountAddress,
-      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      doctorAddress: selectedDoctor.alamatDokter,
-      nurseAddress: nurseInfo.alamatPerawat,
-    };
-    const appointmentDataIpfs = {
-      appointmentId: nanoid(),
-      accountAddress: userData.accountAddress,
-      accountEmail: userData.accountEmail,
-      nomorRekamMedis: userData.accountProfiles[selectedPatient].nomorRekamMedis,
-      namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
-      nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
-      email: userData.accountProfiles[selectedPatient].email,
-      telpSelular: userData.accountProfiles[selectedPatient].telpSelular,
-      rumahSakit: selectedDoctor.lokasiPraktik,
-      idDokter: selectedDoctor.idDokter,
-      alamatDokter: selectedDoctor.alamatDokter,
-      namaDokter: selectedDoctor.namaDokter,
-      spesialisasiDokter: selectedDoctor.spesialisasiDokter,
-      idJadwal: selectedScheduleId,
-      hariTerpilih: `${selectedDay}`,
-      tanggalTerpilih: `${selectedDate}`,
-      waktuTerpilih: `${selectedTimeSlot}`,
-      idPerawat: nurseInfo.idPerawat,
-      alamatPerawat: nurseInfo.alamatPerawat,
-      namaPerawat: nurseInfo.namaPerawat,
-      status: "ongoing",
-      appointmentCreatedAt: new Date().toISOString(),
-    };
-    if (alamatStaf) appointmentDataIpfs.alamatStaf = alamatStaf;
-    const signedData = { appointmentData, appointmentDataIpfs }
-    const signer = await getSigner();
-    if (!signer) {
-      setSpinning(false);
-      return;
-    }
-    const signature = await signer.signMessage(JSON.stringify(signedData));
-    signedData.signature = signature;
-    console.log("Appointment signature:", signature);
+      showLoader();
+      event.preventDefault();
+      const nurseInfo = selectedDoctor.jadwal.find(schedule => schedule.hari === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.waktu === selectedTimeSlot);
+      const appointmentData = {
+        dmrNumber: userData.dmrNumber,
+        nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
+        accountAddress: userData.accountAddress,
+        doctorAddress: selectedDoctor.doctorAddress,
+        nurseAddress: nurseInfo.nurseAddress,
+      };
+
+      // harus ganti data appointment mengikuti new schedules, sesuaikan juga field2 baru dan hapus yang tidak diperlukan lagi. jangan lupa cek referensi dari UI screenshot e-puskesmas langsung
+      const appointmentDataIpfs = {
+        accountAddress: userData.accountAddress,
+        dmrNumber: userData.dmrNumber,
+        emrNumber: userData.accountProfiles[selectedPatient].emrNumber,
+        namaLengkap: userData.accountProfiles[selectedPatient].namaLengkap,
+        nomorIdentitas: userData.accountProfiles[selectedPatient].nomorIdentitas,
+        email: userData.accountProfiles[selectedPatient].email,
+        telpSelular: userData.accountProfiles[selectedPatient].telpSelular,
+        faskesAsal: userData.accountProfiles[selectedPatient].faskesAsal,
+        faskesTujuan: selectedDoctor.lokasiPraktik,
+        idDokter: selectedDoctor.idDokter,
+        doctorAddress: selectedDoctor.doctorAddress,
+        namaDokter: selectedDoctor.namaDokter,
+        spesialisasiDokter: selectedDoctor.spesialisasiDokter,
+        idJadwal: selectedScheduleId,
+        hariTerpilih: `${selectedDay}`,
+        tanggalTerpilih: `${selectedDate}`,
+        waktuTerpilih: `${selectedTimeSlot}`,
+        idPerawat: nurseInfo.idPerawat,
+        nurseAddress: nurseInfo.nurseAddress,
+        namaAsisten: nurseInfo.namaAsisten,
+        status: "ongoing",
+        appointmentCreatedAt: new Date().toISOString(),
+      };
+      if (alamatStaf) appointmentDataIpfs.alamatStaf = alamatStaf;
+      const signedData = { appointmentData, appointmentDataIpfs }
+      const signer = await getSigner();
+      if (!signer) {
+        setSpinning(false);
+        return;
+      }
+      const signature = await signer.signMessage(JSON.stringify(signedData));
+      signedData.signature = signature;
+      console.log("Appointment signature:", signature);
+      console.log({signedData})
       const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/staff/appointment`,
+        `${CONN.BACKEND_LOCAL}/patient/appointment`,
         {
           method: "POST",
           headers: {
@@ -311,7 +315,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
               <div className="mb-6">
-                <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Rumah Sakit</label>
+                <label htmlFor="gender" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Lokasi Berobat</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
@@ -321,7 +325,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   onChange={handleLocationChange}
                 >
                   {locations.map(loc => (
-                    <Option key={loc} value={loc}>{loc === "all" ? "Semua Lokasi" : "Eka Hospital " + loc}</Option>
+                    <Option key={loc} value={loc}>{loc === "all" ? "Semua Lokasi" : loc}</Option>
                   ))}
                 </Select>
               </div>
@@ -356,7 +360,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 >
                   <Option value="default">Pilih Dokter</Option>
                   {filteredDoctors.map((dokter) => (
-                    <Option key={dokter.alamatDokter} value={dokter.alamatDokter}>
+                    <Option key={dokter.doctorAddress} value={dokter.doctorAddress}>
                       {dokter.namaDokter} (Dokter {dokter.spesialisasiDokter})
                     </Option>
                   ))}
@@ -402,8 +406,8 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
               </div>
               <div className="mb-6">
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-900">Lokasi Rumah Sakit:</p>
-                  <p className="text-lg font-semibold text-gray-900">Eka Hospital {selectedDoctor.lokasiPraktik}</p>
+                  <p className="text-sm font-medium text-gray-900">Lokasi Berobat:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctor.lokasiPraktik}</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>
