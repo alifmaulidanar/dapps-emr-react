@@ -77,7 +77,11 @@ async function getUserAccountDataPatient(address) {
       return JSON.parse(profileInfo.profile);
     });
 
-    let appointmentDetails = [];
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => {
+      return JSON.parse(appointmentInfo.appointments);
+    });
+
     const responseData = {
       message: "GET User Data from IPFS Succesful",
       account: {
@@ -113,6 +117,7 @@ async function retrieveDMRData(dmrNumber, cid) {
   try {
     const accountData = {};
     const emrProfiles = [];
+    const appointmentData = [];
 
     // Mendapatkan daftar isi dari CID folder
     for await (const file of client.ls(cid)) {
@@ -132,9 +137,13 @@ async function retrieveDMRData(dmrNumber, cid) {
         const profileData = await retrieveEMRData(file.cid, updatedFileName);
         emrProfiles.push({ emrFolder: file.name, profile: profileData });
         // console.log({profileData});
+
+        // Menggali ke dalam direktori Appointment untuk mencari appointment.json
+        const appointments = await retrieveAppointmentsFromEMR(file.cid);
+        appointmentData.push(...appointments);
       }
     }
-    return { accountData, emrProfiles };
+    return { accountData, emrProfiles, appointmentData };
   } catch (error) {
     console.error("Failed to retrieve data from IPFS:", error);
     return { accountData: {}, emrProfiles: [] };
@@ -153,6 +162,36 @@ async function retrieveEMRData(emrCid, emrNumber) {
     }
   }
   return null;
+}
+
+// Fungsi untuk mengambil data appointment dari direktori EMR di IPFS
+async function retrieveAppointmentsFromEMR(emrCid) {
+  const appointmentData = [];
+  for await (const file of client.ls(emrCid)) {
+    if (file.type === 'dir') {
+      const appointments = await retrieveAppointmentData(file.cid);
+      appointmentData.push(...appointments);
+    }
+  }
+  return appointmentData;
+}
+
+// Fungsi untuk mengambil data appointment dari IPFS
+async function retrieveAppointmentData(appointmentCid) {
+  const appointmentData = [];
+  for await (const file of client.ls(appointmentCid)) {
+    if (file.type === 'file') {
+      const content = [];
+      for await (const chunk of client.cat(file.cid)) {
+        content.push(chunk);
+      }
+      appointmentData.push({
+        appointmentFile: file.name,
+        appointments: Buffer.concat(content).toString()
+      });
+    }
+  }
+  return appointmentData;
 }
 
 export { getUserAccountData, getUserAccountDataPatient, retrieveEMRData, retrieveDMRData };

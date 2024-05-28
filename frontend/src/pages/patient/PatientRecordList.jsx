@@ -6,6 +6,7 @@ import PatientList from "../../components/PatientList";
 import RecordControl from "../../components/RecordControl";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
+import { fetchAndStorePatientData } from "./utils";
 
 export default function PatientRecordList() {
   const token = sessionStorage.getItem("userToken");
@@ -18,27 +19,7 @@ export default function PatientRecordList() {
 
   useEffect(() => {
     if (token && accountAddress) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            `${CONN.BACKEND_LOCAL}/patient/account`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
-            }
-          );
-          const data = await response.json();
-          setAppointmentsData(data.appointments);
-          setPatientAccountData(data);
-          sessionStorage.setItem("userData", JSON.stringify(data.ipfs.data));
-        } catch (error) {
-          console.error("Error fetching patient data:", error);
-        }
-      };
-      fetchData();
+      fetchAndStorePatientData(token, accountAddress, setAppointmentsData, setPatientAccountData);
     }
   }, [token, accountAddress]);
 
@@ -65,7 +46,7 @@ export default function PatientRecordList() {
       : [];
   const relatedAppointments = appointmentsData.filter(
     (appointment) =>
-      appointment.data.nomorRekamMedis === chosenPatient?.nomorRekamMedis
+      appointment.emrNumber === chosenPatient?.emrNumber
   );
 
   return (

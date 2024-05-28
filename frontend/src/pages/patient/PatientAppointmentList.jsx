@@ -5,19 +5,22 @@ import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
 import NavbarController from "../../components/Navbar/NavbarController";
 import AppointmentCardList from "../../components/Cards/AppointmentCardList";
 import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
+import { fetchAndStorePatientData } from "./utils";
 
 export default function PatientAppointmentList({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const userData = JSON.parse(sessionStorage.getItem("userData"));
+  const initialAppointmentData = JSON.parse(sessionStorage.getItem("appointmentData"));
   if (!token || !accountAddress) window.location.assign(`/patient/signin`);
-
+  
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
-  const [appointmentData, setAppointmentData] = useState([]);
+  const [patientAccountData, setPatientAccountData] = useState(null);
+  const [appointmentData, setAppointmentsData] = useState([]);
   const [filteredAppointmentData, setFilteredAppointmentData] = useState([]);
-
+  
   useEffect(() => {
     if (token && accountAddress) {
       const fetchDataAsync = async () => {
@@ -34,7 +37,6 @@ export default function PatientAppointmentList({ role }) {
           );
           const dataAppointment = await responseAppointment.json();
           setScheduleData(dataAppointment.dokter);
-          setAppointmentData(dataAppointment.appointments);
         } catch (error) {
           console.error(`Error fetching ${role} data:`, error);
         }
@@ -42,6 +44,12 @@ export default function PatientAppointmentList({ role }) {
       fetchDataAsync();
     }
   }, []);
+
+  useEffect(() => {
+    if (token && accountAddress) {
+      fetchAndStorePatientData(token, accountAddress, setAppointmentsData, setPatientAccountData);
+    }
+  }, [token, accountAddress]);
 
   useEffect(() => {
     if (token && accountAddress) {
@@ -71,12 +79,12 @@ export default function PatientAppointmentList({ role }) {
 
   useEffect(() => {
     if (selectedUser && appointmentData) {
-      const filteredData = appointmentData.filter((appointment) => appointment.data.nomorIdentitas === selectedUser.nomorIdentitas);
+      const filteredData = appointmentData.filter((appointment) => appointment.nomorIdentitas === selectedUser.nomorIdentitas);
       setFilteredAppointmentData(filteredData);
     }
   }, [selectedUser, appointmentData]);
 
-  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
+  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.createdAt) - new Date(a.createdAt); });
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
     setSelectedUser(user);
