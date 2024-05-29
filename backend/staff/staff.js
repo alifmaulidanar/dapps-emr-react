@@ -10,6 +10,7 @@ import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
 import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
 import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
+import { retrieveDMRData  } from "../middleware/userData.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -97,7 +98,7 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     };
 
     // Membuat objek data profil pasien
-    const patientData = { dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { accountAddress: selectedAccountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     // Prepare directory for IPFS upload
     const dmrPath = path.join(basePath, dmrFolderName);
@@ -160,7 +161,7 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
     if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
     const emrNumber = await generatePatientEMR();
-    const patientData = { dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { accountAddress:dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
     const emrFolderName = `${emrNumber}J${emrNumber}`;
@@ -197,65 +198,6 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
-  }
-});
-
-// check patient profile
-router.post("/check-patient-profile", authMiddleware, async (req, res) => {
-  try {
-    const address = req.auth.address;
-    const { patientAddress, emrNumber } = req.body;
-    if (!address) return res.status(401).json({ message: "Unauthorized" });
-
-    const account = await userContract.getAccountByAddress(patientAddress);
-    if (!account) return res.status(404).json({ error: "Pasien tidak ditemukan", message: "Alamat pasien tidak ditemukan." });
-
-    let foundProfile = false;
-    let foundPatientProfile;
-    const accountCid = account.cid;
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${accountCid}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
-
-    if (ipfsData.accountProfiles) {
-      for (const profile of ipfsData.accountProfiles) {
-        if (profile.emrNumber === emrNumber) {
-          foundProfile = true;
-          foundPatientProfile = profile;
-          break;
-        }
-      }
-    }
-
-    if (!foundProfile) return res.status(404).json({ error: "Profil pasien tidak ditemukan", message: "Nomor rekam medis pasien tidak ditemukan." });
-    return res.status(200).json({ foundPatientProfile });
-  } catch (error) {
-    console.error("Error fetching appointments:", error);
-    return res.status(500).json({ message: "Failed to fetch appointments" });
-  }
-});
-
-// add patient profile
-router.post("/add-patient-profile", authMiddleware, async (req, res) => {
-  try {
-    const address = req.auth.address;
-    const { patientAddress, emrNumber, signature } = req.body;
-    if (!address) return res.status(401).json({ message: "Unauthorized" });
-
-    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ patientAddress, emrNumber }), signature)
-    const recoveredSigner = provider.getSigner(recoveredAddress);
-    const accounts = await provider.listAccounts();
-    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
-    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
-    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
-
-    const contract = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
-    const addStaffTemporary = await contract.addTemporaryPatientData(address, patientAddress, emrNumber);
-    await addStaffTemporary.wait()
-    res.status(200).json({ message: "Patient profile added successfully" });
-  } catch (error) {
-    console.error("Error adding patient profile:", error);
-    return res.status(500).json({ message: "Failed to add patient profile" });
   }
 });
 
@@ -327,27 +269,37 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const appointments = await outpatientContract.getTemporaryPatientData(address);
-    let patientAccountData = [];
-    let patientProfiles = [];
+    if(!address) return res.status(401).json({ error: "Unauthorized" });
 
-    for (const appointment of appointments) {
-      const patientData = await userContract.getAccountByAddress(appointment.patientAddress);
-      const cid = patientData.cid;
-      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-      const response = await fetch(ipfsGatewayUrl);
-      const accountData = await response.json();
-      const { accountProfiles, ...rest } = accountData;
-      patientAccountData.push(rest);
-      for (const profile of accountData.accountProfiles) {
-        if (profile.emrNumber === appointment.emrNumber) {
-          const profileWithAddress = { ...profile, accountAddress: rest.accountAddress };
-          patientProfiles.push(profileWithAddress);
-          break;
-        }
-      }
+    const privateKey = accounts[address];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
+
+    try {
+      const patientAccounts = await contractWithSigner.getAllPatients();
+      const patientData = await Promise.all(patientAccounts.map(async (account) => {
+        const dmrNumber = account.dmrNumber;
+        const dmrCid = account.dmrCid;
+        return { dmrNumber, dmrCid};
+      }));
+
+      const data = await Promise.all(patientData.map(async (data) => {
+        return await retrieveDMRData(data.dmrNumber, data.dmrCid);
+      }));
+
+      const profiles = data.flatMap(data => {
+        return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
+      });
+
+      const appointments = data.flatMap((data) => {
+        return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
+      });
+      res.status(200).json({ profiles, appointments });
+    } catch (error) {
+      console.log("Error fetching patient accounts:", error);
+      return res.status(500).json({ message: "Failed to fetch patient accounts" });
     }
-    res.status(200).json({ patientAccountData, patientProfiles });
   } catch (error) {
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });

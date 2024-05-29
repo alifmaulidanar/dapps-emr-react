@@ -16,7 +16,6 @@ import patientABI from "../../contractConfig/abi/PatientManagement.abi.json" ass
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
@@ -127,7 +126,7 @@ router.post("/patient/register-profile", async (req, res) => {
     const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
     if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
     const emrNumber = await generatePatientEMR();
-    const patientData = { dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { accountAddress: dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
 
     const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
     const emrFolderName = `${emrNumber}J${emrNumber}`;
