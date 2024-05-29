@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
-import AddPatientButton from "../../components/Buttons/AddPatientButton";
 import PatientData from "../staff/PatientData";
-import { Table, Button, Modal } from "antd";
+import { Table, Button, Modal, Tag } from "antd";
 import { CONN } from "../../../../enum-global";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatientStaff";
 
@@ -11,17 +10,19 @@ export default function StaffPatientList({ role }) {
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
 
-  const [accounts, setAccounts] = useState(null);
+  // const [accounts, setAccounts] = useState(null);
   const [profiles, setProfiles] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCancel = () => {setIsModalOpen(false) };
   const showModal = (emrNumber) => {
     const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
-    const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
+    console.log({selectedProfile})
+    // const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
     setSelectedData({
-      account: selectedAccount,
+      // account: selectedAccount,
       profile: selectedProfile
     });
     setIsModalOpen(true);
@@ -38,10 +39,11 @@ export default function StaffPatientList({ role }) {
           },
         });
         const data = await response.json();
-        // console.log({data})
+        console.log({data})
         if (!response.ok) console.log(data.error, data.message);
-        setAccounts(data.patientAccountData);
-        setProfiles(data.patientProfiles);
+        // setAccounts(data.patientAccountData);
+        setProfiles(data.profiles);
+        setAppointments(data.appointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -72,9 +74,15 @@ export default function StaffPatientList({ role }) {
       title: 'Alamat Akun',
       dataIndex: 'accountAddress',
       key: 'accountAddress',
+      render: (text) => text ? <Tag color="blue">{text}</Tag> : '-',
     },
     {
-      title: 'Nomor Rekam Medis',
+      title: 'Nomor DRM',
+      dataIndex: 'dmrNumber',
+      key: 'dmrNumber',
+    },
+    {
+      title: 'Nomor RME',
       dataIndex: 'emrNumber',
       key: 'emrNumber',
     },
@@ -92,17 +100,18 @@ export default function StaffPatientList({ role }) {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      render: (text) => text || '-',
     },
     {
       title: 'Nomor Telepon',
       dataIndex: 'telpSelular',
       key: 'telpSelular',
+      render: (text) => text || '-',
     },
     {
-      title: 'RS Asal',
-      dataIndex: 'rumahSakitAsal',
-      key: 'rumahSakitAsal',
-      render: (text) => getHospitalName(text),
+      title: 'Faskes Asal',
+      dataIndex: 'faskesAsal',
+      key: 'faskesAsal'
     },
     {
       title: 'Aksi',
@@ -111,30 +120,16 @@ export default function StaffPatientList({ role }) {
     },
   ];
 
-  const getHospitalName = (hospitalCode) => {
-    switch (hospitalCode) {
-      case "1":
-        return "Bekasi";
-      case "2":
-        return "BSD";
-      case "3":
-        return "Jakarta";
-      case "4":
-        return "Lampung";
-      default:
-        return "Tidak diketahui";
-    }
-  };
-
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
     accountAddress: profile?.accountAddress,
+    dmrNumber: profile?.dmrNumber,
     emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,
     telpSelular: profile?.telpSelular,
-    rumahSakitAsal: profile?.rumahSakitAsal,
+    faskesAsal: profile?.faskesAsal,
   }));
 
   const mergeAccountAndProfileData = (accounts, profiles) => {
@@ -155,22 +150,22 @@ export default function StaffPatientList({ role }) {
     return Array.from(accountMap.values());
   };
   
-  const userData = mergeAccountAndProfileData(accounts, profiles);
-  sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
+  // const userData = mergeAccountAndProfileData(profiles);
+  // sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
   sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
+  sessionStorage.setItem("staffPatientAppointments", JSON.stringify(appointments));
 
   return (
     <>
       <NavbarController type={type} page={role} color="blue" />
       <div>
-        <div className="grid items-center justify-center w-3/4 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+        <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
-            <AddPatientButton token={token} />
             <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
             {/* <ListSearchBar /> */}
           </div>
         </div>
-        <div className="grid justify-center w-3/4 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+        <div className="grid justify-center w-4/5 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
             {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
               <Table columns={columns} dataSource={dataSource} />
@@ -181,7 +176,7 @@ export default function StaffPatientList({ role }) {
       <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
         {selectedData.profile && (
           <>
-            <PatientData userDataProps={selectedData.profile} userAccountData={selectedData.account} />
+            <PatientData userDataProps={selectedData.profile} userAccountData={null} />
           </>
         )}
       </Modal>

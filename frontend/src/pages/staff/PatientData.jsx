@@ -25,19 +25,23 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
   // const [imageCid, setImageCid] = useState(userDataProps.foto || "");
 
   let role;
-  switch (userAccountData.accountRole) {
-    case "patient":
-      role = "Pasien";
-      break;
-    case "doctor":
-      role = "Dokter";
-      break;
-    case "staff":
-      role = "Staff";
-      break;
-    case "nurse":
-      role = "Perawat";
-      break;
+  if (userAccountData === null) {
+    role = "Pasien";
+  } else {
+    switch (userAccountData.accountRole) {
+      case "patient":
+        role = "Pasien";
+        break;
+      case "doctor":
+        role = "Dokter";
+        break;
+      case "staff":
+        role = "Staff";
+        break;
+      case "nurse":
+        role = "Perawat";
+        break;
+    }
   }
 
   // user identifier
@@ -663,7 +667,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           </Form.Item>
 
           {/* DATA PENANGGUNG JAWAB */}
-          {userAccountData.accountRole === "patient" ? (
+          {role === "Pasien" ? (
             <>
               <div className="col-span-2 my-6 text-lg text-gray-900">
                 Data Kerabat/Penanggung Jawab

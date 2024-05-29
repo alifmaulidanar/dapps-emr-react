@@ -2,19 +2,20 @@ import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
 import { Table, Button, Modal, Tag, Select } from "antd";
 import NavbarController from "../../components/Navbar/NavbarController";
-import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
+// import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import PatientAppointmentDisplayStaff from "./PatientAppointmentDisplayStaff";
 
 export default function StaffPatientAppointments({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
-  const userData = JSON.parse(sessionStorage.getItem("staffPatientData"));
+  // const userData = JSON.parse(sessionStorage.getItem("staffPatientData"));
   const profiles = JSON.parse(sessionStorage.getItem("staffPatientProfiles"));
+  const appointmentData = JSON.parse(sessionStorage.getItem("staffPatientAppointments"));
   if (!token || !accountAddress) window.location.assign(`/staff/signin`);
 
   const [scheduleData, setScheduleData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [appointmentData, setAppointmentData] = useState([]);
+  // const [appointmentData, setAppointmentData] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState("Semua");
 
@@ -85,18 +86,18 @@ export default function StaffPatientAppointments({ role }) {
     },
   ];
 
-  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.data.emrNumber === selectedProfile);
-  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.data.createdAt) - new Date(a.data.createdAt); });
+  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.emrNumber === selectedProfile);
+  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.appointmentCreatedAt) - new Date(a.appointmentCreatedAt); });
   const dataSource = sortedAppointmentData?.map((appointment, index) => ({
     key: index + 1,
-    appointmentId: appointment.data.appointmentId,
-    namaLengkap: appointment.data.namaLengkap,
-    namaDokter: appointment.data.namaDokter,
-    spesialisasiDokter: `Dokter ${appointment.data.spesialisasiDokter}`,
-    waktuTerpilih: appointment.data.waktuTerpilih,
-    tanggalTerpilih: new Date(appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
-    rumahSakit: appointment.data.rumahSakit,
-    status: appointment.data.status,
+    appointmentId: appointment.appointmentId,
+    namaLengkap: appointment.namaLengkap,
+    namaDokter: appointment.namaDokter,
+    spesialisasiDokter: `Dokter ${appointment.spesialisasiDokter}`,
+    waktuTerpilih: appointment.waktuTerpilih,
+    tanggalTerpilih: new Date(appointment.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
+    rumahSakit: appointment.rumahSakit,
+    status: appointment.status,
   }));
 
   return (
@@ -106,13 +107,13 @@ export default function StaffPatientAppointments({ role }) {
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start grid-cols-2 col-span-5">
             <div className="grid mb-8">
-              <MakeAppointmentButton
+              {/* <MakeAppointmentButton
                 buttonText={"Buat Appointment"}
                 scheduleData={scheduleData || []}
-                userData={userData}
+                userData={null}
                 token={token}
                 alamatStaf={accountAddress}
-              />
+              /> */}
             </div>
             <div className="grid mb-8 ml-auto">
               <Select style={{ width: 200, marginLeft: 20 }} onChange={handleProfileChange} defaultValue="Semua"
