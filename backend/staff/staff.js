@@ -11,6 +11,7 @@ import authMiddleware from "../middleware/auth-middleware.js";
 import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
 import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
 import { retrieveDMRData  } from "../middleware/userData.js";
+import { handleFileWrite } from "../user/appointment/appointment.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -201,64 +202,179 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   }
 });
 
-// Cancel Patient Appointment
-router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
+// POST Patient Appointment
+router.post("/appointment", authMiddleware, async (req, res) => {
   try {
-    const { address, email } = req.auth;
-    const { accountAddress, appointmentId, emrNumber, signature } = req.body;
-    if (!address || !email) return res.status(401).json({ error: "Unauthorized" });
-    if (!appointmentId || !emrNumber) return res.status(400).json({ error: "Missing appointmentId or emrNumber" });
+    const { address } = req.auth;
+    const { appointmentData, appointmentDataIpfs, signature } = req.body;
+    if (!address) return res.status(401).json({ error: "Unauthorized" });
+    if (!appointmentData || !appointmentDataIpfs) return res.status(400).json({ error: "Missing appointment data or IPFS data" });
 
-    const accountList = await provider.listAccounts();
-    let selectedAccountAddress;
-    for (let account of accountList) {
-      const accountByAddress = await userContract.getAccountByAddress(accountAddress);
-      if (accountByAddress.accountAddress === accountAddress) {
-        selectedAccountAddress = account;
-        break;
-      }
-    }
-
-    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
-
-    const privateKey = accounts[selectedAccountAddress];
+    const privateKey = accounts[address];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
-    const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
-    const appointments = await outpatientContract.getAppointmentsByPatient(accountAddress);
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
 
-    for (const appointment of appointments) {
-      const cid = appointment.cid;
-      const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-      const ipfsResponse = await fetch(ipfsGatewayUrl);
-      const ipfsData = await ipfsResponse.json();
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(appointmentData.dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${appointmentData.dmrNumber} tidak ditemukan.` });
 
-      if (ipfsData.appointmentId === appointmentId && ipfsData.emrNumber === emrNumber && ipfsData.status === "ongoing") {
-        ipfsData.status = "canceled";
-        const updatedCid = await client.add(JSON.stringify(ipfsData));
-        const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
-        await contractWithSigner.updateOutpatientData(appointment.id, accountAddress, ipfsData.doctorAddress, ipfsData.nurseAddress, updatedCid.path);
-        const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
-        const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-        const newIpfsData = await newIpfsResponse.json();
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(appointmentData.dmrNumber, dmrCid);
 
-        if (ipfsData.alamatStaf) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.alamatStaf, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
-          console.log("Temporary patient data in staff from staff removed successfully.");
-        } 
-        if (ipfsData.nurseAddress) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.nurseAddress, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
-          console.log("Temporary patient data in nurse from staff removed successfully.");
-        }
-        if (ipfsData.doctorAddress) {
-          await contractWithSigner.removeTemporaryPatientData(ipfsData.doctorAddress, ipfsData.accountAddress, ipfsData.emrNumber, {gasLimit: 1000000});
-          console.log("Temporary patient data in doctor from staff removed successfully.");
-        }
-        res.status(200).json({newStatus: newIpfsData.status});
-        return;
-      }
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+
+    // Find matched profile with emrNumber
+    const emrNumber = appointmentDataIpfs.emrNumber;
+    const matchedProfile = accountProfiles.find(profile => profile.emrNumber === emrNumber);
+    if (!matchedProfile) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
     }
-    res.status(404).json({ error: "Appointment not found or already canceled" });
+
+    // hilangkan dash pada tanggal terpilih
+    const selectedDate = appointmentDataIpfs.tanggalTerpilih;
+    // buat const polyCode: untuk spesialisasi umum, polyCode = 1, untuk spesialisasi gigi, polyCode = 2
+    // const polyCode = appointmentDataIpfs.spesialisasiDokter.toLowerCase() === "umum" ? "01" : "02";
+    // generate appointmentId by using format "tanggalTerpilih-appointmentData.dmrNumber-polyCode"
+    const specialization = appointmentDataIpfs.spesialisasiDokter.toLowerCase();
+    // Nomor urut baru
+    const newIndexString = handleFileWrite(specialization, selectedDate);
+    const appointmentId = `${selectedDate.replace(/-/g, "")}${appointmentData.dmrNumber}${newIndexString}`;
+
+    // susun patientAppointmentData
+    const patientAppointmentData = {
+      appointmentId,
+      newIndexString,
+      ...appointmentDataIpfs
+    };
+
+    const dmrFolderName = `${appointmentData.dmrNumber}J${appointmentData.dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const appointmentFolderName = `${appointmentId}J${appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${appointmentId}.json`), JSON.stringify(patientAppointmentData));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+
+    // Update DMR info on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      appointmentData.dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // referensi data outpatient ke doctor dan nurse terkait
+    const outpatientTx = await outpatientContractWithSigner.addOutpatientData(
+      appointmentData.accountAddress,
+      appointmentData.doctorAddress,
+      appointmentData.nurseAddress,
+      appointmentId,
+      appointmentDataIpfs.emrNumber,
+      newDmrCid
+    );
+    await outpatientTx.wait();
+
+    const addDoctorTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.doctorAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
+    await addDoctorTemporary.wait()
+    // console.log("addDoctorTemporary successfully");
+    const addNurseTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.nurseAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
+    await addNurseTemporary.wait()
+    // console.log("addNurseTemporary successfully");
+    // console.log({newIndexString, appointmentId, newDmrCid});
+    res.status(200).json({ message: "Appointment created successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Cancel Patient Appointment
+router.post("/cancel-appointment", authMiddleware, async (req, res) => {
+  try {
+    const { address } = req.auth;
+    const { dmrNumber, emrNumber, appointmentId, signature } = req.body;
+    if (!address) return res.status(401).json({ error: "Unauthorized" });
+    if (!dmrNumber || !emrNumber || !appointmentId) return res.status(400).json({ error: "Missing dmrNumber, emrNumber, or appointmentId" });
+
+    // const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ emrNumber, appointmentId }), signature);
+    // const recoveredSigner = provider.getSigner(recoveredAddress);
+    // const accounts = await provider.listAccounts();
+    // const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+    // if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    // if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const privateKey = accounts[address];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, walletWithProvider);
+
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => {
+      return JSON.parse(appointmentInfo.appointments);
+    });
+    const matchedAppointment = appointmentDetails.find(appointment => appointment.appointmentId === appointmentId && appointment.emrNumber === emrNumber && appointment.status === "ongoing");
+    if (!matchedAppointment) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${appointmentId} tidak ditemukan.` });
+    }
+    matchedAppointment.status = "canceled";
+
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const appointmentFolderName = `${appointmentId}J${appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${appointmentId}.json`), JSON.stringify(matchedAppointment));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+
+    // Update patient data on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      appointmentId,
+      address,
+      matchedAppointment.doctorAddress,
+      matchedAppointment.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+
+    res.status(200).json({ matchedAppointment });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -285,8 +401,26 @@ router.get("/patient-data", authMiddleware, async (req, res) => {
       }));
 
       const data = await Promise.all(patientData.map(async (data) => {
-        return await retrieveDMRData(data.dmrNumber, data.dmrCid);
+        const retrievedData = await retrieveDMRData(data.dmrNumber, data.dmrCid);
+        retrievedData.dmrNumber = data.dmrNumber;
+        return retrievedData;
       }));
+
+      const accounts = data.map(data => {
+        const dmrNumber = data.dmrNumber;
+        const accountJsonString = data.accountData[`J${dmrNumber}.json`];
+        if (!accountJsonString) {
+          console.error(`No account data found for dmrNumber: ${dmrNumber}`);
+          return null;
+        }
+        try {
+          const accountObj = JSON.parse(accountJsonString);
+          return accountObj;
+        } catch (error) {
+          console.error(`Error parsing account data for dmrNumber: ${dmrNumber}`, error);
+          return null;
+        }
+      }).filter(account => account !== null);
 
       const profiles = data.flatMap(data => {
         return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
@@ -295,7 +429,7 @@ router.get("/patient-data", authMiddleware, async (req, res) => {
       const appointments = data.flatMap((data) => {
         return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
       });
-      res.status(200).json({ profiles, appointments });
+      res.status(200).json({ accounts, profiles, appointments });
     } catch (error) {
       console.log("Error fetching patient accounts:", error);
       return res.status(500).json({ message: "Failed to fetch patient accounts" });
