@@ -29,30 +29,31 @@ async function getUserAccountData(address) {
     const response = await fetch(ipfsGatewayUrl);
     const ipfsData = await response.json();
 
-    let appointments = [];
-    appointments = await outpatientContract.getAppointmentsByPatient(address);
-    const appointmentDetails = await Promise.all(appointments.map(async (appointment) => {
-      const appointmentCid = appointment.cid;
-      const appointmentIpfsUrl = `${CONN.IPFS_LOCAL}/${appointmentCid}`;
-      const appointmentResponse = await fetch(appointmentIpfsUrl);
-      const appointmentData = await appointmentResponse.json();
-      return {
-        id: appointment.id.toString(),
-        patientAddress: appointment.patientAddress,
-        doctorAddress: appointment.doctorAddress,
-        nurseAddress: appointment.nurseAddress,
-        emrNumber: appointment.emrNumber,
-        cid: appointment.cid,
-        data: appointmentData
-      };
-    }));
+    // let appointments = [];
+    // appointments = await outpatientContract.getAppointmentsByPatient(address);
+    // const appointmentDetails = await Promise.all(appointments.map(async (appointment) => {
+    //   const appointmentCid = appointment.cid;
+    //   const appointmentIpfsUrl = `${CONN.IPFS_LOCAL}/${appointmentCid}`;
+    //   const appointmentResponse = await fetch(appointmentIpfsUrl);
+    //   const appointmentData = await appointmentResponse.json();
+    //   return {
+    //     id: appointment.id.toString(),
+    //     patientAddress: appointment.patientAddress,
+    //     doctorAddress: appointment.doctorAddress,
+    //     nurseAddress: appointment.nurseAddress,
+    //     emrNumber: appointment.emrNumber,
+    //     cid: appointment.cid,
+    //     data: appointmentData
+    //   };
+    // }));
 
     const responseData = {
       message: "GET User Data from IPFS Succesful",
       account: { accountAddress: ipfsData.accountAddress, accountEmail: ipfsData.accountEmail, role: ipfsData.accountRole },
       ipfs: { cid: cid, data: ipfsData },
-      appointments: appointmentDetails
+      // appointments: appointmentDetails
     };
+    // staff aman tanpa appointments
     return responseData;
   } catch (error) {
     console.error(error);
