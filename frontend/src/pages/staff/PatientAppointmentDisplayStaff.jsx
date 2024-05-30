@@ -46,26 +46,27 @@ function PatientAppointmentDisplayStaff({ data, token }) {
   }, []);
 
   const patientDataProps1 = [
-    { key: "rumahSakit", value1: "Cabang Eka Hospital", value2: (<p>{data.appointment.data.rumahSakit}</p>) },
     { key: "tanggalTerpilih", value1: "Hari & Tanggal",
       value2: (
         <p>{new Date(data.appointment.data.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>
       ),
     },
-    { key: "emrNumber", value1: "Nomor Rekam Medis", value2: (<p>{data.appointment.data.emrNumber}</p>) },
     { key: "waktuTerpilih", value1: "Waktu Praktik", value2: (<p>{data.appointment.data.waktuTerpilih}</p>) },
+    { key: "emrNumber", value1: "Nomor Rekam Medis", value2: (<p>{data.appointment.data.emrNumber}</p>) },
+    { key: "nomorIdentitas", value1: "Nomor Identitas Pasien (NIK/SIM/Paspor)", value2: (<p>{data.appointment.data.nomorIdentitas}</p>) },
+    // { key: "faskesAsal", value1: "Faskes Asal", value2: (<p>{data.appointment.data.faskesAsal}</p>) },
   ];
   const patientDataProps2 = [
+    { key: "namaLengkap", value1: "Nama Pasien", value2: (<p>{data.appointment.data.namaLengkap}</p>) },
+    { key: "accountAddress", value1: "Alamat Akun Pasien", value2: (<Tag color="green" className="m-0">{data.appointment.data.accountAddress}</Tag>), },
+    { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.data.email  || "-"}</p>) },
+    { key: "telpSelular", value1: "Nomor Telepon Pasien", value2: (<p>{data.appointment.data.telpSelular || "-"}</p>) },
     { key: "namaDokter", value1: "Nama Dokter", value2: (<p>{data.appointment.data.namaDokter}</p>) },
     { key: "doctorAddress", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.doctorAddress}</Tag>) },
     { key: "namaAsisten", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaAsisten}</p>) },
     { key: "nurseAddress", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.nurseAddress}</Tag>) },
-    { key: "namaLengkap", value1: "Nama Pasien", value2: (<p>{data.appointment.data.namaLengkap}</p>) },
-    { key: "nomorIdentitas", value1: "Nomor Identitas Pasien (NIK/SIM/Paspor)", value2: (<p>{data.appointment.data.nomorIdentitas}</p>) },
-    { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.data.email}</p>) },
-    { key: "telpSelular", value1: "Nomor Telepon Pasien", value2: (<p>{data.appointment.data.telpSelular}</p>) },
-    { key: "createdAt", value1: "Pendaftaran Dibuat Pada",
-      value2: (<p>{new Date(data.appointment.data.createdAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>),
+    { key: "appointmentCreatedAt", value1: "Pendaftaran Dibuat Pada",
+      value2: (<p>{new Date(data.appointment.data.appointmentCreatedAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>),
     },
     { key: "patientGender", value1: "Status Rawat Jalan",
       value2: (
@@ -107,7 +108,9 @@ function PatientAppointmentDisplayStaff({ data, token }) {
     <div className="grid p-8 gap-y-12">
       <div className="grid items-center mx-auto text-center text-gray-900 w-fit gap-y-2">
         <h1 className="text-xl font-medium">Data Pendaftaran Rawat Jalan</h1>
-        <p>ID Pendaftaran: <Tag color="green" className="m-0">{data.appointment.data.appointmentId}</Tag></p>
+        {/* <p>ID Pendaftaran: <Tag color="green" className="m-0">{data.appointment.data.appointmentId}</Tag></p> */}
+        <p className="text-[16px]">ID Pendaftaran: <span className="font-semibold">{data.appointment.data.appointmentId}</span></p>
+        <p className="text-[16px]">{data.appointment.data.faskesTujuan}</p>
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-6">
         <PatientRecordLoop data={patientDataProps1} />

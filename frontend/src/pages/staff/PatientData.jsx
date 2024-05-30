@@ -13,7 +13,7 @@ import { CONN } from "../../../../enum-global";
 // Membuat instance client IPFS
 const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
-export default function PatientData({ userDataProps, userAccountData = null }) {
+export default function PatientData({ dmrNumber, userDataProps, userAccountData = null }) {
   const token = sessionStorage.getItem("userToken");
   const [form] = Form.useForm();
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -46,7 +46,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
 
   // user identifier
   const userName = userDataProps.namaLengkap;
-  const userIdentification = userDataProps.emrNumber;
+  // const userIdentification = userDataProps.emrNumber;
   const userImage = userDataProps.foto;
 
   const handleFileChange = async (info) => {
@@ -81,6 +81,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
     // Simpan data awal ke state
     const initialFormData = {
       ...userDataProps,
+      newDmrNumber: userDataProps.dmrNumber,
       tanggalLahir: userDataProps.tanggalLahir
         ? dayjs(userDataProps.tanggalLahir, dateFormat)
         : null,
@@ -157,6 +158,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
   // }, []);
 
   const handleFormSubmit = async (values) => {
+    // setSpinning(true);
     if (window.ethereum) {
       try {
         let cid;
@@ -169,8 +171,10 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
             message.error("Failed to upload image to IPFS.");
           }
         }
-
+        
         const updatedValues = {
+          dmrNumber,
+          newDmrNumber: values.dmrNumber,
           ...values,
           tanggalLahir: values.tanggalLahir
             ? dayjs(values.tanggalLahir).format(dateFormat)
@@ -180,15 +184,12 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               dateFormat
             ),
           }),
-          userAccountData: userAccountData,
         };
 
         // console.log({ cid });
         // Menandatangani data menggunakan signer
         const signer = await getSigner();
-        const signature = await signer.signMessage(
-          JSON.stringify(updatedValues)
-        );
+        const signature = await signer.signMessage(JSON.stringify(updatedValues));
         updatedValues.signature = signature;
 
         if (!cid) {
@@ -198,7 +199,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
         }
 
         const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/${userAccountData.accountRole}/update-profile`,
+          `${CONN.BACKEND_LOCAL}/staff/update-profile`,
           {
             method: "POST",
             headers: {
@@ -210,7 +211,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
         );
 
         const responseData = await response.json();
-
         if (response.ok) {
           setSpinning(false);
           Swal.fire({
@@ -298,43 +298,115 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
     ) : null;
 
   return (
-    <div>
-      <div className="flex flex-col items-center w-full px-8 pt-8 pb-4 mx-auto">
-        {userImage ? (
-          <img
-            className="w-24 h-24 mb-3 rounded-full shadow-lg"
-            width={96}
-            height={96}
-            src={`${CONN.IPFS_LOCAL}/${userImage}`}
-            alt={`${userName} image`}
-          />
-        ) : (
-          <Avatar
-            size={96}
-            style={{
-              backgroundColor: "#87d068",
-              marginBottom: ".75rem",
-              boxShadow:
-                "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-            }}
-            icon={<UserOutlined />}
-          />
-        )}
-        {renderUploadButton()}
-        <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
-        <div>
-          <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-            {userIdentification}
-          </span>
+    <Form
+      form={form}
+      layout="vertical"
+      className="col-span-2 px-8 pt-4 pb-8"
+      onFinish={handleFormSubmit}
+      disabled={!isEditing}
+    >
+      <div className="grid grid-cols-3 gap-x-6">
+        <div className="flex flex-col items-center w-full px-8 pt-8 pb-4 mx-auto my-auto">
+          {userImage ? (
+            <img
+              className="w-24 h-24 mb-3 rounded-full shadow-lg"
+              width={96}
+              height={96}
+              src={`${CONN.IPFS_LOCAL}/${userImage}`}
+              alt={`${userName} image`}
+            />
+          ) : (
+            <Avatar
+              size={96}
+              style={{
+                backgroundColor: "#87d068",
+                marginBottom: ".75rem",
+                boxShadow:
+                  "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+              }}
+              icon={<UserOutlined />}
+            />
+          )}
+          {renderUploadButton()}
+          <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
+          {/* <div>
+            <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
+              {userIdentification}
+            </span>
+          </div> */}
+        </div>
+        <div className="grid">
+          <Form.Item
+            label="Nomor Dokumen Rekam Medis (DRM)"
+            name="newDmrNumber"
+            rules={[
+              { required: true, message: "Silakan masukkan Nomor DRM!" },
+            ]}
+          >
+            <Input disabled={!isEditing} style={inputStyling} />
+          </Form.Item>
+          <Form.Item
+            label="Nomor Rekam Medis Elektronik (RME)"
+            name="emrNumber"
+          >
+            <Input disabled style={inputStyling} />
+          </Form.Item>
+          <Form.Item
+            label="Faskes Asal"
+            name="faskesAsal"
+          >
+            <Input disabled style={inputStyling} />
+          </Form.Item>
+        </div>
+        <div className="grid grid-rows-3 mt-8 w-full h-fit content-end justify-end gap-y-4">
+          <button
+            type="button"
+            className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm w-[120px] h-auto text-center"
+            // onClick={handleEditClick}
+          >
+            Hapus Pasien
+          </button>
+          <button
+            type="button"
+            className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm w-[120px] h-fit px-5 py-1.5 text-center"
+            // onClick={handleEditClick}
+          >
+            Pendaftaran
+          </button>
+
+          {/* UBAH DATA */}
+          {isEditing ? (
+            <>
+              <button
+                type="button"
+                className="text-white bg-yellow-400 hover:bg-yellow-300 focus:ring-4 focus:outline-none focus:ring-yellow-200 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
+                onClick={handleCancelClick}
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                className="text-white bg-green-500 hover:bg-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
+                onClick={showLoader}
+              >
+                Simpan
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm w-[120px] h-fit px-5 py-1.5 text-center"
+                onClick={handleEditClick}
+              >
+                Ubah Data
+              </button>
+              <Spin spinning={spinning} />
+            </>
+          )}
         </div>
       </div>
-      <Form
-        form={form}
-        layout="vertical"
-        className="col-span-2 px-8 pt-4 pb-8"
-        onFinish={handleFormSubmit}
-        disabled={!isEditing}
-      >
+      <div>
         <div className="grid grid-cols-2 gap-x-8">
           <div className="col-span-2 mb-6 text-lg text-gray-900">
             Data {role}
@@ -362,9 +434,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Tempat Lahir"
             name="tempatLahir"
-            rules={[
-              { required: true, message: "Silakan masukkan tempat lahir!" },
-            ]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -394,9 +463,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Nama Ibu Kandung"
             name="namaIbu"
-            rules={[
-              { required: true, message: "Silakan masukkan nama ibu kandung!" },
-            ]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -422,7 +488,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Agama"
             name="agama"
-            rules={[{ required: true, message: "Silakan pilih agama!" }]}
           >
             <Select
               disabled={!isEditing}
@@ -443,7 +508,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Suku"
             name="suku"
-            rules={[{ required: true, message: "Silakan masukkan suku!" }]}
+            
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -451,12 +516,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Bahasa yang Dikuasai"
             name="bahasa"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan bahasa yang dikuasai!",
-              },
-            ]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -464,9 +523,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Golongan Darah"
             name="golonganDarah"
-            rules={[
-              { required: true, message: "Silakan pilih golongan darah!" },
-            ]}
           >
             <Select
               disabled={!isEditing}
@@ -490,27 +546,8 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           </Form.Item>
 
           <Form.Item
-            label="Nomor Telepon Rumah"
-            name="telpRumah"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan nomor telepon rumah!",
-              },
-            ]}
-          >
-            <Input disabled={!isEditing} style={inputStyling} />
-          </Form.Item>
-
-          <Form.Item
             label="Nomor Telepon Selular"
             name="telpSelular"
-            rules={[
-              {
-                required: true,
-                message: "Silakan masukkan nomor telepon selular!",
-              },
-            ]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -518,14 +555,14 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, message: "Silakan masukkan email!" }]}
+            
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
           <Form.Item
             label="Pendidikan"
             name="pendidikan"
-            rules={[{ required: true, message: "Silakan pilih pendidikan!" }]}
+            
           >
             <Select
               disabled={!isEditing}
@@ -547,7 +584,7 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Pekerjaan"
             name="pekerjaan"
-            rules={[{ required: true, message: "Silakan pilih pekerjaan!" }]}
+            
           >
             <Select
               disabled={!isEditing}
@@ -566,9 +603,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Status Pernikahan"
             name="pernikahan"
-            rules={[
-              { required: true, message: "Silakan pilih status pernikahan!" },
-            ]}
           >
             <Select
               disabled={!isEditing}
@@ -623,7 +657,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Kecamatan"
             name="kecamatan"
-            rules={[{ required: true, message: "Silakan masukkan kecamatan!" }]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -631,9 +664,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Kota Madya / Kabupaten"
             name="kota"
-            rules={[
-              { required: true, message: "Silakan masukkan kota / kabupaten!" },
-            ]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -641,7 +671,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Kode Pos"
             name="pos"
-            rules={[{ required: true, message: "Silakan masukkan kode pos!" }]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
@@ -649,7 +678,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Provinsi"
             name="provinsi"
-            rules={[{ required: true, message: "Silakan pilih provinsi!" }]}
           >
             <Select
               disabled={!isEditing}
@@ -661,14 +689,13 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
           <Form.Item
             label="Negara"
             name="negara"
-            rules={[{ required: true, message: "Silakan masukkan negara!" }]}
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
 
           {/* DATA PENANGGUNG JAWAB */}
-          {role === "Pasien" ? (
-            <>
+          {/* {role === "Pasien" ? (
+            <> */}
               <div className="col-span-2 my-6 text-lg text-gray-900">
                 Data Kerabat/Penanggung Jawab
                 <hr className="h-px bg-gray-700 border-0"></hr>
@@ -676,9 +703,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Nama Lengkap"
                 name="namaKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan nama lengkap!" },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -686,12 +710,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Nomor Identitas (NIK, SIM, atau Paspor)"
                 name="nomorIdentitasKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan nomor identitas kerabat!",
-                  },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -700,12 +718,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Tanggal Lahir"
                 name="tanggalLahirKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan pilih tanggal lahir kerabat!",
-                  },
-                ]}
               >
                 <DatePicker
                   id="tanggal_lahir_kerabat"
@@ -714,12 +726,9 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
                   size="large"
                   format={dateFormat}
                   disabled={!isEditing}
-                  onChange={(date, dateString) =>
-                    handleDateChange(date, dateString, "tanggalLahirKerabat")
-                  }
+                  onChange={(date, dateString) => handleDateChange(date, dateString, "tanggalLahirKerabat")}
                   // onSelect={onSelectTanggalLahirKerabat}
                   // onChange={(value) => setTanggalLahirKerabat(value)}
-                  required
                 />
               </Form.Item>
 
@@ -727,9 +736,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Jenis Kelamin"
                 name="genderKerabat"
-                rules={[
-                  { required: true, message: "Silakan pilih jenis kelamin!" },
-                ]}
               >
                 <Select
                   disabled={!isEditing}
@@ -748,12 +754,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Nomor Telepon"
                 name="telpKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan nomor telepon kerabat!",
-                  },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -762,12 +762,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Hubungan dengan Pasien"
                 name="hubunganKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan hubungan dengan pasien!",
-                  },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -776,9 +770,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Alamat"
                 name="alamatKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan alamat!" },
-                ]}
               >
                 <Input.TextArea
                   disabled={!isEditing}
@@ -791,7 +782,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Rukun Tetangga (RT)"
                 name="rtKerabat"
-                rules={[{ required: true, message: "Silakan masukkan RT!" }]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -800,7 +790,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Rukun Warga (RW)"
                 name="rwKerabat"
-                rules={[{ required: true, message: "Silakan masukkan RW!" }]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -809,12 +798,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Kelurahan/Desa"
                 name="kelurahanKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan kelurahan/desa!",
-                  },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -823,9 +806,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Kecamatan"
                 name="kecamatanKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan kecamatan!" },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -834,12 +814,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Kota Madya/Kabupaten"
                 name="kotaKerabat"
-                rules={[
-                  {
-                    required: true,
-                    message: "Silakan masukkan kota madya/kabupaten!",
-                  },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -848,9 +822,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Kode Pos"
                 name="posKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan kode pos!" },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
@@ -859,7 +830,6 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Provinsi"
                 name="provinsiKerabat"
-                rules={[{ required: true, message: "Silakan pilih provinsi!" }]}
               >
                 <Select
                   disabled={!isEditing}
@@ -872,51 +842,15 @@ export default function PatientData({ userDataProps, userAccountData = null }) {
               <Form.Item
                 label="Negara"
                 name="negaraKerabat"
-                rules={[
-                  { required: true, message: "Silakan masukkan negara!" },
-                ]}
               >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-            </>
+            {/* </>
           ) : (
             <></>
-          )}
+          )} */}
         </div>
-
-        {/* UBAH DATA */}
-        {isEditing ? (
-          // Tampilan tombol saat sedang dalam mode pengeditan
-          <div className="grid grid-cols-2 mt-8 text-center gap-x-4">
-            <button
-              type="button"
-              className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
-              onClick={handleCancelClick}
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
-              onClick={showLoader}
-            >
-              Simpan Perubahan
-            </button>
-          </div>
-        ) : (
-          // Tampilan tombol saat tidak dalam mode pengeditan
-          <div className="col-span-2 mt-8 text-center">
-            <button
-              type="button"
-              className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-              onClick={handleEditClick}
-            >
-              Ubah Data
-            </button>
-            <Spin spinning={spinning} fullscreen />
-          </div>
-        )}
-      </Form>
-    </div>
+      </div>
+    </Form>
   );
 }

@@ -31,7 +31,7 @@ export default function StaffPatientList({ role }) {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-list`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-data`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,6 @@ export default function StaffPatientList({ role }) {
           },
         });
         const data = await response.json();
-        console.log({data})
         if (!response.ok) console.log(data.error, data.message);
         // setAccounts(data.patientAccountData);
         setProfiles(data.profiles);
@@ -132,28 +131,32 @@ export default function StaffPatientList({ role }) {
     faskesAsal: profile?.faskesAsal,
   }));
 
-  const mergeAccountAndProfileData = (accounts, profiles) => {
-    const accountMap = new Map();
-    if (accounts) {
-      accounts.forEach(account => {
-        accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
-      });
-    }
-    if (profiles) {
-      profiles.forEach(profile => {
-        const account = accountMap.get(profile.accountAddress);
-        if (account) {
-          account.accountProfiles.push(profile);
-        }
-      });
-    }
-    return Array.from(accountMap.values());
-  };
+  // const mergeAccountAndProfileData = (accounts, profiles) => {
+  //   const accountMap = new Map();
+  //   if (accounts) {
+  //     accounts.forEach(account => {
+  //       accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
+  //     });
+  //   }
+  //   if (profiles) {
+  //     profiles.forEach(profile => {
+  //       const account = accountMap.get(profile.accountAddress);
+  //       if (account) {
+  //         account.accountProfiles.push(profile);
+  //       }
+  //     });
+  //   }
+  //   return Array.from(accountMap.values());
+  // };
   
   // const userData = mergeAccountAndProfileData(profiles);
   // sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
   sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
-  sessionStorage.setItem("staffPatientAppointments", JSON.stringify(appointments));
+  sessionStorage.setItem("StaffPelayananMedis", JSON.stringify(appointments));
+
+  const userAccountData = {
+    role: "staff",
+  }
 
   return (
     <>
@@ -176,7 +179,7 @@ export default function StaffPatientList({ role }) {
       <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
         {selectedData.profile && (
           <>
-            <PatientData userDataProps={selectedData.profile} userAccountData={null} />
+            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} />
           </>
         )}
       </Modal>
