@@ -5,16 +5,18 @@ import NavbarController from "../../components/Navbar/NavbarController";
 // import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
 import PatientAppointmentDisplayStaff from "./PatientAppointmentDisplayStaff";
 
-export default function StaffPatientAppointments({ role }) {
+export default function StaffPelayananMedis({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   // const userData = JSON.parse(sessionStorage.getItem("staffPatientData"));
-  const profiles = JSON.parse(sessionStorage.getItem("staffPatientProfiles"));
-  const appointmentData = JSON.parse(sessionStorage.getItem("staffPatientAppointments"));
+  // const profilesStorage = JSON.parse(sessionStorage.getItem("staffPatientProfiles"));
+  // const appointmentData = JSON.parse(sessionStorage.getItem("StaffPelayananMedis"));
   if (!token || !accountAddress) window.location.assign(`/staff/signin`);
 
-  const [scheduleData, setScheduleData] = useState([]);
+  // const [scheduleData, setScheduleData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [profiles, setProfiles] = useState([]);
+  const [appointmentData, setAppointments] = useState([]);
   // const [appointmentData, setAppointmentData] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState("Semua");
@@ -23,35 +25,57 @@ export default function StaffPatientAppointments({ role }) {
   // const handleOk = () => { setIsModalOpen(false) };
   const handleCancel = () => {setIsModalOpen(false) };
   const showModal = (appointmentId) => {
-    const selected = appointmentData.find(a => a.data.appointmentId === appointmentId);
-    setSelectedAppointment(selected.data);
+    const selected = appointmentData.find(a => a.appointmentId === appointmentId);
+    setSelectedAppointment(selected);
     setIsModalOpen(true);
   };
 
+  // useEffect(() => {
+  //   if (token && accountAddress) {
+  //     const fetchDataAsync = async () => {
+  //       try {
+  //         const responseAppointment = await fetch(
+  //           `${CONN.BACKEND_LOCAL}/staff/patient-appointments`,
+  //           {
+  //             method: "GET",
+  //             headers: {
+  //               "Content-Type": "application/json",
+  //               Authorization: "Bearer " + token,
+  //             },
+  //           }
+  //         );
+  //         const data = await responseAppointment.json();
+  //         setScheduleData(data.dokter);
+  //         setAppointmentData(data.patientAppointments);
+  //       } catch (error) {
+  //         console.error(`Error fetching ${role} data:`, error);
+  //       }
+  //     };
+  //     fetchDataAsync();
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (token && accountAddress) {
-      const fetchDataAsync = async () => {
-        try {
-          const responseAppointment = await fetch(
-            `${CONN.BACKEND_LOCAL}/staff/patient-appointments`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-              },
-            }
-          );
-          const data = await responseAppointment.json();
-          setScheduleData(data.dokter);
-          setAppointmentData(data.patientAppointments);
-        } catch (error) {
-          console.error(`Error fetching ${role} data:`, error);
-        }
-      };
-      fetchDataAsync();
-    }
-  }, []);
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/patient-data`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        });
+        const data = await response.json();
+        if (!response.ok) console.log(data.error, data.message);
+        // setAccounts(data.patientAccountData);
+        setProfiles(data.profiles);
+        setAppointments(data.appointments);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+    fetchAppointments();
+  }, [token]);
 
   let type;
   switch (role) {
@@ -71,7 +95,7 @@ export default function StaffPatientAppointments({ role }) {
     { title: 'Nama Pasien', dataIndex: 'namaLengkap', key: 'namaLengkap' },
     { title: 'Nama Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
     { title: 'Spesialisasi', dataIndex: 'spesialisasiDokter', key: 'spesialisasiDokter' },
-    { title: 'Rumah Sakit', dataIndex: 'rumahSakit', key: 'rumahSakit' },
+    { title: 'Faskes Asal', dataIndex: 'faskesAsal', key: 'faskesAsal' },
     { title: 'Waktu', dataIndex: 'waktuTerpilih', key: 'waktuTerpilih' },
     { title: 'Tanggal', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
     { title: 'Status', dataIndex: 'status',
@@ -96,13 +120,16 @@ export default function StaffPatientAppointments({ role }) {
     spesialisasiDokter: `Dokter ${appointment.spesialisasiDokter}`,
     waktuTerpilih: appointment.waktuTerpilih,
     tanggalTerpilih: new Date(appointment.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
-    rumahSakit: appointment.rumahSakit,
+    faskesAsal: appointment.faskesAsal,
     status: appointment.status,
   }));
 
+  sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
+  sessionStorage.setItem("StaffPelayananMedis", JSON.stringify(appointmentData));
+
   return (
     <>
-      <NavbarController type={type} page="Profil Pasien" color="blue" accountAddress={accountAddress} />
+      <NavbarController type={type} page="Appointment" color="blue" accountAddress={accountAddress} />
       <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start grid-cols-2 col-span-5">

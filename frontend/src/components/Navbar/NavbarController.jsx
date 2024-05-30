@@ -129,12 +129,12 @@ function NavbarController({ type, page, color, accountData = null }) {
     // staff
     navItems = [
       {
-        text: "Daftar Pasien",
+        text: "Data Pasien",
         linkToPage: `/staff/patient-list`,
         color: page === "staff" ? color : defaultColor,
       },
       {
-        text: "Appointment",
+        text: "Pelayanan Medis",
         linkToPage: `/staff/appointment-list`,
         color: page === "Appointment" ? color : defaultColor,
       },

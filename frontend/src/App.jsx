@@ -19,7 +19,7 @@ import NursePatientList from "./pages/nurse/NursePatientList";
 import StaffPatientList from "./pages/staff/StaffPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
-import StaffPatientAppointments from "./pages/staff/StaffPatientAppointments";
+import StaffPelayananMedis from "./pages/staff/StaffPelayananMedis";
 
 function App() {
   return (
@@ -159,7 +159,7 @@ function App() {
               />
               <Route
                 path={`/staff/appointment-list`}
-                element={<StaffPatientAppointments role="staff" />}
+                element={<StaffPelayananMedis role="staff" />}
               />
               <Route
                 path={`/staff/account`}
