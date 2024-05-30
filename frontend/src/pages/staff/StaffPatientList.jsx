@@ -10,7 +10,7 @@ export default function StaffPatientList({ role }) {
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
 
-  // const [accounts, setAccounts] = useState(null);
+  const [accounts, setAccounts] = useState();
   const [profiles, setProfiles] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
@@ -19,10 +19,9 @@ export default function StaffPatientList({ role }) {
   const handleCancel = () => {setIsModalOpen(false) };
   const showModal = (emrNumber) => {
     const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
-    console.log({selectedProfile})
-    // const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
+    const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
     setSelectedData({
-      // account: selectedAccount,
+      ...selectedAccount,
       profile: selectedProfile
     });
     setIsModalOpen(true);
@@ -40,7 +39,7 @@ export default function StaffPatientList({ role }) {
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
-        // setAccounts(data.patientAccountData);
+        setAccounts(data.accounts);
         setProfiles(data.profiles);
         setAppointments(data.appointments);
       } catch (error) {
@@ -179,7 +178,7 @@ export default function StaffPatientList({ role }) {
       <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
         {selectedData.profile && (
           <>
-            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} />
+            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} />
           </>
         )}
       </Modal>

@@ -78,19 +78,20 @@ function PatientAppointmentDisplayStaff({ data, token }) {
   ];
 
   const cancelAppointment = async () => {
-    const signedData = { accountAddress: data.appointment.data.accountAddress, emrNumber: data.appointment.data.emrNumber, appointmentId: data.appointment.data.appointmentId }
+    const patientAppointment = { accountAddress: data.appointment.data.accountAddress, dmrNumber: data.appointment.data.dmrNumber, emrNumber: data.appointment.data.emrNumber, appointmentId: data.appointment.data.appointmentId }
     const signer = await getSigner();
-    const signature = await signer.signMessage(JSON.stringify(signedData));
-    signedData.signature = signature;
+    const signature = await signer.signMessage(JSON.stringify(patientAppointment));
+    patientAppointment.signature = signature;
     console.log("Appointment signature:", signature);
+    console.log({ patientAppointment });
     try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/cancel-patient-appointment`, {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/cancel-appointment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...signedData }),
+        body: JSON.stringify({ ...patientAppointment }),
       });
       const result = await response.json();
       if (response.ok) {

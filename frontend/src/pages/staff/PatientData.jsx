@@ -9,26 +9,54 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
+import MakeAppointmentButtonStaff from "../../components/Buttons/StaffMakeAppointment";
 
 // Membuat instance client IPFS
 const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
-export default function PatientData({ dmrNumber, userDataProps, userAccountData = null }) {
+export default function PatientData({ dmrNumber, userDataProps, userAccountData = null, userData }) {
   const token = sessionStorage.getItem("userToken");
+  const accountAddress = sessionStorage.getItem("accountAddress");
   const [form] = Form.useForm();
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   // const [isChecked, setIsChecked] = useState(false);
   const [spinning, setSpinning] = React.useState(false);
   const [initialData, setInitialData] = useState({});
+  const [scheduleData, setScheduleData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [makeAppointmentModal, setMakeAppointmentModal] = useState(false);
   // const [imageCid, setImageCid] = useState(userDataProps.foto || "");
+
+  useEffect(() => {
+    if (token && accountAddress) {
+      const fetchDataAsync = async () => {
+        try {
+          const responseAppointment = await fetch(
+            `${CONN.BACKEND_LOCAL}/${userAccountData.role}/appointment`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          const dataAppointment = await responseAppointment.json();
+          setScheduleData(dataAppointment.dokter);
+        } catch (error) {
+          console.error(`Error fetching ${role} data:`, error);
+        }
+      };
+      fetchDataAsync();
+    }
+  }, []);
 
   let role;
   if (userAccountData === null) {
     role = "Pasien";
   } else {
-    switch (userAccountData.accountRole) {
+    switch (userAccountData.role) {
       case "patient":
         role = "Pasien";
         break;
@@ -366,13 +394,12 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
           >
             Hapus Pasien
           </button>
-          <button
-            type="button"
-            className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm w-[120px] h-fit px-5 py-1.5 text-center"
-            // onClick={handleEditClick}
-          >
-            Pendaftaran
-          </button>
+          <MakeAppointmentButtonStaff
+            buttonText={"Pendaftaran"}
+            scheduleData={scheduleData || []}
+            userData={userData}
+            token={token}
+          />
 
           {/* UBAH DATA */}
           {isEditing ? (
