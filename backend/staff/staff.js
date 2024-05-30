@@ -16,18 +16,18 @@ import { retrieveDMRData  } from "../middleware/userData.js";
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import patientABI from "../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
-import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
+// import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
-const schedule_contract = SCHEDULE_CONTRACT.toString();
+// const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
 const userContract = new ethers.Contract(user_contract, userABI, provider);
 const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
 // const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
-const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
+// const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const __filename = fileURLToPath(import.meta.url);
@@ -266,7 +266,7 @@ router.post("/cancel-patient-appointment", authMiddleware, async (req, res) => {
 });
 
 // get patient profile list
-router.get("/patient-list", authMiddleware, async (req, res) => {
+router.get("/patient-data", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
     if(!address) return res.status(401).json({ error: "Unauthorized" });
@@ -307,61 +307,61 @@ router.get("/patient-list", authMiddleware, async (req, res) => {
 });
 
 // get patient appointments
-router.get("/patient-appointments", authMiddleware, async (req, res) => {
-  try {
-    const address = req.auth.address;
-    const appointments = await outpatientContract.getTemporaryPatientData(address);
-    let patientAppointments = [];
+// router.get("/patient-appointments", authMiddleware, async (req, res) => {
+//   try {
+//     const address = req.auth.address;
+//     const appointments = await outpatientContract.getTemporaryPatientData(address);
+//     let patientAppointments = [];
 
-    for (const appointment of appointments) {
-      const patientAppointmentData = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
-      for (const patientAppointment of patientAppointmentData) {
-        const cid = patientAppointment.cid;
-        const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-        const response = await fetch(ipfsGatewayUrl);
-        const patientData = await response.json();
-        if (patientData.emrNumber === appointment.emrNumber) {
-          patientAppointments.push({
-            data: {
-              appointmentId: patientData.appointmentId,
-              accountAddress: patientData.accountAddress,
-              accountEmail: patientData.accountEmail,
-              emrNumber: patientData.emrNumber,
-              namaLengkap: patientData.namaLengkap,
-              nomorIdentitas: patientData.nomorIdentitas,
-              email: patientData.email,
-              telpSelular: patientData.telpSelular,
-              rumahSakit: patientData.rumahSakit,
-              idDokter: patientData.idDokter,
-              doctorAddress: patientData.doctorAddress,
-              namaDokter: patientData.namaDokter,
-              spesialisasiDokter: patientData.spesialisasiDokter,
-              idJadwal: patientData.idJadwal,
-              hariTerpilih: patientData.hariTerpilih,
-              tanggalTerpilih: patientData.tanggalTerpilih,
-              waktuTerpilih: patientData.waktuTerpilih,
-              idPerawat: patientData.idPerawat,
-              nurseAddress: patientData.nurseAddress,
-              namaAsisten: patientData.namaAsisten,
-              status: patientData.status,
-              createdAt: patientData.createdAt
-            },
-          });
-        }
-      }
-    }
+//     for (const appointment of appointments) {
+//       const patientAppointmentData = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
+//       for (const patientAppointment of patientAppointmentData) {
+//         const cid = patientAppointment.cid;
+//         const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
+//         const response = await fetch(ipfsGatewayUrl);
+//         const patientData = await response.json();
+//         if (patientData.emrNumber === appointment.emrNumber) {
+//           patientAppointments.push({
+//             data: {
+//               appointmentId: patientData.appointmentId,
+//               accountAddress: patientData.accountAddress,
+//               accountEmail: patientData.accountEmail,
+//               emrNumber: patientData.emrNumber,
+//               namaLengkap: patientData.namaLengkap,
+//               nomorIdentitas: patientData.nomorIdentitas,
+//               email: patientData.email,
+//               telpSelular: patientData.telpSelular,
+//               rumahSakit: patientData.rumahSakit,
+//               idDokter: patientData.idDokter,
+//               doctorAddress: patientData.doctorAddress,
+//               namaDokter: patientData.namaDokter,
+//               spesialisasiDokter: patientData.spesialisasiDokter,
+//               idJadwal: patientData.idJadwal,
+//               hariTerpilih: patientData.hariTerpilih,
+//               tanggalTerpilih: patientData.tanggalTerpilih,
+//               waktuTerpilih: patientData.waktuTerpilih,
+//               idPerawat: patientData.idPerawat,
+//               nurseAddress: patientData.nurseAddress,
+//               namaAsisten: patientData.namaAsisten,
+//               status: patientData.status,
+//               createdAt: patientData.createdAt
+//             },
+//           });
+//         }
+//       }
+//     }
 
-    const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
-    const schedules = await scheduleContract.getLatestActiveDoctorSchedule();
-    const scheduleCid = schedules.cid;
-    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${scheduleCid}`;
-    const ipfsResponse = await fetch(ipfsGatewayUrl);
-    const ipfsData = await ipfsResponse.json();
-    res.status(200).json({ ...ipfsData, patientAppointments });
-  } catch (error) {
-    console.error("Error fetching patient appointments:", error);
-    res.status(500).json({ message: "Failed to fetch patient appointments" });
-  }
-});
+//     const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
+//     const schedules = await scheduleContract.getLatestActiveDoctorSchedule();
+//     const scheduleCid = schedules.cid;
+//     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${scheduleCid}`;
+//     const ipfsResponse = await fetch(ipfsGatewayUrl);
+//     const ipfsData = await ipfsResponse.json();
+//     res.status(200).json({ ...ipfsData, patientAppointments });
+//   } catch (error) {
+//     console.error("Error fetching patient appointments:", error);
+//     res.status(500).json({ message: "Failed to fetch patient appointments" });
+//   }
+// });
 
 export default router;
