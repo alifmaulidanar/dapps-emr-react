@@ -4,9 +4,9 @@
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "id",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"indexed": false,
@@ -41,9 +41,9 @@
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "id",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"indexed": false,
@@ -123,6 +123,11 @@
 			},
 			{
 				"internalType": "string",
+				"name": "_appointmentId",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "_emrNumber",
 				"type": "string"
 			},
@@ -167,9 +172,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -204,9 +209,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -241,9 +246,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -332,9 +337,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -383,9 +388,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -434,9 +439,9 @@
 			{
 				"components": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "id",
-						"type": "uint256"
+						"type": "string"
 					},
 					{
 						"internalType": "address",
@@ -544,9 +549,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "_appointmentId",
-				"type": "uint256"
+				"type": "string"
 			},
 			{
 				"internalType": "address",
