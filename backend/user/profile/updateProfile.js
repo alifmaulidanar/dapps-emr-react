@@ -103,11 +103,11 @@ const userSchema = Joi.object({
   userAccountData: Joi.object().required(),
 });
 
-// Update Profile Patient
+// Update Profile Patient by Patient
 router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
-      dmrNumber, emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      dmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -129,7 +129,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     // Verifikasi tanda tangan
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
-        dmrNumber, emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        dmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
         golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
@@ -166,6 +166,112 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
 
     const updatedPatientData = {
       accountAddress: dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, foto
+    }
+
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath, { recursive: true });
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(updatedPatientData));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    
+    // Update DMR info on blockchain
+    const updateTX = await patientContractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    res.status(200).json({ updatedPatientData });
+  } catch (error) {
+    console.error(error);
+    const stackLines = error.stack.split("\n");
+    console.log("Error pada file dan baris:", stackLines[1].trim());
+    res.status(500).json({
+      error: error.message,
+      message: "Failed updating patient profile",
+    });
+  }
+});
+
+// Update Profile Patient by Staff
+router.post("/staff/update-profile", authMiddleware, async (req, res) => {
+  try {
+    const {
+      dmrNumber, newDmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, signature, foto,
+    } = req.body;
+
+    // Validasi input menggunakan Joi
+    // const { error } = patientSchema.validate({
+    //   emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+    //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+    //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+    //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+    //   rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+    //   negaraKerabat, userAccountData
+    // });
+    // if (error) { return res.status(400).json({ error: error.details[0].message }) }
+
+    // Verifikasi tanda tangan
+    const recoveredAddress = ethers.utils.verifyMessage(
+      JSON.stringify({
+        dmrNumber, newDmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+        negaraKerabat
+      }),
+      signature
+    );
+
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const patientContractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const [dmrExists, dmrData] = await patientContractWithSigner.getPatientByDmrNumber(dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
+
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+
+    // Find matched profile with emrNumber
+    const matchedProfile = accountProfiles.find(profile => profile.emrNumber === emrNumber);
+    if (!matchedProfile) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
+    }
+
+    const updatedPatientData = {
+      accountAddress: dmrData.accountAddress, dmrNumber: newDmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
       golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
