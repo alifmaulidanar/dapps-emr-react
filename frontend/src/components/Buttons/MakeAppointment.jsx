@@ -2,7 +2,6 @@ const { Option } = Select;
 import Swal from "sweetalert2";
 import { ethers } from "ethers";
 import flatpickr from "flatpickr";
-import { nanoid } from 'nanoid';
 import "flatpickr/dist/flatpickr.min.css";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";

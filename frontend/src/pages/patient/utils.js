@@ -13,7 +13,7 @@ export const fetchAndStorePatientData = async (token, accountAddress, setAppoint
       }
     );
     const data = await response.json();
-    console.log({ data });
+    // console.log({ data });
     setAppointmentsData(data.appointments);
     setPatientAccountData(data);
     sessionStorage.setItem("appointmentData", JSON.stringify(data.appointments));

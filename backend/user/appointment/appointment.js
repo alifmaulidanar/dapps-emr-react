@@ -32,7 +32,7 @@ const accountsPath = path.join(__dirname, "../../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
 const accounts = JSON.parse(accountsJson);
 
-const handleFileWrite = (specialization, selectedDate) => {
+export const handleFileWrite = (specialization, selectedDate) => {
   // Tentukan path folder berdasarkan tanggal yang dipilih
   const dateFolderPath = path.join(servicesPath, selectedDate);
   // Buat folder jika belum ada
@@ -63,7 +63,6 @@ const handleFileWrite = (specialization, selectedDate) => {
 router.get("/:role/appointment", authMiddleware, async (req, res) => {
   try {
     const address = req.auth.address;
-    const role = req.params.role;
     if (!address) return res.status(401).json({ error: "Unauthorized" });
 
     const scheduleContract = new ethers.Contract( schedule_contract, scheduleABI, provider);
@@ -164,6 +163,7 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
       appointmentData.accountAddress,
       appointmentData.doctorAddress,
       appointmentData.nurseAddress,
+      appointmentId,
       appointmentDataIpfs.emrNumber,
       newDmrCid
     );
