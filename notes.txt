@@ -585,3 +585,28 @@ abis ini ngapain:
 1,0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253435
 2,0xadc8158B4d4b63126C18B258BAFd94d7e4614e58,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253463
 3,0x7837Eb4C4388842335f8d51De5C003f2a5c42169,0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6,24010147cA60001,1713253463
+
+
+
+
+di staff ada menu apa aja (baru):
+1. Pendaftaran
+   - Nomor urut antrean -> hanya menampilkan nomor antrean saat ini untuk setiap poli kesehatan
+2. Data Pasien (yg terdaftar)
+   - Data pasien dan keluarga -> menampilkan tabel SELURUH pasien yang terdaftar (untuk mencari pasien) -> diklik nanti membuka profil pasien dan bisa didaftarkan berobat
+   - Pendaftaran pasien baru -> tombol saja
+3. Pelayanan Medis
+   - Pasien yang sudah mendaftar untuk berobat -> pisahkan by date dengan dropdown
+   - gabungan dari halaman data pelayanan medis dan data pendaftaran puskesmas pejuang
+
+
+✅dari staff sudah bisa:
+- post new patient account (data pasien)
+- post new patient profile (data pasien)
+- get patient list (data pasien)
+- get patient details (data pasien)
+- update patient data (data pasien)
+- post new outpatient appointment (data pasien)
+- get outpatient appointment list (pelayanan medis)
+- get outpatient appointment details (pelayanan medis)
+- update cancel outpatient appointment (pelayanan medis)
