@@ -219,9 +219,7 @@ router.post("/:role/appointment/cancel", authMiddleware, async (req, res) => {
     if (!matchedAppointment) {
       return res.status(404).json({ error: `Profile with nomor rekam medis ${appointmentId} tidak ditemukan.` });
     }
-
     matchedAppointment.status = "canceled";
-    console.log({matchedAppointment});
 
     const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
     const emrFolderName = `${emrNumber}J${emrNumber}`;
@@ -249,27 +247,17 @@ router.post("/:role/appointment/cancel", authMiddleware, async (req, res) => {
     );
     await updateTX.wait();
 
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      appointmentId,
+      address,
+      matchedAppointment.doctorAddress,
+      matchedAppointment.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+    console.log({matchedAppointment});
     res.status(200).json({ matchedAppointment });
-
-    // for (const appointment of appointments) {
-    //   const cid = appointment.cid;
-    //   const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-    //   const ipfsResponse = await fetch(ipfsGatewayUrl);
-    //   const ipfsData = await ipfsResponse.json();
-
-    //   if (ipfsData.appointmentId === appointmentId && ipfsData.emrNumber === emrNumber && ipfsData.status === "ongoing") {
-    //     ipfsData.status = "canceled";
-    //     const updatedCid = await client.add(JSON.stringify(ipfsData));
-    //     const contractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
-    //     await contractWithSigner.updateOutpatientData(appointment.id, address, ipfsData.doctorAddress, ipfsData.nurseAddress, updatedCid.path);
-    //     const newIpfsGatewayUrl = `${CONN.IPFS_LOCAL}/${updatedCid.path}`;
-    //     const newIpfsResponse = await fetch(newIpfsGatewayUrl);
-    //     const newIpfsData = await newIpfsResponse.json();
-    //     res.status(200).json({newStatus: newIpfsData.status});
-    //     return;
-    //   }
-    // }
-    // res.status(404).json({ error: "Appointment not found or already canceled" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
