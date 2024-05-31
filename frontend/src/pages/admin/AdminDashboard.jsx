@@ -486,6 +486,7 @@ export default function AdminDashboard() {
                   rowKey="address"
                   loading={spinning}
                   size="middle"
+                  pagination={false}
                 />
               </div>
             )}

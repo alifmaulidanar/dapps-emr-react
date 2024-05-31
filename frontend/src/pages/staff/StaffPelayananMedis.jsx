@@ -134,13 +134,6 @@ export default function StaffPelayananMedis({ role }) {
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start grid-cols-2 col-span-5">
             <div className="grid mb-8">
-              {/* <MakeAppointmentButton
-                buttonText={"Buat Appointment"}
-                scheduleData={scheduleData || []}
-                userData={null}
-                token={token}
-                alamatStaf={accountAddress}
-              /> */}
             </div>
             <div className="grid mb-8 ml-auto">
               <Select style={{ width: 200, marginLeft: 20 }} onChange={handleProfileChange} defaultValue="Semua"
@@ -153,7 +146,7 @@ export default function StaffPelayananMedis({ role }) {
             </div>
           </div>
           <div className="grid items-start col-span-5">
-            <Table columns={columns} dataSource={dataSource} />
+            <Table columns={columns} dataSource={dataSource} pagination={false} />
           </div>
         </div>
       </div>

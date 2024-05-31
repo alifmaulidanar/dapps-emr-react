@@ -170,7 +170,7 @@ export default function StaffPatientList({ role }) {
         <div className="grid justify-center w-4/5 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
             {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
-              <Table columns={columns} dataSource={dataSource} />
+              <Table columns={columns} dataSource={dataSource} pagination={false} />
             {/* </div> */}
           </div>
         </div>

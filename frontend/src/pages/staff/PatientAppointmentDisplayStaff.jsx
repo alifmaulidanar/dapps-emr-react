@@ -66,7 +66,9 @@ function PatientAppointmentDisplayStaff({ data, token }) {
     { key: "namaAsisten", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaAsisten}</p>) },
     { key: "nurseAddress", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.data.nurseAddress}</Tag>) },
     { key: "appointmentCreatedAt", value1: "Pendaftaran Dibuat Pada",
-      value2: (<p>{new Date(data.appointment.data.appointmentCreatedAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</p>),
+      value2: (
+        <p>{new Date(data.appointment.data.appointmentCreatedAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+      ),
     },
     { key: "patientGender", value1: "Status Rawat Jalan",
       value2: (
@@ -117,7 +119,7 @@ function PatientAppointmentDisplayStaff({ data, token }) {
         <PatientRecordLoop data={patientDataProps1} />
         <PatientRecordLoop data={patientDataProps2} />
       </div>
-      <div className="justify-center w-1/3 mx-auto">
+      <div className="justify-center mx-auto">
         {data.appointment.data.status === "ongoing" ? <Button type="primary" danger onClick={cancelAppointment}>Batalkan Pendaftaran</Button> : null}
       </div>
     </div>
