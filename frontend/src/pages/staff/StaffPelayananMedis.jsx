@@ -129,7 +129,7 @@ export default function StaffPelayananMedis({ role }) {
 
   return (
     <>
-      <NavbarController type={type} page="Appointment" color="blue" accountAddress={accountAddress} />
+      <NavbarController type={type} page="pelayanan-medis" color="blue" accountAddress={accountAddress} />
       <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start grid-cols-2 col-span-5">

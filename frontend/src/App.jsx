@@ -16,9 +16,10 @@ import PatientAccount from "./pages/AccountPatient";
 import UserProfile from "./pages/Profile";
 import DoctorPatientList from "./pages/doctor/DoctorPatientList";
 import NursePatientList from "./pages/nurse/NursePatientList";
-import StaffPatientList from "./pages/staff/StaffPatientList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
+import StaffAntrean from "./pages/staff/StaffAntrean";
+import StaffPatientList from "./pages/staff/StaffPatientList";
 import StaffPelayananMedis from "./pages/staff/StaffPelayananMedis";
 
 function App() {
@@ -153,6 +154,10 @@ function App() {
 
             {/* Routing Staff */}
             <>
+              <Route
+                path={`/staff/antrean`}
+                element={<StaffAntrean role="staff" />}
+              />
               <Route
                 path={`/staff/patient-list`}
                 element={<StaffPatientList role="staff" />}

@@ -128,15 +128,20 @@ function NavbarController({ type, page, color, accountData = null }) {
   } else if (type === 4) {
     // staff
     navItems = [
+      // {
+      //   text: "Pendaftaran",
+      //   linkToPage: `/staff/antrean`,
+      //   color: page === "antrean" ? color : defaultColor,
+      // },
       {
         text: "Data Pasien",
         linkToPage: `/staff/patient-list`,
-        color: page === "staff" ? color : defaultColor,
+        color: page === "data-pasien" ? color : defaultColor,
       },
       {
         text: "Pelayanan Medis",
         linkToPage: `/staff/appointment-list`,
-        color: page === "Appointment" ? color : defaultColor,
+        color: page === "pelayanan-medis" ? color : defaultColor,
       },
       // {
       //   text: "Profil Staff",

@@ -159,7 +159,7 @@ export default function StaffPatientList({ role }) {
 
   return (
     <>
-      <NavbarController type={type} page={role} color="blue" />
+      <NavbarController type={type} page="data-pasien" color="blue" />
       <div>
         <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
