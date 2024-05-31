@@ -51,6 +51,68 @@ router.use(express.json());
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
 
+// get patient profile list
+router.get("/patient-data", authMiddleware, async (req, res) => {
+  try {
+    const address = req.auth.address;
+    if(!address) return res.status(401).json({ error: "Unauthorized" });
+
+    const privateKey = accounts[address];
+    const wallet = new Wallet(privateKey);
+    const walletWithProvider = wallet.connect(provider);
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
+
+    try {
+      const patientAccounts = await contractWithSigner.getAllPatients();
+      const patientData = await Promise.all(patientAccounts.map(async (account) => {
+        const dmrNumber = account.dmrNumber;
+        const dmrCid = account.dmrCid;
+        return { dmrNumber, dmrCid};
+      }));
+
+      const data = await Promise.all(patientData.map(async (data) => {
+        const retrievedData = await retrieveDMRData(data.dmrNumber, data.dmrCid);
+        retrievedData.dmrNumber = data.dmrNumber;
+        return retrievedData;
+      }));
+
+      const accounts = data.map(data => {
+        const dmrNumber = data.dmrNumber;
+        const accountJsonString = data.accountData[`J${dmrNumber}.json`];
+        if (!accountJsonString) {
+          console.error(`No account data found for dmrNumber: ${dmrNumber}`);
+          return null;
+        }
+        try {
+          const accountObj = JSON.parse(accountJsonString);
+          return accountObj;
+        } catch (error) {
+          console.error(`Error parsing account data for dmrNumber: ${dmrNumber}`, error);
+          return null;
+        }
+      }).filter(account => account !== null);
+
+      const profiles = data.flatMap(data => {
+        return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
+      });
+      const activeProfiles = profiles.filter(profile => profile.isActive === true);
+
+      const appointments = data.flatMap((data) => {
+        return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
+      });
+      const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
+
+      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments });
+    } catch (error) {
+      console.log("Error fetching patient accounts:", error);
+      return res.status(500).json({ message: "Failed to fetch patient accounts" });
+    }
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
 // Add New Patient Account
 router.post("/register/patient-account", authMiddleware, async (req, res) => {
   try {
@@ -199,6 +261,193 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: error.message });
+  }
+});
+
+// Update Profile Patient by Staff
+router.post("/update-profile", authMiddleware, async (req, res) => {
+  try {
+    const {
+      dmrNumber, newDmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, signature, foto,
+    } = req.body;
+
+    // Validasi input menggunakan Joi
+    // const { error } = patientSchema.validate({
+    //   emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+    //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+    //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+    //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+    //   rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+    //   negaraKerabat, userAccountData
+    // });
+    // if (error) { return res.status(400).json({ error: error.details[0].message }) }
+
+    // Verifikasi tanda tangan
+    const recoveredAddress = ethers.utils.verifyMessage(
+      JSON.stringify({
+        dmrNumber, newDmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+        tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+        rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+        negaraKerabat
+      }),
+      signature
+    );
+
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const patientContractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const [dmrExists, dmrData] = await patientContractWithSigner.getPatientByDmrNumber(dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
+
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+
+    // Find matched profile with emrNumber
+    const matchedProfile = accountProfiles.find(profile => profile.emrNumber === emrNumber);
+    if (!matchedProfile) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
+    }
+
+    const updatedPatientData = {
+      accountAddress: dmrData.accountAddress, dmrNumber: newDmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+      tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+      rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+      negaraKerabat, foto, isActive: matchedProfile.isActive
+    }
+
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath, { recursive: true });
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(updatedPatientData));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    
+    // Update DMR info on blockchain
+    const updateTX = await patientContractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    res.status(200).json({ updatedPatientData });
+  } catch (error) {
+    console.error(error);
+    const stackLines = error.stack.split("\n");
+    console.log("Error pada file dan baris:", stackLines[1].trim());
+    res.status(500).json({
+      error: error.message,
+      message: "Failed updating patient profile",
+    });
+  }
+});
+
+// Delete Profile Patient by Staff
+router.post("/delete-profile", authMiddleware, async (req, res) => {
+  try {
+    // const { address } = req.auth;
+    const { accountAddress, dmrNumber, emrNumber, faskesAsal, nomorIdentitas, namaLengkap, signature } = req.body;
+
+    // Validasi input menggunakan Joi
+    // const { error } = patientSchema.validate({
+    //   emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
+    //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+    //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
+    //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
+    //   rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
+    //   negaraKerabat, userAccountData
+    // });
+    // if (error) { return res.status(400).json({ error: error.details[0].message }) }
+
+    // Verifikasi tanda tangan
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify({ accountAddress, dmrNumber, emrNumber, faskesAsal, nomorIdentitas, namaLengkap }), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const staffAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!staffAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== staffAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const patientContractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const [dmrExists, dmrData] = await patientContractWithSigner.getPatientByDmrNumber(dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
+
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+
+    // Find matched profile with emrNumber
+    const matchedProfile = accountProfiles.find(profile => profile.emrNumber === emrNumber && profile.isActive === true);
+    if (!matchedProfile) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
+    }
+    const updatedPatientData = { ...matchedProfile, isActive: false }
+
+    const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
+    const emrFolderName = `${emrNumber}J${emrNumber}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    fs.mkdirSync(emrPath, { recursive: true });
+    fs.writeFileSync(path.join(emrPath, `J${emrNumber}.json`), JSON.stringify(updatedPatientData));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    
+    // Update DMR info on blockchain
+    const updateTX = await patientContractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    res.status(200).json({ updatedPatientData });
+  } catch (error) {
+    console.error(error);
+    const stackLines = error.stack.split("\n");
+    console.log("Error pada file dan baris:", stackLines[1].trim());
+    res.status(500).json({
+      error: error.message,
+      message: "Failed updating patient profile",
+    });
   }
 });
 
@@ -378,68 +627,6 @@ router.post("/cancel-appointment", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
-  }
-});
-
-// get patient profile list
-router.get("/patient-data", authMiddleware, async (req, res) => {
-  try {
-    const address = req.auth.address;
-    if(!address) return res.status(401).json({ error: "Unauthorized" });
-
-    const privateKey = accounts[address];
-    const wallet = new Wallet(privateKey);
-    const walletWithProvider = wallet.connect(provider);
-    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
-
-    try {
-      const patientAccounts = await contractWithSigner.getAllPatients();
-      const patientData = await Promise.all(patientAccounts.map(async (account) => {
-        const dmrNumber = account.dmrNumber;
-        const dmrCid = account.dmrCid;
-        return { dmrNumber, dmrCid};
-      }));
-
-      const data = await Promise.all(patientData.map(async (data) => {
-        const retrievedData = await retrieveDMRData(data.dmrNumber, data.dmrCid);
-        retrievedData.dmrNumber = data.dmrNumber;
-        return retrievedData;
-      }));
-
-      const accounts = data.map(data => {
-        const dmrNumber = data.dmrNumber;
-        const accountJsonString = data.accountData[`J${dmrNumber}.json`];
-        if (!accountJsonString) {
-          console.error(`No account data found for dmrNumber: ${dmrNumber}`);
-          return null;
-        }
-        try {
-          const accountObj = JSON.parse(accountJsonString);
-          return accountObj;
-        } catch (error) {
-          console.error(`Error parsing account data for dmrNumber: ${dmrNumber}`, error);
-          return null;
-        }
-      }).filter(account => account !== null);
-
-      const profiles = data.flatMap(data => {
-        return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
-      });
-      const activeProfiles = profiles.filter(profile => profile.isActive === true);
-
-      const appointments = data.flatMap((data) => {
-        return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
-      });
-      const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
-
-      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments });
-    } catch (error) {
-      console.log("Error fetching patient accounts:", error);
-      return res.status(500).json({ message: "Failed to fetch patient accounts" });
-    }
-  } catch (error) {
-    console.error("Error fetching appointments:", error);
-    res.status(500).json({ message: "Failed to fetch appointments" });
   }
 });
 
