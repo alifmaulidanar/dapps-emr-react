@@ -9,7 +9,6 @@ dayjs.extend(customParseFormat);
 import { Buffer } from 'buffer';
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
-import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
 import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, message } from "antd";
@@ -24,9 +23,9 @@ const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 export default function DoctorPatientDetails({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
+  const patientProfile = JSON.parse(sessionStorage.getItem("selectedProfile"));
+  const patientAccount = JSON.parse(sessionStorage.getItem("selectedAccount"));
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
-  const location = useLocation();
-  const record = location.state?.record;
   
   const [profile, setProfile] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -39,28 +38,37 @@ export default function DoctorPatientDetails({ role }) {
     const appointment = appointments.find(a => a.appointmentId === appointmentId);
     setSelectedData({ appointmentId, appointment });
   };
+
+  const patientIdentifier = {
+    accountAddress: patientProfile.accountAddress,
+    dmrNumber: patientProfile.dmrNumber,
+    emrNumber: patientProfile.emrNumber,
+    nomorIdentitas: patientProfile.nomorIdentitas,
+    namaLengkap: patientProfile.namaLengkap,
+  }
   
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-list/patient-details`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-data/details`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,
           },
-          body: JSON.stringify({ accountAddress: record.accountAddress, emrNumber: record.emrNumber }),
+          body: JSON.stringify(patientIdentifier),
         });
         const data = await response.json();
+        console.log(data);
         if (!response.ok) console.log(data.error, data.message);
-        setProfile(data.foundPatientProfile);
+        setProfile(patientProfile);
         setAppointments(data.patientAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
     fetchAppointments();
-  }, [token, record.accountAddress, record.emrNumber]);
+  }, [token]);
 
   let type;
   switch (role) {
@@ -231,83 +239,83 @@ export default function DoctorPatientDetails({ role }) {
     };
 
     useEffect(() => {
-      const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
-      setHistory(selectedHistory);
-      if (selectedHistory) {
-        const cid = selectedHistory ? selectedHistory.lampiranRekamMedis : null;
+      // const selectedHistory = profile.riwayatPengobatan.find(h => h.appointmentId === appointmentId);
+      // setHistory(selectedHistory);
+      if (selectedData) {
+        const cid = selectedData ? selectedData.lampiranRekamMedis : null;
         // Set initial values
         const initialValues = {
-          appointmentId: selectedHistory.appointmentId,
+          appointmentId: selectedData.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
           namaDokter: selectedData.appointment.namaDokter,
           namaAsisten: selectedData.appointment.namaAsisten,
-          tanggalRekamMedis: dayjs(selectedHistory.tanggalRekamMedis),
-          namaLengkap: selectedHistory.namaLengkap,
-          keluhanUtama: selectedHistory.keluhanUtama,
-          riwayatPenyakit: selectedHistory.riwayatPenyakit,
-          riwayatAlergi: selectedHistory.riwayatAlergi,
-          riwayatAlergiLainnya: selectedHistory.riwayatAlergiLainnya,
-          riwayatPengobatan: selectedHistory.riwayatPengobatan,
-          tingkatKesadaran: selectedHistory.tingkatKesadaran,
-          denyutJantung: selectedHistory.denyutJantung,
-          pernapasan: selectedHistory.pernapasan,
-          tekananDarahSistole: selectedHistory.tekananDarahSistole,
-          tekananDarahDiastole: selectedHistory.tekananDarahDiastole,
-          suhuTubuh: selectedHistory.suhuTubuh,
-          kepala: selectedHistory.kepala,
-          mata: selectedHistory.mata,
-          telinga: selectedHistory.telinga,
-          hidung: selectedHistory.hidung,
-          rambut: selectedHistory.rambut,
-          bibir: selectedHistory.bibir,
-          gigiGeligi: selectedHistory.gigiGeligi,
-          lidah: selectedHistory.lidah,
-          langitLangit: selectedHistory.langitLangit,
-          leher: selectedHistory.leher,
-          tenggorokan: selectedHistory.tenggorokan,
-          tonsil: selectedHistory.tonsil,
-          dada: selectedHistory.dada,
-          payudara: selectedHistory.payudara,
-          punggung: selectedHistory.punggung,
-          perut: selectedHistory.perut,
-          genital: selectedHistory.genital,
-          anusDubur: selectedHistory.anusDubur,
-          lenganAtas: selectedHistory.lenganAtas,
-          lenganBawah: selectedHistory.lenganBawah,
-          jariTangan: selectedHistory.jariTangan,
-          kukuTangan: selectedHistory.kukuTangan,
-          persendianTangan: selectedHistory.persendianTangan,
-          tungkaiAtas: selectedHistory.tulangAtas,
-          tulangBawah: selectedHistory.tulangBawah,
-          jariKaki: selectedHistory.jariKaki,
-          kukuKaki: selectedHistory.kukuKaki,
-          persendianKaki: selectedHistory.persendianKaki,
-          statusPsikologis: selectedHistory.statusPsikologis,
-          statusPsikologisLainnya: selectedHistory.statusPsikologisLainnya,
-          sosialEkonomi: selectedHistory.sosialEkonomi,
-          spiritual: selectedHistory.spiritual,
-          namaObat: selectedHistory.namaObat,
-          dosisObat: selectedHistory.dosisObat,
-          waktuPenggunaanObat: selectedHistory.WaktuPenggunaanObat,
-          diagnosisAwal: selectedHistory.diagnosisAwal,
-          diagnosisAkhirPrimer: selectedHistory.diagnosisAkhirPrimer,
-          diagnosisAkhirSekunder: selectedHistory.diagnosisAkhirSekunder,
-          namaKerabat: selectedHistory.namaKerabat,
-          dokterPenjelasanTindakan: selectedHistory.dokterPenjelasanTindakan,
-          petugasPendampingTindakan: selectedHistory.petugasPendampingTindakan,
-          namaTindakan: selectedHistory.namaTindakan,
-          konsekuensiTindakan: selectedHistory.konsekuensiTindakan,
-          konfirmasiTindakan: selectedHistory.konfirmasiTindakan,
-          tanggalPenjelasanTindakan: dayjs(selectedHistory.tanggalPenjelasanTindakan),
-          pasienPenjelasanTindakan: selectedHistory.pasienPenjelasanTindakan,
-          saksi1PenjelasanTindakan: selectedHistory.saksi1PenjelasanTindakan,
-          saksi2PenjelasanTindakan: selectedHistory.saksi2PenjelasanTindakan,
-          lampiranRekamMedis: selectedHistory.lampiranRekamMedis,
-          judulRekamMedis: selectedHistory.judulRekamMedis,
-          catatanRekamMedis: selectedHistory.catatanRekamMedis,
+          tanggalRekamMedis: dayjs(selectedData.tanggalRekamMedis),
+          namaLengkap: selectedData.namaLengkap,
+          keluhanUtama: selectedData.keluhanUtama,
+          riwayatPenyakit: selectedData.riwayatPenyakit,
+          riwayatAlergi: selectedData.riwayatAlergi,
+          riwayatAlergiLainnya: selectedData.riwayatAlergiLainnya,
+          riwayatPengobatan: selectedData.riwayatPengobatan,
+          tingkatKesadaran: selectedData.tingkatKesadaran,
+          denyutJantung: selectedData.denyutJantung,
+          pernapasan: selectedData.pernapasan,
+          tekananDarahSistole: selectedData.tekananDarahSistole,
+          tekananDarahDiastole: selectedData.tekananDarahDiastole,
+          suhuTubuh: selectedData.suhuTubuh,
+          kepala: selectedData.kepala,
+          mata: selectedData.mata,
+          telinga: selectedData.telinga,
+          hidung: selectedData.hidung,
+          rambut: selectedData.rambut,
+          bibir: selectedData.bibir,
+          gigiGeligi: selectedData.gigiGeligi,
+          lidah: selectedData.lidah,
+          langitLangit: selectedData.langitLangit,
+          leher: selectedData.leher,
+          tenggorokan: selectedData.tenggorokan,
+          tonsil: selectedData.tonsil,
+          dada: selectedData.dada,
+          payudara: selectedData.payudara,
+          punggung: selectedData.punggung,
+          perut: selectedData.perut,
+          genital: selectedData.genital,
+          anusDubur: selectedData.anusDubur,
+          lenganAtas: selectedData.lenganAtas,
+          lenganBawah: selectedData.lenganBawah,
+          jariTangan: selectedData.jariTangan,
+          kukuTangan: selectedData.kukuTangan,
+          persendianTangan: selectedData.persendianTangan,
+          tungkaiAtas: selectedData.tulangAtas,
+          tulangBawah: selectedData.tulangBawah,
+          jariKaki: selectedData.jariKaki,
+          kukuKaki: selectedData.kukuKaki,
+          persendianKaki: selectedData.persendianKaki,
+          statusPsikologis: selectedData.statusPsikologis,
+          statusPsikologisLainnya: selectedData.statusPsikologisLainnya,
+          sosialEkonomi: selectedData.sosialEkonomi,
+          spiritual: selectedData.spiritual,
+          namaObat: selectedData.namaObat,
+          dosisObat: selectedData.dosisObat,
+          waktuPenggunaanObat: selectedData.WaktuPenggunaanObat,
+          diagnosisAwal: selectedData.diagnosisAwal,
+          diagnosisAkhirPrimer: selectedData.diagnosisAkhirPrimer,
+          diagnosisAkhirSekunder: selectedData.diagnosisAkhirSekunder,
+          namaKerabat: selectedData.namaKerabat,
+          dokterPenjelasanTindakan: selectedData.dokterPenjelasanTindakan,
+          petugasPendampingTindakan: selectedData.petugasPendampingTindakan,
+          namaTindakan: selectedData.namaTindakan,
+          konsekuensiTindakan: selectedData.konsekuensiTindakan,
+          konfirmasiTindakan: selectedData.konfirmasiTindakan,
+          tanggalPenjelasanTindakan: dayjs(selectedData.tanggalPenjelasanTindakan),
+          pasienPenjelasanTindakan: selectedData.pasienPenjelasanTindakan,
+          saksi1PenjelasanTindakan: selectedData.saksi1PenjelasanTindakan,
+          saksi2PenjelasanTindakan: selectedData.saksi2PenjelasanTindakan,
+          lampiranRekamMedis: selectedData.lampiranRekamMedis,
+          judulRekamMedis: selectedData.judulRekamMedis,
+          catatanRekamMedis: selectedData.catatanRekamMedis,
         };
         // Check isDokter & isPerawat
-        if (selectedHistory.isDokter) {
+        if (selectedData.isDokter) {
           // if isDokter
           setIsEdit(true);
           form.setFieldsValue(initialValues);
@@ -354,7 +362,7 @@ export default function DoctorPatientDetails({ role }) {
             .catch(error => {
               console.error('Error fetching data:', error);
             });
-        } else if (selectedHistory.isPerawat) {
+        } else if (selectedData.isPerawat) {
           // if isPerawat
           setIsEdit(false);
           form.setFieldsValue({
@@ -364,57 +372,57 @@ export default function DoctorPatientDetails({ role }) {
             namaAsisten: selectedData.appointment.namaAsisten,
             tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
             namaLengkap: selectedData.appointment.namaLengkap,
-            keluhanUtama: selectedHistory.keluhanUtama,
-            riwayatPenyakit: selectedHistory.riwayatPenyakit,
-            riwayatAlergi: selectedHistory.riwayatAlergi,
-            riwayatAlergiLainnya: selectedHistory.riwayatAlergiLainnya,
-            riwayatPengobatan: selectedHistory.riwayatPengobatan,
-            tingkatKesadaran: selectedHistory.tingkatKesadaran,
-            denyutJantung: selectedHistory.denyutJantung,
-            pernapasan: selectedHistory.pernapasan,
-            tekananDarahSistole: selectedHistory.tekananDarahSistole,
-            tekananDarahDiastole: selectedHistory.tekananDarahDiastole,
-            suhuTubuh: selectedHistory.suhuTubuh,
-            kepala: selectedHistory.kepala,
-            mata: selectedHistory.mata,
-            telinga: selectedHistory.telinga,
-            hidung: selectedHistory.hidung,
-            rambut: selectedHistory.rambut,
-            bibir: selectedHistory.bibir,
-            gigiGeligi: selectedHistory.gigiGeligi,
-            lidah: selectedHistory.lidah,
-            langitLangit: selectedHistory.langitLangit,
-            leher: selectedHistory.leher,
-            tenggorokan: selectedHistory.tenggorokan,
-            tonsil: selectedHistory.tonsil,
-            dada: selectedHistory.dada,
-            payudara: selectedHistory.payudara,
-            punggung: selectedHistory.punggung,
-            perut: selectedHistory.perut,
-            genital: selectedHistory.genital,
-            anusDubur: selectedHistory.anusDubur,
-            lenganAtas: selectedHistory.lenganAtas,
-            lenganBawah: selectedHistory.lenganBawah,
-            jariTangan: selectedHistory.jariTangan,
-            kukuTangan: selectedHistory.kukuTangan,
-            persendianTangan: selectedHistory.persendianTangan,
-            tungkaiAtas: selectedHistory.tulangAtas,
-            tulangBawah: selectedHistory.tulangBawah,
-            jariKaki: selectedHistory.jariKaki,
-            kukuKaki: selectedHistory.kukuKaki,
-            persendianKaki: selectedHistory.persendianKaki,
-            statusPsikologis: selectedHistory.statusPsikologis,
-            statusPsikologisLainnya: selectedHistory.statusPsikologisLainnya,
-            sosialEkonomi: selectedHistory.sosialEkonomi,
-            spiritual: selectedHistory.spiritual,
+            keluhanUtama: selectedData.keluhanUtama,
+            riwayatPenyakit: selectedData.riwayatPenyakit,
+            riwayatAlergi: selectedData.riwayatAlergi,
+            riwayatAlergiLainnya: selectedData.riwayatAlergiLainnya,
+            riwayatPengobatan: selectedData.riwayatPengobatan,
+            tingkatKesadaran: selectedData.tingkatKesadaran,
+            denyutJantung: selectedData.denyutJantung,
+            pernapasan: selectedData.pernapasan,
+            tekananDarahSistole: selectedData.tekananDarahSistole,
+            tekananDarahDiastole: selectedData.tekananDarahDiastole,
+            suhuTubuh: selectedData.suhuTubuh,
+            kepala: selectedData.kepala,
+            mata: selectedData.mata,
+            telinga: selectedData.telinga,
+            hidung: selectedData.hidung,
+            rambut: selectedData.rambut,
+            bibir: selectedData.bibir,
+            gigiGeligi: selectedData.gigiGeligi,
+            lidah: selectedData.lidah,
+            langitLangit: selectedData.langitLangit,
+            leher: selectedData.leher,
+            tenggorokan: selectedData.tenggorokan,
+            tonsil: selectedData.tonsil,
+            dada: selectedData.dada,
+            payudara: selectedData.payudara,
+            punggung: selectedData.punggung,
+            perut: selectedData.perut,
+            genital: selectedData.genital,
+            anusDubur: selectedData.anusDubur,
+            lenganAtas: selectedData.lenganAtas,
+            lenganBawah: selectedData.lenganBawah,
+            jariTangan: selectedData.jariTangan,
+            kukuTangan: selectedData.kukuTangan,
+            persendianTangan: selectedData.persendianTangan,
+            tungkaiAtas: selectedData.tulangAtas,
+            tulangBawah: selectedData.tulangBawah,
+            jariKaki: selectedData.jariKaki,
+            kukuKaki: selectedData.kukuKaki,
+            persendianKaki: selectedData.persendianKaki,
+            statusPsikologis: selectedData.statusPsikologis,
+            statusPsikologisLainnya: selectedData.statusPsikologisLainnya,
+            sosialEkonomi: selectedData.sosialEkonomi,
+            spiritual: selectedData.spiritual,
             namaKerabat: profile.namaKerabat,
             dokterPenjelasanTindakan: selectedData.appointment.namaDokter,
             petugasPendampingTindakan: selectedData.appointment.namaAsisten,
             pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
             tanggalPenjelasanTindakan: dayjs(),
-            lampiranRekamMedis: selectedHistory.lampiranRekamMedis,
-            judulRekamMedis: selectedHistory.judulRekamMedis,
-            catatanRekamMedis: selectedHistory.catatanRekamMedis,
+            lampiranRekamMedis: selectedData.lampiranRekamMedis,
+            judulRekamMedis: selectedData.judulRekamMedis,
+            catatanRekamMedis: selectedData.catatanRekamMedis,
           });
         } else {
           // if !isDokter dan !isPerawat
@@ -881,7 +889,7 @@ export default function DoctorPatientDetails({ role }) {
       />
       )}
     </>
-  )
+  );
 
   return (
     <>
