@@ -25,7 +25,6 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
   const [initialData, setInitialData] = useState({});
   const [scheduleData, setScheduleData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [makeAppointmentModal, setMakeAppointmentModal] = useState(false);
   // const [imageCid, setImageCid] = useState(userDataProps.foto || "");
 
   useEffect(() => {
@@ -167,24 +166,6 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
     }
   }, []);
 
-  // Connect MetaMask to Ganache VPS
-  // const getSigner = useCallback(async () => {
-  //   const win = window;
-  //   if (!win.ethereum) {
-  //     console.error("Metamask not detected");
-  //     return;
-  //   }
-
-  //   try {
-  //     await win.ethereum.request({ method: "eth_requestAccounts" });
-  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     const signer = provider.getSigner();
-  //     return signer;
-  //   } catch (error) {
-  //     console.error("Error setting up Web3Provider:", error);
-  //   }
-  // }, []);
-
   const handleFormSubmit = async (values) => {
     // setSpinning(true);
     if (window.ethereum) {
@@ -325,6 +306,59 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
       </div>
     ) : null;
 
+    const handleDeletePatient = async () => {
+      const patientReferences = {
+        accountAddress: userDataProps.accountAddress,
+        dmrNumber: userDataProps.dmrNumber,
+        emrNumber: userDataProps.emrNumber,
+        faskesAsal: userDataProps.faskesAsal,
+        nomorIdentitas: userDataProps.nomorIdentitas,
+        namaLengkap: userDataProps.namaLengkap
+      }
+      const signer = await getSigner();
+      const signature = await signer.signMessage(JSON.stringify(patientReferences));
+      patientReferences.signature = signature;
+
+      try {
+        const response = await fetch(
+          `${CONN.BACKEND_LOCAL}/staff/delete-profile`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify(patientReferences),
+          }
+        );
+  
+        const responseData = await response.json();
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Pasien Berhasil Dihapus!",
+            text: "Data pasien telah dihapus.",
+          }).then(() => {
+            window.location.reload();
+          });
+        } else {
+          console.log(responseData.error, responseData.message);
+          Swal.fire({
+            icon: "error",
+            title: "Penghapusan Pasien Gagal",
+            text: responseData.error,
+          });
+        }
+      } catch (error) {
+        console.error("Terjadi kesalahan:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Terjadi kesalahan saat menghapus pasien",
+          text: error,
+        });
+      }
+    };
+
   return (
     <Form
       form={form}
@@ -390,7 +424,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
           <button
             type="button"
             className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm w-[120px] h-auto text-center"
-            // onClick={handleEditClick}
+            onClick={handleDeletePatient}
           >
             Hapus Pasien
           </button>
