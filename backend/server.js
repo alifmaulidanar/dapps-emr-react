@@ -13,6 +13,7 @@ import addProfile from "./user/profile/addProfile.js";
 import updateProfile from "./user/profile/updateProfile.js";
 import updateAccount from "./user/account/updateAccount.js";
 import appointmentRouter from "./user/appointment/appointment.js";
+import patientDataRouter from "./patient/patientData.js";
 
 const app = express();
 app.use(cors());
@@ -34,7 +35,8 @@ app.use(
   signinRouter,
   updateProfile,
   updateAccount,
-  appointmentRouter
+  appointmentRouter,
+  patientDataRouter
 );
 
 app.listen(CONN.SERVER, () => { console.log(`Server berjalan pada port ${CONN.SERVER}`) });

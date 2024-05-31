@@ -51,68 +51,6 @@ router.use(express.json());
 const currentDateTime = new Date();
 const formattedDateTime = formatDateTime(currentDateTime);
 
-// get patient profile list
-router.get("/patient-data", authMiddleware, async (req, res) => {
-  try {
-    const address = req.auth.address;
-    if(!address) return res.status(401).json({ error: "Unauthorized" });
-
-    const privateKey = accounts[address];
-    const wallet = new Wallet(privateKey);
-    const walletWithProvider = wallet.connect(provider);
-    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, walletWithProvider);
-
-    try {
-      const patientAccounts = await contractWithSigner.getAllPatients();
-      const patientData = await Promise.all(patientAccounts.map(async (account) => {
-        const dmrNumber = account.dmrNumber;
-        const dmrCid = account.dmrCid;
-        return { dmrNumber, dmrCid};
-      }));
-
-      const data = await Promise.all(patientData.map(async (data) => {
-        const retrievedData = await retrieveDMRData(data.dmrNumber, data.dmrCid);
-        retrievedData.dmrNumber = data.dmrNumber;
-        return retrievedData;
-      }));
-
-      const accounts = data.map(data => {
-        const dmrNumber = data.dmrNumber;
-        const accountJsonString = data.accountData[`J${dmrNumber}.json`];
-        if (!accountJsonString) {
-          console.error(`No account data found for dmrNumber: ${dmrNumber}`);
-          return null;
-        }
-        try {
-          const accountObj = JSON.parse(accountJsonString);
-          return accountObj;
-        } catch (error) {
-          console.error(`Error parsing account data for dmrNumber: ${dmrNumber}`, error);
-          return null;
-        }
-      }).filter(account => account !== null);
-
-      const profiles = data.flatMap(data => {
-        return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
-      });
-      const activeProfiles = profiles.filter(profile => profile.isActive === true);
-
-      const appointments = data.flatMap((data) => {
-        return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
-      });
-      const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
-
-      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments });
-    } catch (error) {
-      console.log("Error fetching patient accounts:", error);
-      return res.status(500).json({ message: "Failed to fetch patient accounts" });
-    }
-  } catch (error) {
-    console.error("Error fetching appointments:", error);
-    res.status(500).json({ message: "Failed to fetch appointments" });
-  }
-});
-
 // Add New Patient Account
 router.post("/register/patient-account", authMiddleware, async (req, res) => {
   try {
