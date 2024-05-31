@@ -1,8 +1,8 @@
 import { Button, Tag } from "antd";
 import Swal from "sweetalert2";
-import { ethers } from "ethers";
 import { CONN } from "../../../../enum-global";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import getSigner from "../utils/getSigner";
 
 export default function AddPatientButton({ token }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,40 +10,10 @@ export default function AddPatientButton({ token }) {
   const [spinning, setSpinning] = React.useState(false);
   const [patientFound, setPatientFound] = useState(false);
   const [patientAddress, setPatientAddress] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [foundPatientProfile, setFoundPatientProfile] = useState({});
   const modalComponent = useRef();
 
   const showLoader = () => { setSpinning(true); };
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) { console.error("Metamask not detected"); return; }
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
-
   const handleModal = () => { setIsOpen((prevStat) => !prevStat); }
   const handleClickOutside = (event) => {
     if ( modalComponent.current && !modalComponent.current.contains(event.target)) setIsOpen(false);

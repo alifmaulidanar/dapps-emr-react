@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Upload, message, Button, Form, Input, Select, DatePicker, Spin } from "antd";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
-import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../../components/utils/getSigner";
 import MakeAppointmentButtonStaff from "../../components/Buttons/StaffMakeAppointment";
 
 // Membuat instance client IPFS
@@ -18,7 +18,6 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const [form] = Form.useForm();
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   // const [isChecked, setIsChecked] = useState(false);
   const [spinning, setSpinning] = React.useState(false);
@@ -129,42 +128,6 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
   // const handleCheckboxChange = () => {
   //   setIsChecked(!isChecked);
   // };
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
 
   const handleFormSubmit = async (values) => {
     // setSpinning(true);

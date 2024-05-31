@@ -1,73 +1,24 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { DatePicker, Modal, Button, Spin } from "antd";
-import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../utils/getSigner";
 
 export default function RegisterPatientButton({ buttonText, mainNeighborhood }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const dmrNumber = sessionStorage.getItem("dmrNumber");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
 
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  const showLoader = () => { setSpinning(true) };
+  const showModal = () => { setIsModalOpen(true) };
+  const handleOk = () => { setIsModalOpen(false) };
+  const handleCancel = () => { setIsModalOpen(false) };
 
   const dateFormat = "YYYY-MM-DD";
   const customFormat = (value) => `${value.format(dateFormat)}`;
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
-
   const [patientData, setPatientData] = useState({
     accountAddress,
     namaLengkap: "",

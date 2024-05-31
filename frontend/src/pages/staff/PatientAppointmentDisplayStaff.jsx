@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
-import { ethers } from "ethers";
 import { Tag, Button } from "antd";
-import { useState, useCallback } from "react";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../../components/utils/getSigner";
 
 const PatientRecordLoop = ({ data }) => {
   return (
@@ -18,33 +17,6 @@ const PatientRecordLoop = ({ data }) => {
 };
 
 function PatientAppointmentDisplayStaff({ data, token }) {
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) { console.error("Metamask not detected"); return; }
-    try {
-      const accounts = await win.ethereum.request({ method: "eth_requestAccounts" });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
-
   const patientDataProps1 = [
     { key: "tanggalTerpilih", value1: "Hari & Tanggal",
       value2: (

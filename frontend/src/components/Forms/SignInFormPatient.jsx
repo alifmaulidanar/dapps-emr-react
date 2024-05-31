@@ -4,14 +4,13 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import React, { useState, useCallback } from "react";
-import { ethers } from "ethers";
+import React from "react";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../utils/getSigner";
 
 export default function SignInFormPatient({ role, resetLink, signupLink }) {
   const [form] = useForm();
   const [spinning, setSpinning] = React.useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
 
   let displayRole;
   switch (role) {
@@ -29,47 +28,7 @@ export default function SignInFormPatient({ role, resetLink, signupLink }) {
       break;
   }
 
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
-
-  // Lakukan validasi formulir
+  const showLoader = () => { setSpinning(true) };
   const handleSubmit = async (values) => {
     showLoader();
     if (window.ethereum) {

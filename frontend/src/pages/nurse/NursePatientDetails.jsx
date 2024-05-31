@@ -5,15 +5,15 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
-import { ethers } from "ethers";
 import { CONN } from "../../../../enum-global";
 import { useLocation } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { UserOutlined, RightOutlined } from "@ant-design/icons";
 import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, Tag, Divider, Select, message } from "antd";
 import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
 import BackButton from "../../components/Buttons/Navigations";
 import NavbarController from "../../components/Navbar/NavbarController";
+import getSigner from "../../components/utils/getSigner";
 
 export default function NursePatientDetails({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -26,7 +26,6 @@ export default function NursePatientDetails({ role }) {
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
 
   const handleCancel = () => {setIsModalOpen(false) };
   const showProfileModal = () => { setSelectedData({ profile }); setIsModalOpen(true); };
@@ -56,38 +55,6 @@ export default function NursePatientDetails({ role }) {
     };
     fetchAppointments();
   }, [token, record.accountAddress, record.emrNumber]);
-
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({ method: "eth_requestAccounts" });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
 
   let type;
   switch (role) {

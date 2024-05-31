@@ -4,13 +4,12 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import { Button, Form, Input, Spin, Modal } from "antd";
 const { TextArea } = Input;
 import { useForm } from "antd/lib/form/Form";
-import React, { useState, useCallback } from "react";
-import { ethers } from "ethers";
+import React, { useState } from "react";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../../components/utils/getSigner";
 
 export default function SignUpForm({ role }) {
   const [form] = useForm();
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [spinning, setSpinning] = React.useState(false);
   const [open, setOpen] = useState(false);
   const [accountData, setAccountData] = useState(null);
@@ -28,40 +27,6 @@ export default function SignUpForm({ role }) {
     hideModal();
     window.location.assign(`/${role}/signin`);
   };
-
-  // const info = () => {
-  //   Modal.info({
-  //     open: { open },
-  //     title: "Simpan data akun Anda",
-  //     centered: true,
-  //     width: 500,
-  //     content: (
-  //       <div className="grid gap-y-4">
-  //         <p>
-  //           Silakan simpan data akun Anda berikut ini di tempat yang aman dan
-  //           mudah Anda akses.
-  //         </p>
-  //         <TextArea
-  //           id="accountData"
-  //           disabled
-  //           style={{
-  //             height: 120,
-  //             resize: "none",
-  //           }}
-  //         />
-  //       </div>
-  //     ),
-  //     footer: [
-  //       <Button
-  //         type="primary"
-  //         className="mt-8 text-white bg-blue-600 blue-button"
-  //         onClick={hideModal}
-  //       >
-  //         Sudah saya simpan
-  //       </Button>,
-  //     ],
-  //   });
-  // };
 
   let displayRole;
   switch (role) {
@@ -83,62 +48,6 @@ export default function SignUpForm({ role }) {
     setSpinning(true);
   };
 
-  // Connect MetaMask to Ganache lokal
-  // const getSigner = useCallback(async () => {
-  //   const win = window;
-  //   if (!win.ethereum) {
-  //     console.error("Metamask not detected");
-  //     return;
-  //   }
-
-  //   try {
-  //     const accounts = await win.ethereum.request({
-  //       method: "eth_requestAccounts",
-  //     });
-  //     const selectedAccount = accounts[0];
-  //     setSelectedAccount(selectedAccount);
-  //     console.log(selectedAccount);
-
-  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     await provider.send("wallet_addEthereumChain", [
-  //       {
-  //         chainId: "0x539",
-  //         chainName: "Ganache",
-  //         nativeCurrency: {
-  //           name: "ETH",
-  //           symbol: "ETH",
-  //           decimals: 18,
-  //         },
-  //         rpcUrls: [CONN.GANACHE_LOCAL],
-  //       },
-  //     ]);
-
-  //     const signer = provider.getSigner(selectedAccount);
-  //     return signer;
-  //   } catch (error) {
-  //     console.error("Error setting up Web3Provider:", error);
-  //   }
-  // }, []);
-
-  // Connect MetaMask to Ganache VPS
-  // const getSigner = useCallback(async () => {
-  //   const win = window;
-  //   if (!win.ethereum) {
-  //     console.error("Metamask not detected");
-  //     return;
-  //   }
-
-  //   try {
-  //     await win.ethereum.request({ method: "eth_requestAccounts" });
-  //     const provider = new ethers.providers.Web3Provider(win.ethereum);
-  //     const signer = provider.getSigner();
-  //     return signer;
-  //   } catch (error) {
-  //     console.error("Error setting up Web3Provider:", error);
-  //   }
-  // }, []);
-
-  // Lakukan validasi formulir
   const handleSubmit = async (values) => {
     showLoader();
     // if (window.ethereum) {

@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Form, Input, Spin } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import NavbarController from "../components/Navbar/NavbarController";
 import CopyIDButton from "../components/Buttons/CopyIDButton";
-import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../enum-global";
@@ -18,47 +17,10 @@ export default function PatientAccount() {
   const [form] = Form.useForm();
   const [fetchData, setFetchData] = useState([]);
   const [spinning, setSpinning] = React.useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [userAccountData, setUserAccountData] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const showLoader = () => { setSpinning(true) };
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
 
   useEffect(() => {
     if (token && accountAddress) {

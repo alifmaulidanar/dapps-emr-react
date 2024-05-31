@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import { Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Upload, message } from "antd";
 const  { Dragger } = Upload;
@@ -10,8 +10,8 @@ import { CONN } from "../../../../enum-global";
 import BackButton from "../../components/Buttons/Navigations";
 import { useLocation } from "react-router-dom";
 import DoctorPatientProfile from "./DoctorPatientProfile";
-import { ethers } from "ethers";
 import { create } from "ipfs-http-client";
+import getSigner from "../../components/utils/getSigner";
 
 const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
@@ -27,7 +27,6 @@ export default function DoctorPatientDetails({ role }) {
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
 
   const handleUploadChange = ({ fileList: newFileList }) => { setFileList(newFileList) };
   const handleCancel = () => {setIsModalOpen(false) };
@@ -59,41 +58,6 @@ export default function DoctorPatientDetails({ role }) {
     };
     fetchAppointments();
   }, [token, record.accountAddress, record.emrNumber]);
-
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
 
   let type;
   switch (role) {

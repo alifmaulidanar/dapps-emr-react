@@ -1,52 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { Button, Form, Input, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import { ethers } from "ethers";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../utils/getSigner";
 
 export default function AdminSignIn() {
   const [form] = useForm();
   const [spinning, setSpinning] = React.useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-
-  const showLoader = () => {
-    setSpinning(true);
-  };
-
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
+  const showLoader = () => { setSpinning(true) };
 
   const handleSubmit = async (values) => {
     showLoader();

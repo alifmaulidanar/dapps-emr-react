@@ -1,18 +1,16 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-key */
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { DatePicker, Modal, Button, Spin, Segmented, Alert, Card, message } from "antd";
-import { ethers } from "ethers";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../../enum-global";
+import getSigner from "../utils/getSigner";
 
 export default function RegisterPatientButton({ buttonText }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
   const [accountData, setAccountData] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [spinning, setSpinning] = React.useState(false);
@@ -36,9 +34,7 @@ export default function RegisterPatientButton({ buttonText }) {
         setCopySuccess(true);
         message.success("Account information copied to clipboard!");
       },
-      () => {
-        message.error("Failed to copy account information.");
-      }
+      () => { message.error("Failed to copy account information.") }
     );
   };
 
@@ -55,42 +51,6 @@ export default function RegisterPatientButton({ buttonText }) {
       onChange={handleTabChange}
     />
   );
-
-  // Connect MetaMask to Ganache lokal
-  const getSigner = useCallback(async () => {
-    const win = window;
-    if (!win.ethereum) {
-      console.error("Metamask not detected");
-      return;
-    }
-
-    try {
-      const accounts = await win.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      const selectedAccount = accounts[0];
-      setSelectedAccount(selectedAccount);
-      console.log(selectedAccount);
-
-      const provider = new ethers.providers.Web3Provider(win.ethereum);
-      await provider.send("wallet_addEthereumChain", [
-        {
-          chainId: "0x539",
-          chainName: "Ganache",
-          nativeCurrency: {
-            name: "ETH",
-            symbol: "ETH",
-          },
-          rpcUrls: [CONN.GANACHE_LOCAL],
-        },
-      ]);
-
-      const signer = provider.getSigner(selectedAccount);
-      return signer;
-    } catch (error) {
-      console.error("Error setting up Web3Provider:", error);
-    }
-  }, []);
 
   const [patientData, setPatientData] = useState({
     areaCode: "",
