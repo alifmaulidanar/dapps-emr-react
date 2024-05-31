@@ -77,6 +77,7 @@ async function getUserAccountDataPatient(address) {
     const accountProfiles = data.emrProfiles.map(profileInfo => {
       return JSON.parse(profileInfo.profile);
     });
+    const activeProfiles = accountProfiles.filter(profile => profile.isActive === true);
 
     // appointments
     const appointmentDetails = data.appointmentData.map(appointmentInfo => {
@@ -102,7 +103,7 @@ async function getUserAccountDataPatient(address) {
           accountRole: accountObj.accountRole,
           accountCreated: accountObj.accountCreated,
           role: "patient",
-          accountProfiles: accountProfiles
+          accountProfiles: activeProfiles
         }
       },
       appointments: appointmentDetails

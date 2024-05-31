@@ -99,7 +99,7 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     };
 
     // Membuat objek data profil pasien
-    const patientData = { accountAddress: selectedAccountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { accountAddress: selectedAccountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto, isActive: true };
 
     // Prepare directory for IPFS upload
     const dmrPath = path.join(basePath, dmrFolderName);
@@ -162,7 +162,7 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
     const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(dmrNumber);
     if (!dmrExists) return res.status(404).json({ error: `DMR number ${dmrNumber} tidak ditemukan.` });
     const emrNumber = await generatePatientEMR();
-    const patientData = { accountAddress:dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto };
+    const patientData = { accountAddress:dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto, isActive: true };
 
     const dmrFolderName = `${dmrNumber}J${dmrNumber}`;
     const emrFolderName = `${emrNumber}J${emrNumber}`;
@@ -425,11 +425,14 @@ router.get("/patient-data", authMiddleware, async (req, res) => {
       const profiles = data.flatMap(data => {
         return data.emrProfiles.map(profileInfo => JSON.parse(profileInfo.profile));
       });
+      const activeProfiles = profiles.filter(profile => profile.isActive === true);
 
       const appointments = data.flatMap((data) => {
         return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
       });
-      res.status(200).json({ accounts, profiles, appointments });
+      const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
+
+      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments });
     } catch (error) {
       console.log("Error fetching patient accounts:", error);
       return res.status(500).json({ message: "Failed to fetch patient accounts" });
