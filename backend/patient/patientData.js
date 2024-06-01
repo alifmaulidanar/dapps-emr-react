@@ -17,11 +17,11 @@ import { handleFileWrite } from "../user/appointment/appointment.js";
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import patientABI from "../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
-// import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
+import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
-// const schedule_contract = SCHEDULE_CONTRACT.toString();
+const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
@@ -57,6 +57,13 @@ router.get("/:role/patient-data", authMiddleware, async (req, res) => {
     const role = req.params.role;
     const address = req.auth.address;
     if(!address) return res.status(401).json({ error: "Unauthorized" });
+
+    const scheduleContract = new ethers.Contract( schedule_contract, scheduleABI, provider);
+    const schedules = await scheduleContract.getLatestActiveDoctorSchedule();
+    const scheduleCid = schedules.cid;
+    const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${scheduleCid}`;
+    const ipfsResponse = await fetch(ipfsGatewayUrl);
+    const ipfsData = await ipfsResponse.json();
 
     const privateKey = accounts[address];
     const wallet = new Wallet(privateKey);
@@ -103,7 +110,7 @@ router.get("/:role/patient-data", authMiddleware, async (req, res) => {
       });
       const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
 
-      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments });
+      res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments, schedules: ipfsData });
     } catch (error) {
       console.log("Error fetching patient accounts:", error);
       return res.status(500).json({ message: "Failed to fetch patient accounts" });

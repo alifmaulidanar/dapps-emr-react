@@ -12,6 +12,7 @@ export default function DoctorPatientList({ role }) {
   const [accounts, setAccounts] = useState();
   const [profiles, setProfiles] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [schedules, setSchedules] = useState([]);
 
   const saveDataToSessionStorage = (emrNumber) => {
     const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
@@ -36,6 +37,8 @@ export default function DoctorPatientList({ role }) {
         setAccounts(data.accounts);
         setProfiles(data.profiles);
         setAppointments(data.appointments);
+        setSchedules(data.schedules);
+        sessionStorage.setItem("doctorSchedules", JSON.stringify(data.schedules));
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
