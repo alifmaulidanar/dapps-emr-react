@@ -610,3 +610,10 @@ di staff ada menu apa aja (baru):
 - get outpatient appointment list (pelayanan medis)
 - get outpatient appointment details (pelayanan medis)
 - update cancel outpatient appointment (pelayanan medis)
+
+
+✅ lanjut keadaan fisik pakai checkbox
+✅ yang cuma 2 atau 3 opsi ganti pakai radio
+✅ data udah bagus (commonData dan specificData)
+- cek lagi data anamnesis yang akan dikirim
+- lanjut ke diagnosis
