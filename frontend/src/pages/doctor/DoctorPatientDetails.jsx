@@ -12,6 +12,8 @@ import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
 import { InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
 import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
+import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+const { TextArea } = Input;
 const { Dragger } = Upload;
 import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
 import BackButton from "../../components/Buttons/Navigations";
@@ -35,6 +37,10 @@ export default function DoctorPatientDetails({ role }) {
   const [selectedDoctor, setSelectedDoctor] = useState({});
   const [selectedNurse, setSelectedNurse] = useState({});
   const [form] = Form.useForm();
+
+  const onChange = (date, dateString) => {
+    console.log(date, dateString);
+  };
 
   const handleDoctorChange = (value) => {
     const selected = schedules.dokter.find(dokter => dokter.namaDokter === value);
@@ -202,6 +208,27 @@ export default function DoctorPatientDetails({ role }) {
     //   })
     // );
 
+    const uploadFiles = async (files) => {
+      const uploadedFiles = await Promise.all(
+        files.map(async (file) => {
+          const reader = new FileReader();
+          return new Promise((resolve, reject) => {
+            reader.onload = async (event) => {
+              try {
+                const result = await ipfsClient.add(Buffer.from(event.target.result));
+                resolve({ name: file.name, path: result.path });
+              } catch (error) {
+                reject(error);
+              }
+            };
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+          });
+        })
+      );
+      return uploadedFiles;
+    };
+
     const onAlergiChange = value => { setSelectedAlergi(value) };
     const onPsikologisChange = value => { setSelectedPsikologis(value) };
     const onValuesChange = (changedValues, allValues) => {
@@ -209,6 +236,9 @@ export default function DoctorPatientDetails({ role }) {
       keys.forEach(key => { if (isEdit && changedValues[key] === '') { form.setFieldsValue({ [key]: null }) } });
     };
     const onFinish = async (values) => {
+      const uploadedFiles = await uploadFiles(fileList);
+      console.log({uploadedFiles});
+
       const transformedValues = Object.entries(values).reduce((acc, [key, value]) => {
         acc[key] = value === undefined ? null : value;
         return acc;
@@ -257,17 +287,18 @@ export default function DoctorPatientDetails({ role }) {
             tanggalRekamMedis: dayjs().format("YYYY-MM-DD"),
             waktuRekamMedis: dayjs().format("HH:mm:ss"),
             datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
-            isDokter: true,
-            alamatStaf: selectedData.appointment.alamatStaf,
+            files: uploadedFiles,
+            // isDokter: true,
+            // alamatStaf: selectedData.appointment.alamatStaf,
             // lampiranRekamMedis: cid,
           };
           break;
-        case 'gigi':
-          endpoint = '/doctor/patient-list/patient-details/emr-gigi';
+        case 'kehamilan':
+          endpoint = '/doctor/patient-list/patient-details/emr-kehamilan';
           specificData = { ...commonData, ...transformedValues };
           break;
-        case 'anak':
-          endpoint = '/doctor/patient-list/patient-details/emr-anak';
+        case 'tbParu':
+          endpoint = '/doctor/patient-list/patient-details/emr-tbparu';
           specificData = { ...commonData, ...transformedValues };
           break;
         default:
@@ -611,11 +642,11 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item> */}
               <Form.Item label="Riwayat Alergi" name="riwayatAlergi" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('riwayatAlergi')} options={[
-                  { value: '1', label: <span>Tidak ada</span> },
-                  { value: '2', label: <span>1. Obat</span> },
-                  { value: '3', label: <span>2. Makanan</span> },
-                  { value: '4', label: <span>3. Udara</span> },
-                  { value: '5', label: <span>4. Lain-lain</span> },
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Riwayat Alergi Lainnya" name="riwayatAlergiLainnya">
@@ -955,105 +986,183 @@ export default function DoctorPatientDetails({ role }) {
             <>
               {/* PEMERIKSAAN SPESIALISTIK */}
               <div className="col-span-2 text-lg text-gray-900">
-                Pemeriksaan Spesialistik
+                Diagnosis
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
 
-              {/* Riwayat Penggunaan Obat */}
-              <div className="col-span-2">
-                <Divider orientation="left" orientationMargin="0">1. Riwayat Penggunaan Obat</Divider>
-              </div>
-              <Form.Item label="Nama Obat" name="namaObat">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-              <Form.Item label="Dosis" name="dosisObat">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-              <Form.Item label="Waktu Penggunaan" name="waktuPenggunaanObat">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-
-              {/* Diagnosis */}
-              <div className="col-span-2">
-                <Divider orientation="left" orientationMargin="0">2. Diagnosis</Divider>
-              </div>
-              <Form.Item label="Diagnosis Awal / Masuk" name="diagnosisAwal">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-              <Form.Item label="Diagnosis Akhir Primer" name="diagnosisAkhirPrimer">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-              <Form.Item label="Diagnosis Akhir Sekunder" name="diagnosisAkhirSekunder">
-                  <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-
-              {/* Tindakan / Penolakan Tindakan (Informed Consent) */}
-              <div className="col-span-2">
-                <Divider orientation="left" orientationMargin="0">3. Persetujuan Tindakan / Penolakan Tindakan (Informed Consent)</Divider>
-              </div>
-              <Form.Item label="Nama Lengkap Pasien" name="namaLengkap">
-                <Input style={inputStyling} disabled/>
-              </Form.Item>
-              <Form.Item label="Nama Kerabat Pendamping Pasien" name="namaKerabat">
-                <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Dokter yang Memberi Penjelasan" name="dokterPenjelasanTindakan">
-                <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Petugas yang Mendampingi" name="petugasPendampingTindakan">
-                <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Tindakan yang Dilakukan" name="namaTindakan">
-                <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Konsekuensi dari Tindakan" name="konsekuensiTindakan">
-                <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Persetujuan / Penolakan Tindakan" name="konfirmasiTindakan">
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('konfirmasiTindakan')} options={[
-                  { value: '1', label: <span>Ya</span> },
-                  { value: '2', label: <span>Tidak</span> }
-                ]}/>
-              </Form.Item>
-              <Form.Item label="Tanggal Pemberian Penjelasan Tindakan" name="tanggalPenjelasanTindakan"
-            >
-                <DatePicker
-                  id="tanggalPenjelasanTindakan"
-                  className="w-full h-auto text-gray-900"
-                  style={inputStyling}
-                  size="large"
-                  format={dateFormat}
-                  inputReadOnly={true}
-                  disabled
-              />
-              </Form.Item>
-              {/* <Form.Item label="Jam Pemberian Penjelasan Tindakan" name="waktuPenjelasanTindakan"
-            >
-                <DatePicker
-                  id="waktuPenjelasanTindakan"
-                  className="w-full h-auto text-gray-900"
-                  style={inputStyling}
-                  size="large"
-                  format={dateFormat}
-                  inputReadOnly={true}
-                  disabled
-              />
-              </Form.Item> */}
-              <div className="col-span-2">
-                <Divider orientation="left">Pernyataan Tindakan (Tanda Tangan)</Divider>
-              </div>
-              <Form.Item label="Dokter yang Memberi Penjelasan" name="dokterPenjelasanTindakan">
-                  <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Pasien/Keluarga yang Menerima Penjelasan" name="pasienPenjelasanTindakan">
-                  <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Saksi 1" name="saksi1PenjelasanTindakan">
-                  <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
-              <Form.Item label="Saksi 2" name="saksi2PenjelasanTindakan">
-                  <Input style={inputStyling} disabled={isEdit}/>
-              </Form.Item>
+              <Form.List name="diagnosis" initialValue={[{}]}>
+                {(fields, { add, remove }) => (
+                  <>
+                    <div className='grid col-span-2 w-full'>
+                      <Table
+                        dataSource={fields}
+                        pagination={false}
+                        rowKey={(record) => record.key}
+                        columns={[
+                          {
+                            title: 'Dokter / Tenaga Medis',
+                            dataIndex: ['namaDokter'],
+                            key: 'namaDokter',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'namaDokter']}
+                                fieldKey={[field.fieldKey, 'namaDokter']}
+                                rules={[{ required: true, message: 'Harap pilih dokter' }]}
+                              >
+                                <Select
+                                  showSearch
+                                  placeholder="Pilih Dokter"
+                                  optionFilterProp="children"
+                                  filterOption={(input, option) =>
+                                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                  }
+                                  options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                                />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: 'Perawat / Bidan / Nutrisionist / Sanitarian',
+                            dataIndex: ['namaAsisten'],
+                            key: 'namaAsisten',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'namaAsisten']}
+                                fieldKey={[field.fieldKey, 'namaAsisten']}
+                                rules={[{ required: true, message: 'Harap pilih perawat' }]}
+                              >
+                                <Select
+                                  showSearch
+                                  placeholder="Pilih Perawat"
+                                  optionFilterProp="children"
+                                  filterOption={(input, option) =>
+                                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                  }
+                                  options={uniqueNurses.map(nurse => ({
+                                    value: nurse.namaAsisten,
+                                    label: nurse.namaAsisten,
+                                  }))}
+                                />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: 'ICD-X',
+                            dataIndex: ['icdx'],
+                            key: 'icdx',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'icdx']}
+                                fieldKey={[field.fieldKey, 'icdx']}
+                                rules={[{ required: true, message: 'Harap isi ICD-X' }]}
+                              >
+                                <Input placeholder="ICD-X" style={inputStyling} />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: 'Diagnosis',
+                            dataIndex: ['diagnosis'],
+                            key: 'diagnosis',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'diagnosis']}
+                                fieldKey={[field.fieldKey, 'diagnosis']}
+                                rules={[{ required: true, message: 'Harap isi diagnosis' }]}
+                              >
+                                <TextArea rows={3} placeholder="Diagnosis" />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: 'Jenis',
+                            dataIndex: ['jenisDiagnosis'],
+                            key: 'jenisDiagnosis',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'jenisDiagnosis']}
+                                fieldKey={[field.fieldKey, 'jenisDiagnosis']}
+                                rules={[{ required: true, message: 'Harap pilih jenis' }]}
+                              >
+                                <Select placeholder="Jenis">
+                                  <Select.Option value="primer">Primer</Select.Option>
+                                  <Select.Option value="sekunder">Sekunder</Select.Option>
+                                </Select>
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: 'Kasus',
+                            dataIndex: ['kasusDiagnosis'],
+                            key: 'kasusDiagnosis',
+                            render: (text, field) => (
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'kasusDiagnosis']}
+                                fieldKey={[field.fieldKey, 'kasusDiagnosis']}
+                                rules={[{ required: true, message: 'Harap pilih kasus' }]}
+                              >
+                                <Select placeholder="Kasus">
+                                  <Select.Option value="baru">Baru</Select.Option>
+                                  <Select.Option value="lama">Lama</Select.Option>
+                                </Select>
+                              </Form.Item>
+                            ),
+                          },
+                          // {
+                          //   title: 'Status',
+                          //   dataIndex: ['status'],
+                          //   key: 'status',
+                          //   render: (text, field) => (
+                          //     <Form.Item
+                          //       {...field}
+                          //       name={[field.name, 'status']}
+                          //       fieldKey={[field.fieldKey, 'status']}
+                          //       valuePropName="checked"
+                          //     >
+                          //       <Checkbox />
+                          //     </Form.Item>
+                          //   ),
+                          // },
+                          {
+                            title: 'Aksi',
+                            dataIndex: 'aksi',
+                            key: 'aksi',
+                            render: (_, field) => (
+                              <MinusCircleOutlined
+                                onClick={() => {
+                                  if (fields.length > 1) {
+                                    remove(field.name);
+                                  }
+                                }}
+                              />
+                            ),
+                          },
+                        ]}
+                      />
+                    </div>
+                    <div></div>
+                    <div className='grid pt-6 justify-end'>
+                      <Form.Item>
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          block
+                          icon={<PlusOutlined />}
+                          // style={{ marginTop: 16 }}
+                        >
+                          Tambah Diagnosis
+                        </Button>
+                      </Form.Item>
+                    </div>
+                  </>
+                )}
+              </Form.List>
 
               {/* LAMPIRAN BERKAS */}
               <div className="col-span-2">
@@ -1092,28 +1201,324 @@ export default function DoctorPatientDetails({ role }) {
             </>
           )}
 
-          {/* Dummy Form for Gigi */}
-          { selectedCategory === 'gigi' && (
+          {/* Pengamatan Kehamilan */}
+          { selectedCategory === 'kehamilan' && (
             <>
-              <div className="col-span-2 text-lg text-gray-900">
-                Dummy Form Gigi
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pengamatan Kehamilan
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Contoh Input Gigi" name="contohInputGigi">
-                <Input style={inputStyling} disabled={isEdit}/>
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokter">
+                <Select
+                  showSearch
+                  placeholder="Pilih Dokter"
+                  optionFilterProp="children"
+                  onChange={handleDoctorChange}
+                  value={selectedDoctor.namaDokter}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                />
+              </Form.Item>
+              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
+                <Select
+                  showSearch
+                  placeholder="Pilih Perawat"
+                  optionFilterProp="children"
+                  onChange={handleNurseChange}
+                  value={selectedNurse.namaAsisten}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  options={uniqueNurses.map(nurse => ({
+                    value: nurse.namaAsisten,
+                    label: nurse.namaAsisten,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item label="Posyandu" name="posyandu" >
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Nama Kader" name="namaKader">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Nama Dukun" name="namaDukun" >
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Golongan Darah" name="golonganDarah">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Riwayat Pasien
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Riwayat Komplikasi Kebidanan" name="riwayatKomplikasiKebidanan">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Penyakit Kronis dan Alergi" name="penyakitKronisAlergi" >
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Riwayat Penyakit" name="riwayatPenyakit">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Riwayat Obstetrik
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Gravida" name="gravida">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Partus" name="partus" >
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Abortus" name="abortus">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Hidup" name="hidup">
+                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Rencana Persalinan
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Tanggal" name="tanggalRencanaPersalinan" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Penolong" name="penolongPersalinan" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Tempat" name="tempatPersalinan" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('tempatPersalinan')} options={[
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Pendamping" name="pendampingPersalinan" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('pendampingPersalinan')} options={[
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Transportasi" name="transportasiPersalinan" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('transportasiPersalinan')} options={[
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Pendonor" name="pendonorPersalinan" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('pendonorPersalinan')} options={[
+                  { value: '0', label: <span>Tidak ada</span> },
+                  { value: '1', label: <span>1. Obat</span> },
+                  { value: '2', label: <span>2. Makanan</span> },
+                  { value: '3', label: <span>3. Udara</span> },
+                  { value: '4', label: <span>4. Lain-lain</span> },
+                ]}/>
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pemeriksaan Bidan
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Tanggal HPHT" name="tanggalHpht" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Taksiran Persalinan" name="taksiranPersalinan" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Persalinan Sebelumnya" name="persalinanSebelumnya" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Buku KIA" name="bukuKia" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('bukuKia')}>
+                  <Radio value="1">Memiliki</Radio>
+                  <Radio value="0">Tidak memiliki</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="BB sebelum hamil" name="bbSebelumHamil">
+                <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
+              </Form.Item>
+              <Form.Item label="Tinggi Badan" name="tinggiBadanHamil">
+                <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Risiko
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Skor Ibu (KSPR)" name="skorKspr" >
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Tingkat Risiko" name="tingkatRisiko" >
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Sebutkan jenis risiko tinggi" name="jenisRisikoTinggi" >
+                <Input.TextArea rows={4} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Risiko Kasuistik" name="risikoKasuistik" >
+                <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
             </>
           )}
 
-          {/* Dummy Form for Anak */}
-          { selectedCategory === 'anak' && (
+          {/* Pemeriksaan TB Paru */}
+          { selectedCategory === 'tbParu' && (
             <>
-              <div className="col-span-2 text-lg text-gray-900">
-                Dummy Form Anak
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pemeriksaan TB Paru
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Contoh Input Anak" name="contohInputAnak">
-                <Input style={inputStyling} disabled={isEdit}/>
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokter">
+                <Select
+                  showSearch
+                  placeholder="Pilih Dokter"
+                  optionFilterProp="children"
+                  onChange={handleDoctorChange}
+                  value={selectedDoctor.namaDokter}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                />
+              </Form.Item>
+              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
+                <Select
+                  showSearch
+                  placeholder="Pilih Perawat"
+                  optionFilterProp="children"
+                  onChange={handleNurseChange}
+                  value={selectedNurse.namaAsisten}
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  options={uniqueNurses.map(nurse => ({
+                    value: nurse.namaAsisten,
+                    label: nurse.namaAsisten,
+                  }))}
+                />
+              </Form.Item>
+              <Form.Item label="Berat Badan" name="bbTbParu">
+                <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
+              </Form.Item>
+              <Form.Item label="Tinggi Badan" name="tinggiTbParu">
+                <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
+              </Form.Item>
+              <Form.Item label="Parut BCG" name="parutBcg" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('parutBcg')}>
+                  <Radio value="1">Jelas</Radio>
+                  <Radio value="2">Tidak ada</Radio>
+                  <Radio value="3">Meragukan</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Jika wanita usia subur" name="wanitaUsiaSubur" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('wanitaUsiaSubur')}>
+                  <Radio value="1">Hamil</Radio>
+                  <Radio value="2">Tidak hamil</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Jumlah Skoring TB Anak" name="skoringTbAnak">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pemeriksaan TB Paru
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Nama PMO" name="namaPmo">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="No. HP" name="telpHp">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Alamat PMO" name="alamatPmo">
+                <Input.TextArea rows={4} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Nama Faskes" name="namaFaskes">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Tahun" name="tahunPmo">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Provinsi" name="provinsi">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Kota/Kab" name="kotaKab">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pemeriksaan TB Paru
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Tipe Diagnosis" name="tipeDiagnosis" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('tipeDiagnosis')}>
+                  <Radio value="1">Terkontaminasi Bakteriologis</Radio>
+                  <Radio value="2">Terdiagnosa klinis</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Klasifikasi berdasarkan lokasi anatomi" name="klasifikasiByAnatomi" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByAnatomi')}>
+                  <Radio value="1">Paru</Radio>
+                  <Radio value="2">Ekstra Paru</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Klasifikasi berdasarkan riwayat pengobatan sebelumnya" name="klasifikasiByRiwayat" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByRiwayat')}>
+                  <Radio value="1">Baru</Radio>
+                  <Radio value="2">Kambuh</Radio>
+                  <Radio value="3">Diobati setelah gagal</Radio>
+                  <Radio value="4">Diobati setelah putus berobat</Radio>
+                  <Radio value="5">Riwayat tidak diketahui</Radio>
+                  <Radio value="6">Lain-lain</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Klasifikasi berdasarkan status HIV" name="klasifikasiByHiv" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByHiv')}>
+                  <Radio value="1">Positif</Radio>
+                  <Radio value="2">Negatif</Radio>
+                  <Radio value="3">Tidak diketahui</Radio>
+                </Radio.Group>
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Kegiatan DM
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Riwayat DM" name="riwayatDm" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('riwayatDm')}>
+                  <Radio value="1">Ya</Radio>
+                  <Radio value="2">Tidak</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Hasil Tes DM" name="tesDm" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('tesDm')}>
+                  <Radio value="1">Positif</Radio>
+                  <Radio value="2">Negatif</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Terapi DM" name="terapiDm" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('terapiDm')}>
+                  <Radio value="1">OHO</Radio>
+                  <Radio value="2">Inj. Insulsin</Radio>
+                </Radio.Group>
               </Form.Item>
             </>
           )}
@@ -1235,17 +1640,17 @@ export default function DoctorPatientDetails({ role }) {
                   </Button>
                   <Button
                     type="default"
-                    className={selectedCategory === 'gigi' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('gigi')}
+                    className={selectedCategory === 'kehamilan' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                    onClick={() => setSelectedCategory('kehamilan')}
                   >
-                    Gigi
+                    Pengamatan Kehamilan
                   </Button>
                   <Button
                     type="default"
-                    className={selectedCategory === 'anak' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('anak')}
+                    className={selectedCategory === 'tbParu' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                    onClick={() => setSelectedCategory('tbParu')}
                   >
-                    Anak
+                    Pemeriksaan TB Paru
                   </Button>
                 </div>
                 <div className='scrollable-column'>
