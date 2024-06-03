@@ -11,7 +11,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
 import { InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
-import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
+import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, InputNumber, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Dragger } = Upload;
@@ -38,6 +38,7 @@ export default function DoctorPatientDetails({ role }) {
   const [selectedNurse, setSelectedNurse] = useState({});
   const [form] = Form.useForm();
 
+  const dateFormat = 'DD/MM/YYYY';
   const onChange = (date, dateString) => {
     console.log(date, dateString);
   };
@@ -127,8 +128,13 @@ export default function DoctorPatientDetails({ role }) {
   const columns = [
     { title: 'No.', dataIndex: 'key', key: 'key' },
     { title: 'ID Pendaftaran', dataIndex: 'appointmentId', key: 'appointmentId' },
-    { title: 'No. Rekam Medis', dataIndex: 'emrNumber', key: 'emrNumber' },
     { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
+    { title: 'Poli', dataIndex: 'spesialisasiDokter',
+      render: (spesialisasiDokter) => (
+        <Tag color={ spesialisasiDokter === "Umum" ? "blue" :  spesialisasiDokter === "TB Paru" ? "green" : "red" }>
+          {spesialisasiDokter}
+        </Tag>
+      ) },
     { title: 'Jadwal Berobat', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
     { title: 'Status', dataIndex: 'status',
       render: (status) => (
@@ -143,7 +149,7 @@ export default function DoctorPatientDetails({ role }) {
   const appointmentDataSource = appointments?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment?.appointmentId,
-    emrNumber: appointment?.emrNumber,
+    spesialisasiDokter: appointment?.spesialisasiDokter,
     namaDokter: appointment?.namaDokter,
     tanggalTerpilih: (
       <>
@@ -170,10 +176,12 @@ export default function DoctorPatientDetails({ role }) {
     profile.pekerjaan = pekerjaanMap[profile.pekerjaan];
     profile.pernikahan = pernikahanMap[profile.pernikahan];
     profile.genderKerabat = genderMap[profile.genderKerabat];
+    profile.tanggalLahir = profile.tanggalLahir ? new Date(profile.tanggalLahir).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+    profile.tanggalLahirKerabat = profile.tanggalLahirKerabat ? new Date(profile.tanggalLahirKerabat).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '-';
     return profile;
   }
 
-  const dateFormat = "YYYY-MM-DD";
+  // const dateFormat = "YYYY-MM-DD";
   const inputStyling = { border: "1px solid #E2E8F0", borderRadius: "6px", height: "32px" };
   const inputStylingTextArea = { border: "1px solid #E2E8F0", borderRadius: "6px" };
 
@@ -198,15 +206,6 @@ export default function DoctorPatientDetails({ role }) {
         setFileList(newFileList);
       },
     };
-
-    // const filesToUpload = fileList.map((file) =>
-    //   new Promise((resolve, reject) => {
-    //     const reader = new FileReader();
-    //     reader.onload = (event) => { resolve({ path: file.name, content: Buffer.from(event.target.result) }) };
-    //     reader.onerror = (error) => reject(error);
-    //     reader.readAsArrayBuffer(file);
-    //   })
-    // );
 
     const uploadFiles = async (files) => {
       const uploadedFiles = await Promise.all(
@@ -237,10 +236,12 @@ export default function DoctorPatientDetails({ role }) {
     };
     const onFinish = async (values) => {
       const uploadedFiles = await uploadFiles(fileList);
-      console.log({uploadedFiles});
-
       const transformedValues = Object.entries(values).reduce((acc, [key, value]) => {
-        acc[key] = value === undefined ? null : value;
+        if (value instanceof dayjs) {
+          acc[key] = value.format('DD/MM/YYYY');
+        } else {
+          acc[key] = value === undefined ? null : value;
+        }
         return acc;
       }, {});
       const dmrNumber = profile.dmrNumber;
@@ -252,12 +253,6 @@ export default function DoctorPatientDetails({ role }) {
         message.error("Missing required patient or appointment information.");
         return;
       }
-
-      // bundle lampiran rekam medis
-      // const filesData = await Promise.all(filesToUpload);
-      // const bundleContent = JSON.stringify(filesData);
-      // const result = await ipfsClient.add(bundleContent);
-      // const cid = result.cid.toString();
 
       const commonData = {
         accountAddress,
@@ -275,52 +270,51 @@ export default function DoctorPatientDetails({ role }) {
       switch (selectedCategory) {
         case 'anamnesis':
           endpoint = '/doctor/patient-list/patient-details/emr-anamnesis';
-          specificData = { ...commonData, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
           break;
         case 'diagnosis':
           endpoint = '/doctor/patient-list/patient-details/emr-diagnosis';
           specificData = {
-            ...commonData,
+            doctorAddress: selectedDoctor.doctorAddress,
+            nurseAddress: selectedNurse.nurseAddress,
             ...transformedValues,
             waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
             tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
-            tanggalRekamMedis: dayjs().format("YYYY-MM-DD"),
+            tanggalRekamMedis: dayjs().format("DD/MM/YYYY"),
             waktuRekamMedis: dayjs().format("HH:mm:ss"),
             datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
             files: uploadedFiles,
             // isDokter: true,
-            // alamatStaf: selectedData.appointment.alamatStaf,
-            // lampiranRekamMedis: cid,
           };
           break;
         case 'kehamilan':
-          endpoint = '/doctor/patient-list/patient-details/emr-kehamilan';
-          specificData = { ...commonData, ...transformedValues };
+          endpoint = '/doctor/patient-list/patient-details/emr-kia';
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
           break;
         case 'tbParu':
-          endpoint = '/doctor/patient-list/patient-details/emr-tbparu';
-          specificData = { ...commonData, ...transformedValues };
+          endpoint = '/doctor/patient-list/patient-details/emr-tb';
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
           break;
         default:
           endpoint = '/doctor/patient-list/patient-details/emr';
-          specificData = { ...commonData, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
       }
 
       console.log({commonData})
       console.log({specificData});
-      // const signer = await getSigner();
-      // const signature = await signer.signMessage(JSON.stringify(specificData));
-      // specificData.signature = signature;
+      const signer = await getSigner();
+      const signature = await signer.signMessage(JSON.stringify(specificData));
+      specificData.signature = signature;
 
       try {
         const response = await fetch(`${CONN.BACKEND_LOCAL}${endpoint}`,
           {
-            // method: 'POST',
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify(specificData),
+            body: JSON.stringify({commonData, specificData}),
           }
         );
         if (!response.ok) { throw new Error('Network response was not ok') }
@@ -335,126 +329,133 @@ export default function DoctorPatientDetails({ role }) {
     };
 
     useEffect(() => {
-      if (selectedData) {
-        const cid = selectedData ? selectedData.lampiranRekamMedis : null;
+      if (selectedData.appointment.anamnesis) {
+        // const cid = selectedData ? selectedData.lampiranRekamMedis : null;
         const initialValues = {
           appointmentId: selectedData.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
           namaDokter: selectedData.appointment.namaDokter,
           namaAsisten: selectedData.appointment.namaAsisten,
           tanggalRekamMedis: dayjs(selectedData.tanggalRekamMedis),
-          namaLengkap: selectedData.namaLengkap,
-          keluhanUtama: selectedData.keluhanUtama,
-          riwayatPenyakit: selectedData.riwayatPenyakit,
-          riwayatAlergi: selectedData.riwayatAlergi,
-          riwayatAlergiLainnya: selectedData.riwayatAlergiLainnya,
-          riwayatPengobatan: selectedData.riwayatPengobatan,
-          tingkatKesadaran: selectedData.tingkatKesadaran,
-          denyutJantung: selectedData.denyutJantung,
-          pernapasan: selectedData.pernapasan,
-          tekananDarahSistole: selectedData.tekananDarahSistole,
-          tekananDarahDiastole: selectedData.tekananDarahDiastole,
-          suhuTubuh: selectedData.suhuTubuh,
-          kepala: selectedData.kepala,
-          mata: selectedData.mata,
-          telinga: selectedData.telinga,
-          hidung: selectedData.hidung,
-          rambut: selectedData.rambut,
-          bibir: selectedData.bibir,
-          gigiGeligi: selectedData.gigiGeligi,
-          lidah: selectedData.lidah,
-          langitLangit: selectedData.langitLangit,
-          leher: selectedData.leher,
-          tenggorokan: selectedData.tenggorokan,
-          tonsil: selectedData.tonsil,
-          dada: selectedData.dada,
-          payudara: selectedData.payudara,
-          punggung: selectedData.punggung,
-          perut: selectedData.perut,
-          genital: selectedData.genital,
-          anusDubur: selectedData.anusDubur,
-          lenganAtas: selectedData.lenganAtas,
-          lenganBawah: selectedData.lenganBawah,
-          jariTangan: selectedData.jariTangan,
-          kukuTangan: selectedData.kukuTangan,
-          persendianTangan: selectedData.persendianTangan,
-          tungkaiAtas: selectedData.tulangAtas,
-          tulangBawah: selectedData.tulangBawah,
-          jariKaki: selectedData.jariKaki,
-          kukuKaki: selectedData.kukuKaki,
-          persendianKaki: selectedData.persendianKaki,
-          statusPsikologis: selectedData.statusPsikologis,
-          statusPsikologisLainnya: selectedData.statusPsikologisLainnya,
-          sosialEkonomi: selectedData.sosialEkonomi,
-          spiritual: selectedData.spiritual,
-          namaObat: selectedData.namaObat,
-          dosisObat: selectedData.dosisObat,
-          waktuPenggunaanObat: selectedData.WaktuPenggunaanObat,
-          diagnosisAwal: selectedData.diagnosisAwal,
-          diagnosisAkhirPrimer: selectedData.diagnosisAkhirPrimer,
-          diagnosisAkhirSekunder: selectedData.diagnosisAkhirSekunder,
-          namaKerabat: selectedData.namaKerabat,
-          dokterPenjelasanTindakan: selectedData.dokterPenjelasanTindakan,
-          petugasPendampingTindakan: selectedData.petugasPendampingTindakan,
-          namaTindakan: selectedData.namaTindakan,
-          konsekuensiTindakan: selectedData.konsekuensiTindakan,
-          konfirmasiTindakan: selectedData.konfirmasiTindakan,
-          tanggalPenjelasanTindakan: dayjs(selectedData.tanggalPenjelasanTindakan),
-          pasienPenjelasanTindakan: selectedData.pasienPenjelasanTindakan,
-          saksi1PenjelasanTindakan: selectedData.saksi1PenjelasanTindakan,
-          saksi2PenjelasanTindakan: selectedData.saksi2PenjelasanTindakan,
-          lampiranRekamMedis: selectedData.lampiranRekamMedis,
-          judulRekamMedis: selectedData.judulRekamMedis,
-          catatanRekamMedis: selectedData.catatanRekamMedis,
+          keluhanUtama: selectedData.appointment.anamnesis.keluhanUtama,
+          keluhanTambahan: selectedData.appointment.anamnesis.keluhanTambahan || '',
+          lamaSakitTahun: selectedData.appointment.anamnesis.lamaSakitTahun || '',
+          lamaSakitBulan: selectedData.appointment.anamnesis.lamaSakitBulan || '',
+          lamaSakitHari: selectedData.appointment.anamnesis.lamaSakitHari || '',
+          riwayatPenyakit: selectedData.appointment.anamnesis.riwayatPenyakit || '',
+          riwayatAlergi: selectedData.appointment.anamnesis.riwayatAlergi || '',
+          riwayatAlergiLainnya: selectedData.appointment.anamnesis.riwayatAlergiLainnya || '',
+          alatBantu: selectedData.appointment.anamnesis.alatBantu || '',
+          kendalaKomunikasi: selectedData.appointment.anamnesis.kendalaKomunikasi || '',
+          perawatRumah: selectedData.appointment.anamnesis.perawatRumah || '',
+          bantuanOrangLain: selectedData.appointment.anamnesis.bantuanOrangLain || '',
+          ekspresiDanEmosi: selectedData.appointment.anamnesis.ekspresiDanEmosi || '',
+          bahasa: selectedData.appointment.anamnesis.bahasa || '',
+          pekerjaan: selectedData.appointment.anamnesis.pekerjaan || '',
+          tinggalBersama: selectedData.appointment.anamnesis.tinggalBersama || '',
+          gangguanJiwaLampau: selectedData.appointment.anamnesis.gangguanJiwaLampau || '',
+          sosialEkonomi: selectedData.appointment.anamnesis.sosialEkonomi || '',
+          statusEkonomi: selectedData.appointment.anamnesis.statusEkonomi || '',
+          jaminanPengobatan: selectedData.appointment.anamnesis.jaminanPengobatan || '',
+          hubunganKeluarga: selectedData.appointment.anamnesis.hubunganKeluarga || '',
+          tingkatKesadaran: selectedData.appointment.anamnesis.tingkatKesadaran || '',
+          detakNadi: selectedData.appointment.anamnesis.detakNadi || '',
+          pernapasan: selectedData.appointment.anamnesis.pernapasan || '',
+          tekananDarahSistole: selectedData.appointment.anamnesis.tekananDarahSistole || '',
+          tekananDarahDiastole: selectedData.appointment.anamnesis.tekananDarahDiastole || '',
+          map: selectedData.appointment.anamnesis.map || '',
+          beratBadan: selectedData.appointment.anamnesis.beratBadan || '',
+          tinggiBadan: selectedData.appointment.anamnesis.tinggiBadan || '',
+          caraUkurTinggiBadan: selectedData.appointment.anamnesis.caraUkurTinggiBadan || '',
+          suhuTubuh: selectedData.appointment.anamnesis.suhuTubuh || '',
+          saturasi: selectedData.appointment.anamnesis.saturasi || '',
+          statusHamil: selectedData.appointment.anamnesis.statusHamil || '',
+          detakJantung: selectedData.appointment.anamnesis.detakJantung || '',
+          triage: selectedData.appointment.anamnesis.triage || '',
+          nyeriTubuh: selectedData.appointment.anamnesis.nyeriTubuh || '',
+          pencetusNyeri: selectedData.appointment.anamnesis.pencetusNyeri || '',
+          lokasiNyeri: selectedData.appointment.anamnesis.lokasiNyeri || '',
+          skalaNyeri: selectedData.appointment.anamnesis.skalaNyeri || '',
+          waktuNyeri: selectedData.appointment.anamnesis.waktuNyeri || '',
+          pasienTidakSeimbang: selectedData.appointment.anamnesis.pasienTidakSeimbang || '',
+          pasienButuhPenopang: selectedData.appointment.anamnesis.pasienButuhPenopang || '',
+          terapi: selectedData.appointment.anamnesis.terapi || '',
+          rencanaTindakan: selectedData.appointment.anamnesis.rencanaTindakan || '',
+          tipeAskep: selectedData.appointment.anamnesis.tipeAskep || '',
+          edukasi: selectedData.appointment.anamnesis.edukasi || '',
+          deskripsiAskep: selectedData.appointment.anamnesis.deskripsiAskep || '',
+          observasi: selectedData.appointment.anamnesis.observasi || '',
+          keteranganLainnya: selectedData.appointment.anamnesis.keteranganLainnya || '',
+          biopsikososial: selectedData.appointment.anamnesis.biopsikososial || '',
+          tindakanKeperawatan: selectedData.appointment.anamnesis.tindakanKeperawatan || '',
+          merokok: selectedData.appointment.anamnesis.merokok || '',
+          konsumsiAlkohol: selectedData.appointment.anamnesis.konsumsiAlkohol || '',
+          kurangSayurBuah: selectedData.appointment.anamnesis.kurangSayurBuah || '',
+          pemeriksaanKulit: selectedData.appointment.anamnesis.pemeriksaanKulit || '',
+          pemeriksaanLeher: selectedData.appointment.anamnesis.pemeriksaanLeher || '',
+          pemeriksaanKuku: selectedData.appointment.anamnesis.pemeriksaanKuku || '',
+          pemeriksaanDadaPunggung: selectedData.appointment.anamnesis.pemeriksaanDadaPunggung || '',
+          pemeriksaanKepala: selectedData.appointment.anamnesis.pemeriksaanKepala || '',
+          pemeriksaanKardiovaskuler: selectedData.appointment.anamnesis.pemeriksaanKardiovaskuler || '',
+          pemeriksaanWajah: selectedData.appointment.anamnesis.pemeriksaanWajah || '',
+          pemeriksaanDadaAksila: selectedData.appointment.anamnesis.pemeriksaanDadaAksila || '',
+          pemeriksaanMata: selectedData.appointment.anamnesis.pemeriksaanMata || '',
+          pemeriksaanAbdomenPerut: selectedData.appointment.anamnesis.pemeriksaanAbdomenPerut || '',
+          pemeriksaanTelinga: selectedData.appointment.anamnesis.pemeriksaanTelinga || '',
+          pemeriksaanEktermitasAtas: selectedData.appointment.anamnesis.pemeriksaanEktermitasAtas || '',
+          pemeriksaanHidungSinus: selectedData.appointment.anamnesis.pemeriksaanHidungSinus || '',
+          pemeriksaanEkstermitasBawah: selectedData.appointment.anamnesis.pemeriksaanEkstermitasBawah || '',
+          pemeriksaanMulutBibir: selectedData.appointment.anamnesis.pemeriksaanMulutBibir || '',
+          pemeriksaanGenitaliaWanita: selectedData.appointment.anamnesis.pemeriksaanGenitaliaWanita || '',
         };
         // Check isDokter & isPerawat
-        if (selectedData.isDokter) {
+        if (selectedData) {
           // if isDokter
-          setIsEdit(true);
+          // setIsEdit(true);
           form.setFieldsValue(initialValues);
-          fetch(`${CONN.IPFS_LOCAL}/${cid}`)
-            .then(response => response.json())
-            .then(bundleContent => {
-              const root = createRoot(document.getElementById("lampiran"));
-              const cards = bundleContent.map(fileData => {
-                const blob = new Blob([new Uint8Array(fileData.content.data)]);
-                const url = URL.createObjectURL(blob);
-                let attachmentElement;
-                let previewElement;
-                if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
-                  // Display image file
-                  attachmentElement = document.createElement('img');
-                  attachmentElement.src = url;
-                  attachmentElement.alt = fileData.path;
-                  previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
-                } else {
-                  // Display other file types as download links
-                  attachmentElement = document.createElement('img');
-                  attachmentElement.src = url;
-                  attachmentElement.alt = fileData.path;
-                  previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
-                }
-                const fileName = fileData.path.split('.').slice(0, -1).join('.');
-                const fileExtension = fileData.path.split('.').pop();
-                const cardContent = (
-                  <>
-                    {previewElement}
-                  </>
-                );
-                return (
-                  <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
-                    <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
-                      {cardContent}
-                      <p>{fileName}.{fileExtension}</p>
-                    </a>
-                  </Card>
-                );
-              });
-              root.render(cards, document.createElement('div'));
-            })
-            .catch(error => {
-              console.error('Error fetching data:', error);
-            });
+          // fetch(`${CONN.IPFS_LOCAL}/${cid}`)
+          //   .then(response => response.json())
+          //   .then(bundleContent => {
+          //     const root = createRoot(document.getElementById("lampiran"));
+          //     const cards = bundleContent.map(fileData => {
+          //       const blob = new Blob([new Uint8Array(fileData.content.data)]);
+          //       const url = URL.createObjectURL(blob);
+          //       let attachmentElement;
+          //       let previewElement;
+          //       if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
+          //         // Display image file
+          //         attachmentElement = document.createElement('img');
+          //         attachmentElement.src = url;
+          //         attachmentElement.alt = fileData.path;
+          //         previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
+          //       } else {
+          //         // Display other file types as download links
+          //         attachmentElement = document.createElement('img');
+          //         attachmentElement.src = url;
+          //         attachmentElement.alt = fileData.path;
+          //         previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
+          //       }
+          //       const fileName = fileData.path.split('.').slice(0, -1).join('.');
+          //       const fileExtension = fileData.path.split('.').pop();
+          //       const cardContent = (
+          //         <>
+          //           {previewElement}
+          //         </>
+          //       );
+          //       return (
+          //         <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
+          //           <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
+          //             {cardContent}
+          //             <p>{fileName}.{fileExtension}</p>
+          //           </a>
+          //         </Card>
+          //       );
+          //     });
+          //     root.render(cards, document.createElement('div'));
+          //   })
+          //   .catch(error => {
+          //     console.error('Error fetching data:', error);
+          //   });
         } else if (selectedData.isPerawat) {
           // if isPerawat
           setIsEdit(false);
@@ -619,26 +620,33 @@ export default function DoctorPatientDetails({ role }) {
                 />
               </Form.Item>
               <Form.Item label="Keluhan Utama" name="keluhanUtama" >
-                <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item>
               <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
-                <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item>
-              <Form.Item label="Lama Sakit" required>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <Input style={inputStyling} placeholder="0" />
-                  <span>Thn</span>
-                  <Input style={inputStyling} placeholder="0" />
-                  <span>Bln</span>
-                  <Input style={inputStyling} placeholder="0" />
-                  <span>Hr</span>
+              <div className='grid gap-y-2 content-center'>
+                <div>Lama Sakit</div>
+                <div className='flex gap-x-4'>
+                  <Form.Item name="lamaSakitTahun" >
+                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                  </Form.Item>
+                  <span className='mt-1'>Tahun</span>
+                  <Form.Item label="" name="lamaSakitBulan" >
+                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                  </Form.Item>
+                  <span className='mt-1'>Bulan</span>
+                  <Form.Item label="" name="lamaSakitHari" required>
+                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                  </Form.Item>
+                  <span className='mt-1'>Hari</span>
                 </div>
-              </Form.Item>
+              </div>
               <Form.Item label="Riwayat Penyakit" name="riwayatPenyakit">
-                <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item>
               {/* <Form.Item label="Riwayat Pengobatan" name="riwayatPengobatan">
-                <Input.TextArea style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item> */}
               <Form.Item label="Riwayat Alergi" name="riwayatAlergi" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('riwayatAlergi')} options={[
@@ -650,7 +658,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Riwayat Alergi Lainnya" name="riwayatAlergiLainnya">
-                <Input.TextArea className="content-center" disabled={selectedAlergi !== '4'} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={selectedAlergi !== '4'} autoSize/>
               </Form.Item>
 
               {/* PEMERIKSAAN FISIS */}
@@ -659,26 +667,26 @@ export default function DoctorPatientDetails({ role }) {
               </div>
               <Form.Item label="Penggunaan alat bantu ketika beraktivitas" name="alatBantu" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('alatBantu')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Mengalami kendala komunikasi" name="kendalaKomunikasi" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('kendalaKomunikasi')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Ada yang merawat di rumah" name="perawatRumah" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('perawatRumah')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Membutuhkan bantuan orang lain ketika beraktivitas" name="bantuanOrangLain" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('bantuanOrangLain')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Ekspresi dan emosi" name="ekspresiDanEmosi" >
@@ -714,8 +722,8 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Gangguan jiwa di masa lalu" name="gangguanJiwaLampau" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('gangguanJiwaLampau')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Sosial Ekonomi" name="sosialEkonomi" >
@@ -802,8 +810,8 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Status hamil" name="statusHamil" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('statusHamil')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Detak Jantung" name="detakJantung" >
@@ -827,8 +835,8 @@ export default function DoctorPatientDetails({ role }) {
               </div>
               <Form.Item label="Pasien merasakan nyeri" name="nyeriTubuh" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('nyeriTubuh')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Pencetus nyeri" name="pencetusNyeri">
@@ -838,12 +846,7 @@ export default function DoctorPatientDetails({ role }) {
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Skala nyeri (0 = Tidak Nyeri, 10 = Sangat Nyeri)" name="skalaNyeri">
-                <Slider
-                  min={1}
-                  max={10}
-                  // onChange={onChange}
-                  // value={typeof inputValue === 'number' ? inputValue : 0}
-                />
+                <Slider min={1} max={10} />
               </Form.Item>
               <Form.Item label="Waktu nyeri" name="waktuNyeri" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('waktuNyeri')}>
@@ -859,16 +862,16 @@ export default function DoctorPatientDetails({ role }) {
               <div className="col-span-2">
                 <Form.Item label="Perhatikan cara berjalan pasien saat akan duduk di kursi. Apakah pasien tampak tidak seimbang?" name="pasienTidakSeimbang">
                   <Radio.Group disabled={isEdit && !!form.getFieldValue('pasienTidakSeimbang')}>
-                    <Radio value="1">Ya</Radio>
-                    <Radio value="0">Tidak</Radio>
+                    <Radio value={1}>Ya</Radio>
+                    <Radio value={0}>Tidak</Radio>
                   </Radio.Group>
                 </Form.Item>
               </div>
               <div className="col-span-2">
                 <Form.Item label="Apakah pasien memegang benda sekitar untuk penopang tubuh?" name="pasienButuhPenopang">
                   <Radio.Group disabled={isEdit && !!form.getFieldValue('pasienButuhPenopang')}>
-                    <Radio value="1">Ya</Radio>
-                    <Radio value="0">Tidak</Radio>
+                    <Radio value={1}>Ya</Radio>
+                    <Radio value={0}>Tidak</Radio>
                   </Radio.Group>
                 </Form.Item>
               </div>
@@ -909,20 +912,20 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Merokok" name="merokok">
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('merokok')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="2">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Konsumsi alkohol" name="konsumsiAlkohol">
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('konsumsiAlkohol')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Kurang sayur/buah" name="kurangSayurBuah">
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('kurangSayurBuah')}>
-                  <Radio value="1">Ya</Radio>
-                  <Radio value="0">Tidak</Radio>
+                  <Radio value={1}>Ya</Radio>
+                  <Radio value={0}>Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
 
@@ -1074,7 +1077,7 @@ export default function DoctorPatientDetails({ role }) {
                                 fieldKey={[field.fieldKey, 'diagnosis']}
                                 rules={[{ required: true, message: 'Harap isi diagnosis' }]}
                               >
-                                <TextArea rows={3} placeholder="Diagnosis" />
+                                <TextArea style={inputStylingTextArea} rows={3} placeholder="Diagnosis" />
                               </Form.Item>
                             ),
                           },
@@ -1178,16 +1181,16 @@ export default function DoctorPatientDetails({ role }) {
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                   </p>
-                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                  <p className="ant-upload-text">Klik atau seret berkas ke area ini untuk mengunggah</p>
                   <p className="ant-upload-hint">
-                    Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.
+                  Dapat menerima berkas dengan format .pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .zip, .rar, .7z.
                   </p>
                 </Dragger>
               )}
               </div>
 
               {/* JUDUL REKAM MEDIS */}
-              <div className="col-span-2">
+              <div className="col-span-2 mt-8">
                 <Divider orientation="left">Judul Rekam Medis</Divider>
               </div>
               <div className="col-span-2">
@@ -1286,7 +1289,7 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tanggal" name="tanggalRencanaPersalinan" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
               </Form.Item>
               <Form.Item label="Penolong" name="penolongPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
@@ -1338,22 +1341,22 @@ export default function DoctorPatientDetails({ role }) {
                 Pemeriksaan Bidan
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Tanggal HPHT" name="tanggalHpht" >
-                <DatePicker onChange={onChange} size='middle' />
+              <Form.Item label="Tanggal Hari Pertama Haid Terakhir (HPHT)" name="tanggalHpht" >
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
               </Form.Item>
               <Form.Item label="Taksiran Persalinan" name="taksiranPersalinan" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
               </Form.Item>
               <Form.Item label="Persalinan Sebelumnya" name="persalinanSebelumnya" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
               </Form.Item>
-              <Form.Item label="Buku KIA" name="bukuKia" >
+              <Form.Item label="Buku Kesehatan Ibu dan Anak (KIA)" name="bukuKia" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('bukuKia')}>
                   <Radio value="1">Memiliki</Radio>
                   <Radio value="0">Tidak memiliki</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="BB sebelum hamil" name="bbSebelumHamil">
+              <Form.Item label="Berat Badan sebelum hamil" name="beratBadanSebelumHamil">
                 <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
               </Form.Item>
               <Form.Item label="Tinggi Badan" name="tinggiBadanHamil">
@@ -1364,14 +1367,14 @@ export default function DoctorPatientDetails({ role }) {
                 Risiko
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Skor Ibu (KSPR)" name="skorKspr" >
+              <Form.Item label="Skor Ibu Kartu Skor Poedji Rochjati (KSPR)" name="skorKspr" >
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Tingkat Risiko" name="tingkatRisiko" >
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Sebutkan jenis risiko tinggi" name="jenisRisikoTinggi" >
-                <Input.TextArea rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Risiko Kasuistik" name="risikoKasuistik" >
                 <Input style={inputStyling} disabled={isEdit} />
@@ -1415,13 +1418,13 @@ export default function DoctorPatientDetails({ role }) {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Berat Badan" name="bbTbParu">
+              <Form.Item label="Berat Badan" name="beratBadanTbParu">
                 <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
               </Form.Item>
-              <Form.Item label="Tinggi Badan" name="tinggiTbParu">
+              <Form.Item label="Tinggi Badan" name="tinggiBadanTbParu">
                 <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
               </Form.Item>
-              <Form.Item label="Parut BCG" name="parutBcg" >
+              <Form.Item label={<span>Parut <i>Bacillus Calmette-Guerin</i> (BCG)</span>} name="parutBcg" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('parutBcg')}>
                   <Radio value="1">Jelas</Radio>
                   <Radio value="2">Tidak ada</Radio>
@@ -1442,14 +1445,14 @@ export default function DoctorPatientDetails({ role }) {
                 Pemeriksaan TB Paru
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Nama PMO" name="namaPmo">
+              <Form.Item label="Nama Pengawas Menelan Obat (PMO)" name="namaPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="No. HP" name="telpHp">
+              <Form.Item label="Nomor Telepon Selular PMO" name="telpSelularPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Alamat PMO" name="alamatPmo">
-                <Input.TextArea rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Nama Faskes" name="namaFaskes">
                 <Input style={inputStyling} disabled={isEdit} />
@@ -1499,12 +1502,12 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
-                Kegiatan DM
+                Kegiatan <i>Diabetes Mellitus</i> (DM)
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Riwayat DM" name="riwayatDm" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('riwayatDm')}>
-                  <Radio value="1">Ya</Radio>
+                  <Radio value={1}>Ya</Radio>
                   <Radio value="2">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
@@ -1516,16 +1519,54 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Terapi DM" name="terapiDm" >
                 <Radio.Group disabled={isEdit && !!form.getFieldValue('terapiDm')}>
-                  <Radio value="1">OHO</Radio>
-                  <Radio value="2">Inj. Insulsin</Radio>
+                  <Radio value="1">Obat Hipoglikemik Oral (OHO)</Radio>
+                  <Radio value="2">Injeksi Insulsin</Radio>
                 </Radio.Group>
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pemeriksaan Lain-Lain
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Uji Tuberkulin" name="ujiTuberkulin">
+                <Input style={inputStyling} disabled={isEdit} placeholder="mm (indurasi)" />
+              </Form.Item>
+              <div className="col-span-2">
+                <Divider orientation="left" orientationMargin="0">Foto Toraks</Divider>
+              </div>
+              <Form.Item label="Tanggal" name="tanggalFotoToraks" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Nomor Seri" name="nomorSeriFotoToraks">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Kesan" name="kesanFotoToraks">
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+              </Form.Item>
+              <div className="col-span-2">
+                <Divider orientation="left" orientationMargin="0">Biopsi Jarum Halus / <i>Fine Needle Aspiration Biopsy</i> (FNAB)</Divider>
+              </div>
+              <Form.Item label="Tanggal" name="tanggalFnab" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Hasil" name="hasilFnab">
+                <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Biakan hasil contoh uji selain dahak" name="terapiDm" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('terapiDm')}>
+                  <Radio value="1"><i>Mycobacterium Tuberculosis</i> (MTB)</Radio>
+                  <Radio value="2">Bukan MTB</Radio>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Deskripsi" name="deskripsiFnab">
+                <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
             </>
           )}
         </div>
         {!isEdit && (
           <Form.Item className="flex justify-center">
-            <Button type="primary" ghost htmlType="submit" size="medium">Simpan Permanen</Button>
+            <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
           </Form.Item>
         )}
       </Form>
@@ -1601,8 +1642,7 @@ export default function DoctorPatientDetails({ role }) {
                     </div>
                     <div>
                       <p className="font-medium">Tanggal Lahir</p>
-                      <p>{new Date(convertProfileData(profile).tanggalLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      {/* <p>{convertProfileData(profile).tanggalLahir}</p> */}
+                      <p>{convertProfileData(profile).tanggalLahir}</p>
                     </div>
                     <div>
                       <p className="font-medium">Nama Lengkap</p>
