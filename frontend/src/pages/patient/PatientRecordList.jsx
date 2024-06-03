@@ -79,7 +79,7 @@ export default function PatientRecordList() {
       <div className="grid justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
           {chosenPatient ? (
-            recordItems.length > 0 ? (
+            appointmentsData.length > 0 ? (
               <RecordList
                 recordItems={recordItems}
                 chosenPatient={chosenPatient}
