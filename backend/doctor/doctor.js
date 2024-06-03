@@ -6,13 +6,18 @@ import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
+import { prepareFilesForUpload } from "../utils/utils.js";
+import { retrieveDMRData } from "../middleware/userData.js";
+import { handleFileWrite } from "../user/appointment/appointment.js";
 
 // Contract & ABI
-import { USER_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
+import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
+import patientABI from "../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
 // import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
+const patient_contract = PATIENT_CONTRACT.toString();
 // const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
@@ -24,6 +29,7 @@ const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const basePath = path.join(__dirname, "../patient/data");
 const accountsPath = path.join(__dirname, "../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
 const accountsPrivate = JSON.parse(accountsJson);
@@ -230,6 +236,322 @@ router.post("/patient-list/patient-details/emr", authMiddleware, async (req, res
     console.error("Error fetching appointments:", error);
     res.status(500).json({ message: "Failed to fetch appointments" });
   };
+});
+
+router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async (req, res) => {
+  try {
+    const { commonData, specificData } = req.body;
+
+    // Verifikasi tanda tangan
+    const { signature, ...rest } = specificData;
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify(rest), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(commonData.dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${commonData.dmrNumber} tidak ditemukan.` });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(commonData.dmrNumber, dmrCid);
+
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => { return JSON.parse(appointmentInfo.appointments) });
+    const matchedAppointment = appointmentDetails.find(
+      appointment => appointment.appointmentId === commonData.appointmentId &&
+      appointment.emrNumber === commonData.emrNumber &&
+      appointment.status === "ongoing"
+    );
+    if (!matchedAppointment) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.` });
+    }
+
+    matchedAppointment.anamnesis = { ...rest };
+
+    const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
+    const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
+    const appointmentFolderName = `${commonData.appointmentId}J${commonData.appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${commonData.appointmentId}.json`), JSON.stringify(matchedAppointment));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    console.log(`anamnesis cid: ${newDmrCid}`);
+
+    // Update patient data on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      commonData.dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      commonData.appointmentId,
+      commonData.accountAddress,
+      specificData.doctorAddress,
+      specificData.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+
+    res.status(200).json({ message: "EMR saved" });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
+router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async (req, res) => {
+  try {
+    const { commonData, specificData } = req.body;
+
+    // Verifikasi tanda tangan
+    const { signature, ...rest } = specificData;
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify(rest), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(commonData.dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${commonData.dmrNumber} tidak ditemukan.` });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(commonData.dmrNumber, dmrCid);
+
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => { return JSON.parse(appointmentInfo.appointments) });
+    const matchedAppointment = appointmentDetails.find(
+      appointment => appointment.appointmentId === commonData.appointmentId &&
+      appointment.emrNumber === commonData.emrNumber &&
+      appointment.status === "ongoing"
+    );
+    if (!matchedAppointment) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.` });
+    }
+
+    matchedAppointment.diagnosis = { ...rest };
+
+    const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
+    const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
+    const appointmentFolderName = `${commonData.appointmentId}J${commonData.appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${commonData.appointmentId}.json`), JSON.stringify(matchedAppointment));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    console.log(`diagnosis cid: ${newDmrCid}`);
+
+    // Update patient data on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      commonData.dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      commonData.appointmentId,
+      commonData.accountAddress,
+      specificData.doctorAddress,
+      specificData.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+
+    res.status(200).json({ message: "EMR saved" });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
+router.post("/patient-list/patient-details/emr-kia", authMiddleware, async (req, res) => {
+  try {
+    const { commonData, specificData } = req.body;
+
+    // Verifikasi tanda tangan
+    const { signature, ...rest } = specificData;
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify(rest), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(commonData.dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${commonData.dmrNumber} tidak ditemukan.` });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(commonData.dmrNumber, dmrCid);
+
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => { return JSON.parse(appointmentInfo.appointments) });
+    const matchedAppointment = appointmentDetails.find(
+      appointment => appointment.appointmentId === commonData.appointmentId &&
+      appointment.emrNumber === commonData.emrNumber &&
+      appointment.status === "ongoing"
+    );
+    if (!matchedAppointment) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.` });
+    }
+
+    matchedAppointment.kia = { ...rest };
+
+    const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
+    const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
+    const appointmentFolderName = `${commonData.appointmentId}J${commonData.appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${commonData.appointmentId}.json`), JSON.stringify(matchedAppointment));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    console.log(`kia cid: ${newDmrCid}`);
+
+    // Update patient data on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      commonData.dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      commonData.appointmentId,
+      commonData.accountAddress,
+      specificData.doctorAddress,
+      specificData.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+
+    res.status(200).json({ message: "EMR saved" });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
+});
+
+router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, res) => {
+  try {
+    const { commonData, specificData } = req.body;
+
+    // Verifikasi tanda tangan
+    const { signature, ...rest } = specificData;
+    const recoveredAddress = ethers.utils.verifyMessage(JSON.stringify(rest), signature);
+    const recoveredSigner = provider.getSigner(recoveredAddress);
+    const accounts = await provider.listAccounts();
+    const accountAddress = accounts.find((account) => account.toLowerCase() === recoveredAddress.toLowerCase());
+
+    if (!accountAddress) { return res.status(400).json({ error: "Account not found" }); }
+    if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) { return res.status(400).json({ error: "Invalid signature" }); }
+
+    const contractWithSigner = new ethers.Contract(patient_contract, patientABI, recoveredSigner);
+    const outpatientContractWithSigner = new ethers.Contract(outpatient_contract, outpatientABI, recoveredSigner);
+
+    const [dmrExists, dmrData] = await contractWithSigner.getPatientByDmrNumber(commonData.dmrNumber);
+    if (!dmrExists) return res.status(404).json({ error: `DMR number ${commonData.dmrNumber} tidak ditemukan.` });
+    const dmrCid = dmrData.dmrCid;
+    const data = await retrieveDMRData(commonData.dmrNumber, dmrCid);
+
+    // appointments
+    const appointmentDetails = data.appointmentData.map(appointmentInfo => { return JSON.parse(appointmentInfo.appointments) });
+    const matchedAppointment = appointmentDetails.find(
+      appointment => appointment.appointmentId === commonData.appointmentId &&
+      appointment.emrNumber === commonData.emrNumber &&
+      appointment.status === "ongoing"
+    );
+    if (!matchedAppointment) {
+      return res.status(404).json({ error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.` });
+    }
+
+    matchedAppointment.tb = { ...rest };
+
+    const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
+    const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
+    const appointmentFolderName = `${commonData.appointmentId}J${commonData.appointmentId}`;
+    const dmrPath = path.join(basePath, dmrFolderName);
+    const emrPath = path.join(dmrPath, emrFolderName);
+    const appointmentPath = path.join(emrPath, appointmentFolderName);
+    fs.mkdirSync(appointmentPath, { recursive: true });
+    fs.writeFileSync(path.join(appointmentPath, `J${commonData.appointmentId}.json`), JSON.stringify(matchedAppointment));
+
+    // Update IPFS with new files
+    const files = await prepareFilesForUpload(dmrPath);
+    const allResults = [];
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
+      allResults.push(result);
+    }
+    const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    console.log(`tb cid: ${newDmrCid}`);
+
+    // Update patient data on blockchain
+    const updateTX = await contractWithSigner.updatePatientAccount(
+      dmrData.accountAddress,
+      commonData.dmrNumber,
+      newDmrCid,
+      dmrData.isActive
+    );
+    await updateTX.wait();
+
+    // Update outpatient data on blockchain
+    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+      commonData.appointmentId,
+      commonData.accountAddress,
+      specificData.doctorAddress,
+      specificData.nurseAddress,
+      newDmrCid
+    );
+    await outpatientTX.wait();
+
+    res.status(200).json({ message: "EMR saved" });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ message: "Failed to fetch appointments" });
+  }
 });
 
 export default router;
