@@ -285,9 +285,7 @@ router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async
     // Update IPFS with new files
     const files = await prepareFilesForUpload(dmrPath);
     const allResults = [];
-    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
-      allResults.push(result);
-    }
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) { allResults.push(result) }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
     console.log(`anamnesis cid: ${newDmrCid}`);
 
@@ -364,9 +362,7 @@ router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async
     // Update IPFS with new files
     const files = await prepareFilesForUpload(dmrPath);
     const allResults = [];
-    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
-      allResults.push(result);
-    }
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) { allResults.push(result) }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
     console.log(`diagnosis cid: ${newDmrCid}`);
 
@@ -443,9 +439,7 @@ router.post("/patient-list/patient-details/emr-kia", authMiddleware, async (req,
     // Update IPFS with new files
     const files = await prepareFilesForUpload(dmrPath);
     const allResults = [];
-    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
-      allResults.push(result);
-    }
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) { allResults.push(result) }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
     console.log(`kia cid: ${newDmrCid}`);
 
@@ -522,9 +516,7 @@ router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, 
     // Update IPFS with new files
     const files = await prepareFilesForUpload(dmrPath);
     const allResults = [];
-    for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
-      allResults.push(result);
-    }
+    for await (const result of client.addAll(files, { wrapWithDirectory: true })) { allResults.push(result) }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
     console.log(`tb cid: ${newDmrCid}`);
 
