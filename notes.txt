@@ -617,3 +617,23 @@ di staff ada menu apa aja (baru):
 ✅ data udah bagus (commonData dan specificData)
 - cek lagi data anamnesis yang akan dikirim
 - lanjut ke diagnosis
+
+
+umum = dr. mila & dr. amalia
+tb = dr. yuli
+kia = bidan istin
+gigi = dr. dian & dr. lily
+
+tidak perlu tuliskan semua kode, to the point saja, tapi jangan membuat saya bingung.
+
+✅ sebagian besar form sudah mengikuti tampilan dan kebutuhan e-puskesmas
+✅ data yang terkirim dan diterima di backend sudah sesuai harapan sementara
+❌ resep dan obat belum, mau tanya dulu
+❌ initialValues doctor dan nurse di diagnosis ada bug
+
+next:
+- lakukan penyimpanan format data baru di backend
+- handle file localStorage
+- mekanisme pengisian form selesai berobat
+- integrasi dengan resep dan obat jika perlu
+- besok kerjain Bab 4 dulu
