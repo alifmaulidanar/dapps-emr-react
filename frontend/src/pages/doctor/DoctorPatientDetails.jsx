@@ -36,31 +36,54 @@ export default function DoctorPatientDetails({ role }) {
   const [selectedCategory, setSelectedCategory] = useState('anamnesis');
   const [selectedDoctor, setSelectedDoctor] = useState({});
   const [selectedNurse, setSelectedNurse] = useState({});
+  const [isNoDisease, setIsNoDisease] = useState(true);
+  const [isNoAllergy, setIsNoAllergy] = useState(true);
   const [form] = Form.useForm();
-
   const dateFormat = 'DD/MM/YYYY';
-  const onChange = (date, dateString) => {
-    console.log(date, dateString);
+  const onChange = (date, dateString) => { console.log(date, dateString) };
+
+  const handleDiseaseCheckbox = (e) => {
+    setIsNoDisease(e.target.checked);
+    if (e.target.checked) {
+      form.setFieldsValue({
+        rps: null,
+        rpd: null,
+        rpk: null,
+      });
+    }
+  };
+
+  const handleAllergyCheckbox = (e) => {
+    setIsNoAllergy(e.target.checked);
+    if (e.target.checked) {
+      form.setFieldsValue({
+        alergiObat: null,
+        alergiMakanan: null,
+        alergiLainnya: null,
+      });
+    }
   };
 
   const handleDoctorChange = (value) => {
     const selected = schedules.dokter.find(dokter => dokter.namaDokter === value);
     if (selected) {
-      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter });
-      form.setFieldsValue({ namaDokter: value });
+      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter, namaDokterDiagnosis: selected.namaDokter, namaDokterKia: selected.namaDokter, namaDokterTb: selected.namaDokter});
+      form.setFieldsValue({ namaDokter: value, namaDokterKia: value, namaDokterTb: value});
     }
   };
   
   const handleNurseChange = (value) => {
     const selected = uniqueNurses.find(perawat => perawat.namaAsisten === value);
     if (selected) { 
-      setSelectedNurse({ nurseAddress: selected.nurseAddress, namaAsisten: selected.namaAsisten });
-      form.setFieldsValue({ namaAsisten: value });
+      setSelectedNurse({ nurseAddress: selected.nurseAddress, namaAsisten: selected.namaAsisten, namaAsistenDiagnosis: selected.namaAsisten, namaAsistenKia: selected.namaAsisten, namaAsistenTb: selected.namaAsisten});
+      form.setFieldsValue({ namaAsisten: value, namaAsistenKia: value, namaAsistenTb: value});
     }
   };
 
+  console.log({selectedDoctor, selectedNurse});
+
   useEffect(() => {
-    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten });
+    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten, namaDokterDiagnosis: selectedDoctor.namaDokterDiagnosis, namaAsistenDiagnosis: selectedNurse.namaAsistenDiagnosis, namaDokterKia: selectedDoctor.namaDokterKia, namaAsistenKia: selectedNurse.namaAsistenKia, namaDokterTb: selectedDoctor.namaDokterTb, namaAsistenTb: selectedNurse.namaAsistenTb});
   }, [selectedDoctor, selectedNurse, form]);
 
   const handleCancel = () => {setIsModalOpen(false) };
@@ -76,7 +99,8 @@ export default function DoctorPatientDetails({ role }) {
     const nurseMap = new Map();
     schedules.dokter.forEach(dokter => {
       dokter.jadwal.forEach(jadwal => {
-        if (!nurseMap.has(jadwal.idPerawat)) { nurseMap.set(jadwal.namaAsisten, jadwal)} });
+        if (!nurseMap.has(jadwal.idPerawat)) { nurseMap.set(jadwal.namaAsisten, jadwal)}
+      });
     });
     return Array.from(nurseMap.values());
   };
@@ -190,7 +214,6 @@ export default function DoctorPatientDetails({ role }) {
     const [fileList, setFileList] = useState([]);
     const [selectedAlergi, setSelectedAlergi] = useState('');
     const [selectedPsikologis, setSelectedPsikologis] = useState('');
-    const [history, setHistory] = useState({});
 
     const props = {
       name: 'file',
@@ -236,7 +259,7 @@ export default function DoctorPatientDetails({ role }) {
     };
     const onFinish = async (values) => {
       const uploadedFiles = await uploadFiles(fileList);
-      const transformedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      let transformedValues = Object.entries(values).reduce((acc, [key, value]) => {
         if (value instanceof dayjs) {
           acc[key] = value.format('DD/MM/YYYY');
         } else {
@@ -244,6 +267,19 @@ export default function DoctorPatientDetails({ role }) {
         }
         return acc;
       }, {});
+
+      if (selectedCategory === 'anamnesis') {
+        transformedValues = {
+          ...transformedValues,
+          rps: isNoDisease ? "" : transformedValues.rps,
+          rpd: isNoDisease ? "" : transformedValues.rpd,
+          rpk: isNoDisease ? "" : transformedValues.rpk,
+          alergiObat: isNoAllergy ? "" : transformedValues.alergiObat,
+          alergiMakanan: isNoAllergy ? "" : transformedValues.alergiMakanan,
+          alergiLainnya: isNoAllergy ? "" : transformedValues.alergiLainnya,
+        };
+      }
+
       const dmrNumber = profile.dmrNumber;
       const emrNumber = profile.emrNumber;
       const selectedAppointment = appointments.find(a => a.appointmentId === appointmentId);
@@ -259,10 +295,13 @@ export default function DoctorPatientDetails({ role }) {
         dmrNumber,
         emrNumber,
         appointmentId,
-        doctorAddress: selectedDoctor.doctorAddress || selectedAppointment.doctorAddress,
-        namaDokter: selectedDoctor.namaDokter || selectedAppointment.namaDokter,
-        nurseAddress: selectedNurse.nurseAddress || selectedAppointment.nurseAddress,
-        namaAsisten: selectedNurse.namaAsisten || selectedAppointment.namaAsisten,
+        doctorAddress: selectedAppointment.doctorAddress,
+        namaDokter: selectedAppointment.namaDokter,
+        nurseAddress: selectedAppointment.nurseAddress,
+        namaAsisten: selectedAppointment.namaAsisten,
+        tanggalRekamMedis: dayjs().format("DD/MM/YYYY"),
+        waktuRekamMedis: dayjs().format("HH:mm:ss"),
+        datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
       };
 
       let endpoint;
@@ -278,13 +317,7 @@ export default function DoctorPatientDetails({ role }) {
             doctorAddress: selectedDoctor.doctorAddress,
             nurseAddress: selectedNurse.nurseAddress,
             ...transformedValues,
-            waktuPenjelasanTindakan: dayjs().format("HH:mm:ss"),
-            tanggalPenjelasanTindakan: transformedValues.tanggalPenjelasanTindakan ? transformedValues.tanggalPenjelasanTindakan.format(dateFormat) : '',
-            tanggalRekamMedis: dayjs().format("DD/MM/YYYY"),
-            waktuRekamMedis: dayjs().format("HH:mm:ss"),
-            datetimeEMR: dayjs().tz(dayjs.tz.guess()).format(),
             files: uploadedFiles,
-            // isDokter: true,
           };
           break;
         case 'kehamilan':
@@ -295,13 +328,16 @@ export default function DoctorPatientDetails({ role }) {
           endpoint = '/doctor/patient-list/patient-details/emr-tb';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
           break;
+        case 'selesai':
+          endpoint = '/doctor/patient-list/patient-details/emr-status-berobat';
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
+          break;
         default:
           endpoint = '/doctor/patient-list/patient-details/emr';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
       }
 
-      console.log({commonData})
-      console.log({specificData});
+      console.log({ commonData, specificData });
       const signer = await getSigner();
       const signature = await signer.signMessage(JSON.stringify(specificData));
       specificData.signature = signature;
@@ -329,213 +365,177 @@ export default function DoctorPatientDetails({ role }) {
     };
 
     useEffect(() => {
-      if (selectedData.appointment.anamnesis) {
-        // const cid = selectedData ? selectedData.lampiranRekamMedis : null;
+      if (selectedData) {
+        const appointment = selectedData.appointment || {};
+        const anamnesis = appointment.anamnesis || {};
+        // const diagnosis = appointment.diagnosis || {};
+        const kia = appointment.kia || {};
+        const tb = appointment.tb || {};
+        const statusBerobat = appointment.statusBerobat || {};
+
         const initialValues = {
+          // === start anamnesis ===
           appointmentId: selectedData.appointmentId,
-          appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
-          namaDokter: selectedData.appointment.namaDokter,
-          namaAsisten: selectedData.appointment.namaAsisten,
-          tanggalRekamMedis: dayjs(selectedData.tanggalRekamMedis),
-          keluhanUtama: selectedData.appointment.anamnesis.keluhanUtama,
-          keluhanTambahan: selectedData.appointment.anamnesis.keluhanTambahan || '',
-          lamaSakitTahun: selectedData.appointment.anamnesis.lamaSakitTahun || '',
-          lamaSakitBulan: selectedData.appointment.anamnesis.lamaSakitBulan || '',
-          lamaSakitHari: selectedData.appointment.anamnesis.lamaSakitHari || '',
-          riwayatPenyakit: selectedData.appointment.anamnesis.riwayatPenyakit || '',
-          riwayatAlergi: selectedData.appointment.anamnesis.riwayatAlergi || '',
-          riwayatAlergiLainnya: selectedData.appointment.anamnesis.riwayatAlergiLainnya || '',
-          alatBantu: selectedData.appointment.anamnesis.alatBantu || '',
-          kendalaKomunikasi: selectedData.appointment.anamnesis.kendalaKomunikasi || '',
-          perawatRumah: selectedData.appointment.anamnesis.perawatRumah || '',
-          bantuanOrangLain: selectedData.appointment.anamnesis.bantuanOrangLain || '',
-          ekspresiDanEmosi: selectedData.appointment.anamnesis.ekspresiDanEmosi || '',
-          bahasa: selectedData.appointment.anamnesis.bahasa || '',
-          pekerjaan: selectedData.appointment.anamnesis.pekerjaan || '',
-          tinggalBersama: selectedData.appointment.anamnesis.tinggalBersama || '',
-          gangguanJiwaLampau: selectedData.appointment.anamnesis.gangguanJiwaLampau || '',
-          sosialEkonomi: selectedData.appointment.anamnesis.sosialEkonomi || '',
-          statusEkonomi: selectedData.appointment.anamnesis.statusEkonomi || '',
-          jaminanPengobatan: selectedData.appointment.anamnesis.jaminanPengobatan || '',
-          hubunganKeluarga: selectedData.appointment.anamnesis.hubunganKeluarga || '',
-          tingkatKesadaran: selectedData.appointment.anamnesis.tingkatKesadaran || '',
-          detakNadi: selectedData.appointment.anamnesis.detakNadi || '',
-          pernapasan: selectedData.appointment.anamnesis.pernapasan || '',
-          tekananDarahSistole: selectedData.appointment.anamnesis.tekananDarahSistole || '',
-          tekananDarahDiastole: selectedData.appointment.anamnesis.tekananDarahDiastole || '',
-          map: selectedData.appointment.anamnesis.map || '',
-          beratBadan: selectedData.appointment.anamnesis.beratBadan || '',
-          tinggiBadan: selectedData.appointment.anamnesis.tinggiBadan || '',
-          caraUkurTinggiBadan: selectedData.appointment.anamnesis.caraUkurTinggiBadan || '',
-          suhuTubuh: selectedData.appointment.anamnesis.suhuTubuh || '',
-          saturasi: selectedData.appointment.anamnesis.saturasi || '',
-          statusHamil: selectedData.appointment.anamnesis.statusHamil || '',
-          detakJantung: selectedData.appointment.anamnesis.detakJantung || '',
-          triage: selectedData.appointment.anamnesis.triage || '',
-          nyeriTubuh: selectedData.appointment.anamnesis.nyeriTubuh || '',
-          pencetusNyeri: selectedData.appointment.anamnesis.pencetusNyeri || '',
-          lokasiNyeri: selectedData.appointment.anamnesis.lokasiNyeri || '',
-          skalaNyeri: selectedData.appointment.anamnesis.skalaNyeri || '',
-          waktuNyeri: selectedData.appointment.anamnesis.waktuNyeri || '',
-          pasienTidakSeimbang: selectedData.appointment.anamnesis.pasienTidakSeimbang || '',
-          pasienButuhPenopang: selectedData.appointment.anamnesis.pasienButuhPenopang || '',
-          terapi: selectedData.appointment.anamnesis.terapi || '',
-          rencanaTindakan: selectedData.appointment.anamnesis.rencanaTindakan || '',
-          tipeAskep: selectedData.appointment.anamnesis.tipeAskep || '',
-          edukasi: selectedData.appointment.anamnesis.edukasi || '',
-          deskripsiAskep: selectedData.appointment.anamnesis.deskripsiAskep || '',
-          observasi: selectedData.appointment.anamnesis.observasi || '',
-          keteranganLainnya: selectedData.appointment.anamnesis.keteranganLainnya || '',
-          biopsikososial: selectedData.appointment.anamnesis.biopsikososial || '',
-          tindakanKeperawatan: selectedData.appointment.anamnesis.tindakanKeperawatan || '',
-          merokok: selectedData.appointment.anamnesis.merokok || '',
-          konsumsiAlkohol: selectedData.appointment.anamnesis.konsumsiAlkohol || '',
-          kurangSayurBuah: selectedData.appointment.anamnesis.kurangSayurBuah || '',
-          pemeriksaanKulit: selectedData.appointment.anamnesis.pemeriksaanKulit || '',
-          pemeriksaanLeher: selectedData.appointment.anamnesis.pemeriksaanLeher || '',
-          pemeriksaanKuku: selectedData.appointment.anamnesis.pemeriksaanKuku || '',
-          pemeriksaanDadaPunggung: selectedData.appointment.anamnesis.pemeriksaanDadaPunggung || '',
-          pemeriksaanKepala: selectedData.appointment.anamnesis.pemeriksaanKepala || '',
-          pemeriksaanKardiovaskuler: selectedData.appointment.anamnesis.pemeriksaanKardiovaskuler || '',
-          pemeriksaanWajah: selectedData.appointment.anamnesis.pemeriksaanWajah || '',
-          pemeriksaanDadaAksila: selectedData.appointment.anamnesis.pemeriksaanDadaAksila || '',
-          pemeriksaanMata: selectedData.appointment.anamnesis.pemeriksaanMata || '',
-          pemeriksaanAbdomenPerut: selectedData.appointment.anamnesis.pemeriksaanAbdomenPerut || '',
-          pemeriksaanTelinga: selectedData.appointment.anamnesis.pemeriksaanTelinga || '',
-          pemeriksaanEktermitasAtas: selectedData.appointment.anamnesis.pemeriksaanEktermitasAtas || '',
-          pemeriksaanHidungSinus: selectedData.appointment.anamnesis.pemeriksaanHidungSinus || '',
-          pemeriksaanEkstermitasBawah: selectedData.appointment.anamnesis.pemeriksaanEkstermitasBawah || '',
-          pemeriksaanMulutBibir: selectedData.appointment.anamnesis.pemeriksaanMulutBibir || '',
-          pemeriksaanGenitaliaWanita: selectedData.appointment.anamnesis.pemeriksaanGenitaliaWanita || '',
+          appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY") || '',
+          namaDokter: anamnesis.namaDokter || selectedData.appointment.namaDokter || '',
+          namaAsisten: anamnesis.namaAsisten || selectedData.appointment.namaAsisten || '',
+          tanggalRekamMedis: dayjs(selectedData.tanggalRekamMedis) || '',
+          keluhanUtama: anamnesis.keluhanUtama || '',
+          keluhanTambahan: anamnesis.keluhanTambahan || '',
+          lamaSakitTahun: anamnesis.lamaSakitTahun || '',
+          lamaSakitBulan: anamnesis.lamaSakitBulan || '',
+          lamaSakitHari: anamnesis.lamaSakitHari || '',
+          riwayatPenyakit: anamnesis.riwayatPenyakit || '',
+          riwayatAlergi: anamnesis.riwayatAlergi || '',
+          riwayatAlergiLainnya: anamnesis.riwayatAlergiLainnya || '',
+          alatBantu: anamnesis.alatBantu || '',
+          kendalaKomunikasi: anamnesis.kendalaKomunikasi || '',
+          perawatRumah: anamnesis.perawatRumah || '',
+          bantuanOrangLain: anamnesis.bantuanOrangLain || '',
+          ekspresiDanEmosi: anamnesis.ekspresiDanEmosi || '',
+          bahasa: anamnesis.bahasa || '',
+          pekerjaan: anamnesis.pekerjaan || '',
+          tinggalBersama: anamnesis.tinggalBersama || '',
+          gangguanJiwaLampau: anamnesis.gangguanJiwaLampau || '',
+          sosialEkonomi: anamnesis.sosialEkonomi || '',
+          statusEkonomi: anamnesis.statusEkonomi || '',
+          jaminanPengobatan: anamnesis.jaminanPengobatan || '',
+          hubunganKeluarga: anamnesis.hubunganKeluarga || '',
+          tingkatKesadaran: anamnesis.tingkatKesadaran || '',
+          detakNadi: anamnesis.detakNadi || '',
+          pernapasan: anamnesis.pernapasan || '',
+          tekananDarahSistole: anamnesis.tekananDarahSistole || '',
+          tekananDarahDiastole: anamnesis.tekananDarahDiastole || '',
+          map: anamnesis.map || '',
+          beratBadan: anamnesis.beratBadan || '',
+          tinggiBadan: anamnesis.tinggiBadan || '',
+          caraUkurTinggiBadan: anamnesis.caraUkurTinggiBadan || '',
+          suhuTubuh: anamnesis.suhuTubuh || '',
+          saturasi: anamnesis.saturasi || '',
+          statusHamil: anamnesis.statusHamil || '',
+          detakJantung: anamnesis.detakJantung || '',
+          triage: anamnesis.triage || '',
+          nyeriTubuh: anamnesis.nyeriTubuh || '',
+          pencetusNyeri: anamnesis.pencetusNyeri || '',
+          lokasiNyeri: anamnesis.lokasiNyeri || '',
+          skalaNyeri: anamnesis.skalaNyeri || '',
+          waktuNyeri: anamnesis.waktuNyeri || '',
+          pasienTidakSeimbang: anamnesis.pasienTidakSeimbang || '',
+          pasienButuhPenopang: anamnesis.pasienButuhPenopang || '',
+          terapi: anamnesis.terapi || '',
+          rencanaTindakan: anamnesis.rencanaTindakan || '',
+          tipeAskep: anamnesis.tipeAskep || '',
+          edukasi: anamnesis.edukasi || '',
+          deskripsiAskep: anamnesis.deskripsiAskep || '',
+          observasi: anamnesis.observasi || '',
+          keteranganLainnya: anamnesis.keteranganLainnya || '',
+          biopsikososial: anamnesis.biopsikososial || '',
+          tindakanKeperawatan: anamnesis.tindakanKeperawatan || '',
+          merokok: anamnesis.merokok || '',
+          konsumsiAlkohol: anamnesis.konsumsiAlkohol || '',
+          kurangSayurBuah: anamnesis.kurangSayurBuah || '',
+          pemeriksaanKulit: anamnesis.pemeriksaanKulit || '',
+          pemeriksaanLeher: anamnesis.pemeriksaanLeher || '',
+          pemeriksaanKuku: anamnesis.pemeriksaanKuku || '',
+          pemeriksaanDadaPunggung: anamnesis.pemeriksaanDadaPunggung || '',
+          pemeriksaanKepala: anamnesis.pemeriksaanKepala || '',
+          pemeriksaanKardiovaskuler: anamnesis.pemeriksaanKardiovaskuler || '',
+          pemeriksaanWajah: anamnesis.pemeriksaanWajah || '',
+          pemeriksaanDadaAksila: anamnesis.pemeriksaanDadaAksila || '',
+          pemeriksaanMata: anamnesis.pemeriksaanMata || '',
+          pemeriksaanAbdomenPerut: anamnesis.pemeriksaanAbdomenPerut || '',
+          pemeriksaanTelinga: anamnesis.pemeriksaanTelinga || '',
+          pemeriksaanEktermitasAtas: anamnesis.pemeriksaanEktermitasAtas || '',
+          pemeriksaanHidungSinus: anamnesis.pemeriksaanHidungSinus || '',
+          pemeriksaanEkstermitasBawah: anamnesis.pemeriksaanEkstermitasBawah || '',
+          pemeriksaanMulutBibir: anamnesis.pemeriksaanMulutBibir || '',
+          pemeriksaanGenitaliaWanita: anamnesis.pemeriksaanGenitaliaWanita || '',
+          // === end anamnesis ===
+
+          // === start diagnosis ===
+          diagnosis: selectedData.diagnosis ? selectedData.diagnosis.map(diagnosis => ({
+            namaDokterDiagnosis: diagnosis.namaDokterDiagnosis || '',
+            namaAsistenDiagnosis: diagnosis.namaAsistenDiagnosis || '',
+            icdx: diagnosis.icdx || '',
+            diagnosis: diagnosis.diagnosis || '',
+            jenisDiagnosis: diagnosis.jenisDiagnosis || '',
+            kasusDiagnosis: diagnosis.kasusDiagnosis || '',
+          })) : [{}],
+          // === end diagnosis ===
+
+          // === start kia ===
+          // namaDokterKia: kia.namaDokterKia || '',
+          // namaAsistenKia: kia.namaAsistenKia || '',
+          posyanduKia: kia.posyanduKia || '',
+          namaKaderKia: kia.namaKaderKia || '',
+          namaDukunKia: kia.namaDukunKia || '',
+          golonganDarahKia: kia.golonganDarahKia || '',
+          riwayatKomplikasiKebidananKia: kia.riwayatKomplikasiKebidananKia || '',
+          penyakitKronisAlergiKia: kia.penyakitKronisAlergiKia || '',
+          riwayatPenyakitKia: kia.riwayatPenyakitKia || '',
+          gravida: kia.gravida || '',
+          abortus: kia.abortus || '',
+          partus: kia.partus || '',
+          hidup: kia.hidup || '',
+          tanggalRencanaPersalinan: kia.tanggalRencanaPersalinan ? dayjs(kia.tanggalRencanaPersalinan, dateFormat) : null,
+          penolongPersalinan: kia.penolongPersalinan || '',
+          tempatPersalinan: kia.tempatPersalinan || '',
+          pendampingPersalinan: kia.pendampingPersalinan || '',
+          transportasiPersalinan: kia.transportasiPersalinan || '',
+          pendonorPersalinan: kia.pendonorPersalinan || '',
+          tanggalHpht: kia.tanggalHpht ? dayjs(kia.tanggalHpht, dateFormat) : null,
+          taksiranPersalinan: kia.taksiranPersalinan ? dayjs(kia.taksiranPersalinan, dateFormat) : null,
+          persalinanSebelumnya: kia.persalinanSebelumnya ? dayjs(kia.persalinanSebelumnya, dateFormat) : null,
+          bukuKia: kia.bukuKia || '',
+          beratBadanSebelumHamil: kia.beratBadanSebelumHamil || '',
+          tinggiBadanHamil: kia.tinggiBadanHamil || '',
+          skorKspr: kia.skorKspr || '',
+          tingkatRisiko: kia.tingkatRisiko || '',
+          jenisRisikoTinggi: kia.jenisRisikoTinggi || '',
+          risikoKasuistik: kia.risikoKasuistik || '',
+          // === end kia ===
+
+          // === start tb ===
+          // namaDokterTb: tb.namaDokterTb || '',
+          // namaAsistenTb: tb.namaAsistenTb || '',
+          beratBadanTb: tb.beratBadanTb || '',
+          tinggiBadanTb: tb.tinggiBadanTb || '',
+          parutBcg: tb.parutBcg || '',
+          wanitaUsiaSubur: tb.wanitaUsiaSubur || '',
+          skoringAnak: tb.skoringAnak || '',
+          namaPmo: tb.namaPmo || '',
+          telpSelularPmo: tb.telpSelularPmo || '',
+          alamatPmo: tb.alamatPmo || '',
+          namaFaskesPmo: tb.namaFaskesPmo || '',
+          tahunPmo: tb.tahunPmo || '',
+          provinsiPmo: tb.provinsiPmo || '',
+          kotaKabPmo: tb.kotaKabPmo || '',
+          tipeDiagnosis: tb.tipeDiagnosis || '',
+          klasifikasiByAnatomi: tb.klasifikasiByAnatomi || '',
+          klasifikasiByRiwayat: tb.klasifikasiByRiwayat || '',
+          klasifikasiByHiv: tb.klasifikasiByHiv || '',
+          riwayatDm: tb.riwayatDm || '',
+          tesDm: tb.tesDm || '',
+          terapiDm: tb.terapiDm || '',
+          ujiTuberkulin: tb.ujiTuberkulin || '',
+          tanggalFotoToraks: tb.tanggalFotoToraks ? dayjs(tb.tanggalFotoToraks, dateFormat) : null,
+          nomorSeriFotoToraks: tb.nomorSeriFotoToraks || '',
+          kesanFotoToraks: tb.kesanFotoToraks || '',
+          tanggalFnab: tb.tanggalFnab ? dayjs(tb.tanggalFnab, dateFormat) : null,
+          hasilUjiSelainDahak: tb.hasilUjiSelainDahak || '',
+          deskripsiFnab: tb.deskripsiFnab || '',
+          // === end tb ===
+
+          // === start selesai ===
+          judulRekamMedis: statusBerobat.judulRekamMedis || '',
+          catatanRekamMedis: statusBerobat.catatanRekamMedis || '',
+          statusPulang: statusBerobat.statusPulang || '',
+          tanggalRencanaKontrol: statusBerobat.tanggalRencanaKontrol ? dayjs(statusBerobat.tanggalRencanaKontrol, dateFormat) : null,
+          keteranganPulang: statusBerobat.keteranganPulang || '',
+          // === end selesai ===
         };
-        // Check isDokter & isPerawat
-        if (selectedData) {
-          // if isDokter
-          // setIsEdit(true);
-          form.setFieldsValue(initialValues);
-          // fetch(`${CONN.IPFS_LOCAL}/${cid}`)
-          //   .then(response => response.json())
-          //   .then(bundleContent => {
-          //     const root = createRoot(document.getElementById("lampiran"));
-          //     const cards = bundleContent.map(fileData => {
-          //       const blob = new Blob([new Uint8Array(fileData.content.data)]);
-          //       const url = URL.createObjectURL(blob);
-          //       let attachmentElement;
-          //       let previewElement;
-          //       if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
-          //         // Display image file
-          //         attachmentElement = document.createElement('img');
-          //         attachmentElement.src = url;
-          //         attachmentElement.alt = fileData.path;
-          //         previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
-          //       } else {
-          //         // Display other file types as download links
-          //         attachmentElement = document.createElement('img');
-          //         attachmentElement.src = url;
-          //         attachmentElement.alt = fileData.path;
-          //         previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
-          //       }
-          //       const fileName = fileData.path.split('.').slice(0, -1).join('.');
-          //       const fileExtension = fileData.path.split('.').pop();
-          //       const cardContent = (
-          //         <>
-          //           {previewElement}
-          //         </>
-          //       );
-          //       return (
-          //         <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
-          //           <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
-          //             {cardContent}
-          //             <p>{fileName}.{fileExtension}</p>
-          //           </a>
-          //         </Card>
-          //       );
-          //     });
-          //     root.render(cards, document.createElement('div'));
-          //   })
-          //   .catch(error => {
-          //     console.error('Error fetching data:', error);
-          //   });
-        } else if (selectedData.isPerawat) {
-          // if isPerawat
-          setIsEdit(false);
-          form.setFieldsValue({
-            appointmentId: selectedData.appointmentId,
-            appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
-            // namaDokter: selectedData.appointment.namaDokter,
-            // namaAsisten: selectedData.appointment.namaAsisten,
-            tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
-            namaLengkap: selectedData.appointment.namaLengkap,
-            keluhanUtama: selectedData.keluhanUtama,
-            riwayatPenyakit: selectedData.riwayatPenyakit,
-            riwayatAlergi: selectedData.riwayatAlergi,
-            riwayatAlergiLainnya: selectedData.riwayatAlergiLainnya,
-            riwayatPengobatan: selectedData.riwayatPengobatan,
-            tingkatKesadaran: selectedData.tingkatKesadaran,
-            denyutJantung: selectedData.denyutJantung,
-            pernapasan: selectedData.pernapasan,
-            tekananDarahSistole: selectedData.tekananDarahSistole,
-            tekananDarahDiastole: selectedData.tekananDarahDiastole,
-            suhuTubuh: selectedData.suhuTubuh,
-            kepala: selectedData.kepala,
-            mata: selectedData.mata,
-            telinga: selectedData.telinga,
-            hidung: selectedData.hidung,
-            rambut: selectedData.rambut,
-            bibir: selectedData.bibir,
-            gigiGeligi: selectedData.gigiGeligi,
-            lidah: selectedData.lidah,
-            langitLangit: selectedData.langitLangit,
-            leher: selectedData.leher,
-            tenggorokan: selectedData.tenggorokan,
-            tonsil: selectedData.tonsil,
-            dada: selectedData.dada,
-            payudara: selectedData.payudara,
-            punggung: selectedData.punggung,
-            perut: selectedData.perut,
-            genital: selectedData.genital,
-            anusDubur: selectedData.anusDubur,
-            lenganAtas: selectedData.lenganAtas,
-            lenganBawah: selectedData.lenganBawah,
-            jariTangan: selectedData.jariTangan,
-            kukuTangan: selectedData.kukuTangan,
-            persendianTangan: selectedData.persendianTangan,
-            tungkaiAtas: selectedData.tulangAtas,
-            tulangBawah: selectedData.tulangBawah,
-            jariKaki: selectedData.jariKaki,
-            kukuKaki: selectedData.kukuKaki,
-            persendianKaki: selectedData.persendianKaki,
-            statusPsikologis: selectedData.statusPsikologis,
-            statusPsikologisLainnya: selectedData.statusPsikologisLainnya,
-            sosialEkonomi: selectedData.sosialEkonomi,
-            spiritual: selectedData.spiritual,
-            namaKerabat: profile.namaKerabat,
-            dokterPenjelasanTindakan: selectedData.appointment.namaDokter,
-            petugasPendampingTindakan: selectedData.appointment.namaAsisten,
-            pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
-            tanggalPenjelasanTindakan: dayjs(),
-            lampiranRekamMedis: selectedData.lampiranRekamMedis,
-            judulRekamMedis: selectedData.judulRekamMedis,
-            catatanRekamMedis: selectedData.catatanRekamMedis,
-          });
-        } else {
-          // if !isDokter dan !isPerawat
-          form.resetFields();
-          form.setFieldsValue({
-            appointmentId: selectedData.appointmentId,
-            appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY"),
-            namaDokter: selectedData.appointment.namaDokter,
-            namaAsisten: selectedData.appointment.namaAsisten,
-            tanggalRekamMedis: dayjs(selectedData.appointment.tanggalRekamMedis),
-            namaLengkap: selectedData.appointment.namaLengkap,
-            namaKerabat: profile.namaKerabat,
-            dokterPenjelasanTindakan: selectedData.appointment.namaDokter,
-            petugasPendampingTindakan: selectedData.appointment.namaAsisten,
-            pasienPenjelasanTindakan: selectedData.appointment.namaLengkap,
-            tanggalPenjelasanTindakan: dayjs(),
-          });
-          setIsEdit(false);
-        }
+
+        form.setFieldsValue(initialValues);
       } else {
         form.resetFields();
         form.setFieldsValue({
@@ -620,11 +620,61 @@ export default function DoctorPatientDetails({ role }) {
                 />
               </Form.Item>
               <Form.Item label="Keluhan Utama" name="keluhanUtama" >
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
+                <Input style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item>
               <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
                 <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
               </Form.Item>
+              <div>
+                <Form.Item label="Riwayat Penyakit" valuePropName="checked">
+                  <Checkbox
+                    checked={isNoDisease}
+                    onChange={handleDiseaseCheckbox}
+                    disabled={isEdit}
+                  >
+                    Tidak ada
+                  </Checkbox>
+                </Form.Item>
+
+                {!isNoDisease && (
+                  <>
+                    <Form.Item label="RPS" name="rps">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                    <Form.Item label="RPD" name="rpd">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                    <Form.Item label="RPK" name="rpk">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                  </>
+                )}
+              </div>
+              <div>
+                <Form.Item label="Alergi Pasien" valuePropName="checked">
+                  <Checkbox
+                    checked={isNoAllergy}
+                    onChange={handleAllergyCheckbox}
+                    disabled={isEdit}
+                  >
+                    Tidak ada
+                  </Checkbox>
+                </Form.Item>
+
+                {!isNoAllergy && (
+                  <>
+                    <Form.Item label="Obat" name="alergiObat">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                    <Form.Item label="Makanan" name="alergiMakanan">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                    <Form.Item label="Lainnya" name="alergiLainnya">
+                      <Input style={inputStyling} disabled={isEdit} />
+                    </Form.Item>
+                  </>
+                )}
+              </div>
               <div className='grid gap-y-2 content-center'>
                 <div>Lama Sakit</div>
                 <div className='flex gap-x-4'>
@@ -642,24 +692,6 @@ export default function DoctorPatientDetails({ role }) {
                   <span className='mt-1'>Hari</span>
                 </div>
               </div>
-              <Form.Item label="Riwayat Penyakit" name="riwayatPenyakit">
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item>
-              {/* <Form.Item label="Riwayat Pengobatan" name="riwayatPengobatan">
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
-              </Form.Item> */}
-              <Form.Item label="Riwayat Alergi" name="riwayatAlergi" >
-                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('riwayatAlergi')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
-                ]}/>
-              </Form.Item>
-              <Form.Item label="Riwayat Alergi Lainnya" name="riwayatAlergiLainnya">
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={selectedAlergi !== '4'} autoSize/>
-              </Form.Item>
 
               {/* PEMERIKSAAN FISIS */}
               <div className="col-span-2">
@@ -691,12 +723,12 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Ekspresi dan emosi" name="ekspresiDanEmosi" >
                 <Select size="middle" disabled={isEdit && !!form.getFieldValue('ekspresiDanEmosi')} onChange={onPsikologisChange} options={[
-                  { value: '1', label: <span>1. Tidak ada kelainan</span> },
+                  { value: '1', label: <span>1. Tenang</span> },
                   { value: '2', label: <span>2. Cemas</span> },
                   { value: '3', label: <span>3. Takut</span> },
-                  { value: '4', label: <span>4. Marah</span> },
+                  { value: '4', label: <span>4. Gelisah</span> },
                   { value: '5', label: <span>5. Sedih</span> },
-                  { value: '6', label: <span>6. Lain-lain</span> },
+                  { value: '6', label: <span>6. Marah</span> },
                 ]}/>
               </Form.Item>
               {/* <Form.Item label="Status Psikologis Lainnya" name="statusPsikologisLainnya">
@@ -747,11 +779,12 @@ export default function DoctorPatientDetails({ role }) {
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Hubungan dengan keluarga" name="hubunganKeluarga" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('hubunganKeluarga')}>
-                  <Radio value="1">Orang Tua</Radio>
-                  <Radio value="2">Anak</Radio>
-                  <Radio value="3">Kerabat</Radio>
-                </Radio.Group>
+                <Select size="middle" disabled={isEdit && !!form.getFieldValue('hubunganKeluarga')} options={[
+                  { value: '1', label: <span>1. Harmonis</span> },
+                  { value: '2', label: <span>2. Kurang Harmonis</span> },
+                  { value: '3', label: <span>3. Tidak Harmonis</span> },
+                  { value: '4', label: <span>4. Konflik Besar</span> },
+                ]}/>
               </Form.Item>
 
               {/* Pemeriksaan Fisik */}
@@ -763,12 +796,10 @@ export default function DoctorPatientDetails({ role }) {
               </div>
               <Form.Item label="Tingkat Kesadaran" name="tingkatKesadaran" >
                 <Select size="middle" disabled={isEdit && !!form.getFieldValue('tingkatKesadaran')} options={[
-                  { value: '1', label: <span>1. Sadar Baik/Alert</span> },
-                  { value: '2', label: <span>2. Berespons dengan kata-kata/Voice</span> },
-                  { value: '3', label: <span>3. Hanya berespons jika dirangsang nyeri/Pain</span> },
-                  { value: '4', label: <span>4. Pasien tidak sadar/Unresponsive</span> },
-                  { value: '5', label: <span>5. Gelisah atau bingung</span> },
-                  { value: '6', label: <span>6. Acute Confusional States</span> }
+                  { value: '1', label: <span>1. Compos Mentis</span> },
+                  { value: '2', label: <span>2. Somnolen</span> },
+                  { value: '3', label: <span>3. Sopor</span> },
+                  { value: '4', label: <span>4. Coma</span> },
                 ]}/>
               </Form.Item>
               <div className="col-span-2">
@@ -798,8 +829,7 @@ export default function DoctorPatientDetails({ role }) {
               <Form.Item label="Cara ukur tinggi badan" name="caraUkurTinggiBadan" >
                 <Select size="middle" disabled={isEdit && !!form.getFieldValue('caraUkurTinggiBadan')} options={[
                   { value: '1', label: <span>1. Berdiri</span> },
-                  { value: '2', label: <span>2. Duduk</span> },
-                  { value: '3', label: <span>3. Berbaring</span> }
+                  { value: '2', label: <span>2. Telentang</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Suhu Tubuh" name="suhuTubuh">
@@ -841,6 +871,16 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Pencetus nyeri" name="pencetusNyeri">
                 <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+              <Form.Item label="Kualitas Nyeri" name="kualitasNyeri" >
+                <Select size="middle" disabled={isEdit && !!form.getFieldValue('kualitasNyeri')} options={[
+                  { value: '1', label: <span>1. Tekanan</span> },
+                  { value: '2', label: <span>2. Terbakar</span> },
+                  { value: '3', label: <span>3. Melilit</span> },
+                  { value: '4', label: <span>4. Tertusuk</span> },
+                  { value: '5', label: <span>5. Diiris</span> },
+                  { value: '6', label: <span>6. Mencengkram</span> }
+                ]}/>
               </Form.Item>
               <Form.Item label="Lokasi nyeri" name="lokasiNyeri">
                 <Input style={inputStyling} disabled={isEdit} />
@@ -993,25 +1033,29 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
 
-              <Form.List name="diagnosis" initialValue={[{}]}>
+              <Form.List name="diagnosis" initialValue={appointmentId || [{}]} >
                 {(fields, { add, remove }) => (
                   <>
                     <div className='grid col-span-2 w-full'>
                       <Table
-                        dataSource={fields}
+                        dataSource={fields.length ? fields : [{}]}
                         pagination={false}
                         rowKey={(record) => record.key}
                         columns={[
                           {
                             title: 'Dokter / Tenaga Medis',
-                            dataIndex: ['namaDokter'],
-                            key: 'namaDokter',
+                            dataIndex: ['namaDokterDiagnosis'],
+                            key: 'namaDokterDiagnosis',
                             render: (text, field) => (
                               <Form.Item
                                 {...field}
-                                name={[field.name, 'namaDokter']}
-                                fieldKey={[field.fieldKey, 'namaDokter']}
+                                name={[field.name, 'namaDokterDiagnosis']}
+                                fieldKey={[field.fieldKey, 'namaDokterDiagnosis']}
                                 rules={[{ required: true, message: 'Harap pilih dokter' }]}
+                                initialValue={
+                                  form.getFieldValue(['diagnosis', field.name, 'namaDokterDiagnosis']) ||
+                                  selectedDoctor.namaDokterDiagnosis || ''
+                                }
                               >
                                 <Select
                                   showSearch
@@ -1027,14 +1071,18 @@ export default function DoctorPatientDetails({ role }) {
                           },
                           {
                             title: 'Perawat / Bidan / Nutrisionist / Sanitarian',
-                            dataIndex: ['namaAsisten'],
-                            key: 'namaAsisten',
+                            dataIndex: ['namaAsistenDiagnosis'],
+                            key: 'namaAsistenDiagnosis',
                             render: (text, field) => (
                               <Form.Item
                                 {...field}
-                                name={[field.name, 'namaAsisten']}
-                                fieldKey={[field.fieldKey, 'namaAsisten']}
+                                name={[field.name, 'namaAsistenDiagnosis']}
+                                fieldKey={[field.fieldKey, 'namaAsistenDiagnosis']}
                                 rules={[{ required: true, message: 'Harap pilih perawat' }]}
+                                initialValue={
+                                  form.getFieldValue(['diagnosis', field.name, 'namaAsistenDiagnosis']) ||
+                                  selectedNurse.namaAsistenDiagnosis || ''
+                                }
                               >
                                 <Select
                                   showSearch
@@ -1043,10 +1091,7 @@ export default function DoctorPatientDetails({ role }) {
                                   filterOption={(input, option) =>
                                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                   }
-                                  options={uniqueNurses.map(nurse => ({
-                                    value: nurse.namaAsisten,
-                                    label: nurse.namaAsisten,
-                                  }))}
+                                  options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
                                 />
                               </Form.Item>
                             ),
@@ -1093,8 +1138,9 @@ export default function DoctorPatientDetails({ role }) {
                                 rules={[{ required: true, message: 'Harap pilih jenis' }]}
                               >
                                 <Select placeholder="Jenis">
-                                  <Select.Option value="primer">Primer</Select.Option>
-                                  <Select.Option value="sekunder">Sekunder</Select.Option>
+                                  <Select.Option value="1">Primer</Select.Option>
+                                  <Select.Option value="2">Sekunder</Select.Option>
+                                  <Select.Option value="3">Komplikasi</Select.Option>
                                 </Select>
                               </Form.Item>
                             ),
@@ -1111,8 +1157,8 @@ export default function DoctorPatientDetails({ role }) {
                                 rules={[{ required: true, message: 'Harap pilih kasus' }]}
                               >
                                 <Select placeholder="Kasus">
-                                  <Select.Option value="baru">Baru</Select.Option>
-                                  <Select.Option value="lama">Lama</Select.Option>
+                                  <Select.Option value="1">Baru</Select.Option>
+                                  <Select.Option value="2">Lama</Select.Option>
                                 </Select>
                               </Form.Item>
                             ),
@@ -1137,13 +1183,7 @@ export default function DoctorPatientDetails({ role }) {
                             dataIndex: 'aksi',
                             key: 'aksi',
                             render: (_, field) => (
-                              <MinusCircleOutlined
-                                onClick={() => {
-                                  if (fields.length > 1) {
-                                    remove(field.name);
-                                  }
-                                }}
-                              />
+                              <MinusCircleOutlined onClick={() => { if (fields.length > 1) remove(field.name) }} />
                             ),
                           },
                         ]}
@@ -1172,84 +1212,59 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left">Lampiran Berkas</Divider>
               </div>
               <div className="col-span-2">
-              {history?.isDokter ? (
-                <>
-                  <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>
-                </>
-              ) : (
+                <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>
                 <Dragger {...props}>
-                  <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
-                  </p>
+                  <p className="ant-upload-drag-icon"><InboxOutlined /></p>
                   <p className="ant-upload-text">Klik atau seret berkas ke area ini untuk mengunggah</p>
                   <p className="ant-upload-hint">
-                  Dapat menerima berkas dengan format .pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .zip, .rar, .7z.
+                    Dapat menerima berkas dengan format .pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .zip, .rar, .7z.
                   </p>
                 </Dragger>
-              )}
-              </div>
-
-              {/* JUDUL REKAM MEDIS */}
-              <div className="col-span-2 mt-8">
-                <Divider orientation="left">Judul Rekam Medis</Divider>
-              </div>
-              <div className="col-span-2">
-                <Form.Item label="Judul Rekam Medis" name="judulRekamMedis">
-                    <Input style={inputStyling} disabled={isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
-                </Form.Item>
-                <Form.Item label="Catatan" name="catatanRekamMedis">
-                  <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
-                </Form.Item>
               </div>
             </>
           )}
 
-          {/* Pengamatan Kehamilan */}
+          {/* Pengamatan KIA */}
           { selectedCategory === 'kehamilan' && (
             <>
               <div className="col-span-2 mb-6 text-lg text-gray-900">
                 Pengamatan Kehamilan
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Dokter / Tenaga Medis" name="namaDokter">
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokterKia">
                 <Select
                   showSearch
                   placeholder="Pilih Dokter"
                   optionFilterProp="children"
                   onChange={handleDoctorChange}
-                  value={selectedDoctor.namaDokter}
+                  value={selectedDoctor.namaDokterKia}
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
                 />
               </Form.Item>
-              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
+              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsistenKia">
                 <Select
                   showSearch
                   placeholder="Pilih Perawat"
                   optionFilterProp="children"
                   onChange={handleNurseChange}
-                  value={selectedNurse.namaAsisten}
-                  filterOption={(input, option) =>
-                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  options={uniqueNurses.map(nurse => ({
-                    value: nurse.namaAsisten,
-                    label: nurse.namaAsisten,
-                  }))}
+                  value={selectedNurse.namaAsistenKia}
+                  filterOption={(input, option) => option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
+                  options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
                 />
               </Form.Item>
-              <Form.Item label="Posyandu" name="posyandu" >
+              <Form.Item label="Posyandu" name="posyanduKia" >
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Nama Kader" name="namaKader">
+              <Form.Item label="Nama Kader" name="namaKaderKia">
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Nama Dukun" name="namaDukun" >
+              <Form.Item label="Nama Dukun" name="namaDukunKia" >
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Golongan Darah" name="golonganDarah">
+              <Form.Item label="Golongan Darah" name="golonganDarahKia">
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
 
@@ -1257,13 +1272,13 @@ export default function DoctorPatientDetails({ role }) {
                 Riwayat Pasien
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Riwayat Komplikasi Kebidanan" name="riwayatKomplikasiKebidanan">
+              <Form.Item label="Riwayat Komplikasi Kebidanan" name="riwayatKomplikasiKebidananKia">
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Penyakit Kronis dan Alergi" name="penyakitKronisAlergi" >
+              <Form.Item label="Penyakit Kronis dan Alergi" name="penyakitKronisAlergiKia" >
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Riwayat Penyakit" name="riwayatPenyakit">
+              <Form.Item label="Riwayat Penyakit" name="riwayatPenyakitKia">
                 <Input style={inputStyling} className="content-center" disabled={isEdit} />
               </Form.Item>
 
@@ -1293,47 +1308,53 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
               <Form.Item label="Penolong" name="penolongPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
+                  { value: '1', label: <span>1. Keluarga</span> },
+                  { value: '2', label: <span>2. Dukun</span> },
+                  { value: '3', label: <span>3. Bidan</span> },
+                  { value: '4', label: <span>4. dr. Umum</span> },
+                  { value: '5', label: <span>5. dr. Spesialis</span> },
+                  { value: '6', label: <span>6. Lainnya</span> },
+                  { value: '7', label: <span>7. Tidak ada</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Tempat" name="tempatPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('tempatPersalinan')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
+                  { value: '1', label: <span>1. Rumah</span> },
+                  { value: '2', label: <span>2. Polides</span> },
+                  { value: '3', label: <span>3. Pustu</span> },
+                  { value: '4', label: <span>4. Puskesmas</span> },
+                  { value: '5', label: <span>5. Klinik</span> },
+                  { value: '6', label: <span>6. Rumah Bersalin (RB)</span> },
+                  { value: '7', label: <span>7. Rumah Sakit (RS)</span> },
+                  { value: '8', label: <span>8. Rumah Sakit Ibu dan Anak (RSIA)</span> },
+                  { value: '9', label: <span>9. Rumah Sakit Orang Dengan HIV AIDS (RS ODHA)</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Pendamping" name="pendampingPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('pendampingPersalinan')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
+                  { value: '1', label: <span>1. Suami</span> },
+                  { value: '2', label: <span>2. Keluarga</span> },
+                  { value: '3', label: <span>3. Teman</span> },
+                  { value: '4', label: <span>4. Tetangga</span> },
+                  { value: '5', label: <span>5. Lainnya</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Transportasi" name="transportasiPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('transportasiPersalinan')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
+                  { value: '1', label: <span>1. Ambulans Desa</span> },
+                  { value: '2', label: <span>2. Ambulans Puskesmas</span> },
+                  { value: '3', label: <span>3. Ambulans Swasta</span> },
+                  { value: '4', label: <span>4. Kendaraan Pribadi</span> },
+                  { value: '5', label: <span>5. Kendaraan Umum</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Pendonor" name="pendonorPersalinan" >
                 <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('pendonorPersalinan')} options={[
-                  { value: '0', label: <span>Tidak ada</span> },
-                  { value: '1', label: <span>1. Obat</span> },
-                  { value: '2', label: <span>2. Makanan</span> },
-                  { value: '3', label: <span>3. Udara</span> },
-                  { value: '4', label: <span>4. Lain-lain</span> },
+                  { value: '1', label: <span>1. Suami</span> },
+                  { value: '2', label: <span>2. Keluarga</span> },
+                  { value: '3', label: <span>3. Teman</span> },
+                  { value: '4', label: <span>4. Tetangga</span> },
+                  { value: '5', label: <span>5. Lainnya</span> },
                 ]}/>
               </Form.Item>
 
@@ -1389,26 +1410,26 @@ export default function DoctorPatientDetails({ role }) {
                 Pemeriksaan TB Paru
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Dokter / Tenaga Medis" name="namaDokter">
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokterTb">
                 <Select
                   showSearch
                   placeholder="Pilih Dokter"
                   optionFilterProp="children"
                   onChange={handleDoctorChange}
-                  value={selectedDoctor.namaDokter}
+                  value={selectedDoctor.namaDokterTb}
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
                 />
               </Form.Item>
-              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
+              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsistenTb">
                 <Select
                   showSearch
                   placeholder="Pilih Perawat"
                   optionFilterProp="children"
                   onChange={handleNurseChange}
-                  value={selectedNurse.namaAsisten}
+                  value={selectedNurse.namaAsistenTb}
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
@@ -1418,10 +1439,10 @@ export default function DoctorPatientDetails({ role }) {
                   }))}
                 />
               </Form.Item>
-              <Form.Item label="Berat Badan" name="beratBadanTbParu">
+              <Form.Item label="Berat Badan" name="beratBadanTb">
                 <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
               </Form.Item>
-              <Form.Item label="Tinggi Badan" name="tinggiBadanTbParu">
+              <Form.Item label="Tinggi Badan" name="tinggiBadanTb">
                 <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
               </Form.Item>
               <Form.Item label={<span>Parut <i>Bacillus Calmette-Guerin</i> (BCG)</span>} name="parutBcg" >
@@ -1442,10 +1463,10 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
-                Pemeriksaan TB Paru
+                Data Pengawas Menelan Obat (PMO)
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Nama Pengawas Menelan Obat (PMO)" name="namaPmo">
+              <Form.Item label="Nama PMO" name="namaPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Nomor Telepon Selular PMO" name="telpSelularPmo">
@@ -1454,21 +1475,21 @@ export default function DoctorPatientDetails({ role }) {
               <Form.Item label="Alamat PMO" name="alamatPmo">
                 <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Nama Faskes" name="namaFaskes">
+              <Form.Item label="Nama Faskes" name="namaFaskesPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
               <Form.Item label="Tahun" name="tahunPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Provinsi" name="provinsi">
+              <Form.Item label="Provinsi" name="provinsiPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Kota/Kab" name="kotaKab">
+              <Form.Item label="Kota/Kab" name="kotaKabPmo">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
-                Pemeriksaan TB Paru
+                Tipe Diagnosis dan Klasifikasi Pasien
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tipe Diagnosis" name="tipeDiagnosis" >
@@ -1502,7 +1523,7 @@ export default function DoctorPatientDetails({ role }) {
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
-                Kegiatan <i>Diabetes Mellitus</i> (DM)
+                Kegiatan TB <i>Diabetes Mellitus</i> (DM)
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Riwayat DM" name="riwayatDm" >
@@ -1552,14 +1573,75 @@ export default function DoctorPatientDetails({ role }) {
               <Form.Item label="Hasil" name="hasilFnab">
                 <Input style={inputStyling} disabled={isEdit} />
               </Form.Item>
-              <Form.Item label="Biakan hasil contoh uji selain dahak" name="terapiDm" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('terapiDm')}>
+              <Form.Item label="Biakan hasil contoh uji selain dahak" name="hasilUjiSelainDahak" >
+                <Radio.Group disabled={isEdit && !!form.getFieldValue('hasilUjiSelainDahak')}>
                   <Radio value="1"><i>Mycobacterium Tuberculosis</i> (MTB)</Radio>
                   <Radio value="2">Bukan MTB</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Deskripsi" name="deskripsiFnab">
                 <Input style={inputStyling} disabled={isEdit} />
+              </Form.Item>
+
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
+                Pengobatan Selesai
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              <Form.Item label="Tanggal Selesai" name="tanggalSelesaiPengobatanTb" >
+                <DatePicker onChange={onChange} size='middle' />
+              </Form.Item>
+              <Form.Item label="Hasil Pengobatan" name="hasilPengobatanTb" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('hasilPengobatanTb')} options={[
+                  { value: '1', label: <span>Sembuh</span> },
+                  { value: '2', label: <span>Pengobatan Selesai</span> },
+                  { value: '3', label: <span>Gagal</span> },
+                  { value: '4', label: <span>Meninggal</span> },
+                  { value: '5', label: <span>Putus Berobat</span> },
+                  { value: '6', label: <span>Tidak Dievaluasi</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Catatan" name="catatanHasilPengobatanTb">
+                <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
+              </Form.Item>
+            </>
+          )}
+
+          {/* Selesai / Pasien Pulang */}
+          { selectedCategory === 'selesai' && (
+            <>
+              <div className="col-span-2 text-lg text-gray-900">
+                Pengobatan Selesai
+                <hr className="h-px bg-gray-700 border-0"/>
+              </div>
+              {/* JUDUL REKAM MEDIS */}
+              <div className="col-span-2">
+                <Divider orientation="left">Judul Rekam Medis</Divider>
+              </div>
+              <div className="col-span-2">
+                <Form.Item label="Judul Rekam Medis" name="judulRekamMedis">
+                  <Input style={inputStyling} disabled={isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
+                </Form.Item>
+                <Form.Item label="Catatan" name="catatanRekamMedis">
+                  <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
+                </Form.Item>
+              </div>
+              <div className="col-span-2">
+                <Divider orientation="left">Status Pulang</Divider>
+              </div>
+              <Form.Item label="Status Pulang" name="statusPulang" >
+                <Select size="middle" onChange={onAlergiChange} disabled={isEdit && !!form.getFieldValue('statusPulang')} options={[
+                  { value: '1', label: <span>1. Berobat Jalan</span> },
+                  { value: '2', label: <span>2. Rujuk Internal</span> },
+                  { value: '3', label: <span>3. Rujuk Lanjut</span> },
+                  { value: '4', label: <span>4. Meninggal</span> },
+                  { value: '5', label: <span>5. Batal Berobat</span> },
+                ]}/>
+              </Form.Item>
+              <Form.Item label="Rencana Kontrol" name="tanggalRencanaKontrol" >
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+              </Form.Item>
+              <Form.Item label="Keterangan" name="keteranganPulang">
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
               </Form.Item>
             </>
           )}
@@ -1663,7 +1745,7 @@ export default function DoctorPatientDetails({ role }) {
                 </div>
               </div>
               <div>
-                <div className='grid grid-cols-4 w-full gap-x-8 pb-4'>
+                <div className='grid grid-cols-4 w-full gap-x-8 gap-y-4 pb-4'>
                   <Button
                     type="default"
                     className={selectedCategory === 'anamnesis' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
@@ -1691,6 +1773,27 @@ export default function DoctorPatientDetails({ role }) {
                     onClick={() => setSelectedCategory('tbParu')}
                   >
                     Pemeriksaan TB Paru
+                  </Button>
+                  <Button
+                    type="default"
+                    className={selectedCategory === 'resep' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                    onClick={() => setSelectedCategory('resep')}
+                  >
+                    Pembuatan Resep
+                  </Button>
+                  <Button
+                    type="default"
+                    className={selectedCategory === 'obat' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                    onClick={() => setSelectedCategory('obat')}
+                  >
+                    Obat
+                  </Button>
+                  <Button
+                    type="default"
+                    className={selectedCategory === 'selesai' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                    onClick={() => setSelectedCategory('selesai')}
+                  >
+                    Selesai
                   </Button>
                 </div>
                 <div className='scrollable-column'>
