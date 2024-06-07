@@ -172,6 +172,7 @@ async function retrieveAppointmentsFromEMR(emrCid) {
   for await (const file of client.ls(emrCid)) {
     if (file.type === 'dir') {
       const appointments = await retrieveAppointmentData(file.cid);
+      // const nonJSONAppointmentData = await retrieveNonJSONAppointmentData(file.cid);
       appointmentData.push(...appointments);
     }
   }
@@ -179,21 +180,57 @@ async function retrieveAppointmentsFromEMR(emrCid) {
 }
 
 // Fungsi untuk mengambil data appointment dari IPFS
+// async function retrieveAppointmentData(appointmentCid) {
+//   const appointmentData = [];
+//   for await (const file of client.ls(appointmentCid)) {
+//     if (file.type === 'file') {
+//       const content = [];
+//       for await (const chunk of client.cat(file.cid)) {
+//         content.push(chunk);
+//       }
+//       appointmentData.push({
+//         appointmentFile: file.name,
+//         appointments: Buffer.concat(content).toString()
+//       });
+//     }
+//   }
+//   return appointmentData;
+// }
+
 async function retrieveAppointmentData(appointmentCid) {
   const appointmentData = [];
   for await (const file of client.ls(appointmentCid)) {
     if (file.type === 'file') {
-      const content = [];
-      for await (const chunk of client.cat(file.cid)) {
-        content.push(chunk);
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      if (fileExtension === 'json') {
+        const content = [];
+        for await (const chunk of client.cat(file.cid)) {
+          content.push(chunk);
+        }
+        appointmentData.push({
+          appointmentFile: file.name,
+          appointments: Buffer.concat(content).toString()
+        });
       }
-      appointmentData.push({
-        appointmentFile: file.name,
-        appointments: Buffer.concat(content).toString()
-      });
     }
   }
   return appointmentData;
 }
 
-export { getUserAccountData, getUserAccountDataPatient, retrieveEMRData, retrieveDMRData };
+async function retrieveNonJSONAppointmentData(appointmentCid) {
+  const nonJSONAppointmentData = [];
+  for await (const file of client.ls(appointmentCid)) {
+    if (file.type === 'file') {
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      if (fileExtension !== 'json') {
+        nonJSONAppointmentData.push({
+          fileName: file.name,
+          fileCid: file.cid.toString()
+        });
+      }
+    }
+  }
+  return nonJSONAppointmentData;
+}
+
+export { getUserAccountData, getUserAccountDataPatient, retrieveEMRData, retrieveDMRData, retrieveNonJSONAppointmentData };

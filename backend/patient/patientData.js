@@ -8,10 +8,10 @@ import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
-import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
+// import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
 import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
-import { retrieveDMRData  } from "../middleware/userData.js";
-import { handleFileWrite } from "../user/appointment/appointment.js";
+import { retrieveDMRData } from "../middleware/userData.js";
+// import { handleFileWrite } from "../user/appointment/appointment.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -105,10 +105,22 @@ router.get("/:role/patient-data", authMiddleware, async (req, res) => {
       });
       const activeProfiles = profiles.filter(profile => profile.isActive === true);
 
-      const appointments = data.flatMap((data) => {
-        return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
+      // const appointments = data.flatMap((data) => {
+      //   return data.appointmentData.map((appointment) => JSON.parse(appointment.appointments));
+      // });
+      // const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
+
+      const jsonAppointments = data.flatMap(data => {
+        return data.appointmentData.filter(appointment => appointment.appointments).map(appointment => {
+          try {
+            return JSON.parse(appointment.appointments);
+          } catch (error) {
+            console.error('Error parsing JSON appointment data:', error);
+            return null;
+          }
+        }).filter(appointment => appointment !== null);
       });
-      const activeAppointments = appointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
+      const activeAppointments = jsonAppointments.filter(appointment => activeProfiles.some(profile => profile.emrNumber === appointment.emrNumber));
 
       res.status(200).json({ accounts, profiles: activeProfiles, appointments: activeAppointments, schedules: ipfsData });
     } catch (error) {
@@ -149,10 +161,21 @@ router.post("/:role/patient-data/details", authMiddleware, async (req, res) => {
     const filteredProfile = accountProfiles.filter(profile => profile.isActive === true && profile.emrNumber === emrNumber);
 
     // appointments
-    const appointmentDetails = data.appointmentData.map(appointmentInfo => {
-      return JSON.parse(appointmentInfo.appointments);
-    });
-    const activeAppointments = appointmentDetails.filter(appointment => filteredProfile.some(profile => profile.emrNumber === appointment.emrNumber));
+    const jsonAppointments = data.appointmentData
+      .filter((appointment) => appointment.appointments)
+      .map((appointment) => {
+        try {
+          return JSON.parse(appointment.appointments);
+        } catch (error) {
+          console.error('Error parsing JSON appointment data:', error);
+          return null;
+        }
+      })
+      .filter((appointment) => appointment !== null);
+    
+    const activeAppointments = jsonAppointments.filter((appointment) =>
+      filteredProfile.some((profile) => profile.emrNumber === appointment.emrNumber)
+    );
 
   res.status(200).json({ patientAppointments: activeAppointments });
 });
