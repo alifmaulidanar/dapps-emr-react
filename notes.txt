@@ -638,7 +638,12 @@ next:
 ✅ bisa ubah data untuk setiap kategori
 ✅ ubah data bagian upload files lab masih ada bug, files lama hilang
 ✅ display detail rme di pasien
+✅ untuk pemeriksaan fisik karena udah bisa otomatis punya default value ketika tidak diisi, maka bisa diganti dari checkbox ke input. jadi setiap input yang kosong akan menampilkan default value, dan sebaliknya jika input diisi akan menampilkan isinya
+- data kehamilan
+- data tbparu
+- data lab
+- benerin default value pilih dokter dan nurse di anamnesis
 - data dokter dan perawat aktual puskesmas
+- betulin menu-menu di setiap role
+- cek pengisian emr lagi
 
-
-- untuk pemeriksaan fisik karena udah bisa otomatis punya default value ketika tidak diisi, maka bisa diganti dari checkbox ke input. jadi setiap input yang kosong akan menampilkan default value, dan sebaliknya jika input diisi akan menampilkan isinya
