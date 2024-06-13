@@ -49,21 +49,6 @@ router.use(express.json());
 // const currentDateTime = new Date();
 // const formattedDateTime = formatDateTime(currentDateTime);
 
-async function fetchAndSaveFiles(files, appointmentPath) {
-  if (files.length > 0) {
-    for (let file of files) {
-      const { name, path: ipfsPath } = file;
-      const fileStream = client.cat(ipfsPath);
-      const chunks = [];
-      for await (const chunk of fileStream) { chunks.push(chunk) }
-      const fileBuffer = Buffer.concat(chunks);
-      const filePath = path.join(appointmentPath, name);
-      fs.writeFileSync(filePath, fileBuffer);
-    }
-  }
-  console.log("Files saved");
-}
-
 // get patient profile list
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
@@ -279,8 +264,8 @@ router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async
     const appointmentDetails = data.appointmentData.map(appointmentInfo => { return JSON.parse(appointmentInfo.appointments) });
     const matchedAppointment = appointmentDetails.find(
       appointment => appointment.appointmentId === commonData.appointmentId &&
-      appointment.emrNumber === commonData.emrNumber &&
-      appointment.status === "ongoing"
+      appointment.emrNumber === commonData.emrNumber
+      // appointment.status === "ongoing"
     );
     if (!matchedAppointment) {
       return res.status(404).json({ error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.` });
@@ -373,7 +358,6 @@ router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async
     const appointmentPath = path.join(emrPath, appointmentFolderName);
     fs.mkdirSync(appointmentPath, { recursive: true });
     fs.writeFileSync(path.join(appointmentPath, `J${commonData.appointmentId}.json`), JSON.stringify(matchedAppointment));
-    await fetchAndSaveFiles(specificData.files, appointmentPath);
 
     // Update IPFS with new files
     const files = await prepareFilesForUpload(dmrPath);
