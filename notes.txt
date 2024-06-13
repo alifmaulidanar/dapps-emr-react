@@ -632,8 +632,13 @@ tidak perlu tuliskan semua kode, to the point saja, tapi jangan membuat saya bin
 ❌ initialValues doctor dan nurse di diagnosis ada bug
 
 next:
-- lakukan penyimpanan format data baru di backend
-- handle file localStorage
-- mekanisme pengisian form selesai berobat
-- integrasi dengan resep dan obat jika perlu
-- besok kerjain Bab 4 dulu
+✅ form selesai berobat frontend
+✅ form selesai berobat backend
+✅ bisa disabled kalau sudah done
+✅ bisa ubah data untuk setiap kategori
+✅ ubah data bagian upload files lab masih ada bug, files lama hilang
+✅ display detail rme di pasien
+- data dokter dan perawat aktual puskesmas
+
+
+- untuk pemeriksaan fisik karena udah bisa otomatis punya default value ketika tidak diisi, maka bisa diganti dari checkbox ke input. jadi setiap input yang kosong akan menampilkan default value, dan sebaliknya jika input diisi akan menampilkan isinya
