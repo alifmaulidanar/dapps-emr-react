@@ -11,7 +11,7 @@ function PatientRecord() {
   return (
     <>
       <NavbarController type={1} page="Rekam Medis" color="blue" />
-      <div className="grid justify-center w-[1650px] min-h-screen grid-cols-2 px-24 py-24 mx-auto">
+      <div className="grid justify-center w-[1900px] min-h-screen grid-cols-2 px-24 py-24 mx-auto">
         <div className="col-start-1 w-fit">
           <BackButton linkToPage={`/patient/record-list`} />
         </div>
