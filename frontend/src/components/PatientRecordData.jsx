@@ -350,7 +350,24 @@ const DetailPemeriksaanFisikRecordLoop = ({ data }) => {
     'Pemeriksaan Ekstermitas Bawah (Panggul, Lutut, Pergelangan Kaki dan Telapak Kaki)',
     'Pemeriksaan Genitalia Wanita'
   ];
-
+  const pemeriksaanData = [
+    data.pemeriksaanKulit,
+    data.pemeriksaanKuku,
+    data.pemeriksaanKepala,
+    data.pemeriksaanWajah,
+    data.pemeriksaanMata,
+    data.pemeriksaanTelinga,
+    data.pemeriksaanHidungSinus,
+    data.pemeriksaanMulutBibir,
+    data.pemeriksaanLeher,
+    data.pemeriksaanDadaPunggung,
+    data.pemeriksaanKardiovaskuler,
+    data.pemeriksaanDadaAksila,
+    data.pemeriksaanAbdomenPerut,
+    data.pemeriksaanEkstermitasAtas,
+    data.pemeriksaanEkstermitasBawah,
+    data.pemeriksaanGenitaliaWanita
+  ];
   const defaultDescriptions = {
     pemeriksaanKulit: "• Inspeksi: Normal; kulit tidak ada ikterik/pucat/sianosis\n• Palpasi: Normal; lembab, turgor baik/elastik, tidak ada edema",
     pemeriksaanKuku: "• Inspeksi: Normal; bersih, bentuk normal tidak ada tanda-tanda jari tabuh (clubbing finger), tidak ikterik/sianosis\n• Palpasi: Normal; aliran darah kuku akan kembali < 3 detik",
@@ -365,11 +382,10 @@ const DetailPemeriksaanFisikRecordLoop = ({ data }) => {
     pemeriksaanKardiovaskuler: "• Inspeksi: Normal; denyutan aorta teraba\n• Palpasi: Normal; denyutan aorta teraba\n• Perkusi: Normal; batas jantung kiri 4,7,10 cm ke arah kiri dari garis mid sterna, pada RIC 4,5, dan 8\n• Auskultasi: Normal; terdengar bunyi jantung I/S1 (lub) dan bunyi jantung II/S2 (dub), tidak ada bunyi jantung tambahan (S3 atau S4)",
     pemeriksaanDadaAksila: "• Inspeksi Dada: Normal\n• Palpasi Dada: Normal\n• Inspeksi dan Palpasi Aksila: Normal",
     pemeriksaanAbdomenPerut: "• Inspeksi: Normal; simetris kika, warna dengan warna kulit lain, tidak ikterik tidak terdapat ostomy, distensi, tonjolan, pelebaran vena, kelainan umbilicus\n• Auskultasi: Normal; suara peristaltik terdengar setiap 5-20x/dtk, terdengar denyutan arteri renalis, arteri iliaka dan aorta\n• Perkusi Semua Kuadran: Normal; tidak ada nyeri tekan, tidak ada massa dan penumpukan cairan\n• Perkusi Hepar: Normal\n• Perkusi Limfa: Normal\n• Perkusi Ginjal: Normal\n• Palpasi Semua Kuadran: Normal",
-    pemeriksaanEktermitasAtas: "• Inspeksi Struktur Muskuloskeletal: Normal; simetris kika, integritas kulit baik, ROM aktif, kekuatan otot penuh\n• Palpasi: Normal; teraba jelas\n• Tes Refleks: Normal; refleks biseps dan triseps positif",
+    pemeriksaanEkstermitasAtas: "• Inspeksi Struktur Muskuloskeletal: Normal; simetris kika, integritas kulit baik, ROM aktif, kekuatan otot penuh\n• Palpasi: Normal; teraba jelas\n• Tes Refleks: Normal; refleks biseps dan triseps positif",
     pemeriksaanEkstermitasBawah: "• Inspeksi Struktur Muskuloskeletal: Normal; simetris kika, integritas kulit baik, ROM aktif, kekuatan otot penuh\n• Palpasi: Normal; teraba jelas\n• Tes Refleks: Normal; refleks patella dan achilles positif",
     pemeriksaanGenitaliaWanita: "• Inspeksi Genitalia Eksternal: Normal; bersih, mukosa lembab, integritas kulit baik, simetris tidak ada edema dan tanda-tanda infeksi (pengeluaran pus/bau)\n• Inspeksi Vagina dan Serviks: Normal\n• Palpasi Vagina, Uterus dan Ovarium: Normal\n• Pemeriksaan Anus dan Rectum: Normal; tidak ada nyeri, tidak terdapat edema/hemoroid/polip/tanda-tanda infeksi dan pendarahan"
   };
-
   const formatKey = (item) => {
     return item
       .replace(/Pemeriksaan /, 'pemeriksaan')
@@ -391,9 +407,7 @@ const DetailPemeriksaanFisikRecordLoop = ({ data }) => {
         <tbody>
           {pemeriksaan.map((item, index) => {
             const key = formatKey(item);
-            console.log({key})
-            const descriptionKey = `ket_${key}`;
-            const description = data[descriptionKey] && data[descriptionKey] !== "" ? data[descriptionKey] : defaultDescriptions[key];
+            const description = pemeriksaanData[index] ? pemeriksaanData[index] : defaultDescriptions[key];
 
             return (
               <tr key={index} className="bg-white">
