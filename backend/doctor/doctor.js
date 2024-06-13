@@ -22,7 +22,7 @@ const patient_contract = PATIENT_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 
-const userContract = new ethers.Contract( user_contract, userABI, provider);
+const userContract = new ethers.Contract(user_contract, userABI, provider);
 // const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
 const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
@@ -639,5 +639,126 @@ router.post("/patient-list/patient-details/emr-lab", authMiddleware, async (req,
     res.status(500).json({ message: "Failed to fetch appointments" });
   }
 });
+
+router.post(
+  "/patient-list/patient-details/emr-selesai",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { commonData, specificData } = req.body;
+
+      // Verifikasi tanda tangan
+      const { signature, ...rest } = specificData;
+      const recoveredAddress = ethers.utils.verifyMessage(
+        JSON.stringify(rest),
+        signature
+      );
+      const recoveredSigner = provider.getSigner(recoveredAddress);
+      const accounts = await provider.listAccounts();
+      const accountAddress = accounts.find(
+        (account) => account.toLowerCase() === recoveredAddress.toLowerCase()
+      );
+
+      if (!accountAddress) {
+        return res.status(400).json({ error: "Account not found" });
+      }
+      if (recoveredAddress.toLowerCase() !== accountAddress.toLowerCase()) {
+        return res.status(400).json({ error: "Invalid signature" });
+      }
+
+      const contractWithSigner = new ethers.Contract(
+        patient_contract,
+        patientABI,
+        recoveredSigner
+      );
+      const outpatientContractWithSigner = new ethers.Contract(
+        outpatient_contract,
+        outpatientABI,
+        recoveredSigner
+      );
+
+      const [dmrExists, dmrData] =
+        await contractWithSigner.getPatientByDmrNumber(commonData.dmrNumber);
+      if (!dmrExists)
+        return res.status(404).json({
+          error: `DMR number ${commonData.dmrNumber} tidak ditemukan.`,
+        });
+      const dmrCid = dmrData.dmrCid;
+      const data = await retrieveDMRData(commonData.dmrNumber, dmrCid);
+
+      // appointments
+      const appointmentDetails = data.appointmentData.map((appointmentInfo) => {
+        return JSON.parse(appointmentInfo.appointments);
+      });
+      const matchedAppointment = appointmentDetails.find(
+        (appointment) =>
+          appointment.appointmentId === commonData.appointmentId &&
+          appointment.emrNumber === commonData.emrNumber
+        // appointment.status === "ongoing"
+      );
+      if (!matchedAppointment) {
+        return res.status(404).json({
+          error: `Profile with nomor rekam medis ${commonData.appointmentId} tidak ditemukan.`,
+        });
+      }
+
+      matchedAppointment.selesai = { ...rest };
+      if (specificData.statusPulang === "1") {
+        matchedAppointment.status = "done";
+      } else if (specificData.statusPulang === "5") {
+        matchedAppointment.status = "cancelled";
+      }
+
+      const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
+      const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
+      const appointmentFolderName = `${commonData.appointmentId}J${commonData.appointmentId}`;
+      const dmrPath = path.join(basePath, dmrFolderName);
+      const emrPath = path.join(dmrPath, emrFolderName);
+      const appointmentPath = path.join(emrPath, appointmentFolderName);
+      fs.mkdirSync(appointmentPath, { recursive: true });
+      fs.writeFileSync(
+        path.join(appointmentPath, `J${commonData.appointmentId}.json`),
+        JSON.stringify(matchedAppointment)
+      );
+
+      // Update IPFS with new files
+      const files = await prepareFilesForUpload(dmrPath);
+      const allResults = [];
+      for await (const result of client.addAll(files, {
+        wrapWithDirectory: true,
+      })) {
+        allResults.push(result);
+      }
+      const newDmrCid = allResults[allResults.length - 1].cid.toString();
+      console.log(`selesai cid: ${newDmrCid}`);
+
+      // Update patient data on blockchain
+      const updateTX = await contractWithSigner.updatePatientAccount(
+        dmrData.accountAddress,
+        commonData.dmrNumber,
+        newDmrCid,
+        dmrData.isActive
+      );
+      await updateTX.wait();
+
+      // Update outpatient data on blockchain
+      const outpatientTX =
+        await outpatientContractWithSigner.updateOutpatientData(
+          commonData.appointmentId,
+          commonData.accountAddress,
+          specificData.doctorAddress,
+          commonData.nurseAddress,
+          newDmrCid
+        );
+      await outpatientTX.wait();
+
+      console.log("Outpatient Done✅");
+      res.status(200).json({ message: "Outpatient Done✅" });
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      res.status(500).json({ message: "Failed to fetch appointments" });
+    }
+  }
+);
 
 export default router;

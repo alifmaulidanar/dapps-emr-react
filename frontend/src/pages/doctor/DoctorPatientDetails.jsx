@@ -36,11 +36,26 @@ export default function DoctorPatientDetails({ role }) {
   const [selectedCategory, setSelectedCategory] = useState('anamnesis');
   const [selectedDoctor, setSelectedDoctor] = useState({});
   const [selectedNurse, setSelectedNurse] = useState({});
-  const [isNoDisease, setIsNoDisease] = useState(true);
-  const [isNoAllergy, setIsNoAllergy] = useState(true);
+  const [isNoDisease, setIsNoDisease] = useState(selectedData?.appointment?.anamnesis?.rps == null && selectedData?.appointment?.anamnesis?.rpd && selectedData?.appointment?.anamnesis?.rpk == null);
+  const [isNoAllergy, setIsNoAllergy] = useState(selectedData?.appointment?.anamnesis?.alergiObat == null && selectedData?.appointment?.anamnesis?.alergiMakanan == null && selectedData?.appointment?.anamnesis?.alergiLainnya == null);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isDataFinished, setIsDataFinished] = useState(false);
+  const [checkedStates, setCheckedStates] = useState({});
   const [form] = Form.useForm();
   const dateFormat = 'DD/MM/YYYY';
   const onChange = (date, dateString) => { console.log(date, dateString) };
+
+useEffect(() => {
+  if (selectedData) {
+    const appointment = selectedData.appointment || {};
+    if (appointment.selesai) {
+      setIsDataFinished(true);
+      setIsEdit(false);
+    } else {
+      setIsDataFinished(false);
+    }
+  }
+}, [selectedData]);
 
   const LabAttachments = ({ files }) => {
     useEffect(() => {
@@ -102,6 +117,11 @@ export default function DoctorPatientDetails({ role }) {
     return <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>;
   };
 
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setCheckedStates((prevState) => ({ ...prevState, [name]: checked }));
+  };
+
   const handleDiseaseCheckbox = (e) => {
     setIsNoDisease(e.target.checked);
     if (e.target.checked) {
@@ -127,8 +147,8 @@ export default function DoctorPatientDetails({ role }) {
   const handleDoctorChange = (value) => {
     const selected = schedules.dokter.find(dokter => dokter.namaDokter === value);
     if (selected) {
-      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter, namaDokterDiagnosis: selected.namaDokter, namaDokterKia: selected.namaDokter, namaDokterTb: selected.namaDokter});
-      form.setFieldsValue({ namaDokter: value, namaDokterKia: value, namaDokterTb: value});
+      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter, namaDokterDiagnosis: selected.namaDokter, namaDokterKia: selected.namaDokter, namaDokterTb: selected.namaDokter, namaDokterSelesai: selected.namaDokter});
+      form.setFieldsValue({ namaDokter: value, namaDokterKia: value, namaDokterTb: value, namaDokterSelesai: value});
     }
   };
   
@@ -141,7 +161,14 @@ export default function DoctorPatientDetails({ role }) {
   };
 
   useEffect(() => {
-    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten, namaDokterDiagnosis: selectedDoctor.namaDokterDiagnosis, namaAsistenDiagnosis: selectedNurse.namaAsistenDiagnosis, namaDokterKia: selectedDoctor.namaDokterKia, namaAsistenKia: selectedNurse.namaAsistenKia, namaDokterTb: selectedDoctor.namaDokterTb, namaAsistenTb: selectedNurse.namaAsistenTb});
+    const noDisease = selectedData?.appointment?.anamnesis?.rps == null && selectedData?.appointment?.anamnesis?.rpd && selectedData?.appointment?.anamnesis?.rpk == null;
+    const noAllergy = selectedData?.appointment?.anamnesis?.alergiObat == null && selectedData?.appointment?.anamnesis?.alergiMakanan == null && selectedData?.appointment?.anamnesis?.alergiLainnya == null;
+    setIsNoDisease(noDisease);
+    setIsNoAllergy(noAllergy);
+  }, [selectedData]);
+
+  useEffect(() => {
+    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten, namaDokterDiagnosis: selectedDoctor.namaDokterDiagnosis, namaAsistenDiagnosis: selectedNurse.namaAsistenDiagnosis, namaDokterKia: selectedDoctor.namaDokterKia, namaAsistenKia: selectedNurse.namaAsistenKia, namaDokterTb: selectedDoctor.namaDokterTb, namaAsistenTb: selectedNurse.namaAsistenTb, namaDokterSelesai: selectedDoctor.namaDokterSelesai});
   }, [selectedDoctor, selectedNurse, form]);
 
   const handleCancel = () => {setIsModalOpen(false) };
@@ -246,6 +273,7 @@ export default function DoctorPatientDetails({ role }) {
 
   function convertProfileData(originalProfile) {
     const profile = {...originalProfile};
+    console.log({profile})
     const genderMap = { '0': 'Tidak diketahui', '1': 'Laki-laki', '2': 'Perempuan', '3': 'Tidak dapat ditentukan', '4': 'Tidak mengisi' };
     const agamaMap = { '1': 'Islam', '2': 'Kristen (Protestan)', '3': 'Katolik', '4': 'Hindu', '5': 'Budha', '6': 'Konghuchu', '7': 'Penghayat', '8': 'Lain-lain' };
     const golonganDarahMap = { '1': 'A', '2': 'B', '3': 'AB', '4': 'O', '5': 'A+', '6': 'A-', '7': 'B+', '8': 'B-', '9': 'AB+', '10': 'AB-', '11': 'O+', '12': 'O-', '13': 'Tidak tahu' };
@@ -269,7 +297,7 @@ export default function DoctorPatientDetails({ role }) {
   const inputStylingTextArea = { border: "1px solid #E2E8F0", borderRadius: "6px" };
 
   const EMRForm = ({ appointmentId, selectedCategory }) => {
-    const [isEdit, setIsEdit] = useState(false);
+    // const [isEdit, setIsEdit] = useState(false);
     const [fileList, setFileList] = useState([]);
     const [selectedPsikologis, setSelectedPsikologis] = useState('');
     const [selectedstatusPemeriksaanLab, setSelectedstatusPemeriksaanLab] = useState('');
@@ -281,6 +309,9 @@ export default function DoctorPatientDetails({ role }) {
     const [selectedHasilPengobatanTb, setSelectedHasilPengobatanTb] = useState('');
     const [selectedRujukanDari, setSelectedRujukanDari] = useState('');
     const [selectedTempatPersalinan, setSelectedTempatPersalinan] = useState('');
+
+    const handleEdit = () => { setIsEdit(true) };
+    const handleCancel = () => { setIsEdit(false) };
 
     const props = {
       name: 'file',
@@ -397,23 +428,23 @@ export default function DoctorPatientDetails({ role }) {
           break;
         case 'diagnosis':
           endpoint = '/doctor/patient-list/patient-details/emr-diagnosis';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues, };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, diagnosisCreatedAt: new Date().toISOString(), ...transformedValues, };
           break;
         case 'kehamilan':
           endpoint = '/doctor/patient-list/patient-details/emr-kehamilan';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress,kehamilanCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         case 'tbParu':
           endpoint = '/doctor/patient-list/patient-details/emr-tb';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, tbCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         case 'lab':
           endpoint = '/doctor/patient-list/patient-details/emr-lab';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues, files: uploadedFiles };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, labCreatedAt: new Date().toISOString(), ...transformedValues, files: uploadedFiles };
           break;
         case 'selesai':
           endpoint = '/doctor/patient-list/patient-details/emr-selesai';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, selesaiCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         default:
           endpoint = '/doctor/patient-list/patient-details/emr';
@@ -428,7 +459,7 @@ export default function DoctorPatientDetails({ role }) {
       try {
         const response = await fetch(`${CONN.BACKEND_LOCAL}${endpoint}`,
           {
-            method: 'POST',
+            method: "POST",
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`,
@@ -455,7 +486,8 @@ export default function DoctorPatientDetails({ role }) {
         const kehamilan = appointment.kehamilan || {};
         const tb = appointment.tb || {};
         const lab = appointment.lab || {};
-        const statusBerobat = appointment.statusBerobat || {};
+        const selesai = appointment.selesai || {};
+        console.log({ selesai });
 
         setHematologyCheckedList(lab.hematology || []);
         setClinicalChemistryCheckedList(lab.clinicalChemistry || []);
@@ -477,8 +509,14 @@ export default function DoctorPatientDetails({ role }) {
           lamaSakitTahun: anamnesis.lamaSakitTahun || '',
           lamaSakitBulan: anamnesis.lamaSakitBulan || '',
           lamaSakitHari: anamnesis.lamaSakitHari || '',
-          riwayatPenyakit: anamnesis.riwayatPenyakit || '',
-          riwayatAlergi: anamnesis.riwayatAlergi || '',
+          cekRiwayatPenyakit: anamnesis.cekRiwayatPenyakit || '',
+          cekRiwayatAlergi: anamnesis.cekRiwayatAlergi || '',
+          rps: anamnesis.rps || '',
+          rpd: anamnesis.rpd || '',
+          rpk: anamnesis.rpk || '',
+          alergiObat: anamnesis.alergiObat || '',
+          alergiMakanan: anamnesis.alergiMakanan || '',
+          alergiLainnya: anamnesis.alergiLainnya || '',
           riwayatAlergiLainnya: anamnesis.riwayatAlergiLainnya || '',
           alatBantu: anamnesis.alatBantu || '',
           kendalaKomunikasi: anamnesis.kendalaKomunikasi || '',
@@ -509,6 +547,7 @@ export default function DoctorPatientDetails({ role }) {
           triage: anamnesis.triage || '',
           nyeriTubuh: anamnesis.nyeriTubuh || '',
           pencetusNyeri: anamnesis.pencetusNyeri || '',
+          kualitasNyeri: anamnesis.kualitasNyeri || '',
           lokasiNyeri: anamnesis.lokasiNyeri || '',
           skalaNyeri: anamnesis.skalaNyeri || '',
           waktuNyeri: anamnesis.waktuNyeri || '',
@@ -520,7 +559,7 @@ export default function DoctorPatientDetails({ role }) {
           edukasi: anamnesis.edukasi || '',
           deskripsiAskep: anamnesis.deskripsiAskep || '',
           observasi: anamnesis.observasi || '',
-          keteranganLainnya: anamnesis.keteranganLainnya || '',
+          keteranganPerawatLainnya: anamnesis.keteranganPerawatLainnya || '',
           biopsikososial: anamnesis.biopsikososial || '',
           tindakanKeperawatan: anamnesis.tindakanKeperawatan || '',
           merokok: anamnesis.merokok || '',
@@ -614,6 +653,7 @@ export default function DoctorPatientDetails({ role }) {
           nomorSeriFotoToraks: tb.nomorSeriFotoToraks || '',
           kesanFotoToraks: tb.kesanFotoToraks || '',
           tanggalFnab: tb.tanggalFnab ? dayjs(tb.tanggalFnab, dateFormat) : null,
+          hasilUjiSelainDahak: tb.hasilUjiSelainDahak || '',
           hasilFnab: tb.hasilFnab || '',
           deskripsiFnab: tb.deskripsiFnab || '',
           tanggalSelesaiPengobatanTb: tb.tanggalSelesaiPengobatanTb ? dayjs(tb.tanggalSelesaiPengobatanTb, dateFormat) : null,
@@ -630,11 +670,12 @@ export default function DoctorPatientDetails({ role }) {
           // === end lab ===
 
           // === start selesai ===
-          judulRekamMedis: statusBerobat.judulRekamMedis || '',
-          catatanRekamMedis: statusBerobat.catatanRekamMedis || '',
-          statusPulang: statusBerobat.statusPulang || '',
-          tanggalRencanaKontrol: statusBerobat.tanggalRencanaKontrol ? dayjs(statusBerobat.tanggalRencanaKontrol, dateFormat) : null,
-          keteranganPulang: statusBerobat.keteranganPulang || '',
+          namaDokterSelesai: selesai.namaDokterSelesai || '',
+          judulRekamMedis: selesai.judulRekamMedis || '',
+          catatanRekamMedis: selesai.catatanRekamMedis || '',
+          statusPulang: selesai.statusPulang || '',
+          tanggalRencanaKontrol: selesai.tanggalRencanaKontrol ? dayjs(selesai.tanggalRencanaKontrol, dateFormat) : null,
+          keteranganPulang: selesai.keteranganPulang || '',
           // === end selesai ===
         };
 
@@ -730,7 +771,7 @@ export default function DoctorPatientDetails({ role }) {
   }, [hematologyCheckedList, clinicalChemistryCheckedList, urinalysisCheckedList, microbiologyCheckedList, immunologyCheckedList, form]);
 
     const CheckboxGroup = Checkbox.Group;
-    const LabCategory = ({ category, options, checkedList, setCheckedList, checkAll, setCheckAll }) => {
+    const LabCategory = ({ category, options, checkedList, setCheckedList, checkAll, setCheckAll, disabled  }) => {
       const onChange = (list) => {
         setCheckedList(list);
         setCheckAll(list.length === options.length);
@@ -749,11 +790,12 @@ export default function DoctorPatientDetails({ role }) {
             indeterminate={checkedList.length > 0 && checkedList.length < options.length}
             onChange={onCheckAllChange}
             checked={checkAll}
+            disabled={disabled}
           >
             <i>Pilih Semua</i>
           </Checkbox>
         </div>
-        <CheckboxGroup value={checkedList} onChange={onChange}>
+        <CheckboxGroup value={checkedList} onChange={onChange} disabled={disabled}>
           <Row>
             {options.map(option => (
               <Col span={8} key={option}>
@@ -814,6 +856,7 @@ export default function DoctorPatientDetails({ role }) {
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
@@ -831,20 +874,22 @@ export default function DoctorPatientDetails({ role }) {
                     value: nurse.namaAsisten,
                     label: nurse.namaAsisten,
                   }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Keluhan Utama" name="keluhanUtama" >
-                <Input style={inputStyling} className="content-center" disabled={isEdit} autoSize/>
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
               </Form.Item>
               <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isEdit} autoSize/>
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
               </Form.Item>
               <div>
                 <Form.Item label="Riwayat Penyakit" valuePropName="checked">
                   <Checkbox
+                    name='cekRiwayatPenyakit'
                     checked={isNoDisease}
                     onChange={handleDiseaseCheckbox}
-                    disabled={isEdit}
+                    disabled={isDataFinished && !isEdit}
                   >
                     Tidak ada
                   </Checkbox>
@@ -853,13 +898,13 @@ export default function DoctorPatientDetails({ role }) {
                 {!isNoDisease && (
                   <>
                     <Form.Item label="RPS" name="rps">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                     <Form.Item label="RPD" name="rpd">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                     <Form.Item label="RPK" name="rpk">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                   </>
                 )}
@@ -867,9 +912,10 @@ export default function DoctorPatientDetails({ role }) {
               <div>
                 <Form.Item label="Alergi Pasien" valuePropName="checked">
                   <Checkbox
+                    name="cekRiwayatAlergi"
                     checked={isNoAllergy}
                     onChange={handleAllergyCheckbox}
-                    disabled={isEdit}
+                    disabled={isDataFinished && !isEdit}
                   >
                     Tidak ada
                   </Checkbox>
@@ -878,13 +924,13 @@ export default function DoctorPatientDetails({ role }) {
                 {!isNoAllergy && (
                   <>
                     <Form.Item label="Obat" name="alergiObat">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                     <Form.Item label="Makanan" name="alergiMakanan">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                     <Form.Item label="Lainnya" name="alergiLainnya">
-                      <Input style={inputStyling} disabled={isEdit} />
+                      <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
                     </Form.Item>
                   </>
                 )}
@@ -893,15 +939,15 @@ export default function DoctorPatientDetails({ role }) {
                 <div>Lama Sakit</div>
                 <div className='flex gap-x-4'>
                   <Form.Item name="lamaSakitTahun" >
-                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                    <Input disabled={isDataFinished && !isEdit} style={inputStyling} placeholder="0" defaultValue={0} />
                   </Form.Item>
                   <span className='mt-1'>Tahun</span>
                   <Form.Item label="" name="lamaSakitBulan" >
-                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                    <Input disabled={isDataFinished && !isEdit} style={inputStyling} placeholder="0" defaultValue={0} />
                   </Form.Item>
                   <span className='mt-1'>Bulan</span>
                   <Form.Item label="" name="lamaSakitHari" required>
-                    <Input style={inputStyling} placeholder="0" defaultValue={0} />
+                    <Input disabled={isDataFinished && !isEdit} style={inputStyling} placeholder="0" defaultValue={0} />
                   </Form.Item>
                   <span className='mt-1'>Hari</span>
                 </div>
@@ -912,31 +958,31 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left" orientationMargin="0">2. Pemeriksaan Psikologis, Sosial Ekonomi, Spiritual</Divider>
               </div>
               <Form.Item label="Penggunaan alat bantu ketika beraktivitas" name="alatBantu" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('alatBantu')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('alatBantu')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Mengalami kendala komunikasi" name="kendalaKomunikasi" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('kendalaKomunikasi')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('kendalaKomunikasi')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Ada yang merawat di rumah" name="perawatRumah" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('perawatRumah')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('perawatRumah')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Membutuhkan bantuan orang lain ketika beraktivitas" name="bantuanOrangLain" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('bantuanOrangLain')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bantuanOrangLain')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Ekspresi dan emosi" name="ekspresiDanEmosi" >
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('ekspresiDanEmosi')} onChange={onPsikologisChange} options={[
+                <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('ekspresiDanEmosi')} onChange={onPsikologisChange} options={[
                   { value: '1', label: <span>1. Tenang</span> },
                   { value: '2', label: <span>2. Cemas</span> },
                   { value: '3', label: <span>3. Takut</span> },
@@ -949,17 +995,17 @@ export default function DoctorPatientDetails({ role }) {
                 <Input.TextArea className="content-center" disabled={selectedPsikologis !== '6'} autoSize placeholder="Tuliskan status psikologis lainnya"/>
               </Form.Item> */}
               <Form.Item label="Bahasa yang digunakan" name="bahasa" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('bahasa')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bahasa')}>
                   <Radio value="1">Indonesia</Radio>
                   <Radio value="2">Daerah</Radio>
                   <Radio value="3">Lainnya</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Pekerjaan" name="pekerjaan">
-                <Input style={inputStyling} disabled={isEdit}/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit}/>
               </Form.Item>
               <Form.Item label="Tinggal dengan" name="tinggalBersama">
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('tinggalBersama')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tinggalBersama')}>
                   <Radio value="1">Sendiri</Radio>
                   <Radio value="2">Suami/Istri</Radio>
                   <Radio value="3">Orang tua</Radio>
@@ -967,33 +1013,33 @@ export default function DoctorPatientDetails({ role }) {
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Gangguan jiwa di masa lalu" name="gangguanJiwaLampau" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('gangguanJiwaLampau')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('gangguanJiwaLampau')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Sosial Ekonomi" name="sosialEkonomi" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('sosialEkonomi')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('sosialEkonomi')}>
                   <Radio value="1">Baik</Radio>
                   <Radio value="2">Cukup</Radio>
                   <Radio value="3">Kurang</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Status Ekonomi" name="statusEkonomi" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('statusEkonomi')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusEkonomi')}>
                   <Radio value="1">Baik</Radio>
                   <Radio value="2">Cukup</Radio>
                   <Radio value="3">Kurang</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Jaminan Pengobatan" name="jaminanPengobatan" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('jaminanPengobatan')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('jaminanPengobatan')}>
                   <Radio value="1">BPJS</Radio>
                   <Radio value="2">Umum / Mandiri</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Hubungan dengan keluarga" name="hubunganKeluarga" >
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('hubunganKeluarga')} options={[
+                <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('hubunganKeluarga')} options={[
                   { value: '1', label: <span>1. Harmonis</span> },
                   { value: '2', label: <span>2. Kurang Harmonis</span> },
                   { value: '3', label: <span>3. Tidak Harmonis</span> },
@@ -1009,7 +1055,7 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left">A. Keadaan Umum</Divider>
               </div>
               <Form.Item label="Tingkat Kesadaran" name="tingkatKesadaran" >
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('tingkatKesadaran')} options={[
+                <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('tingkatKesadaran')} options={[
                   { value: '1', label: <span>1. Compos Mentis</span> },
                   { value: '2', label: <span>2. Somnolen</span> },
                   { value: '3', label: <span>3. Sopor</span> },
@@ -1020,52 +1066,52 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left">B. Organ Vital</Divider>
               </div>
               <Form.Item label="Detak Nadi" name="detakNadi">
-                <Input style={inputStyling} disabled={isEdit} placeholder="/menit"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/menit"/>
               </Form.Item>
               <Form.Item label="Pernapasan" name="pernapasan">
-                <Input style={inputStyling} disabled={isEdit} placeholder="/menit"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/menit"/>
               </Form.Item>
               <Form.Item label="Tekanan Darah Sistole" name="tekananDarahSistole">
-                <Input style={inputStyling} disabled={isEdit} placeholder="/mm"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/mm"/>
               </Form.Item>
               <Form.Item label="Tekanan Darah Diastole" name="tekananDarahDiastole">
-                <Input style={inputStyling} disabled={isEdit} placeholder="/Hg"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/Hg"/>
               </Form.Item>
               <Form.Item label="MAP" name="map">
-                <Input style={inputStyling} disabled={isEdit} placeholder="/mmHg"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/mmHg"/>
               </Form.Item>
               <Form.Item label="Berat Badan" name="beratBadan">
-                <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
               <Form.Item label="Tinggi Badan" name="tinggiBadan">
-                <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
               <Form.Item label="Cara ukur tinggi badan" name="caraUkurTinggiBadan" >
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('caraUkurTinggiBadan')} options={[
+                <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('caraUkurTinggiBadan')} options={[
                   { value: '1', label: <span>1. Berdiri</span> },
                   { value: '2', label: <span>2. Telentang</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Suhu Tubuh" name="suhuTubuh">
-                <Input style={inputStyling} disabled={isEdit} placeholder="°C"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="°C"/>
               </Form.Item>
               <Form.Item label="Saturasi (Sp02)" name="saturasi">
-                <Input style={inputStyling} disabled={isEdit} placeholder="%"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="%"/>
               </Form.Item>
               <Form.Item label="Status hamil" name="statusHamil" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('statusHamil')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusHamil')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Detak Jantung" name="detakJantung" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('detakJantung')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('detakJantung')}>
                   <Radio value="1">Regular</Radio>
                   <Radio value="2">Iregular</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Triage" name="triage" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('triage')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('triage')}>
                   <Radio value="1">Gawat Darurat</Radio>
                   <Radio value="2">Darurat</Radio>
                   <Radio value="3">Tidak Gawat Darurat</Radio>
@@ -1078,16 +1124,16 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left" orientationMargin="0">4. Asesmen Nyeri</Divider>
               </div>
               <Form.Item label="Pasien merasakan nyeri" name="nyeriTubuh" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('nyeriTubuh')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('nyeriTubuh')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Pencetus nyeri" name="pencetusNyeri">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Kualitas Nyeri" name="kualitasNyeri" >
-                <Select size="middle" disabled={isEdit && !!form.getFieldValue('kualitasNyeri')} options={[
+                <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('kualitasNyeri')} options={[
                   { value: '1', label: <span>1. Tekanan</span> },
                   { value: '2', label: <span>2. Terbakar</span> },
                   { value: '3', label: <span>3. Melilit</span> },
@@ -1097,13 +1143,13 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Lokasi nyeri" name="lokasiNyeri">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Skala nyeri (0 = Tidak Nyeri, 10 = Sangat Nyeri)" name="skalaNyeri">
-                <Slider min={1} max={10} />
+                <Slider disabled={isDataFinished && !isEdit} min={1} max={10} />
               </Form.Item>
               <Form.Item label="Waktu nyeri" name="waktuNyeri" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('waktuNyeri')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('waktuNyeri')}>
                   <Radio value="1">Intermiten</Radio>
                   <Radio value="2">Hilang timbul</Radio>
                 </Radio.Group>
@@ -1115,7 +1161,7 @@ export default function DoctorPatientDetails({ role }) {
               </div>
               <div className="col-span-2">
                 <Form.Item label="Perhatikan cara berjalan pasien saat akan duduk di kursi. Apakah pasien tampak tidak seimbang?" name="pasienTidakSeimbang">
-                  <Radio.Group disabled={isEdit && !!form.getFieldValue('pasienTidakSeimbang')}>
+                  <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('pasienTidakSeimbang')}>
                     <Radio value="1">Ya</Radio>
                     <Radio value="0">Tidak</Radio>
                   </Radio.Group>
@@ -1123,7 +1169,7 @@ export default function DoctorPatientDetails({ role }) {
               </div>
               <div className="col-span-2">
                 <Form.Item label="Apakah pasien memegang benda sekitar untuk penopang tubuh?" name="pasienButuhPenopang">
-                  <Radio.Group disabled={isEdit && !!form.getFieldValue('pasienButuhPenopang')}>
+                  <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('pasienButuhPenopang')}>
                     <Radio value="1">Ya</Radio>
                     <Radio value="0">Tidak</Radio>
                   </Radio.Group>
@@ -1135,49 +1181,49 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left" orientationMargin="0">6. Lainnya</Divider>
               </div>
               <Form.Item label="Terapi" name="terapi">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Rencana Tindakan" name="rencanaTindakan">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Tipe Asuhan Keperawatan" name="tipeAskep">
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('tipeAskep')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tipeAskep')}>
                   <Radio value="1">Text</Radio>
                   <Radio value="2">SOAP</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Edukasi" name="edukasi">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Deskripsi Asuhan Keperawatan" name="deskripsiAskep">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Observasi" name="observasi">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Keterangan Lainnya" name="keteranganLainnya">
-                <Input style={inputStyling} disabled={isEdit} />
+              <Form.Item label="Keterangan Lainnya" name="keteranganPerawatLainnya">
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Biopsikososial" name="biopsikososial">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Tindakan Keperawatan" name="tindakanKeperawatan">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Merokok" name="merokok">
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('merokok')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('merokok')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Konsumsi alkohol" name="konsumsiAlkohol">
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('konsumsiAlkohol')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('konsumsiAlkohol')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Kurang sayur/buah" name="kurangSayurBuah">
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('kurangSayurBuah')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('kurangSayurBuah')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
@@ -1188,54 +1234,245 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left" orientationMargin="0">7. Keadaan Fisik</Divider>
               </div>
               <Form.Item name="pemeriksaanKulit" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Kulit</Checkbox>
+                <Checkbox
+                  name="pemeriksaanKulit"
+                  checked={checkedStates.pemeriksaanKulit}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Kulit
+                </Checkbox>
+                {checkedStates.pemeriksaanKulit && (
+                  <Form.Item name="ket_pemeriksaanKulit">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kulit" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanLeher" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Leher</Checkbox>
+                <Checkbox
+                  name="pemeriksaanLeher"
+                  checked={checkedStates.pemeriksaanLeher}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Leher
+                </Checkbox>
+                {checkedStates.pemeriksaanLeher && (
+                  <Form.Item name="ket_pemeriksaanLeher">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Leher" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanKuku" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Kuku</Checkbox>
+                <Checkbox
+                  name="pemeriksaanKuku"
+                  checked={checkedStates.pemeriksaanKuku}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Kuku
+                </Checkbox>
+                {checkedStates.pemeriksaanKuku && (
+                  <Form.Item name="ket_pemeriksaanKuku">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kuku" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanDadaPunggung" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Dada dan Punggung</Checkbox>
+                <Checkbox
+                  name="pemeriksaanDadaPunggung"
+                  checked={checkedStates.pemeriksaanDadaPunggung}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Dada dan Punggung
+                </Checkbox>
+                {checkedStates.pemeriksaanDadaPunggung && (
+                  <Form.Item name="ket_pemeriksaanDadaPunggung">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Dada dan Punggung" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanKepala" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Kepala</Checkbox>
+                <Checkbox
+                  name="pemeriksaanKepala"
+                  checked={checkedStates.pemeriksaanKepala}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Kepala
+                </Checkbox>
+                {checkedStates.pemeriksaanKepala && (
+                  <Form.Item name="ket_pemeriksaanKepala">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kepala" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanKardiovaskuler" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Kardiovaskuler</Checkbox>
+                <Checkbox
+                  name="pemeriksaanKardiovaskuler"
+                  checked={checkedStates.pemeriksaanKardiovaskuler}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Kardiovaskuler
+                </Checkbox>
+                {checkedStates.pemeriksaanKardiovaskuler && (
+                  <Form.Item name="ket_pemeriksaanKardiovaskuler">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kardiovaskuler" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanWajah" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Wajah</Checkbox>
+                <Checkbox
+                  name="pemeriksaanWajah"
+                  checked={checkedStates.pemeriksaanWajah}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Wajah
+                </Checkbox>
+                {checkedStates.pemeriksaanWajah && (
+                  <Form.Item name="ket_pemeriksaanWajah">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Wajah" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanDadaAksila" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Dada dan Aksila</Checkbox>
+                <Checkbox
+                  name="pemeriksaanDadaAksila"
+                  checked={checkedStates.pemeriksaanDadaAksila}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Dada dan Aksila
+                </Checkbox>
+                {checkedStates.pemeriksaanDadaAksila && (
+                  <Form.Item name="ket_pemeriksaanDadaAksila">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Dada dan Aksila" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanMata" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Mata</Checkbox>
+                <Checkbox
+                  name="pemeriksaanMata"
+                  checked={checkedStates.pemeriksaanMata}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Mata
+                </Checkbox>
+                {checkedStates.pemeriksaanMata && (
+                  <Form.Item name="ket_pemeriksaanMata">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Mata" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanAbdomenPerut" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Abdomen Perut</Checkbox>
+                <Checkbox
+                  name="pemeriksaanAbdomenPerut"
+                  checked={checkedStates.pemeriksaanAbdomenPerut}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Abdomen Perut
+                </Checkbox>
+                {checkedStates.pemeriksaanAbdomenPerut && (
+                  <Form.Item name="ket_pemeriksaanAbdomenPerut">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Abdomen Perut" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanTelinga" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Telinga</Checkbox>
+                <Checkbox
+                  name="pemeriksaanTelinga"
+                  checked={checkedStates.pemeriksaanTelinga}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Telinga
+                </Checkbox>
+                {checkedStates.pemeriksaanTelinga && (
+                  <Form.Item name="ket_pemeriksaanTelinga">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Telinga" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanEktermitasAtas" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Ekstermitas Atas (Bahu, Siku, Tangan)</Checkbox>
+                <Checkbox
+                  name="pemeriksaanEktermitasAtas"
+                  checked={checkedStates.pemeriksaanEktermitasAtas}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Ekstermitas Atas (Bahu, Siku, Tangan)
+                </Checkbox>
+                {checkedStates.pemeriksaanEktermitasAtas && (
+                  <Form.Item name="ket_pemeriksaanEkstermitasAtas">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Ekstermitas Atas" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanHidungSinus" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Hidung dan Sinus</Checkbox>
+                <Checkbox
+                  name="pemeriksaanHidungSinus"
+                  checked={checkedStates.pemeriksaanHidungSinus}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Hidung dan Sinus
+                </Checkbox>
+                {checkedStates.pemeriksaanHidungSinus && (
+                  <Form.Item name="ket_pemeriksaanHidungSinus">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Hidung dan Sinus" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanEkstermitasBawah" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Ekstermitas Bawah (Panggul, Lutut, Pergelangan Kaki dan Telapak Kaki)</Checkbox>
+                <Checkbox
+                  name="pemeriksaanEkstermitasBawah"
+                  checked={checkedStates.pemeriksaanEkstermitasBawah}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Ekstermitas Bawah (Panggul, Lutut, Pergelangan Kaki dan Telapak Kaki)
+                </Checkbox>
+                {checkedStates.pemeriksaanEkstermitasBawah && (
+                  <Form.Item name="ket_pemeriksaanEkstermitasBawah">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Ekstermitas Bawah" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanMulutBibir" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Mulut dan Bibir</Checkbox>
+                <Checkbox
+                  name="pemeriksaanMulutBibir"
+                  checked={checkedStates.pemeriksaanMulutBibir}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Mulut dan Bibir
+                </Checkbox>
+                {checkedStates.pemeriksaanMulutBibir && (
+                  <Form.Item name="ket_pemeriksaanMulutBibir">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Mulut dan Bibir" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
               <Form.Item name="pemeriksaanGenitaliaWanita" valuePropName="checked">
-                <Checkbox disabled={isEdit}>Pemeriksaan Genitalia Wanita</Checkbox>
+                <Checkbox
+                  name="pemeriksaanGenitaliaWanita"
+                  checked={checkedStates.pemeriksaanGenitaliaWanita}
+                  onChange={handleCheckboxChange}
+                  disabled={isDataFinished && !isEdit}
+                >
+                  Pemeriksaan Genitalia Wanita
+                </Checkbox>
+                {checkedStates.pemeriksaanGenitaliaWanita && (
+                  <Form.Item name="ket_pemeriksaanGenitaliaWanita">
+                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Genitalia Wanita" disabled={isDataFinished && !isEdit} />
+                  </Form.Item>
+                )}
               </Form.Item>
-
             </>
           )}
 
@@ -1280,6 +1517,7 @@ export default function DoctorPatientDetails({ role }) {
                                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                   }
                                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                                  disabled={isDataFinished && !isEdit}
                                 />
                               </Form.Item>
                             ),
@@ -1308,6 +1546,7 @@ export default function DoctorPatientDetails({ role }) {
                                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                   }
                                   options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
+                                  disabled={isDataFinished && !isEdit}
                                 />
                               </Form.Item>
                             ),
@@ -1323,7 +1562,7 @@ export default function DoctorPatientDetails({ role }) {
                                 fieldKey={[field.fieldKey, 'icdx']}
                                 rules={[{ required: true, message: 'Harap isi ICD-X' }]}
                               >
-                                <Input placeholder="ICD-X" style={inputStyling} />
+                                <Input placeholder="ICD-X" style={inputStyling} disabled={isDataFinished && !isEdit} />
                               </Form.Item>
                             ),
                           },
@@ -1338,7 +1577,7 @@ export default function DoctorPatientDetails({ role }) {
                                 fieldKey={[field.fieldKey, 'diagnosis']}
                                 rules={[{ required: true, message: 'Harap isi diagnosis' }]}
                               >
-                                <TextArea style={inputStylingTextArea} rows={3} placeholder="Diagnosis" />
+                                <TextArea style={inputStylingTextArea} rows={3} placeholder="Diagnosis" disabled={isDataFinished && !isEdit} />
                               </Form.Item>
                             ),
                           },
@@ -1353,7 +1592,7 @@ export default function DoctorPatientDetails({ role }) {
                                 fieldKey={[field.fieldKey, 'jenisDiagnosis']}
                                 rules={[{ required: true, message: 'Harap pilih jenis' }]}
                               >
-                                <Select placeholder="Jenis" size='middle'>
+                                <Select placeholder="Jenis" size='middle' disabled={isDataFinished && !isEdit} >
                                   <Select.Option value="1">Primer</Select.Option>
                                   <Select.Option value="2">Sekunder</Select.Option>
                                   <Select.Option value="3">Komplikasi</Select.Option>
@@ -1372,7 +1611,7 @@ export default function DoctorPatientDetails({ role }) {
                                 fieldKey={[field.fieldKey, 'kasusDiagnosis']}
                                 rules={[{ required: true, message: 'Harap pilih kasus' }]}
                               >
-                                <Select placeholder="Kasus">
+                                <Select placeholder="Kasus" disabled={isDataFinished && !isEdit} >
                                   <Select.Option value="1">Baru</Select.Option>
                                   <Select.Option value="2">Lama</Select.Option>
                                 </Select>
@@ -1444,6 +1683,7 @@ export default function DoctorPatientDetails({ role }) {
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsistenKia">
@@ -1456,19 +1696,20 @@ export default function DoctorPatientDetails({ role }) {
                   size='middle'
                   filterOption={(input, option) => option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
                   options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Posyandu" name="posyanduKia" >
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Nama Kader" name="namaKaderKia">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Nama Dukun" name="namaDukunKia" >
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Golongan Darah" name="golonganDarahKia">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1476,13 +1717,13 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Riwayat Komplikasi Kebidanan" name="riwayatKomplikasiKebidananKia">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Penyakit Kronis dan Alergi" name="penyakitKronisAlergiKia" >
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Riwayat Penyakit" name="riwayatPenyakitKia">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1490,16 +1731,16 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Gravida" name="gravida">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Partus" name="partus" >
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Abortus" name="abortus">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Hidup" name="hidup">
-                <Input style={inputStyling} className="content-center" disabled={isEdit} />
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1507,10 +1748,10 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tanggal" name="tanggalRencanaPersalinan" >
-                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Penolong" name="penolongPersalinan" >
-                <Select size="middle" onChange={onPenolongPersalinanChange} disabled={isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
+                <Select size="middle" onChange={onPenolongPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
                   { value: '1', label: <span>1. Keluarga</span> },
                   { value: '2', label: <span>2. Dukun</span> },
                   { value: '3', label: <span>3. Bidan</span> },
@@ -1521,7 +1762,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Tempat" name="tempatPersalinan" >
-                <Select size="middle" onChange={onTempatPersalinanChange} disabled={isEdit && !!form.getFieldValue('tempatPersalinan')} options={[
+                <Select size="middle" onChange={onTempatPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('tempatPersalinan')} options={[
                   { value: '1', label: <span>1. Rumah</span> },
                   { value: '2', label: <span>2. Polides</span> },
                   { value: '3', label: <span>3. Pustu</span> },
@@ -1534,7 +1775,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Pendamping" name="pendampingPersalinan" >
-                <Select size="middle" onChange={onPendampingPersalinanChange} disabled={isEdit && !!form.getFieldValue('pendampingPersalinan')} options={[
+                <Select size="middle" onChange={onPendampingPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('pendampingPersalinan')} options={[
                   { value: '1', label: <span>1. Suami</span> },
                   { value: '2', label: <span>2. Keluarga</span> },
                   { value: '3', label: <span>3. Teman</span> },
@@ -1543,7 +1784,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Transportasi" name="transportasiPersalinan" >
-                <Select size="middle" onChange={onTransportasiPersalinanChange} disabled={isEdit && !!form.getFieldValue('transportasiPersalinan')} options={[
+                <Select size="middle" onChange={onTransportasiPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('transportasiPersalinan')} options={[
                   { value: '1', label: <span>1. Ambulans Desa</span> },
                   { value: '2', label: <span>2. Ambulans Puskesmas</span> },
                   { value: '3', label: <span>3. Ambulans Swasta</span> },
@@ -1552,7 +1793,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Pendonor" name="pendonorPersalinan" >
-                <Select size="middle" onChange={onPendonorPersalinanChange} disabled={isEdit && !!form.getFieldValue('pendonorPersalinan')} options={[
+                <Select size="middle" onChange={onPendonorPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('pendonorPersalinan')} options={[
                   { value: '1', label: <span>1. Suami</span> },
                   { value: '2', label: <span>2. Keluarga</span> },
                   { value: '3', label: <span>3. Teman</span> },
@@ -1566,25 +1807,25 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tanggal Hari Pertama Haid Terakhir (HPHT)" name="tanggalHpht" >
-                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Taksiran Persalinan" name="taksiranPersalinan" >
-                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Persalinan Sebelumnya" name="persalinanSebelumnya" >
-                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Buku Kesehatan Ibu dan Anak (KIA)" name="bukuKia" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('bukuKia')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bukuKia')}>
                   <Radio value="1">Memiliki</Radio>
                   <Radio value="0">Tidak memiliki</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Berat Badan sebelum hamil" name="beratBadanSebelumHamil">
-                <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
               <Form.Item label="Tinggi Badan" name="tinggiBadanHamil">
-                <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1592,16 +1833,16 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Skor Ibu Kartu Skor Poedji Rochjati (KSPR)" name="skorKspr" >
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Tingkat Risiko" name="tingkatRisiko" >
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Sebutkan jenis risiko tinggi" name="jenisRisikoTinggi" >
-                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Risiko Kasuistik" name="risikoKasuistik" >
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
             </>
           )}
@@ -1625,6 +1866,7 @@ export default function DoctorPatientDetails({ role }) {
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsistenTb">
@@ -1638,33 +1880,31 @@ export default function DoctorPatientDetails({ role }) {
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
-                  options={uniqueNurses.map(nurse => ({
-                    value: nurse.namaAsisten,
-                    label: nurse.namaAsisten,
-                  }))}
+                  options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Berat Badan" name="beratBadanTb">
-                <Input style={inputStyling} disabled={isEdit} placeholder="kg"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
               <Form.Item label="Tinggi Badan" name="tinggiBadanTb">
-                <Input style={inputStyling} disabled={isEdit} placeholder="cm"/>
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
               <Form.Item label={<span>Parut <i>Bacillus Calmette-Guerin</i> (BCG)</span>} name="parutBcg" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('parutBcg')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('parutBcg')}>
                   <Radio value="1">Jelas</Radio>
                   <Radio value="2">Tidak ada</Radio>
                   <Radio value="3">Meragukan</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Jika wanita usia subur" name="wanitaUsiaSubur" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('wanitaUsiaSubur')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('wanitaUsiaSubur')}>
                   <Radio value="1">Hamil</Radio>
                   <Radio value="2">Tidak hamil</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Jumlah Skoring TB Anak" name="skoringTbAnak">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1672,25 +1912,25 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Nama PMO" name="namaPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Nomor Telepon Selular PMO" name="telpSelularPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Alamat PMO" name="alamatPmo">
-                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Nama Faskes" name="namaFaskesPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Tahun" name="tahunPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Provinsi" name="provinsiPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Kota/Kab" name="kotaKabPmo">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1698,19 +1938,19 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tipe Diagnosis" name="tipeDiagnosis" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('tipeDiagnosis')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tipeDiagnosis')}>
                   <Radio value="1">Terkontaminasi Bakteriologis</Radio>
                   <Radio value="2">Terdiagnosa klinis</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Klasifikasi berdasarkan lokasi anatomi" name="klasifikasiByAnatomi" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByAnatomi')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByAnatomi')}>
                   <Radio value="1">Paru</Radio>
                   <Radio value="2">Ekstra Paru</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Klasifikasi berdasarkan riwayat pengobatan sebelumnya" name="klasifikasiByRiwayat" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByRiwayat')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByRiwayat')}>
                   <Radio value="1">Baru</Radio>
                   <Radio value="2">Kambuh</Radio>
                   <Radio value="3">Diobati setelah gagal</Radio>
@@ -1720,7 +1960,7 @@ export default function DoctorPatientDetails({ role }) {
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Klasifikasi berdasarkan status HIV" name="klasifikasiByHiv" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('klasifikasiByHiv')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByHiv')}>
                   <Radio value="1">Positif</Radio>
                   <Radio value="2">Negatif</Radio>
                   <Radio value="3">Tidak diketahui</Radio>
@@ -1732,19 +1972,19 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Riwayat DM" name="riwayatDm" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('riwayatDm')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('riwayatDm')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Hasil Tes DM" name="tesDm" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('tesDm')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tesDm')}>
                   <Radio value="1">Positif</Radio>
                   <Radio value="2">Negatif</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Terapi DM" name="terapiDm" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('terapiDm')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('terapiDm')}>
                   <Radio value="1">Obat Hipoglikemik Oral (OHO)</Radio>
                   <Radio value="2">Injeksi Insulsin</Radio>
                 </Radio.Group>
@@ -1755,37 +1995,37 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Uji Tuberkulin" name="ujiTuberkulin">
-                <Input style={inputStyling} disabled={isEdit} placeholder="mm (indurasi)" />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="mm (indurasi)" />
               </Form.Item>
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">Foto Toraks</Divider>
               </div>
               <Form.Item label="Tanggal" name="tanggalFotoToraks" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Nomor Seri" name="nomorSeriFotoToraks">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Kesan" name="kesanFotoToraks">
-                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">Biopsi Jarum Halus / <i>Fine Needle Aspiration Biopsy</i> (FNAB)</Divider>
               </div>
               <Form.Item label="Tanggal" name="tanggalFnab" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Hasil" name="hasilFnab">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Biakan hasil contoh uji selain dahak" name="hasilUjiSelainDahak" >
-                <Radio.Group disabled={isEdit && !!form.getFieldValue('hasilUjiSelainDahak')}>
+                <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('hasilUjiSelainDahak')}>
                   <Radio value="1"><i>Mycobacterium Tuberculosis</i> (MTB)</Radio>
                   <Radio value="2">Bukan MTB</Radio>
                 </Radio.Group>
               </Form.Item>
               <Form.Item label="Deskripsi" name="deskripsiFnab">
-                <Input style={inputStyling} disabled={isEdit} />
+                <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -1793,10 +2033,10 @@ export default function DoctorPatientDetails({ role }) {
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
               <Form.Item label="Tanggal Selesai" name="tanggalSelesaiPengobatanTb" >
-                <DatePicker onChange={onChange} size='middle' />
+                <DatePicker onChange={onChange} size='middle' disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Hasil Pengobatan" name="hasilPengobatanTb" >
-                <Select size="middle" onChange={onHasilPengobatanTbChange} disabled={isEdit && !!form.getFieldValue('hasilPengobatanTb')} options={[
+                <Select size="middle" onChange={onHasilPengobatanTbChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('hasilPengobatanTb')} options={[
                   { value: '1', label: <span>Sembuh</span> },
                   { value: '2', label: <span>Pengobatan Selesai</span> },
                   { value: '3', label: <span>Gagal</span> },
@@ -1806,7 +2046,7 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Catatan" name="catatanHasilPengobatanTb">
-                <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
+                <Input.TextArea style={inputStylingTextArea} disabled={isDataFinished && !isEdit} rows={4}/>
               </Form.Item>
             </>
           )}
@@ -1828,10 +2068,11 @@ export default function DoctorPatientDetails({ role }) {
                   size='middle'
                   filterOption={(input, option) => option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
                   options={uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <Form.Item label="Rujukan dari" name="rujukanDari" >
-                <Select size="middle" onChange={onRujukanDariChange} disabled={isEdit && !!form.getFieldValue('rujukanDari')} options={[
+                <Select size="middle" onChange={onRujukanDariChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('rujukanDari')} options={[
                   { value: 'Sendiri', label: <span>1. Sendiri</span> },
                   { value: 'Dokter', label: <span>2. Dokter</span> },
                   { value: 'Perawat/Bidan', label: <span>3. Perawat/Bidan</span> },
@@ -1852,6 +2093,7 @@ export default function DoctorPatientDetails({ role }) {
                   options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter })).concat(
                     uniqueNurses.map(nurse => ({ value: nurse.namaAsisten, label: nurse.namaAsisten }))
                   )}
+                  disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
               <div></div>
@@ -1867,6 +2109,7 @@ export default function DoctorPatientDetails({ role }) {
                 setCheckedList={setHematologyCheckedList}
                 checkAll={hematologyCheckAll}
                 setCheckAll={setHematologyCheckAll}
+                disabled={isDataFinished && !isEdit}
               />
               {/* Clinical Chemistry */}
               <LabCategory
@@ -1876,6 +2119,7 @@ export default function DoctorPatientDetails({ role }) {
                 setCheckedList={setClinicalChemistryCheckedList}
                 checkAll={clinicalChemistryCheckAll}
                 setCheckAll={setClinicalChemistryCheckAll}
+                disabled={isDataFinished && !isEdit}
               />
               {/* Urinalysis */}
               <LabCategory
@@ -1885,6 +2129,7 @@ export default function DoctorPatientDetails({ role }) {
                 setCheckedList={setUrinalysisCheckedList}
                 checkAll={urinalysisCheckAll}
                 setCheckAll={setUrinalysisCheckAll}
+                disabled={isDataFinished && !isEdit}
               />
               {/* Microbiology */}
               <LabCategory
@@ -1894,6 +2139,7 @@ export default function DoctorPatientDetails({ role }) {
                 setCheckedList={setMicrobiologyCheckedList}
                 checkAll={microbiologyCheckAll}
                 setCheckAll={setMicrobiologyCheckAll}
+                disabled={isDataFinished && !isEdit}
               />
               {/* Immunology */}
               <LabCategory
@@ -1903,19 +2149,20 @@ export default function DoctorPatientDetails({ role }) {
                 setCheckedList={setImmunologyCheckedList}
                 checkAll={immunologyCheckAll}
                 setCheckAll={setImmunologyCheckAll}
+                disabled={isDataFinished && !isEdit}
               />
 
               <div className="col-span-2">
                 <Divider orientation="left">Kesimpulan / Saran</Divider>
               </div>
               <Form.Item label="Status Pemeriksaan" name="statusPemeriksaanLab" >
-                <Select size="middle" onChange={onstatusPemeriksaanLabChange} disabled={isEdit && !!form.getFieldValue('statusPemeriksaanLab')} options={[
+                <Select size="middle" onChange={onstatusPemeriksaanLabChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusPemeriksaanLab')} options={[
                   { value: '1', label: <span>1. Urgent</span> },
                   { value: '2', label: <span>2. Tidak Urgent</span> },
                 ]}/>
               </Form.Item>
               <Form.Item label="Saran" name="saranLab" >
-                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               {/* LAMPIRAN BERKAS */}
@@ -1923,14 +2170,21 @@ export default function DoctorPatientDetails({ role }) {
                 <Divider orientation="left">Lampiran Berkas</Divider>
               </div>
               <div className="col-span-2">
-                <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>
-                <Dragger {...props}>
-                  <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                  <p className="ant-upload-text">Klik atau seret berkas ke area ini untuk mengunggah</p>
-                  <p className="ant-upload-hint">
-                    Dapat menerima berkas dengan format .pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .zip, .rar, .7z.
-                  </p>
-                </Dragger>
+                <div className="flex flex-wrap w-full gap-4"></div>
+                {isDataFinished && isEdit && (
+                  <div className='grid gap-y-4'>
+                    <div>
+                      <Dragger {...props} >
+                        <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                        <p className="ant-upload-text">Klik atau seret berkas ke area ini untuk mengunggah</p>
+                        <p className="ant-upload-hint">
+                          Dapat menerima berkas dengan format .pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .zip, .rar, .7z.
+                        </p>
+                      </Dragger>
+                    </div>
+                    <div id='lampiran'></div>
+                  </div>
+                )}
               </div>
               <LabAttachments files={labFiles} />
             </>
@@ -1939,27 +2193,42 @@ export default function DoctorPatientDetails({ role }) {
           {/* Selesai / Pasien Pulang */}
           { selectedCategory === 'selesai' && (
             <>
-              <div className="col-span-2 text-lg text-gray-900">
+              <div className="col-span-2 mb-6 text-lg text-gray-900">
                 Pengobatan Selesai
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokterTb">
+                <Select
+                  showSearch
+                  placeholder="Pilih Dokter"
+                  optionFilterProp="children"
+                  onChange={handleDoctorChange}
+                  value={selectedDoctor.namaDokterTb}
+                  size='middle'
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  options={schedules.dokter.map(dokter => ({ value: dokter.namaDokter, label: dokter.namaDokter }))}
+                  disabled={isDataFinished && !isEdit}
+                />
+              </Form.Item>
               {/* JUDUL REKAM MEDIS */}
               <div className="col-span-2">
                 <Divider orientation="left">Judul Rekam Medis</Divider>
               </div>
               <div className="col-span-2">
                 <Form.Item label="Judul Rekam Medis" name="judulRekamMedis">
-                  <Input style={inputStyling} disabled={isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
+                  <Input style={inputStyling} disabled={isDataFinished && !isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
                 </Form.Item>
                 <Form.Item label="Catatan" name="catatanRekamMedis">
-                  <Input.TextArea style={inputStylingTextArea} disabled={isEdit} rows={4}/>
+                  <Input.TextArea style={inputStylingTextArea} disabled={isDataFinished && !isEdit} rows={4}/>
                 </Form.Item>
               </div>
               <div className="col-span-2">
                 <Divider orientation="left">Status Pulang</Divider>
               </div>
               <Form.Item label="Status Pulang" name="statusPulang" >
-                <Select size="middle" onChange={onStatusPulangChange} disabled={isEdit && !!form.getFieldValue('statusPulang')} options={[
+                <Select size="middle" onChange={onStatusPulangChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusPulang')} options={[
                   { value: '1', label: <span>1. Berobat Jalan</span> },
                   { value: '2', label: <span>2. Rujuk Internal</span> },
                   { value: '3', label: <span>3. Rujuk Lanjut</span> },
@@ -1968,16 +2237,23 @@ export default function DoctorPatientDetails({ role }) {
                 ]}/>
               </Form.Item>
               <Form.Item label="Rencana Kontrol" name="tanggalRencanaKontrol" >
-                <DatePicker onChange={onChange} size='middle' format={dateFormat} />
+                <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Keterangan" name="keteranganPulang">
-                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isEdit} />
+                <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
             </>
           )}
         </div>
         <Form.Item className="flex justify-center">
-          <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
+          {isDataFinished && !isEdit ? (
+            <Button type="primary" ghost onClick={handleEdit} size="medium">Ubah Data</Button>
+          ) : (
+            <>
+              {isEdit && <Button type="default" onClick={handleCancel} size="medium">Batal</Button>}
+              <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
+            </>
+          )}
         </Form.Item>
       </Form>
     );
@@ -2108,20 +2384,6 @@ export default function DoctorPatientDetails({ role }) {
                     onClick={() => setSelectedCategory('lab')}
                   >
                     Laboratorium
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'resep' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('resep')}
-                  >
-                    Pembuatan Resep
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'obat' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('obat')}
-                  >
-                    Obat
                   </Button>
                   <Button
                     type="ghost"
