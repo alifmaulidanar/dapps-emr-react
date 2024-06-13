@@ -576,7 +576,7 @@ useEffect(() => {
           pemeriksaanMata: anamnesis.pemeriksaanMata || '',
           pemeriksaanAbdomenPerut: anamnesis.pemeriksaanAbdomenPerut || '',
           pemeriksaanTelinga: anamnesis.pemeriksaanTelinga || '',
-          pemeriksaanEktermitasAtas: anamnesis.pemeriksaanEktermitasAtas || '',
+          pemeriksaanEkstermitasAtas: anamnesis.pemeriksaanEkstermitasAtas || '',
           pemeriksaanHidungSinus: anamnesis.pemeriksaanHidungSinus || '',
           pemeriksaanEkstermitasBawah: anamnesis.pemeriksaanEkstermitasBawah || '',
           pemeriksaanMulutBibir: anamnesis.pemeriksaanMulutBibir || '',
@@ -1233,246 +1233,59 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">7. Keadaan Fisik</Divider>
               </div>
-              <Form.Item name="pemeriksaanKulit" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanKulit"
-                  checked={checkedStates.pemeriksaanKulit}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Kulit
-                </Checkbox>
-                {checkedStates.pemeriksaanKulit && (
-                  <Form.Item name="ket_pemeriksaanKulit">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kulit" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              {/* <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
+                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
+              </Form.Item> */}
+
+              <Form.Item label="Pemeriksaan Kulit" name="pemeriksaanKulit">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanLeher" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanLeher"
-                  checked={checkedStates.pemeriksaanLeher}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Leher
-                </Checkbox>
-                {checkedStates.pemeriksaanLeher && (
-                  <Form.Item name="ket_pemeriksaanLeher">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Leher" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Leher" name="pemeriksaanLeher">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanKuku" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanKuku"
-                  checked={checkedStates.pemeriksaanKuku}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Kuku
-                </Checkbox>
-                {checkedStates.pemeriksaanKuku && (
-                  <Form.Item name="ket_pemeriksaanKuku">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kuku" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Kuku" name="pemeriksaanKuku">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanDadaPunggung" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanDadaPunggung"
-                  checked={checkedStates.pemeriksaanDadaPunggung}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Dada dan Punggung
-                </Checkbox>
-                {checkedStates.pemeriksaanDadaPunggung && (
-                  <Form.Item name="ket_pemeriksaanDadaPunggung">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Dada dan Punggung" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Dada dan Punggung" name="pemeriksaanDadaPunggung">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanKepala" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanKepala"
-                  checked={checkedStates.pemeriksaanKepala}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Kepala
-                </Checkbox>
-                {checkedStates.pemeriksaanKepala && (
-                  <Form.Item name="ket_pemeriksaanKepala">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kepala" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Kepala" name="pemeriksaanKepala">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanKardiovaskuler" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanKardiovaskuler"
-                  checked={checkedStates.pemeriksaanKardiovaskuler}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Kardiovaskuler
-                </Checkbox>
-                {checkedStates.pemeriksaanKardiovaskuler && (
-                  <Form.Item name="ket_pemeriksaanKardiovaskuler">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Kardiovaskuler" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Kardiovaskuler" name="pemeriksaanKardiovaskuler">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanWajah" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanWajah"
-                  checked={checkedStates.pemeriksaanWajah}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Wajah
-                </Checkbox>
-                {checkedStates.pemeriksaanWajah && (
-                  <Form.Item name="ket_pemeriksaanWajah">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Wajah" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Wajah" name="pemeriksaanWajah">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanDadaAksila" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanDadaAksila"
-                  checked={checkedStates.pemeriksaanDadaAksila}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Dada dan Aksila
-                </Checkbox>
-                {checkedStates.pemeriksaanDadaAksila && (
-                  <Form.Item name="ket_pemeriksaanDadaAksila">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Dada dan Aksila" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Dada dan Aksila" name="pemeriksaanDadaAksila">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanMata" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanMata"
-                  checked={checkedStates.pemeriksaanMata}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Mata
-                </Checkbox>
-                {checkedStates.pemeriksaanMata && (
-                  <Form.Item name="ket_pemeriksaanMata">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Mata" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Mata" name="pemeriksaanMata">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanAbdomenPerut" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanAbdomenPerut"
-                  checked={checkedStates.pemeriksaanAbdomenPerut}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Abdomen Perut
-                </Checkbox>
-                {checkedStates.pemeriksaanAbdomenPerut && (
-                  <Form.Item name="ket_pemeriksaanAbdomenPerut">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Abdomen Perut" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Abdomen Perut" name="pemeriksaanAbdomenPerut">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanTelinga" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanTelinga"
-                  checked={checkedStates.pemeriksaanTelinga}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Telinga
-                </Checkbox>
-                {checkedStates.pemeriksaanTelinga && (
-                  <Form.Item name="ket_pemeriksaanTelinga">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Telinga" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Telinga" name="pemeriksaanTelinga">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanEktermitasAtas" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanEktermitasAtas"
-                  checked={checkedStates.pemeriksaanEktermitasAtas}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Ekstermitas Atas (Bahu, Siku, Tangan)
-                </Checkbox>
-                {checkedStates.pemeriksaanEktermitasAtas && (
-                  <Form.Item name="ket_pemeriksaanEkstermitasAtas">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Ekstermitas Atas" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Ekstermitas Atas (Bahu, Siku, Tangan)" name="pemeriksaanEkstermitasAtas">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanHidungSinus" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanHidungSinus"
-                  checked={checkedStates.pemeriksaanHidungSinus}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Hidung dan Sinus
-                </Checkbox>
-                {checkedStates.pemeriksaanHidungSinus && (
-                  <Form.Item name="ket_pemeriksaanHidungSinus">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Hidung dan Sinus" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Hidung dan Sinus" name="pemeriksaanHidungSinus">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanEkstermitasBawah" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanEkstermitasBawah"
-                  checked={checkedStates.pemeriksaanEkstermitasBawah}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Ekstermitas Bawah (Panggul, Lutut, Pergelangan Kaki dan Telapak Kaki)
-                </Checkbox>
-                {checkedStates.pemeriksaanEkstermitasBawah && (
-                  <Form.Item name="ket_pemeriksaanEkstermitasBawah">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Ekstermitas Bawah" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Ekstermitas Bawah (Panggul, Lutut, Pergelangan Kaki dan Telapak Kaki)" name="pemeriksaanEkstermitasBawah">
+                <TextArea rows={3} style={inputStylingTextArea}  disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanMulutBibir" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanMulutBibir"
-                  checked={checkedStates.pemeriksaanMulutBibir}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Mulut dan Bibir
-                </Checkbox>
-                {checkedStates.pemeriksaanMulutBibir && (
-                  <Form.Item name="ket_pemeriksaanMulutBibir">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Mulut dan Bibir" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Mulut dan Bibir" name="pemeriksaanMulutBibir">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item name="pemeriksaanGenitaliaWanita" valuePropName="checked">
-                <Checkbox
-                  name="pemeriksaanGenitaliaWanita"
-                  checked={checkedStates.pemeriksaanGenitaliaWanita}
-                  onChange={handleCheckboxChange}
-                  disabled={isDataFinished && !isEdit}
-                >
-                  Pemeriksaan Genitalia Wanita
-                </Checkbox>
-                {checkedStates.pemeriksaanGenitaliaWanita && (
-                  <Form.Item name="ket_pemeriksaanGenitaliaWanita">
-                    <TextArea rows={3} style={inputStylingTextArea} placeholder="Keterangan Pemeriksaan Genitalia Wanita" disabled={isDataFinished && !isEdit} />
-                  </Form.Item>
-                )}
+              <Form.Item label="Pemeriksaan Genitalia Wanita" name="pemeriksaanGenitaliaWanita">
+                <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
+                
             </>
           )}
 
