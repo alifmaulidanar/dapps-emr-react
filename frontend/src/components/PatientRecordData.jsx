@@ -5,14 +5,37 @@ import { createRoot } from 'react-dom/client';
 import { FileOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { CONN } from '../../../enum-global';
 
-const formatDateTime = (dateTime) => {
-  const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  const formattedDate = new Date(dateTime).toLocaleString('id-ID', options);
-  return formattedDate.replace(',', '');
-};
+function formatDateTime(dateString) {
+  const date = new Date(dateString);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${day}/${month}/${year} pukul ${hours}:${minutes}:${seconds}`;
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${day}/${month}/${year}`;
+}
 
 function convertData(data) {
   const convertedData = {...data};
+  const statusPulangMap = {'1': 'Berobat Jalan', '2': 'Rujuk Internal', '3': 'Rujuk Lanjut', '4': 'Meninggal', '5': 'Batal Berobat'}
   const merokokMap = {'0': 'Tidak', '1': 'Ya'}
   const alkoholMap = {'0': 'Tidak', '1': 'Ya'}
   const sayurBuahMap = {'0': 'Tidak', '1': 'Ya'}
@@ -36,7 +59,28 @@ function convertData(data) {
   const agamaMap = {'1': 'Islam', '2': 'Kristen (Protestan)', '3': 'Katolik', '4': 'Hindu', '5': 'Budha', '6': 'Konghuchu', '7': 'Penghayat', '8': 'Lain-lain'}
   const pekerjaanMap = {'0': 'Tidak bekerja', '1': 'PNS', '2': 'TNI/POLRI', '3': 'BUMN', '4': 'Pegawai Swasta/Wirausaha', '5': 'Lain-lain'}
   const pernikahanMap = {'1': 'Belum kawin', '2': 'Kawin', '3': 'Cerai Hidup', '4': 'Cerai Mati'}
+  const jenisDiagnosisMap = {'1': 'Primer', '2': 'Sekunder', '3': 'Komplikasi'}
+  const kasusDiagnosisMap = {'1': 'Baru', '2': 'Lama'}
+  const penolongPersalinan = {'1': 'Keluarga', '2': 'Dukun', '3': 'Bidan', '4': 'dr. Umum', '5': 'dr. Spesialis', '6': 'Lainnya', '7': 'Tidak ada'}
+  const tempatPersalinan = {'1': 'Rumah', '2': 'Polides', '3': 'Pustu', '4': 'Puskesmas', '5': 'Klinik', '6': 'Rumah Bersalin (RB)', '7': 'Rumah Sakit Ibu dan Anak (RSIA)', '8': 'Rumah Sakit Orang Dengan HIV AIDS (RS ODHA)'}
+  const pendampingPersalinan = {'1': 'Suami', '2': 'Keluarga', '3': 'Teman', '4': 'Tetangga', '5': 'Lainnya'}
+  const transportasiPersalinan = {'1': 'Ambulans Desa', '2': 'Ambulans Puskesmas', '3': 'Ambulans Swasta', '4': 'Kendaraan Pribadi', '5': 'Kendaraan Umum'}
+  const pendonorPersalinan = {'1': 'Suami', '2': 'Keluarga', '3': 'Teman', '4': 'Tetangga', '5': 'Lainnya'}
+  const bukuKia = {'0': 'Tidak memiliki', '1': 'Memiliki'}
+  const parutBcg = {'1': 'Jelas', '2': 'Tidak ada', '3': 'Meragukan'}
+  const wanitaUsiaSubur = {'1': 'Hamil', '2': 'Tidak hamil'}
+  const tipeDiagnosis = {'1': 'Terkontaminasi Bakteriologis', '2': 'Terdiagnosa klinis'}
+  const klasifikasiByAnatomi = {'1': 'Paru', '2': 'Ekstra'}
+  const klasifikasiByRiwayat = {'1': 'Baru', '2': 'Kambuh', '3': 'Diobati setelah gagal', '4': 'Diobati setelah putus berobat', '5': 'Riwayat tidak diketahui', '6': 'Lain-lain'}
+  const klasifikasiByHiv = {'1': 'Positif', '2': 'Negatif', '3': 'Tidak diketahui'}
+  const riwayatDm = {'1': 'Ya', '0': 'Tidak'}
+  const tesDm = {'1': 'Positif', '2': 'Negatif'}
+  const terapiDm = {'1': 'Obat Hipoglikemik Oral (OHO)', '2': 'Injeksi Insulin'}
+  const hasilUjiSelainDahak = {'1': 'Mycobacterium Tuberculosis (MTB)', '2': 'Bukan MTB'}
+  const hasilPengobatanTb = {'1': 'Sembuh', '2': 'Pengobatan selesai', '3': 'Gagal', '4': 'Meninggal', '5': 'Putus berobat', '6': 'Tidak dievaluasi'}
+  const statusPemeriksaanLab = {'1': 'Urgent', '2': 'Tidak urgent'}
 
+  convertedData.statusPulang = statusPulangMap[convertedData.statusPulang]
   convertedData.merokok = merokokMap[convertedData.merokok]
   convertedData.konsumsiAlkohol = alkoholMap[convertedData.konsumsiAlkohol]
   convertedData.kurangSayurBuah = sayurBuahMap[convertedData.kurangSayurBuah]
@@ -60,6 +104,26 @@ function convertData(data) {
   convertedData.agama = agamaMap[convertedData.agama]
   convertedData.pekerjaan = pekerjaanMap[convertedData.pekerjaan]
   convertedData.pernikahan = pernikahanMap[convertedData.pernikahan]
+  convertedData.jenisDiagnosis = jenisDiagnosisMap[convertedData.jenisDiagnosis]
+  convertedData.kasusDiagnosis = kasusDiagnosisMap[convertedData.kasusDiagnosis]
+  convertedData.penolongPersalinan = penolongPersalinan[convertedData.penolongPersalinan]
+  convertedData.tempatPersalinan = tempatPersalinan[convertedData.tempatPersalinan]
+  convertedData.pendampingPersalinan = pendampingPersalinan[convertedData.pendampingPersalinan]
+  convertedData.transportasiPersalinan = transportasiPersalinan[convertedData.transportasiPersalinan]
+  convertedData.pendonorPersalinan = pendonorPersalinan[convertedData.pendonorPersalinan]
+  convertedData.bukuKia = bukuKia[convertedData.bukuKia]
+  convertedData.parutBcg = parutBcg[convertedData.parutBcg]
+  convertedData.wanitaUsiaSubur = wanitaUsiaSubur[convertedData.wanitaUsiaSubur]
+  convertedData.tipeDiagnosis = tipeDiagnosis[convertedData.tipeDiagnosis]
+  convertedData.klasifikasiByAnatomi = klasifikasiByAnatomi[convertedData.klasifikasiByAnatomi]
+  convertedData.klasifikasiByRiwayat = klasifikasiByRiwayat[convertedData.klasifikasiByRiwayat]
+  convertedData.klasifikasiByHiv = klasifikasiByHiv[convertedData.klasifikasiByHiv]
+  convertedData.riwayatDm = riwayatDm[convertedData.riwayatDm]
+  convertedData.tesDm = tesDm[convertedData.tesDm]
+  convertedData.terapiDm = terapiDm[convertedData.terapiDm]
+  convertedData.hasilUjiSelainDahak = hasilUjiSelainDahak[convertedData.hasilUjiSelainDahak]
+  convertedData.hasilPengobatanTb = hasilPengobatanTb[convertedData.hasilPengobatanTb]
+  convertedData.statusPemeriksaanLab = statusPemeriksaanLab[convertedData.statusPemeriksaanLab]
 
   return convertedData;
 }
@@ -83,9 +147,9 @@ const PatientRecordLoop = ({ data }) => {
 };
 
 const AnamnesisRecordLoop = ({ data }) => {
-  const headers = ['No.', 'Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Keluhan Utama', 'Keluhan Tambahan','Lama Sakit', 'Merokok', 'Alkohol', 'Kurang Sayur/Buah', 'Edukasi', 'Terapi', 'Rencana Tindakan', 'Observasi', 'Biopsikososial', 'Keterangan'];
+  const headers = ['Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Keluhan Utama', 'Keluhan Tambahan','Lama Sakit', 'Merokok', 'Alkohol', 'Kurang Sayur/Buah', 'Edukasi', 'Terapi', 'Rencana Tindakan', 'Observasi', 'Biopsikososial', 'Keterangan'];
   const anamnesisData = [
-    data.appointmentCreatedAt,
+    formatDate(data.appointmentCreatedAt),
     data.namaDokter,
     data.namaAsisten,
     data.keluhanUtama,
@@ -102,22 +166,54 @@ const AnamnesisRecordLoop = ({ data }) => {
     data.keteranganLainnya,
   ];
 
-  let counter = 1;
   return (
     <div className="w-full">
       <table className="min-w-full divide-y divide-gray-200 border border-collapse">
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr className="bg-white">
-            <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
             {anamnesisData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const StatusSelesaiRecordLoop = ({ data }) => {
+  const headers = ['Tanggal Selesai', 'Dokter/Tenaga Medis', 'Judul Rekam Medis', 'Catatan', 'Status Pulang','Rencana Kontrol', 'Keterangan Pulang'];
+  const anamnesisData = [
+    formatDateTime(data.selesaiCreatedAt),
+    data.namaDokterTb,
+    data.judulRekamMedis,
+    data.catatanRekamMedis,
+    convertData(data).statusPulang,
+    formatDate(data.tanggalRencanaKontrol) || '-',
+    data.keteranganPulang,
+  ];
+
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {anamnesisData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -141,7 +237,7 @@ const RiwayatPenyakitLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -149,8 +245,8 @@ const RiwayatPenyakitLoop = ({ data }) => {
           {filteredRiwayatPenyakitData.length > 0 ? (
             filteredRiwayatPenyakitData.map((row, index) => (
               <tr key={index} className="bg-white">
-                <td className="p-2 text-sm text-gray-900 border border-gray-200">{row.jenisRiwayat}</td>
-                <td className="p-2 text-sm text-gray-900 border border-gray-200">{row.riwayatPasien}</td>
+                <td className="p-2 text-sm text-center text-gray-900 border border-gray-200">{row.jenisRiwayat}</td>
+                <td className="p-2 text-sm text-center text-gray-900 border border-gray-200">{row.riwayatPasien}</td>
               </tr>
             ))
           ) : (
@@ -180,7 +276,7 @@ const RiwayatAlergiLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -188,8 +284,8 @@ const RiwayatAlergiLoop = ({ data }) => {
           {filteredRiwayatAlergiData.length > 0 ? (
             filteredRiwayatAlergiData.map((row, index) => (
               <tr key={index} className="bg-white">
-                <td className="p-2 text-sm text-gray-900 border border-gray-200">{row.jenisAlergi}</td>
-                <td className="p-2 text-sm text-gray-900 border border-gray-200">{row.riwayatAlergi}</td>
+                <td className="p-2 text-sm text-center text-gray-900 border border-gray-200">{row.jenisAlergi}</td>
+                <td className="p-2 text-sm text-center text-gray-900 border border-gray-200">{row.riwayatAlergi}</td>
               </tr>
             ))
           ) : (
@@ -206,7 +302,7 @@ const RiwayatAlergiLoop = ({ data }) => {
 
 const StatusFisisRecordLoop = ({ data }) => {
   console.log({patient})
-  const headers = ['No.', 'Apakah menggunakan alat bantu saat beraktivitas', 'Agama/Kepercayaan', 'Adakah Kendala Komunikasi', 'Adakah yang merawat dirumah', 'Apakah membutuhkan bantuan orang lain saat beraktivitas','Ekspresi dan Emosi', 'Bahasa yang digunakan', 'Pekerjaan', 'Tinggal dengan', 'Sosial ekonomi', 'Jaminan', 'Gangguan jiwa dimasa lalu', 'Status Perkawinan', 'Status ekonomi', 'Hubungan dengan keluarga'];
+  const headers = ['Apakah menggunakan alat bantu saat beraktivitas', 'Agama/Kepercayaan', 'Adakah Kendala Komunikasi', 'Adakah yang merawat dirumah', 'Apakah membutuhkan bantuan orang lain saat beraktivitas','Ekspresi dan Emosi', 'Bahasa yang digunakan', 'Pekerjaan', 'Tinggal dengan', 'Sosial ekonomi', 'Jaminan', 'Gangguan jiwa dimasa lalu', 'Status Perkawinan', 'Status ekonomi', 'Hubungan dengan keluarga'];
   const anamnesisData = [
     convertData(data).alatBantu,
     convertData(patient).agama,
@@ -225,22 +321,20 @@ const StatusFisisRecordLoop = ({ data }) => {
     convertData(data).hubunganKeluarga,
   ];
 
-  let counter = 1;
   return (
     <div className="w-full">
       <table className="min-w-full divide-y divide-gray-200 border border-collapse">
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr className="bg-white">
-            <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
             {anamnesisData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -250,9 +344,9 @@ const StatusFisisRecordLoop = ({ data }) => {
 };
 
 const PemeriksaanFisikRecordLoop = ({ data }) => {
-  const headers = ['No.', 'Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Status Hamil', 'Kesadaran','Sistole', 'Diastole', 'MAP', 'Tinggi Badan', 'Berat Badan', 'Detak Nadi', 'Pernapasan', 'Saturasi (Sp02)', 'Suhu'];
+  const headers = ['Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Status Hamil', 'Kesadaran','Sistole', 'Diastole', 'MAP', 'Tinggi Badan', 'Berat Badan', 'Detak Nadi', 'Pernapasan', 'Saturasi (Sp02)', 'Suhu'];
   const anamnesisData = [
-    data.appointmentCreatedAt,
+    formatDate(data.appointmentCreatedAt),
     data.namaDokter,
     data.namaAsisten,
     convertData(data).statusHamil,
@@ -268,22 +362,20 @@ const PemeriksaanFisikRecordLoop = ({ data }) => {
     data.suhuTubuh,
   ];
 
-  let counter = 1;
   return (
     <div className="w-full">
       <table className="min-w-full divide-y divide-gray-200 border border-collapse">
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr className="bg-white">
-            <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
             {anamnesisData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -293,7 +385,7 @@ const PemeriksaanFisikRecordLoop = ({ data }) => {
 };
 
 const AsesmenNyeriRecordLoop = ({ data }) => {
-  const headers = ['No.', 'Apakah pasien merasakan nyeri?', 'Pencetus', 'Kualitas', 'Lokasi', 'Skala Nyeri','Waktu'];
+  const headers = ['Apakah pasien merasakan nyeri?', 'Pencetus', 'Kualitas', 'Lokasi', 'Skala Nyeri','Waktu'];
   const anamnesisData = [
     convertData(data).nyeriTubuh,
     data.pencetusNyeri,
@@ -303,22 +395,20 @@ const AsesmenNyeriRecordLoop = ({ data }) => {
     convertData(data).waktuNyeri
   ];
 
-  let counter = 1;
   return (
     <div className="w-full">
       <table className="min-w-full divide-y divide-gray-200 border border-collapse">
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
         <tbody>
           <tr className="bg-white">
-            <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
             {anamnesisData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -397,7 +487,7 @@ const DetailPemeriksaanFisikRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -408,7 +498,7 @@ const DetailPemeriksaanFisikRecordLoop = ({ data }) => {
 
             return (
               <tr key={index} className="bg-white">
-                <td className="p-2 text-sm text-gray-900 border border-gray-300">{item}</td>
+                <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{item}</td>
                 <td className="p-2 text-sm text-gray-900 border border-gray-300">{description}</td>
               </tr>
             );
@@ -430,7 +520,7 @@ const DiagnosaRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -438,13 +528,13 @@ const DiagnosaRecordLoop = ({ data }) => {
           {diagnosis.map((diag, index) => (
             <tr key={index} className="bg-white">
               <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{formatDateTime(data.diagnosisCreatedAt)}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.namaDokterDiagnosis}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.namaAsistenDiagnosis}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.icdx}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.diagnosis}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.jenisDiagnosis}</td>
-              <td className="p-2 text-sm text-gray-900 border border-gray-300">{diag.kasusDiagnosis}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{formatDateTime(data.diagnosisCreatedAt)}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.namaDokterDiagnosis}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.namaAsistenDiagnosis}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.icdx}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.diagnosis}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{convertData(diag).jenisDiagnosis}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{convertData(diag).kasusDiagnosis}</td>
             </tr>
           ))}
         </tbody>
@@ -472,7 +562,7 @@ const PengamatanKehamilanRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -480,7 +570,7 @@ const PengamatanKehamilanRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -494,11 +584,11 @@ const RencanaPersalinanRecordLoop = ({ data }) => {
   const pengamatanKehamilanData = [
     // data.appointmentCreatedAt,
     data.tanggalRencanaPersalinan,
-    data.penolongPersalinan,
-    data.pendampingPersalinan,
-    data.pendonorPersalinan,
-    data.tempatPersalinan,
-    data.transportasiPersalinan,
+    convertData(data).penolongPersalinan,
+    convertData(data).pendampingPersalinan,
+    convertData(data).pendonorPersalinan,
+    convertData(data).tempatPersalinan,
+    convertData(data).transportasiPersalinan,
   ];
 
   // let counter = 1;
@@ -508,7 +598,7 @@ const RencanaPersalinanRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -516,7 +606,7 @@ const RencanaPersalinanRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -532,7 +622,7 @@ const BidanRisikoRecordLoop = ({ data }) => {
     data.tanggalHpht,
     data.taksiranPersalinan,
     data.persalinanSebelumnya,
-    data.bukuKia,
+    convertData(data).bukuKia,
     data.beratBadanSebelumHamil,
     data.tinggiBadanHamil,
     data.skorKspr,
@@ -548,7 +638,7 @@ const BidanRisikoRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -556,7 +646,7 @@ const BidanRisikoRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -585,7 +675,7 @@ const RiwayatPasienObstetrikRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -593,7 +683,7 @@ const RiwayatPasienObstetrikRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -610,9 +700,9 @@ const PemeriksaanTbRecordLoop = ({ data }) => {
     data.namaAsistenTb,
     data.beratBadanTb,
     data.tinggiBadanTb,
-    data.parutBcg,
-    data.wanitaUsiaSubur,
-    data.skorTbAnak
+    convertData(data).parutBcg,
+    convertData(data).wanitaUsiaSubur,
+    data.skoringTbAnak
   ];
 
   // let counter = 1;
@@ -622,7 +712,7 @@ const PemeriksaanTbRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -630,7 +720,7 @@ const PemeriksaanTbRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -659,7 +749,7 @@ const DataPMORecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -667,7 +757,7 @@ const DataPMORecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -680,13 +770,13 @@ const DiagnosisKlasifikasiDMRecordLoop = ({ data }) => {
   const headers = ['Tipe Diagnosis', 'Klasifikasi Anatomi', 'Klasifikasi RPS', 'Klasifikasi Status HIV', 'Riwayat DM', 'Hasil Tes DM', 'Terapi DM'];
   const pengamatanKehamilanData = [
     // data.appointmentCreatedAt,
-    data.tipeDiagnosis,
-    data.klasifikasiByAnatomi,
-    data.klasifikasiByRiwayat,
-    data.klasifikasiByHiv,
-    data.riwayatDM,
-    data.tesDm,
-    data.terapiDm
+    convertData(data).tipeDiagnosis,
+    convertData(data).klasifikasiByAnatomi,
+    convertData(data).klasifikasiByRiwayat,
+    convertData(data).klasifikasiByHiv,
+    convertData(data).riwayatDm,
+    convertData(data).tesDm,
+    convertData(data).terapiDm
   ];
 
   // let counter = 1;
@@ -696,7 +786,7 @@ const DiagnosisKlasifikasiDMRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -704,7 +794,7 @@ const DiagnosisKlasifikasiDMRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -723,7 +813,7 @@ const PemeriksaanLainRecordLoop = ({ data }) => {
     data.kesanFotoToraks,
     data.tanggalFnab,
     data.hasilFnab,
-    data.hasilUjiSelainDahak,
+    convertData(data).hasilUjiSelainDahak,
     data.deskripsiFnab
   ];
 
@@ -734,7 +824,7 @@ const PemeriksaanLainRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -742,7 +832,7 @@ const PemeriksaanLainRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -756,7 +846,7 @@ const PengobatanSelesaiRecordLoop = ({ data }) => {
   const pengamatanKehamilanData = [
     // data.appointmentCreatedAt,
     data.tanggalSelesaiPengobatanTb,
-    data.hasilPengobatanTb,
+    convertData(data).hasilPengobatanTb,
     data.catatanHasilPengobatanTb,
   ];
 
@@ -767,7 +857,7 @@ const PengobatanSelesaiRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -775,7 +865,7 @@ const PengobatanSelesaiRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -791,7 +881,7 @@ const PemeriksaanLabRecordLoop = ({ data }) => {
     data.pemeriksaLab,
     data.rujukanDari,
     data.perujukLab,
-    data.statusPemeriksaanLab,
+    convertData(data).statusPemeriksaanLab,
     data.saranLab
   ];
 
@@ -802,7 +892,7 @@ const PemeriksaanLabRecordLoop = ({ data }) => {
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
             ))}
           </tr>
         </thead>
@@ -810,7 +900,7 @@ const PemeriksaanLabRecordLoop = ({ data }) => {
           <tr className="bg-white">
             {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
             {pengamatanKehamilanData.map((value, index) => (
-              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+              <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300">{value}</td>
             ))}
           </tr>
         </tbody>
@@ -825,15 +915,15 @@ const LabRecordLoop = ({ headers, sectionData }) => (
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            <td key={index} className="p-2 text-sm text-center text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
           ))}
         </tr>
       </thead>
       <tbody>
         <tr className="bg-white">
           {sectionData.map((value, index) => (
-            <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300 text-center">
-              {value ? <CheckCircleTwoTone twoToneColor="#52e30b" /> : <CloseCircleTwoTone twoToneColor="#a36464" />}
+            <td key={index} className="p-2 text-sm text-center text-gray-900 border border-gray-300 text-center">
+              {value ? <CheckCircleTwoTone twoToneColor="#52e30b" /> : <CloseCircleTwoTone twoToneColor="#c25555" />}
             </td>
           ))}
         </tr>
@@ -1044,6 +1134,16 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           <PatientRecordLoop data={dataPasienKanan} />
         </div>
         {/* DATA PASIEN */}
+
+        {/* STATUS SELESAI */}
+        <div className="col-span-4 mt-8 text-lg text-gray-900">
+          Status Selesai
+          <hr className="h-px bg-gray-700 border-0"></hr>
+        </div>
+        <div className="col-span-4 my-4">
+          <StatusSelesaiRecordLoop data={record.selesai} />
+        </div>
+        {/* STATUS SELESAI */}
 
         {/* DATA ANAMNESIS */}
         <div className="col-span-4 mt-8 text-lg text-gray-900">
