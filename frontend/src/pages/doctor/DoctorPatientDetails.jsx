@@ -424,7 +424,7 @@ useEffect(() => {
       switch (selectedCategory) {
         case 'anamnesis':
           endpoint = '/doctor/patient-list/patient-details/emr-anamnesis';
-          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
+          specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, anamnesisCreatedAt: new Date().toISOString(),...transformedValues };
           break;
         case 'diagnosis':
           endpoint = '/doctor/patient-list/patient-details/emr-diagnosis';
