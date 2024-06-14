@@ -1,15 +1,12 @@
 /* eslint-disable react/prop-types */
-import { Tag } from "antd";
+import { Tag, Card } from "antd";
+import { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { FileOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
+import { CONN } from '../../../enum-global';
 
 const formatDateTime = (dateTime) => {
-  const options = {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  };
+  const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
   const formattedDate = new Date(dateTime).toLocaleString('id-ID', options);
   return formattedDate.replace(',', '');
 };
@@ -456,56 +453,492 @@ const DiagnosaRecordLoop = ({ data }) => {
   );
 };
 
+const PengamatanKehamilanRecordLoop = ({ data }) => {
+  const headers = ['Dokter/Tenaga Medis', 'Perawat', 'Posyandu', 'Nama Kader', 'Nama Dukun', 'Golongan Darah'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.namaDokterKia,
+    data.namaAsistenKia,
+    data.posyanduKia,
+    data.namaKaderKia,
+    data.namaDukunKia,
+    data.golonganDarahKia
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const RencanaPersalinanRecordLoop = ({ data }) => {
+  const headers = ['Tanggal Rencana Persalinan', 'Penolong', 'Pendamping', 'Pendonor', 'Tempat', 'Transportasi'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.tanggalRencanaPersalinan,
+    data.penolongPersalinan,
+    data.pendampingPersalinan,
+    data.pendonorPersalinan,
+    data.tempatPersalinan,
+    data.transportasiPersalinan,
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const BidanRisikoRecordLoop = ({ data }) => {
+  const headers = ['Tanggal HPHT', 'Taksiran Persalinan', 'Persalinan Sebelumnya', 'Buku KIA', 'Berat Badan Sebelum Hamil', 'Tinggi Badan', 'Skor KSPR', 'Tingkat Risiko', 'Jenis Risko Tinggi', 'Risiko Kasuistik'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.tanggalHpht,
+    data.taksiranPersalinan,
+    data.persalinanSebelumnya,
+    data.bukuKia,
+    data.beratBadanSebelumHamil,
+    data.tinggiBadanHamil,
+    data.skorKspr,
+    data.tingkatRisiko,
+    data.jenisRisikoTinggi,
+    data.risikoKasuistik,
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const RiwayatPasienObstetrikRecordLoop = ({ data }) => {
+  const headers = ['Riwayat Komplikasi Kebidanan', 'Penyakit Kronis dan Alergi', 'Riwayat Penyakit', 'Gravida', 'Partus', 'Abortus', 'Hidup'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.riwayatKomplikasiKebidananKia,
+    data.penyakitKronisAlergiKia,
+    data.riwayatPenyakitKia,
+    data.gravida,
+    data.partus,
+    data.abortus,
+    data.hidup
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const PemeriksaanTbRecordLoop = ({ data }) => {
+  const headers = ['Dokter/Tenaga Medis', 'Perawat', 'Berat Badan', 'Tinggi Badan', 'Parut BCG', 'Status Hamil', 'Skoring TB Anak'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.namaDokterTb,
+    data.namaAsistenTb,
+    data.beratBadanTb,
+    data.tinggiBadanTb,
+    data.parutBcg,
+    data.wanitaUsiaSubur,
+    data.skorTbAnak
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const DataPMORecordLoop = ({ data }) => {
+  const headers = ['Nama PMO', 'Nomor Telepon', 'Alamat', 'Nama Faskes', 'Tahun', 'Provinsi', 'Kabupaten'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.namaPmo,
+    data.telpSelularPmo,
+    data.alamatPmo,
+    data.namaFaskesPmo,
+    data.tahunPmo,
+    data.provinsiPmo,
+    data.kotaKabPmo
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const DiagnosisKlasifikasiDMRecordLoop = ({ data }) => {
+  const headers = ['Tipe Diagnosis', 'Klasifikasi Anatomi', 'Klasifikasi RPS', 'Klasifikasi Status HIV', 'Riwayat DM', 'Hasil Tes DM', 'Terapi DM'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.tipeDiagnosis,
+    data.klasifikasiByAnatomi,
+    data.klasifikasiByRiwayat,
+    data.klasifikasiByHiv,
+    data.riwayatDM,
+    data.tesDm,
+    data.terapiDm
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const PemeriksaanLainRecordLoop = ({ data }) => {
+  const headers = ['Uji Tuberkulin', 'Tanggal Foto Toraks', 'Nomor Seri Foto Toraks', 'Kesan Foto Toraks', 'Tanggal FNAB', 'Hasil FNAB', 'Hasil Uji selain Dahak', 'Deskripsi'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.ujiTuberkulin,
+    data.tanggalFotoToraks,
+    data.nomorSeriFotoToraks,
+    data.kesanFotoToraks,
+    data.tanggalFnab,
+    data.hasilFnab,
+    data.hasilUjiSelainDahak,
+    data.deskripsiFnab
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const PengobatanSelesaiRecordLoop = ({ data }) => {
+  const headers = ['Tanggal Selesai', 'Hasil Pengobatan TB', 'Catatan'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.tanggalSelesaiPengobatanTb,
+    data.hasilPengobatanTb,
+    data.catatanHasilPengobatanTb,
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const PemeriksaanLabRecordLoop = ({ data }) => {
+  const headers = ['Pemeriksa', 'Rujukan Dari', 'Perujuk', 'Status Pemeriksaan', 'Saran'];
+  const pengamatanKehamilanData = [
+    // data.appointmentCreatedAt,
+    data.pemeriksaLab,
+    data.rujukanDari,
+    data.perujukLab,
+    data.statusPemeriksaanLab,
+    data.saranLab
+  ];
+
+  // let counter = 1;
+  return (
+    <div className="w-full">
+      <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+        <thead>
+          <tr>
+            {headers.map((header, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="bg-white">
+            {/* <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td> */}
+            {pengamatanKehamilanData.map((value, index) => (
+              <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300">{value}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const LabRecordLoop = ({ headers, sectionData }) => (
+  <div className="w-full">
+    <table className="min-w-full divide-y divide-gray-200 border border-collapse">
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <td key={index} className="p-2 text-sm text-gray-900 bg-sky-100 text-center border border-gray-300">{header}</td>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="bg-white">
+          {sectionData.map((value, index) => (
+            <td key={index} className="p-2 text-sm text-gray-900 border border-gray-300 text-center">
+              {value ? <CheckCircleTwoTone twoToneColor="#52e30b" /> : <CloseCircleTwoTone twoToneColor="#a36464" />}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+);
+
+const LabHematologyRecordLoop = ({ data }) => {
+  const headers = [
+    'Hemoglobin', 'Hematokrit', 'Hitung Eritrosit', 'Hitung Trombosit', 'Hitung Leukosit', 'Hitung Jenis leukosit', 
+    'Laju Endap Darah', 'MCV', 'MCH', 'MCHC', 'Golongan Darah'
+  ];
+  const sectionData = headers.map(header => data.hematology.includes(header));
+  return <LabRecordLoop headers={headers} sectionData={sectionData} />;
+};
+
+const LabClinicalChemistryRecordLoop = ({ data }) => {
+  const headers = [
+    'Glukosa Sewaktu', 'Glukosa Puasa', 'Glukosa 2 Jam PP', 'SGOT', 'SGPT', 'Asam Urat', 
+    'Trigliserida', 'Cholesterol', 'Cholesterol HDL', 'Cholesterol LDL', 'Ureum', 'Creatinin', 
+    'Protein, Reduksi'
+  ];
+  const sectionData = headers.map(header => data.clinicalChemistry.includes(header));
+  return <LabRecordLoop headers={headers} sectionData={sectionData} />;
+};
+
+const LabUrinalysisRecordLoop = ({ data }) => {
+  const headers = ['Urin Rutin'];
+  const sectionData = headers.map(header => data.urinalysis.includes(header));
+  return <LabRecordLoop headers={headers} sectionData={sectionData} />;
+};
+
+const LabMicrobiologyRecordLoop = ({ data }) => {
+  const headers = [
+    'Mycobacterium Tuberculosis', 'Neisseria Gonnorhoeae', 'Trichomonas Vaginalis', 
+    'Candida Albicans', 'Bacterial Vaginosis'
+  ];
+
+  const sectionData = headers.map(header => data.microbiology.includes(header));
+
+  return <LabRecordLoop headers={headers} sectionData={sectionData} />;
+};
+
+const LabImmunologyRecordLoop = ({ data }) => {
+  const headers = [
+    'Tes Kehamilan', 'Widal', 'VDRL', 'HBsAg', 'TPHA', 'Sifilis', 'Anti HIV', 
+    'Antigen Dengue', 'Antibody Dengue', 'Rapid Covid 19', 'Salmonella'
+  ];
+
+  const sectionData = headers.map(header => data.immunology.includes(header));
+
+  return <LabRecordLoop headers={headers} sectionData={sectionData} />;
+};
+
 let patient;
 function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
+  // console.log({chosenPatient})
+  // console.log({record});
+  const labFiles = record?.lab?.files || [];
   patient = chosenPatient;
-  // useEffect(() => {
-  //   if (record.lampiranRekamMedis) {
-  //     fetch(`${CONN.IPFS_LOCAL}/${record.lampiranRekamMedis}`)
-  //     .then(response => response.json())
-  //     .then(bundleContent => {
-  //         const root = createRoot(document.getElementById("lampiran"));
-  //         const cards = bundleContent.map(fileData => {
-  //           const blob = new Blob([new Uint8Array(fileData.content.data)]);
-  //           const url = URL.createObjectURL(blob);
-  //           let attachmentElement;
-  //           let previewElement;
-  //           if (fileData.path.endsWith('.png') || fileData.path.endsWith('.jpg') || fileData.path.endsWith('.jpeg')) {
-  //             // Display image file
-  //             attachmentElement = document.createElement('img');
-  //             attachmentElement.src = url;
-  //             attachmentElement.alt = fileData.path;
-  //             previewElement = <img alt={fileData.path} src={url} style={{ width: '28px', height: 'auto' }} />;
-  //           } else {
-  //             // Display other file types as download links
-  //             attachmentElement = document.createElement('img');
-  //             attachmentElement.src = url;
-  //             attachmentElement.alt = fileData.path;
-  //             previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
-  //           }
-  //           const fileName = fileData.path.split('.').slice(0, -1).join('.');
-  //           const fileExtension = fileData.path.split('.').pop();
-  //           const cardContent = (
-  //             <>
-  //               {previewElement}
-  //             </>
-  //           );
-  //           return (
-  //             <Card key={fileData.path} className="w-[115px] h-fit hover:shadow">
-  //               <a href={url} download={fileData.path} className="grid justify-items-center gap-y-2 hover:text-gray-900">
-  //                 {cardContent}
-  //                 <p>{fileName}.{fileExtension}</p>
-  //               </a>
-  //             </Card>
-  //           );
-  //         });
-  //         root.render(cards, document.createElement('div'));
-  //       })
-  //       .catch(error => {
-  //         console.error('Error fetching data:', error);
-  //       });
-  //   }
-  // }, [record.lampiranRekamMedis]);
+  const LabAttachments = ({ files }) => {
+    useEffect(() => {
+      if (files && files.length > 0) {
+        Promise.all(files.map(file => 
+          fetch(`${CONN.IPFS_LOCAL}/${file.path}`)
+            .then(response => response.arrayBuffer())
+            .then(buffer => ({ name: file.name, path: file.path, blob: new Blob([buffer]) }))
+        ))
+        .then(fileDataArray => {
+          const root = createRoot(document.getElementById("lampiran"));
+          const cards = fileDataArray.map(fileData => {
+            const url = URL.createObjectURL(fileData.blob);
+            let attachmentElement;
+            let previewElement;
+            if (fileData.name.endsWith('.png') || fileData.name.endsWith('.jpg') || fileData.name.endsWith('.jpeg')) {
+              attachmentElement = document.createElement('img');
+              attachmentElement.src = url;
+              attachmentElement.alt = fileData.name;
+              previewElement = <img alt={fileData.name} src={url} style={{ width: '28px', height: 'auto' }} />;
+            } else {
+              attachmentElement = document.createElement('img');
+              attachmentElement.src = url;
+              attachmentElement.alt = fileData.name;
+              previewElement = <FileOutlined style={{ fontSize: '28px' }} />;
+            }
+            const fileName = fileData.name.split('.').slice(0, -1).join('.');
+            const fileExtension = fileData.name.split('.').pop();
+            const cardContent = (<>{previewElement}</>);
+            return (
+              <Card key={fileData.name} className="w-[115px] h-fit hover:shadow">
+                <a href={url} download={fileData.name} className="grid justify-items-center gap-y-2 hover:text-gray-900">
+                  {cardContent}
+                  <p>{fileName}.{fileExtension}</p>
+                </a>
+              </Card>
+            );
+          });
+          root.render(cards);
+        }).catch(error => { console.error('Error fetching data:', error) });
+      }
+    }, [files]);
+  
+    return <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>;
+  };
 
   function calculateAge(dateString) {
     const today = new Date();
@@ -586,8 +1019,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
   //   },
   // ];
 
-  console.log({chosenPatient})
-  console.log({record});
   return (
     <div className="col-span-4 p-8">
       <div className="grid grid-cols-4 p-4 gap-x-16">
@@ -633,7 +1064,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
             <p className="font-semibold pb-2">Riwayat Alergi</p>
             <RiwayatAlergiLoop data={record.anamnesis} />
           </div>
-          {/* <AnamnesisRecordLoop data={record.anamnesis} /> */}
         </div>
 
         <div className="col-span-4 my-4">
@@ -643,10 +1073,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
         {/* DATA ANAMNESIS */}
 
         {/* DATA PEMERIKSAAN FISIK */}
-        {/* <div className="col-span-4 mt-8 text-lg text-gray-900">
-          Data Pemeriksaan Fisik
-          <hr className="h-px bg-gray-700 border-0"></hr>
-        </div> */}
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Pemeriksaan Fisik</p>
           <PemeriksaanFisikRecordLoop data={record.anamnesis} />
@@ -677,9 +1103,21 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           Data Kehamilan
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
-        <div className="col-span-4 my-4">
-          <p className="font-semibold pb-2">Data Kehamilan</p>
-          <DiagnosaRecordLoop data={record.diagnosis} />
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pengamatan Kehamilan</p>
+          <PengamatanKehamilanRecordLoop data={record.kehamilan} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Riwayat Pasien dan Obstetrik</p>
+          <RiwayatPasienObstetrikRecordLoop data={record.kehamilan} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Rencana Persalinan</p>
+          <RencanaPersalinanRecordLoop data={record.kehamilan} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pemeriksaan Bidan dan Risiko Kehamilan</p>
+          <BidanRisikoRecordLoop data={record.kehamilan} />
         </div>
         {/* DATA Kehamilan */}
 
@@ -688,9 +1126,25 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           Data TB Paru
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
-        <div className="col-span-4 my-4">
-          <p className="font-semibold pb-2">Data TB Paru</p>
-          <DiagnosaRecordLoop data={record.diagnosis} />
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pemeriksaan TB Paru</p>
+          <PemeriksaanTbRecordLoop data={record.tb} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Data Pengawas Menelan Obat (PMO)</p>
+          <DataPMORecordLoop data={record.tb} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Tipe Diagnosis, Klasifikasi Pasien, Riwayat DM, dan Pemeriksaan Lain</p>
+          <DiagnosisKlasifikasiDMRecordLoop data={record.tb} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pemeriksaan Lain</p>
+          <PemeriksaanLainRecordLoop data={record.tb} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pengobatan Selesai</p>
+          <PengobatanSelesaiRecordLoop data={record.tb} />
         </div>
         {/* DATA TB Paru */}
 
@@ -699,41 +1153,36 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           Data Lab
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Pemeriksaan Lab</p>
+          <PemeriksaanLabRecordLoop data={record.lab} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Haematologi</p>
+          <LabHematologyRecordLoop data={record.lab} />
+        </div>
         <div className="col-span-4 my-4">
-          <p className="font-semibold pb-2">Data Lab</p>
-          <DiagnosaRecordLoop data={record.diagnosis} />
+          <p className="font-semibold pb-2">Kimia Klinik</p>
+          <LabClinicalChemistryRecordLoop data={record.lab} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Urinalisa</p>
+          <LabUrinalysisRecordLoop data={record.lab} />
+        </div>
+        <div className="col-span-2 my-4">
+          <p className="font-semibold pb-2">Mikrobiologi dan Parasitologi</p>
+          <LabMicrobiologyRecordLoop data={record.lab} />
+        </div>
+        <div className="col-span-4 my-4">
+          <p className="font-semibold pb-2">Imunologi</p>
+          <LabImmunologyRecordLoop data={record.lab} />
+        </div>
+        <div className="col-span-4 my-4">
+          <p className="font-semibold pb-2">Lampiran Berkas</p>
+          <div id='lampiran'></div>
+          <LabAttachments files={labFiles} />
         </div>
         {/* DATA Lab */}
-
-        {/* <div className="grid content-start grid-cols-2 col-span-2 gap-x-4">
-          <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Anamnesis
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </div>
-
-          <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Pemeriksaan Kehamilan
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </div>
-        </div> */}
-
-
-        {/* Kanan */}
-        {/* <div className="grid content-start grid-cols-2 col-span-2 gap-x-4">
-          <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Laboratorium
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </div>
-          <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Diagnosis
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </div>
-          <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Pemeriksaan TB Paru
-            <hr className="h-px bg-gray-700 border-0"></hr>
-          </div>
-        </div> */}
-        {/* <div id="lampiran" className="flex flex-wrap w-full col-span-2 gap-4"></div> */}
       </div>
     </div>
   );
