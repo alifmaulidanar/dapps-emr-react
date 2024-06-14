@@ -26,7 +26,7 @@ function NakesPatientProfile({ data, convert, foto }) {
     { key: "bahasa", value1: "Bahasa", value2: <p>{convertedData.bahasa || '-'}</p> },
     { key: "tanggalLahir", value1: "Tanggal Lahir", value2: <p>{convertedData.tanggalLahir}</p> },
     { key: "email", value1: "Email", value2: <p>{convertedData.email || '-'}</p> },
-    { key: "telpSelular", value1: "Telepon Selular", value2: <p>{convertedData.telpSelular || '-'}</p> },
+    { key: "nomorTelepon", value1: "Nomor Telepon/HP", value2: <p>{convertedData.nomorTelepon || '-'}</p> },
     { key: "golonganDarah", value1: "Golongan Darah", value2: <p>{convertedData.golonganDarah || '-'}</p> },
     { key: "pendidikan", value1: "Pendidikan", value2: <p>{convertedData.pendidikan || '-'}</p> },
     { key: "pekerjaan", value1: "Pekerjaan", value2: <p>{convertedData.pekerjaan || '-'}</p> },

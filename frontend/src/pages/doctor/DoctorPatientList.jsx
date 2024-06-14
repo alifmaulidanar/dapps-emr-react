@@ -87,8 +87,8 @@ export default function DoctorPatientList({ role }) {
     },
     {
       title: 'Nomor Telepon',
-      dataIndex: 'telpSelular',
-      key: 'telpSelular',
+      dataIndex: 'nomorTelepon',
+      key: 'nomorTelepon',
       render: (text) => text || '-',
     },
     {
@@ -111,7 +111,7 @@ export default function DoctorPatientList({ role }) {
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,
-    telpSelular: profile?.telpSelular,
+    nomorTelepon: profile?.nomorTelepon,
     faskesAsal: profile?.faskesAsal,
   }));
   

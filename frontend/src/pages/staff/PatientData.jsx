@@ -570,8 +570,8 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
           </Form.Item>
 
           <Form.Item
-            label="Nomor Telepon Selular"
-            name="telpSelular"
+            label="Nomor Telepon/HP"
+            name="nomorTelepon"
           >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>

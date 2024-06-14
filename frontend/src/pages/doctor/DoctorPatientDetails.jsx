@@ -635,7 +635,7 @@ useEffect(() => {
           wanitaUsiaSubur: tb.wanitaUsiaSubur || '',
           skoringTbAnak: tb.skoringTbAnak || '',
           namaPmo: tb.namaPmo || '',
-          telpSelularPmo: tb.telpSelularPmo || '',
+          nomorTeleponPmo: tb.nomorTeleponPmo || '',
           alamatPmo: tb.alamatPmo || '',
           namaFaskesPmo: tb.namaFaskesPmo || '',
           tahunPmo: tb.tahunPmo || '',
@@ -1727,7 +1727,7 @@ useEffect(() => {
               <Form.Item label="Nama PMO" name="namaPmo">
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Nomor Telepon Selular PMO" name="telpSelularPmo">
+              <Form.Item label="Nomor Telepon PMO" name="nomorTeleponPmo">
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Alamat PMO" name="alamatPmo">

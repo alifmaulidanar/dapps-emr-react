@@ -55,7 +55,7 @@ export default function NursePatientList({ role }) {
     { title: 'Nomor Identitas', dataIndex: 'nomorIdentitas', key: 'nomorIdentitas' },
     { title: 'Nama Lengkap', dataIndex: 'namaLengkap', key: 'namaLengkap' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Nomor Telepon', dataIndex: 'telpSelular', key: 'telpSelular' },
+    { title: 'Nomor Telepon', dataIndex: 'nomorTelepon', key: 'nomorTelepon' },
     { title: 'RS Asal', dataIndex: 'rumahSakitAsal', key: 'rumahSakitAsal', render: (text) => getHospitalName(text) },
     // { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
     { title: 'Aksi', key: 'action',
@@ -89,7 +89,7 @@ export default function NursePatientList({ role }) {
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,
-    telpSelular: profile?.telpSelular,
+    nomorTelepon: profile?.nomorTelepon,
     rumahSakitAsal: profile?.rumahSakitAsal
   }));
 

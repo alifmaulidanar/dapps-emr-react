@@ -40,8 +40,7 @@ const basePath = path.join(__dirname, "../../patient/data");
 //   suku: Joi.string().required(),
 //   bahasa: Joi.string().required(),
 //   golonganDarah: Joi.string().required(),
-//   telpRumah: Joi.string().required(),
-//   telpSelular: Joi.string().required(),
+//   nomorTelepon: Joi.string().required(),
 //   email: Joi.string().email().required(),
 //   pendidikan: Joi.string().required(),
 //   pekerjaan: Joi.string().required(),
@@ -85,8 +84,7 @@ const userSchema = Joi.object({
   suku: Joi.string().required(),
   bahasa: Joi.string().required(),
   golonganDarah: Joi.string().required(),
-  telpRumah: Joi.string().required(),
-  telpSelular: Joi.string().required(),
+  nomorTelepon: Joi.string().required(),
   email: Joi.string().email().required(),
   pendidikan: Joi.string().required(),
   pekerjaan: Joi.string().required(),
@@ -108,7 +106,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
       dmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
@@ -118,7 +116,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     // Validasi input menggunakan Joi
     // const { error } = patientSchema.validate({
     //   emrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-    //   golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+    //   golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
     //   kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
     //   tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
     //   rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
@@ -130,7 +128,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         dmrNumber, emrNumber, faskesAsal, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
         tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
         rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
@@ -166,7 +164,7 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
 
     const updatedPatientData = {
       accountAddress: dmrData.accountAddress, dmrNumber, emrNumber, faskesAsal: "Puskesmas Pejuang", namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat,
       tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat,
       rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat,
@@ -214,14 +212,14 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
   try {
     const {
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData, role, signature, foto
     } = req.body;
 
     // Validasi input menggunakan Joi
     const { error } = userSchema.validate({
       namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-      golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+      golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
       kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
     });
     if (error) { return res.status(400).json({ error: error.details[0].message }) }
@@ -229,7 +227,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     const recoveredAddress = ethers.utils.verifyMessage(
       JSON.stringify({
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, userAccountData
       }),
       signature
@@ -257,7 +255,7 @@ router.post("/:role/update-profile", authMiddleware, async (req, res) => {
     if (indexToUpdate !== -1) {
       ipfsData.accountProfiles[indexToUpdate] = {
         namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa,
-        golonganDarah, telpRumah, telpSelular, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
+        golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw,
         kelurahan, kecamatan, kota, pos, provinsi, negara, foto
       };
     } else {

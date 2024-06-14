@@ -79,14 +79,9 @@ function NursePatientProfile({ data, convert, foto }) {
       value2: <p>{convertedData.golonganDarah}</p>
     },
     {
-      key: "telpRumah",
-      value1: "Telepon Rumah",
-      value2: <p>{convertedData.telpRumah}</p>,
-    },
-    {
-      key: "telpSelular",
-      value1: "Telepon Selular",
-      value2: <p>{convertedData.telpSelular}</p>,
+      key: "nomorTelepon",
+      value1: "Nomor Telepon/HP",
+      value2: <p>{convertedData.nomorTelepon}</p>,
     },
     {
       key: "email",

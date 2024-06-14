@@ -314,9 +314,9 @@ export default function UserData({ userDataProps, userAccountData }) {
           <Form.Item label="Suku" name="suku" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item label="Bahasa yang Dikuasai" name="bahasa" >
+          {/* <Form.Item label="Bahasa yang Dikuasai" name="bahasa" >
             <Input disabled={!isEditing} style={inputStyling} />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="Golongan Darah" name="golonganDarah" >
             <Select disabled={!isEditing} size="large"
               options={[
@@ -336,10 +336,7 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-          <Form.Item label="Nomor Telepon Rumah" name="telpRumah" >
-            <Input disabled={!isEditing} style={inputStyling} />
-          </Form.Item>
-          <Form.Item label="Nomor Telepon Selular" name="telpSelular" >
+          <Form.Item label="Nomor Telepon/HP" name="nomorTelepon" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
           <Form.Item label="Email" name="email" >
@@ -397,7 +394,7 @@ export default function UserData({ userDataProps, userAccountData }) {
           <Form.Item label="Kecamatan" name="kecamatan" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item label="Kota Madya / Kabupaten" name="kota" >
+          <Form.Item label="Kota Madya/Kabupaten" name="kota" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
           <Form.Item label="Kode Pos" name="pos" >
@@ -448,7 +445,7 @@ export default function UserData({ userDataProps, userAccountData }) {
                 />
               </Form.Item>
               {/* Nomor Telepon Kerabat */}
-              <Form.Item label="Nomor Telepon" name="telpKerabat" >
+              <Form.Item label="Nomor Telepon" name="nomorTeleponKerabat" >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
               {/* Hubungan dengan Pasien */}
@@ -461,15 +458,15 @@ export default function UserData({ userDataProps, userAccountData }) {
                 />
               </Form.Item>
               {/* RT Kerabat */}
-              <Form.Item label="Rukun Tetangga (RT)" name="rtKerabat" >
+              <Form.Item label="RT" name="rtKerabat" >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
               {/* RW Kerabat */}
-              <Form.Item label="Rukun Warga (RW)" name="rwKerabat" >
+              <Form.Item label="RW" name="rwKerabat" >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
-              {/* Kelurahan/Desa Kerabat */}
-              <Form.Item label="Kelurahan/Desa" name="kelurahanKerabat" >
+              {/* Kelurahan Kerabat */}
+              <Form.Item label="Kelurahan" name="kelurahanKerabat" >
                 <Input disabled={!isEditing} style={inputStyling} />
               </Form.Item>
               {/* Kecamatan Kerabat */}

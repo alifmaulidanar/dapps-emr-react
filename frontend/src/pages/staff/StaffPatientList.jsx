@@ -101,9 +101,9 @@ export default function StaffPatientList({ role }) {
       render: (text) => text || '-',
     },
     {
-      title: 'Nomor Telepon',
-      dataIndex: 'telpSelular',
-      key: 'telpSelular',
+      title: 'Nomor Telepon/HP',
+      dataIndex: 'nomorTelepon',
+      key: 'nomorTelepon',
       render: (text) => text || '-',
     },
     {
@@ -126,7 +126,7 @@ export default function StaffPatientList({ role }) {
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
     email: profile?.email,
-    telpSelular: profile?.telpSelular,
+    nomorTelepon: profile?.nomorTelepon,
     faskesAsal: profile?.faskesAsal,
   }));
 

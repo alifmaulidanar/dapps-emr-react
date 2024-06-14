@@ -30,8 +30,7 @@ export default function RegisterDoctorButton({ buttonText, userAccountData }) {
     suku: "",
     bahasa: "",
     golonganDarah: "",
-    telpRumah: "",
-    telpSelular: "",
+    nomorTelepon: "",
     email: "",
     pendidikan: "",
     pekerjaan: "",
@@ -371,38 +370,16 @@ export default function RegisterDoctorButton({ buttonText, userAccountData }) {
                 htmlFor="tel"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Nomor Telepon Rumah
+                Nomor Telepon/HP
               </label>
               <input
                 type="tel"
-                id="telpRumah"
+                id="nomorTelepon"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon rumah"
-                value={doctorData.telpRumah}
+                placeholder="Nomor telepon/HP"
+                value={doctorData.nomorTelepon}
                 onChange={(e) =>
-                  setDoctorData({ ...doctorData, telpRumah: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="tel"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nomor Telepon Selular
-              </label>
-              <input
-                type="tel"
-                id="telpSelular"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon selular"
-                value={doctorData.telpSelular}
-                onChange={(e) =>
-                  setDoctorData({
-                    ...doctorData,
-                    telpSelular: e.target.value,
-                  })
+                  setDoctorData({ ...doctorData, nomorTelepon: e.target.value })
                 }
                 required
               />

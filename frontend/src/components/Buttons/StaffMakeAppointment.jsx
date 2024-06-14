@@ -193,7 +193,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
         namaLengkap: userData.profile.namaLengkap,
         nomorIdentitas: userData.profile.nomorIdentitas,
         email: userData.profile.email,
-        telpSelular: userData.profile.telpSelular,
+        nomorTelepon: userData.profile.nomorTelepon,
         faskesAsal: userData.profile.faskesAsal,
         faskesTujuan: selectedDoctor.lokasiPraktik,
         idDokter: selectedDoctor.idDokter,

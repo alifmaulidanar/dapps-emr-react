@@ -32,7 +32,7 @@ function PatientAppointmentDisplayStaff({ data, token }) {
     { key: "namaLengkap", value1: "Nama Pasien", value2: (<p>{data.appointment.data.namaLengkap}</p>) },
     { key: "accountAddress", value1: "Alamat Akun Pasien", value2: (<Tag color="green" className="m-0">{data.appointment.data.accountAddress}</Tag>), },
     { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.data.email  || "-"}</p>) },
-    { key: "telpSelular", value1: "Nomor Telepon Pasien", value2: (<p>{data.appointment.data.telpSelular || "-"}</p>) },
+    { key: "nomorTelepon", value1: "Nomor Telepon Pasien", value2: (<p>{data.appointment.data.nomorTelepon || "-"}</p>) },
     { key: "namaDokter", value1: "Nama Dokter", value2: (<p>{data.appointment.data.namaDokter}</p>) },
     { key: "doctorAddress", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.data.doctorAddress}</Tag>) },
     { key: "namaAsisten", value1: "Nama Perawat", value2: (<p>{data.appointment.data.namaAsisten}</p>) },

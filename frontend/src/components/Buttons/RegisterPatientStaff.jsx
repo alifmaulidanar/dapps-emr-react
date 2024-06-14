@@ -65,8 +65,7 @@ export default function RegisterPatientButton({ buttonText }) {
     suku: "",
     bahasa: "",
     golonganDarah: "",
-    telpRumah: "",
-    telpSelular: "",
+    nomorTelepon: "",
     email: "",
     pendidikan: "",
     pekerjaan: "",
@@ -563,38 +562,16 @@ export default function RegisterPatientButton({ buttonText }) {
                 htmlFor="tel"
                 className="block mb-2 text-sm font-medium text-gray-900"
               >
-                Nomor Telepon Rumah
+                Nomor Telepon/HP
               </label>
               <input
                 type="tel"
-                id="telpRumah"
+                id="nomorTelepon"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon rumah"
-                value={patientData.telpRumah}
+                placeholder="Nomor telepon/HP"
+                value={patientData.nomorTelepon}
                 onChange={(e) =>
-                  setPatientData({ ...patientData, telpRumah: e.target.value })
-                }
-                // required
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="tel"
-                className="block mb-2 text-sm font-medium text-gray-900"
-              >
-                Nomor Telepon Selular
-              </label>
-              <input
-                type="tel"
-                id="telpSelular"
-                className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                placeholder="Nomor telepon selular"
-                value={patientData.telpSelular}
-                onChange={(e) =>
-                  setPatientData({
-                    ...patientData,
-                    telpSelular: e.target.value,
-                  })
+                  setPatientData({ ...patientData, nomorTelepon: e.target.value })
                 }
                 // required
               />
