@@ -4,7 +4,7 @@
       "idDokter": 1,
       "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
       "namaDokter": "dr. Budi",
-      "spesialisasiDokter": "Umum",
+      "spesialisasi": "Umum",
       "lokasiPraktik": "Bekasi",
       "jadwal": [
         {
@@ -37,7 +37,7 @@
       "idDokter": 2,
       "doctorAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
       "namaDokter": "dr. Andi",
-      "spesialisasiDokter": "Umum",
+      "spesialisasi": "Umum",
       "lokasiPraktik": "BSD",
       "jadwal": [
         {
@@ -70,7 +70,7 @@
       "idDokter": 3,
       "doctorAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
       "namaDokter": "dr. Doni",
-      "spesialisasiDokter": "Gigi",
+      "spesialisasi": "Gigi",
       "lokasiPraktik": "Bekasi",
       "jadwal": [
         {
