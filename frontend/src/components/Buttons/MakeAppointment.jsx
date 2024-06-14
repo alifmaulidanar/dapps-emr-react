@@ -32,7 +32,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   if(selectedLocation !== "all") {
     specializations = [
       "all",
-      ...new Set(scheduleData.filter(doc => doc.lokasiPraktik === selectedLocation).map(doc => doc.spesialisasiDokter))
+      ...new Set(scheduleData.filter(doc => doc.lokasiPraktik === selectedLocation).map(doc => doc.spesialisasi))
     ];
   }
 
@@ -82,7 +82,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
 
   const filteredDoctors = scheduleData.filter(doc => 
     (selectedLocation === "all" || doc.lokasiPraktik === selectedLocation) && 
-    (selectedSpecialization === "all" || doc.spesialisasiDokter === selectedSpecialization)
+    (selectedSpecialization === "all" || doc.spesialisasi === selectedSpecialization)
   );
   const handleSpecializationChange = value => {
     setSelectedSpecialization(value);
@@ -199,7 +199,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
         idDokter: selectedDoctor.idDokter,
         doctorAddress: selectedDoctor.doctorAddress,
         namaDokter: selectedDoctor.namaDokter,
-        spesialisasiDokter: selectedDoctor.spesialisasiDokter,
+        spesialisasi: selectedDoctor.spesialisasi,
         idJadwal: selectedScheduleId,
         hariTerpilih: `${selectedDay}`,
         tanggalTerpilih: `${selectedDate}`,
@@ -301,7 +301,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 </Select>
               </div>
               <div className="mb-6">
-                <label htmlFor="rs" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Spesialisasi Dokter</label>
+                <label htmlFor="rs" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Poli/Ruangan</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
@@ -332,7 +332,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   <Option value="default">Pilih Dokter</Option>
                   {filteredDoctors.map((dokter) => (
                     <Option key={dokter.doctorAddress} value={dokter.doctorAddress}>
-                      {dokter.namaDokter} (Dokter {dokter.spesialisasiDokter})
+                      {dokter.namaDokter} ({dokter.spesialisasi})
                     </Option>
                   ))}
                 </Select>
@@ -381,8 +381,12 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   <p className="text-lg font-semibold text-gray-900">{selectedDoctor.lokasiPraktik}</p>
                 </div>
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedDoctor.spesialisasiDokter})</p>
+                  <p className="text-sm font-medium text-gray-900">Poli/Ruangan:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctor.spesialisasi}</p>
+                </div>
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-gray-900">Dokter/Tenaga Medis:</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name}</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Jadwal yang dipilih:</p>

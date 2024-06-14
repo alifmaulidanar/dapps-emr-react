@@ -118,9 +118,9 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     // hilangkan dash pada tanggal terpilih
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
     // buat const polyCode: untuk spesialisasi umum, polyCode = 1, untuk spesialisasi gigi, polyCode = 2
-    // const polyCode = appointmentDataIpfs.spesialisasiDokter.toLowerCase() === "umum" ? "01" : "02";
+    // const polyCode = appointmentDataIpfs.spesialisasi.toLowerCase() === "umum" ? "01" : "02";
     // generate appointmentId by using format "tanggalTerpilih-dmrNumber-polyCode"
-    const specialization = appointmentDataIpfs.spesialisasiDokter.toLowerCase();
+    const specialization = appointmentDataIpfs.spesialisasi.toLowerCase();
     // Nomor urut baru
     const newIndexString = handleFileWrite(specialization, selectedDate);
     const appointmentId = `${selectedDate.replace(/-/g, "")}${dmrNumber}${newIndexString}`;

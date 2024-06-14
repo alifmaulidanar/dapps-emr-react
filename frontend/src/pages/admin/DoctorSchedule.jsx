@@ -9,12 +9,10 @@ import { CONN } from "../../../../enum-global";
 // Doctor tag color
 const getTagColorDoctor = (address) => {
   const colorToAddress = {
-    "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D": "red",
-    "0x0be909d68efd2b18111254782D0Edf077CD7F6aD": "green",
-    "0x119d6536434c434fa68CFFAFE104686a50E4Ef56": "blue",
-    "0x76bB4cb8050CFc0635E007B84C6D01b25c80326e": "orange",
-    "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C": "purple",
-    "0x5b5ef7fb6747e685D9aB23Aba8af1593283c1366": "yellow",
+    "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D": "teal",
+    "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522": "brown",
+    "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58": "#108ee9",
+    "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "#f50",
   };
   return colorToAddress[address] || "gray";
 };
@@ -22,13 +20,13 @@ const getTagColorDoctor = (address) => {
 // Nurse tag color
 const getTagColorNurse = (address) => {
   const colorToAddress = {
-    "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522": "red",
-    "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58": "green",
-    "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "blue",
-    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "orange",
+    "0x0be909d68efd2b18111254782D0Edf077CD7F6aD": "green",
+    "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58": "blue",
+    "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "orange",
+    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "red",
     "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "purple",
-    "0xBec10133688B118Bd183B73B7963617472800E83": "teal",
-    "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6": "brown",
+    "0xBec10133688B118Bd183B73B7963617472800E83": "gold",
+    "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6": "geekblue",
     "0x2B8B2e67E1176378304597B044D766580D233e1f": "pink",
     "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498": "yellow",
     "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6": "cyan",
@@ -68,7 +66,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
               </>
             ),
             // namaDokter: `${dokter.namaDokter}\n${dokter.doctorAddress}`,
-            spesialisasiDokter: dokter.spesialisasiDokter,
+            spesialisasi: dokter.spesialisasi,
             lokasiPraktik: dokter.lokasiPraktik,
             hari: schedule.hari,
             waktu: schedule.waktu,
@@ -136,8 +134,8 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
     },
     {
       title: "Spesialis",
-      dataIndex: "spesialisasiDokter",
-      key: "spesialisasiDokter",
+      dataIndex: "spesialisasi",
+      key: "spesialisasi",
       render: (value, row, index) => {
         const obj = {
           children: value,

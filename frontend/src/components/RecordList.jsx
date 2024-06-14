@@ -22,7 +22,7 @@ export default function RecordList({ recordItems, chosenPatient, appointmentData
               </div>
               <div className="flex justify-between mb-4 flex-nowrap">
                 <p className="w-full text-base text-gray-900">
-                  {appointment.namaDokter} (Dokter {appointmentData.find(appointment => appointment.appointmentId === appointment.appointmentId)?.spesialisasiDokter})
+                  {appointment.namaDokter} (Dokter {appointmentData.find(appointment => appointment.appointmentId === appointment.appointmentId)?.spesialisasi})
                 </p>
                 <div className="grid justify-end w-full mr-auto">
                   {new Date(appointment.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}

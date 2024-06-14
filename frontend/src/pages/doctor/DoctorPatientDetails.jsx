@@ -239,10 +239,10 @@ useEffect(() => {
     { title: 'No.', dataIndex: 'key', key: 'key' },
     { title: 'ID Pendaftaran', dataIndex: 'appointmentId', key: 'appointmentId' },
     { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
-    { title: 'Poli', dataIndex: 'spesialisasiDokter',
-      render: (spesialisasiDokter) => (
-        <Tag color={ spesialisasiDokter === "Umum" ? "blue" :  spesialisasiDokter === "TB Paru" ? "green" : "red" }>
-          {spesialisasiDokter}
+    { title: 'Poli', dataIndex: 'spesialisasi',
+      render: (spesialisasi) => (
+        <Tag color={ spesialisasi === "Umum" ? "blue" :  spesialisasi === "TB Paru" ? "green" : "red" }>
+          {spesialisasi}
         </Tag>
       ) },
     { title: 'Jadwal Berobat', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
@@ -259,7 +259,7 @@ useEffect(() => {
   const appointmentDataSource = appointments?.map((appointment, index) => ({
     key: index + 1,
     appointmentId: appointment?.appointmentId,
-    spesialisasiDokter: appointment?.spesialisasiDokter,
+    spesialisasi: appointment?.spesialisasi,
     namaDokter: appointment?.namaDokter,
     tanggalTerpilih: (
       <>

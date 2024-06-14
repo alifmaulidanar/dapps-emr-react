@@ -32,7 +32,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
   if(selectedLocation !== "all") {
     specializations = [
       "all",
-      ...new Set(scheduleData.filter(doc => doc.lokasiPraktik === selectedLocation).map(doc => doc.spesialisasiDokter))
+      ...new Set(scheduleData.filter(doc => doc.lokasiPraktik === selectedLocation).map(doc => doc.spesialisasi))
     ];
   }
 
@@ -82,7 +82,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
 
   const filteredDoctors = scheduleData.filter(doc => 
     (selectedLocation === "all" || doc.lokasiPraktik === selectedLocation) && 
-    (selectedSpecialization === "all" || doc.spesialisasiDokter === selectedSpecialization)
+    (selectedSpecialization === "all" || doc.spesialisasi === selectedSpecialization)
   );
   const handleSpecializationChange = value => {
     setSelectedSpecialization(value);
@@ -199,7 +199,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
         idDokter: selectedDoctor.idDokter,
         doctorAddress: selectedDoctor.doctorAddress,
         namaDokter: selectedDoctor.namaDokter,
-        spesialisasiDokter: selectedDoctor.spesialisasiDokter,
+        spesialisasi: selectedDoctor.spesialisasi,
         idJadwal: selectedScheduleId,
         hariTerpilih: `${selectedDay}`,
         tanggalTerpilih: `${selectedDate}`,
@@ -334,7 +334,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
                   <Option value="default">Pilih Dokter</Option>
                   {filteredDoctors.map((dokter) => (
                     <Option key={dokter.doctorAddress} value={dokter.doctorAddress}>
-                      {dokter.namaDokter} (Dokter {dokter.spesialisasiDokter})
+                      {dokter.namaDokter} (Dokter {dokter.spesialisasi})
                     </Option>
                   ))}
                 </Select>
@@ -384,7 +384,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Dokter yang dipilih:</p>
-                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedDoctor.spesialisasiDokter})</p>
+                  <p className="text-lg font-semibold text-gray-900">{selectedDoctorInfo.name} (Dokter {selectedDoctor.spesialisasi})</p>
                 </div>
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-900">Jadwal yang dipilih:</p>

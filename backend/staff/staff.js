@@ -424,9 +424,9 @@ router.post("/appointment", authMiddleware, async (req, res) => {
     // hilangkan dash pada tanggal terpilih
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
     // buat const polyCode: untuk spesialisasi umum, polyCode = 1, untuk spesialisasi gigi, polyCode = 2
-    // const polyCode = appointmentDataIpfs.spesialisasiDokter.toLowerCase() === "umum" ? "01" : "02";
+    // const polyCode = appointmentDataIpfs.spesialisasi.toLowerCase() === "umum" ? "01" : "02";
     // generate appointmentId by using format "tanggalTerpilih-appointmentData.dmrNumber-polyCode"
-    const specialization = appointmentDataIpfs.spesialisasiDokter.toLowerCase();
+    const specialization = appointmentDataIpfs.spesialisasi.toLowerCase();
     // Nomor urut baru
     const newIndexString = handleFileWrite(specialization, selectedDate);
     const appointmentId = `${selectedDate.replace(/-/g, "")}${appointmentData.dmrNumber}${newIndexString}`;
@@ -596,7 +596,7 @@ router.post("/cancel-appointment", authMiddleware, async (req, res) => {
 //               idDokter: patientData.idDokter,
 //               doctorAddress: patientData.doctorAddress,
 //               namaDokter: patientData.namaDokter,
-//               spesialisasiDokter: patientData.spesialisasiDokter,
+//               spesialisasi: patientData.spesialisasi,
 //               idJadwal: patientData.idJadwal,
 //               hariTerpilih: patientData.hariTerpilih,
 //               tanggalTerpilih: patientData.tanggalTerpilih,

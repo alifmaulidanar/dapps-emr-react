@@ -33,7 +33,7 @@ export default function AppointmentList({ appointmentData }) {
                 </div>
                 <div className="flex justify-between mb-4 flex-nowrap">
                   <p className="w-full text-base text-gray-900">
-                    Dokter {appointment.spesialisasiDokter}
+                    Dokter {appointment.spesialisasi}
                   </p>
                   <p className="w-full text-right text-gray-900">
                     {new Date(appointment.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
