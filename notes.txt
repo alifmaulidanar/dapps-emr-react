@@ -639,11 +639,17 @@ next:
 ✅ ubah data bagian upload files lab masih ada bug, files lama hilang
 ✅ display detail rme di pasien
 ✅ untuk pemeriksaan fisik karena udah bisa otomatis punya default value ketika tidak diisi, maka bisa diganti dari checkbox ke input. jadi setiap input yang kosong akan menampilkan default value, dan sebaliknya jika input diisi akan menampilkan isinya
-- data kehamilan
-- data tbparu
-- data lab
-- benerin default value pilih dokter dan nurse di anamnesis
-- data dokter dan perawat aktual puskesmas
+✅ data kehamilan, convertData
+✅ data tbparu, convertData
+✅ data lab, convertData
+✅ data dokter dan perawat aktual puskesmas
+✅ menampilkan data yang tepat di detail RME, lengkap dengan handling empty
 - betulin menu-menu di setiap role
+- benerin default value pilih dokter dan nurse di anamnesis
+- pengisian RME bagian diagnosis, kehamilan, dan tb paru hanya bisa diisi salah satu kategori saja (jika sudah isi salah satunya maka tombol akan disabled, kecuali ke anamnesis, lab, dan selesai)
 - cek pengisian emr lagi
-
+- di pasien, daftar rekam medis hanya memunculkan RME yang sudah ada field "selesai"
+- untuk dokter dan perawat, harus ada 2 menu untuk cek pasien:
+   1. daftar seluruh pasien, bisa cari bebas
+   2. daftar pasien yang mendaftar ke nama dokter/tenaga medis terkait di rawat jalan
+- patient harus lengkapi profil sebelum mendaftar rawat jalan
