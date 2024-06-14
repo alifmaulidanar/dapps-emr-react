@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Tag, Card } from "antd";
+import { Tag, Card, Empty } from "antd";
 import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FileOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
@@ -985,6 +985,11 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
   // console.log({record});
   const labFiles = record?.lab?.files || [];
   patient = chosenPatient;
+
+  function isEmpty(obj) {
+    return !obj || Object.keys(obj).length === 0;
+  }
+
   const LabAttachments = ({ files }) => {
     useEffect(() => {
       if (files && files.length > 0) {
@@ -1027,7 +1032,11 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
       }
     }, [files]);
   
-    return <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>;
+    return (
+      <div id="lampiran" className="flex flex-wrap w-full gap-4">
+        {(!files || files.length === 0) && <Empty description="Lampiran Berkas belum tersedia" />}
+      </div>
+    );
   };
 
   function calculateAge(dateString) {
@@ -1051,10 +1060,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
     const jaminanPengobatanMap = {'1': 'BPJS', '2': 'Umum / Mandiri'}
     const genderMap = { '0': 'Tidak diketahui', '1': 'Laki-laki', '2': 'Perempuan', '3': 'Tidak dapat ditentukan', '4': 'Tidak mengisi' };
     const golonganDarahMap = { '1': 'A', '2': 'B', '3': 'AB', '4': 'O', '5': 'A+', '6': 'A-', '7': 'B+', '8': 'B-', '9': 'AB+', '10': 'AB-', '11': 'O+', '12': 'O-', '13': 'Tidak tahu' };
-    // const agamaMap = { '1': 'Islam', '2': 'Kristen (Protestan)', '3': 'Katolik', '4': 'Hindu', '5': 'Budha', '6': 'Konghuchu', '7': 'Penghayat', '8': 'Lain-lain' };
-    // const pendidikanMap = { '0': 'Tidak sekolah', '1': 'SD', '2': 'SLTP sederajat', '3': 'SLTA sederajat', '4': 'D1-D3 sederajat', '5': 'D4', '6': 'S1', '7': 'S2', '8': 'S3' };
-    // const pekerjaanMap = { '0': 'Tidak Bekerja', '1': 'PNS', '2': 'TNI/POLRI', '3': 'BUMN', '4': 'Pegawai Swasta/Wirausaha', '5': 'Lain-lain' };
-    // const pernikahanMap = { '1': 'Belum Kawin', '2': 'Kawin', '3': 'Cerai Hidup', '4': 'Cerai Mati' };
     convertedState.jaminanPengobatan = jaminanPengobatanMap[convertedState.jaminanPengobatan]
     convertedState.gender = genderMap[convertedState.gender];
     convertedState.golonganDarah = golonganDarahMap[convertedState.golonganDarah];
@@ -1070,7 +1075,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
     { key: "instalasi", value1: "Instalasi", value2: <p>Rawat Jalan</p> },
     { key: "tanggalTerpilih", value1: "Tanggal Pelayanan", value2: <p>{convertProfileData(record).tanggalTerpilih}</p> },
     { key: "waktuTerpilih", value1: "Waktu Pelayanan", value2: <p>{record.waktuTerpilih}</p> },
-    { key: "spesialisasiDokter", value1: "Poli/Ruangan", value2: <p>{record.spesialisasiDokter}</p> },
+    { key: "spesialisasi", value1: "Poli/Ruangan", value2: <p>{record.spesialisasi}</p> },
     { key: "namaDokter", value1: "Nama Dokter", value2: <p>{record.namaDokter}</p> },
     { key: "namaAsisten", value1: "Nama Asisten", value2: <p>{record.namaAsisten}</p> },
     { key: "jaminanPengobatan", value1: "Jaminan Pengobatan", value2: <p>{convertProfileData(record.anamnesis).jaminanPengobatan}</p> },
@@ -1089,26 +1094,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
     { key: "nomorTelepon", value1: "Nomor Telepon", value2: <p>{chosenPatient.nomorTelepon}</p> },
   ];
 
-  // const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.';
-  // collapsible data
-  // const items = [
-  //   {
-  //     key: '1',
-  //     label: 'This is panel header 1',
-  //     children: <p>{text}</p>,
-  //   },
-  //   {
-  //     key: '2',
-  //     label: 'This is panel header 2',
-  //     children: <p>{text}</p>,
-  //   },
-  //   {
-  //     key: '3',
-  //     label: 'This is panel header 3',
-  //     children: <p>{text}</p>,
-  //   },
-  // ];
-
   return (
     <div className="col-span-4 p-8">
       <div className="grid grid-cols-4 p-4 gap-x-16">
@@ -1116,11 +1101,6 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           <h1 className="text-xl font-medium">Rekam Medis Elektronik Pasien</h1>
           <p>ID Pendaftaran:  <Tag color="green" className="m-0">{record.appointmentId}</Tag></p>
         </div>
-
-        {/* COLLAPSE */}
-        {/* <div className="col-span-4 my-12 mt-4 text-gray-900">
-        <Collapse size='large' items={items} defaultActiveKey={['1']} />
-        </div> */}
 
         {/* DATA PASIEN */}
         <div className="col-span-4 mb-6 text-lg text-gray-900">
@@ -1141,7 +1121,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
           <hr className="h-px bg-gray-700 border-0"></hr>
         </div>
         <div className="col-span-4 my-4">
-          <StatusSelesaiRecordLoop data={record.selesai} />
+          {isEmpty(record.selesai) ? <Empty description="Data Status Selesai tidak tersedia" /> : <StatusSelesaiRecordLoop data={record.selesai} />}
         </div>
         {/* STATUS SELESAI */}
 
@@ -1153,37 +1133,37 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
 
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Anamnesis</p>
-          <AnamnesisRecordLoop data={record.anamnesis} />
+          {isEmpty(record.anamnesis) ? <Empty description="Data Anamnesis tidak tersedia" /> : <AnamnesisRecordLoop data={record.anamnesis} />}
         </div>
         <div className="col-span-4 my-4 grid grid-cols-2 gap-x-12">
           <div>
             <p className="font-semibold pb-2">Riwayat Penyakit</p>
-            <RiwayatPenyakitLoop data={record.anamnesis} />
+            {isEmpty(record.anamnesis) ? <Empty description="Data Riwayat Penyakit tidak tersedia" /> : <RiwayatPenyakitLoop data={record.anamnesis} />}
           </div>
           <div>
             <p className="font-semibold pb-2">Riwayat Alergi</p>
-            <RiwayatAlergiLoop data={record.anamnesis} />
+            {isEmpty(record.anamnesis) ? <Empty description="Data Riwayat Alergi tidak tersedia" /> : <RiwayatAlergiLoop data={record.anamnesis} />}
           </div>
         </div>
 
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Status Fisis/Neurobiologis/Mental, Biologis, Psikososialspiritual, dan Ekonomi</p>
-          <StatusFisisRecordLoop data={record.anamnesis} />
+          {isEmpty(record.anamnesis) ? <Empty description="Data Status Fisis tidak tersedia" /> : <StatusFisisRecordLoop data={record.anamnesis} />}
         </div>
         {/* DATA ANAMNESIS */}
 
         {/* DATA PEMERIKSAAN FISIK */}
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Pemeriksaan Fisik</p>
-          <PemeriksaanFisikRecordLoop data={record.anamnesis} />
+          {isEmpty(record.anamnesis) ? <Empty description="Data Pemeriksaan Fisik tidak tersedia" /> : <PemeriksaanFisikRecordLoop data={record.anamnesis} />}
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Asesmen Nyeri</p>
-          <AsesmenNyeriRecordLoop data={record.anamnesis} />
+          {isEmpty(record.anamnesis) ? <Empty description="Data Asesmen Nyeri tidak tersedia" /> : <AsesmenNyeriRecordLoop data={record.anamnesis} />}
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Detail Pemeriksaan Fisik</p>
-          <DetailPemeriksaanFisikRecordLoop data={record.anamnesis} />
+          {isEmpty(record.anamnesis) ? <Empty description="Data Detail Pemeriksaan Fisik tidak tersedia" /> : <DetailPemeriksaanFisikRecordLoop data={record.anamnesis} />}
         </div>
         {/* DATA PEMERIKSAAN FISIK */}
 
@@ -1194,7 +1174,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Data Diagnosa</p>
-          <DiagnosaRecordLoop data={record.diagnosis} />
+          {isEmpty(record.diagnosis) ? <Empty description="Data Diagnosa tidak tersedia" /> : <DiagnosaRecordLoop data={record.diagnosis} />}
         </div>
         {/* DATA DIAGNOSA */}
 
@@ -1205,19 +1185,19 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pengamatan Kehamilan</p>
-          <PengamatanKehamilanRecordLoop data={record.kehamilan} />
+          {isEmpty(record.kehamilan) ? <Empty description="Data Pengamatan Kehamilan tidak tersedia" /> : <PengamatanKehamilanRecordLoop data={record.kehamilan} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Riwayat Pasien dan Obstetrik</p>
-          <RiwayatPasienObstetrikRecordLoop data={record.kehamilan} />
+          {isEmpty(record.kehamilan) ? <Empty description="Data Riwayat Pasien dan Obstetrik tidak tersedia" /> : <RiwayatPasienObstetrikRecordLoop data={record.kehamilan} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Rencana Persalinan</p>
-          <RencanaPersalinanRecordLoop data={record.kehamilan} />
+          {isEmpty(record.kehamilan) ? <Empty description="Data Rencana Persalinan tidak tersedia" /> : <RencanaPersalinanRecordLoop data={record.kehamilan} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pemeriksaan Bidan dan Risiko Kehamilan</p>
-          <BidanRisikoRecordLoop data={record.kehamilan} />
+          {isEmpty(record.kehamilan) ? <Empty description="Data Pemeriksaan Bidan dan Risiko Kehamilan tidak tersedia" /> : <BidanRisikoRecordLoop data={record.kehamilan} />}
         </div>
         {/* DATA Kehamilan */}
 
@@ -1228,23 +1208,23 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pemeriksaan TB Paru</p>
-          <PemeriksaanTbRecordLoop data={record.tb} />
+          {isEmpty(record.tb) ? <Empty description="Data Pemeriksaan TB Paru tidak tersedia" /> : <PemeriksaanTbRecordLoop data={record.tb} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Data Pengawas Menelan Obat (PMO)</p>
-          <DataPMORecordLoop data={record.tb} />
+          {isEmpty(record.tb) ? <Empty description="Data Pengawas Menelan Obat (PMO) tidak tersedia" /> : <DataPMORecordLoop data={record.tb} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Tipe Diagnosis, Klasifikasi Pasien, Riwayat DM, dan Pemeriksaan Lain</p>
-          <DiagnosisKlasifikasiDMRecordLoop data={record.tb} />
+          {isEmpty(record.tb) ? <Empty description="Data Tipe Diagnosis, Klasifikasi Pasien, Riwayat DM, dan Pemeriksaan Lain tidak tersedia" /> : <DiagnosisKlasifikasiDMRecordLoop data={record.tb} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pemeriksaan Lain</p>
-          <PemeriksaanLainRecordLoop data={record.tb} />
+          {isEmpty(record.tb) ? <Empty description="Data Pemeriksaan Lain tidak tersedia" /> : <PemeriksaanLainRecordLoop data={record.tb} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pengobatan Selesai</p>
-          <PengobatanSelesaiRecordLoop data={record.tb} />
+          {isEmpty(record.tb) ? <Empty description="Data Pengobatan Selesai tidak tersedia" /> : <PengobatanSelesaiRecordLoop data={record.tb} />}
         </div>
         {/* DATA TB Paru */}
 
@@ -1255,27 +1235,27 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Pemeriksaan Lab</p>
-          <PemeriksaanLabRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Pemeriksaan Lab tidak tersedia" /> : <PemeriksaanLabRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Haematologi</p>
-          <LabHematologyRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Haematologi tidak tersedia" /> : <LabHematologyRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Kimia Klinik</p>
-          <LabClinicalChemistryRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Kimia Klinik tidak tersedia" /> : <LabClinicalChemistryRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Urinalisa</p>
-          <LabUrinalysisRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Urinalisa tidak tersedia" /> : <LabUrinalysisRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-2 my-4">
           <p className="font-semibold pb-2">Mikrobiologi dan Parasitologi</p>
-          <LabMicrobiologyRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Mikrobiologi dan Parasitologi tidak tersedia" /> : <LabMicrobiologyRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Imunologi</p>
-          <LabImmunologyRecordLoop data={record.lab} />
+          {isEmpty(record.lab) ? <Empty description="Data Imunologi tidak tersedia" /> : <LabImmunologyRecordLoop data={record.lab} />}
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Lampiran Berkas</p>
