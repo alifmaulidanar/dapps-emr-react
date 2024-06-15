@@ -66,8 +66,8 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
   const [tanggalLahirKerabat, setTanggalLahirKerabat] = useState(null);
 
   const handleSubmit = async (event) => {
-    showLoader();
     event.preventDefault();
+    showLoader();
     const formattedPatientData = {
       dmrNumber,
       ...patientData,
@@ -77,6 +77,34 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
         ? tanggalLahirKerabat.format(dateFormat)
         : "",
     };
+
+    // Cek apakah semua field yang diperlukan sudah terisi
+    const requiredFields = ['namaLengkap', 'nomorIdentitas', 'tempatLahir', 'tanggalLahir', 'gender', 'agama', 'nomorTelepon', 'alamat', 'pekerjaan', 'pernikahan'];
+    const fieldNames = {
+      namaLengkap: 'Nama Lengkap',
+      nomorIdentitas: 'Nomor Identitas',
+      tempatLahir: 'Tempat Lahir',
+      tanggalLahir: 'Tanggal Lahir',
+      gender: 'Jenis Kelamin',
+      agama: 'Agama',
+      nomorTelepon: 'Nomor Telepon',
+      alamat: 'Alamat',
+      pekerjaan: 'Pekerjaan',
+      pernikahan: 'Status Pernikahan',
+    };
+
+    const missingFields = requiredFields.filter(field => !formattedPatientData[field]);
+    const missingFieldNames = missingFields.map(field => fieldNames[field]);
+
+    if (missingFields.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Data Profil Tidak Lengkap',
+        html: `Silahkan lengkapi data profil pasien berikut:<br><ul>${missingFieldNames.map(field => `<li>${field}</li>`).join('')}</ul>`,
+      });
+      setSpinning(false);
+      return;
+    }
 
     // Menandatangani data menggunakan signer
     const signer = await getSigner();
@@ -349,7 +377,7 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
                 onChange={(e) =>
                   setPatientData({ ...patientData, agama: e.target.value })
                 }
-                // required
+                required
               >
                 <option>Pilih Agama</option>
                 <option value="1">Islam</option>
@@ -516,7 +544,7 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
                 onChange={(e) =>
                   setPatientData({ ...patientData, pekerjaan: e.target.value })
                 }
-                // required
+                required
               >
                 <option>Pilih Pekerjaan</option>
                 <option value="0">Tidak Bekerja</option>

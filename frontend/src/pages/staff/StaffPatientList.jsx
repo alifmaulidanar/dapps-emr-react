@@ -95,15 +95,21 @@ export default function StaffPatientList({ role }) {
       key: 'namaLengkap',
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: 'Tanggal Lahir',
+      dataIndex: 'tanggalLahir',
+      key: 'tanggalLahir',
       render: (text) => text || '-',
     },
     {
       title: 'Nomor Telepon/HP',
       dataIndex: 'nomorTelepon',
       key: 'nomorTelepon',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Alamat',
+      dataIndex: 'alamat',
+      key: 'alamat',
       render: (text) => text || '-',
     },
     {
@@ -118,6 +124,7 @@ export default function StaffPatientList({ role }) {
     },
   ];
 
+  console.log({profiles});
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
     accountAddress: profile?.accountAddress,
@@ -125,7 +132,8 @@ export default function StaffPatientList({ role }) {
     emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
-    email: profile?.email,
+    tanggalLahir: profile?.tanggalLahir,
+    alamat: profile?.alamat,
     nomorTelepon: profile?.nomorTelepon,
     faskesAsal: profile?.faskesAsal,
   }));
@@ -161,13 +169,13 @@ export default function StaffPatientList({ role }) {
     <>
       <NavbarController type={type} page="data-pasien" color="blue" />
       <div>
-        <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+        <div className="grid items-center justify-center w-11/12 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
             <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
             {/* <ListSearchBar /> */}
           </div>
         </div>
-        <div className="grid justify-center w-4/5 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+        <div className="grid justify-center w-11/12 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
             {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
               <Table columns={columns} dataSource={dataSource} pagination={false} />

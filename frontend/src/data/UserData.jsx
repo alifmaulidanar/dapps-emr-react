@@ -270,7 +270,7 @@ export default function UserData({ userDataProps, userAccountData }) {
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
           <Form.Item label="Tempat Lahir" name="tempatLahir" >
-            <Input disabled={!isEditing} style={inputStyling} />
+            <Input disabled={!isEditing} style={inputStyling} required />
           </Form.Item>
           <Form.Item label="Tanggal Lahir" name="tanggalLahir" >
             <DatePicker
@@ -287,7 +287,7 @@ export default function UserData({ userDataProps, userAccountData }) {
           <Form.Item label="Nama Ibu Kandung" name="namaIbu" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item label="Jenis Kelamin" name="gender" >
+          <Form.Item label="Jenis Kelamin" name="gender" rules={[{ required: true }]} >
             <Select disabled={!isEditing} size="large"
               options={[
                 { value: "0", label: "Tidak diketahui" },
@@ -297,7 +297,7 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-          <Form.Item label="Agama" name="agama" >
+          <Form.Item label="Agama" name="agama" rules={[{ required: true }]} >
             <Select disabled={!isEditing} size="large"
               options={[
                 { value: "1", label: "Islam" },
@@ -337,7 +337,7 @@ export default function UserData({ userDataProps, userAccountData }) {
             />
           </Form.Item>
           <Form.Item label="Nomor Telepon/HP" name="nomorTelepon" >
-            <Input disabled={!isEditing} style={inputStyling} />
+            <Input disabled={!isEditing} style={inputStyling} required />
           </Form.Item>
           <Form.Item label="Email" name="email" >
             <Input disabled={!isEditing} style={inputStyling} />
@@ -357,7 +357,7 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-          <Form.Item label="Pekerjaan" name="pekerjaan" >
+          <Form.Item label="Pekerjaan" name="pekerjaan" rules={[{ required: true }]} >
             <Select disabled={!isEditing} size="large"
               options={[
                 { value: "0", label: "Tidak Bekerja" },
@@ -369,7 +369,7 @@ export default function UserData({ userDataProps, userAccountData }) {
               ]}
             />
           </Form.Item>
-          <Form.Item label="Status Pernikahan" name="pernikahan" >
+          <Form.Item label="Status Pernikahan" name="pernikahan" rules={[{ required: true }]} >
             <Select disabled={!isEditing} size="large"
               options={[
                 { value: "1", label: "Belum Kawin" },
@@ -380,7 +380,7 @@ export default function UserData({ userDataProps, userAccountData }) {
             />
           </Form.Item>
           <Form.Item label="Alamat" name="alamat" >
-            <Input.TextArea disabled={!isEditing} style={inputStyling} rows={4} />
+            <Input.TextArea disabled={!isEditing} style={inputStyling} rows={4} required />
           </Form.Item>
           <Form.Item label="RT" name="rt" >
             <Input disabled={!isEditing} style={inputStyling} />
@@ -388,8 +388,8 @@ export default function UserData({ userDataProps, userAccountData }) {
           <Form.Item label="RW" name="rw" >
             <Input disabled={!isEditing} style={inputStyling} />
           </Form.Item>
-          <Form.Item label="Kelurahan" name="kelurahan" rules={[{ required: true, message: "Silakan masukkan kelurahan!" }]}>
-            <Input disabled={!isEditing} style={inputStyling} />
+          <Form.Item label="Kelurahan" name="kelurahan" rules={[{ required: true }]}>
+            <Input disabled={!isEditing} style={inputStyling} required />
           </Form.Item>
           <Form.Item label="Kecamatan" name="kecamatan" >
             <Input disabled={!isEditing} style={inputStyling} />

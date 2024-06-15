@@ -174,8 +174,39 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
   );
   const handleCreateAppointment = async (event) => {
     try {
-      showLoader();
       event.preventDefault();
+
+      // Cek apakah semua field yang diperlukan sudah terisi
+      const requiredFields = ['faskesAsal', 'namaLengkap', 'nomorIdentitas', 'tempatLahir', 'tanggalLahir', 'gender', 'agama', 'alamat', 'nomorTelepon', 'pekerjaan', 'kelurahan', 'pernikahan'];
+      const patientProfile = userData.accountProfiles[selectedPatient];
+      const fieldNames = {
+        faskesAsal: 'Faskes Asal',
+        namaLengkap: 'Nama Lengkap',
+        nomorIdentitas: 'Nomor Identitas',
+        tempatLahir: 'Tempat Lahir',
+        tanggalLahir: 'Tanggal Lahir',
+        gender: 'Jenis Kelamin',
+        agama: 'Agama',
+        nomorTelepon: 'Nomor Telepon',
+        alamat: 'Alamat',
+        pekerjaan: 'Pekerjaan',
+        pernikahan: 'Pernikahan',
+        kelurahan: 'Kelurahan',
+      };
+
+      const missingFields = requiredFields.filter(field => !patientProfile[field]);
+      const missingFieldNames = missingFields.map(field => fieldNames[field]);
+
+      if (missingFields.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Data Profil Tidak Lengkap',
+          html: `Silahkan lengkapi data profil pasien berikut untuk dapat mendaftar rawat jalan:<br><ul>${missingFieldNames.map(field => `<li>${field}</li>`).join('')}</ul>`,
+        });
+        return;
+      }
+
+      showLoader();
       const nurseInfo = selectedDoctor.jadwal.find(schedule => schedule.hari === new Date(selectedDate).toLocaleDateString("id-ID", { weekday: "long" }) && schedule.waktu === selectedTimeSlot);
       const appointmentData = {
         dmrNumber: userData.dmrNumber,
