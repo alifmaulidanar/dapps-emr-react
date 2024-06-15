@@ -644,12 +644,25 @@ next:
 ✅ data lab, convertData
 ✅ data dokter dan perawat aktual puskesmas
 ✅ menampilkan data yang tepat di detail RME, lengkap dengan handling empty
-- betulin menu-menu di setiap role
-- benerin default value pilih dokter dan nurse di anamnesis
-- pengisian RME bagian diagnosis, kehamilan, dan tb paru hanya bisa diisi salah satu kategori saja (jika sudah isi salah satunya maka tombol akan disabled, kecuali ke anamnesis, lab, dan selesai)
-- cek pengisian emr lagi
+✅ benerin default value pilih dokter dan nurse di anamnesis -> harus benerin ini dulu karena pengaruh ke penyimpanan RME
+✅ redeploy outpatient
+✅ pengisian RME bagian diagnosis, kehamilan, dan tb paru hanya bisa diisi salah satu kategori saja (jika sudah isi salah satunya maka tombol akan disabled, kecuali ke anamnesis, lab, dan selesai)
+✅ redeploy outpatient lagi
+✅ redeploy patient
+✅ betulin menu-menu di setiap role doctor & nurse
+✅ cek pengisian emr lagi
+✅ benerin tampilan card EMR list di pasien
+✅ verifikasi field profil pasien harus lengkap sebelum daftar rawat jalan
+✅ patient harus lengkapi profil sebelum mendaftar rawat jalan
+✅ penyesuaian table data pasien untuk staff, dokter, dan nurse
+✅ perubahan nama dan endpoint -> patient list untuk data pasien, lalu pelayanan medis untuk data pasien yang mendaftar rawat jalan
+✅ penambahan halaman2 untuk nurse -> baru copy dari dokter
+- cek semua halaman nurse
+- cek pengisian emr untuk setiap kategori dari nurse
+- integrasi pengisian emr dari nurse dan dokter secara bergantian
+- pada data pasien dokter dan nurse, hilangkan kemampuan untuk hapus, pendaftaran, dan edit data profil pasien -> harus lewat staff
+- redeploy user -> harus susun daftar semua akun staff doctor nurse lagi
 - di pasien, daftar rekam medis hanya memunculkan RME yang sudah ada field "selesai"
 - untuk dokter dan perawat, harus ada 2 menu untuk cek pasien:
    1. daftar seluruh pasien, bisa cari bebas
    2. daftar pasien yang mendaftar ke nama dokter/tenaga medis terkait di rawat jalan
-- patient harus lengkapi profil sebelum mendaftar rawat jalan
