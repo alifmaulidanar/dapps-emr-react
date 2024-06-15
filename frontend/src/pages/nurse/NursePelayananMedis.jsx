@@ -1,30 +1,25 @@
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
-import PatientData from "../staff/PatientData";
-import { Table, Button, Modal, Tag } from "antd";
+import { Tag, Table, Button } from "antd";
 import { CONN } from "../../../../enum-global";
-// import RegisterPatientButton from "../../components/Buttons/RegisterPatientStaff";
+// import ListSearchBar from "../../components/Forms/ListSearchBar";
 
-export default function NursePatientList({ role }) {
+export default function NursePelayananMedis({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
-
+  
   const [accounts, setAccounts] = useState();
   const [profiles, setProfiles] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [selectedData, setSelectedData] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [schedules, setSchedules] = useState([]);
 
-  const handleCancel = () => {setIsModalOpen(false) };
-  const showModal = (emrNumber) => {
+  const saveDataToSessionStorage = (emrNumber) => {
     const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
     const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
-    setSelectedData({
-      ...selectedAccount,
-      profile: selectedProfile
-    });
-    setIsModalOpen(true);
+    sessionStorage.setItem("selectedProfile", JSON.stringify(selectedProfile));
+    sessionStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
+    window.location.assign("/nurse/patient-list/patient-details");
   };
 
   useEffect(() => {
@@ -42,6 +37,8 @@ export default function NursePatientList({ role }) {
         setAccounts(data.accounts);
         setProfiles(data.profiles);
         setAppointments(data.appointments);
+        setSchedules(data.schedules);
+        sessionStorage.setItem("doctorSchedules", JSON.stringify(data.schedules));
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -83,21 +80,15 @@ export default function NursePatientList({ role }) {
       key: 'namaLengkap',
     },
     {
-      title: 'Tanggal Lahir',
-      dataIndex: 'tanggalLahir',
-      key: 'tanggalLahir',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
       render: (text) => text || '-',
     },
     {
-      title: 'Nomor Telepon/HP',
+      title: 'Nomor Telepon',
       dataIndex: 'nomorTelepon',
       key: 'nomorTelepon',
-      render: (text) => text || '-',
-    },
-    {
-      title: 'Alamat',
-      dataIndex: 'alamat',
-      key: 'alamat',
       render: (text) => text || '-',
     },
     {
@@ -108,7 +99,7 @@ export default function NursePatientList({ role }) {
     {
       title: 'Aksi',
       key: 'action',
-      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.emrNumber)}>Lihat</Button>),
+      render: (_, record) => (<Button type="primary" ghost onClick={() => saveDataToSessionStorage(record.emrNumber)}>Lihat</Button>),
     },
   ];
 
@@ -119,64 +110,29 @@ export default function NursePatientList({ role }) {
     emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
-    tanggalLahir: profile?.tanggalLahir,
-    alamat: profile?.alamat,
+    email: profile?.email,
     nomorTelepon: profile?.nomorTelepon,
     faskesAsal: profile?.faskesAsal,
   }));
-
-  // const mergeAccountAndProfileData = (accounts, profiles) => {
-  //   const accountMap = new Map();
-  //   if (accounts) {
-  //     accounts.forEach(account => {
-  //       accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
-  //     });
-  //   }
-  //   if (profiles) {
-  //     profiles.forEach(profile => {
-  //       const account = accountMap.get(profile.accountAddress);
-  //       if (account) {
-  //         account.accountProfiles.push(profile);
-  //       }
-  //     });
-  //   }
-  //   return Array.from(accountMap.values());
-  // };
   
-  // const userData = mergeAccountAndProfileData(profiles);
-  // sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
   sessionStorage.setItem("nursePatientProfiles", JSON.stringify(profiles));
   sessionStorage.setItem("nursePelayananMedis", JSON.stringify(appointments));
 
-  const userAccountData = {
-    role: "nurse",
-  }
-
   return (
     <>
-      <NavbarController type={type} page="data-pasien" color="blue" />
+      <NavbarController type={type} page="pelayanan-medis" color="blue" />
       <div>
-        <div className="grid items-center justify-center w-11/12 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
-          <div className="flex gap-x-4 h-fit">
-            {/* <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} /> */}
-            {/* <ListSearchBar /> */}
-          </div>
+        <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+          {/* <div className="flex gap-x-4 h-fit">
+            <ListSearchBar />
+          </div> */}
         </div>
-        <div className="grid justify-center w-11/12 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+        <div className="grid justify-center w-4/5 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
-            {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
-              <Table columns={columns} dataSource={dataSource} pagination={false} />
-            {/* </div> */}
+            <Table columns={columns} dataSource={dataSource} pagination={false} />
           </div>
         </div>
       </div>
-      <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
-        {selectedData.profile && (
-          <>
-            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} />
-          </>
-        )}
-      </Modal>
     </>
   );
 }
