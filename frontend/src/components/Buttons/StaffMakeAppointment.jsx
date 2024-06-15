@@ -152,7 +152,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
       <div className="mb-6">
         {selectedDoctorInfo.address !== "default" && (
           <div className="flex flex-nowrap gap-x-2">
-            <p><strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>Eka Hospital {selectedDoctor.lokasiPraktik}</strong> pada hari:</p>
+            <p><strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>{selectedDoctor.lokasiPraktik}</strong> pada hari:</p>
             <p>{doctorDays}</p>
           </div>
         )}
@@ -218,7 +218,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
       }
       const signature = await signer.signMessage(JSON.stringify(signedData));
       signedData.signature = signature;
-      console.log("Appointment signature:", signature);
+      console.log("Rawat Jalan signature:", signature);
       console.log({signedData})
       const response = await fetch(
         `${CONN.BACKEND_LOCAL}/staff/appointment`,
@@ -370,11 +370,11 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
             </div>
           )} */}
 
-          {/* Konfirmasi Appointment */}
+          {/* Konfirmasi Rawat Jalan */}
           {currentStep === 1 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">
-                Konfirmasi Appointment
+                Konfirmasi Rawat Jalan
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
               <div className="mb-6">
@@ -443,7 +443,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
                 className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
                 onClick={handleCreateAppointment}
               >
-                Buat Appointment
+                Buat Rawat Jalan
               </button>
             )}
           </div>

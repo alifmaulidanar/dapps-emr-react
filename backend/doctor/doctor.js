@@ -688,6 +688,8 @@ router.post("/patient-list/patient-details/emr-selesai", authMiddleware, async (
       matchedAppointment.status = "done";
     } else if (specificData.statusPulang === "5") {
       matchedAppointment.status = "cancelled";
+    } else {
+      matchedAppointment.status = "done";
     }
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;

@@ -389,7 +389,7 @@ router.post("/delete-profile", authMiddleware, async (req, res) => {
   }
 });
 
-// POST Patient Appointment
+// POST Patient Rawat Jalan
 router.post("/appointment", authMiddleware, async (req, res) => {
   try {
     const { address } = req.auth;
@@ -482,14 +482,14 @@ router.post("/appointment", authMiddleware, async (req, res) => {
     await addNurseTemporary.wait()
     // console.log("addNurseTemporary successfully");
     // console.log({newIndexString, appointmentId, newDmrCid});
-    res.status(200).json({ message: "Appointment created successfully" });
+    res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Cancel Patient Appointment
+// Cancel Patient Rawat Jalan
 router.post("/cancel-appointment", authMiddleware, async (req, res) => {
   try {
     const { address } = req.auth;

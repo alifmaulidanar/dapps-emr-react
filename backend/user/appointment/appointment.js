@@ -83,7 +83,7 @@ router.get("/:role/appointment", authMiddleware, async (req, res) => {
   }
 });
 
-// POST Patient Appointment
+// POST Patient Rawat Jalan
 router.post("/:role/appointment", authMiddleware, async (req, res) => {
   try {
     const {address, dmrNumber} = req.auth;
@@ -176,14 +176,14 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     await addNurseTemporary.wait()
     // console.log("addNurseTemporary successfully");
     // console.log({newIndexString, appointmentId, newDmrCid});
-    res.status(200).json({ message: "Appointment created successfully" });
+    res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Cancel Patient Appointment
+// Cancel Patient Rawat Jalan
 router.post("/:role/appointment/cancel", authMiddleware, async (req, res) => {
   try {
     const { address, dmrNumber } = req.auth;

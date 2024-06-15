@@ -47,7 +47,7 @@ function PatientAppointmentDisplay({ data, token }) {
     const signer = await getSigner();
     const signature = await signer.signMessage(JSON.stringify(signedData));
     signedData.signature = signature;
-    console.log("Appointment signature:", signature);
+    console.log("Rawat Jalan signature:", signature);
     try {
       const response = await fetch(`${CONN.BACKEND_LOCAL}/patient/appointment/cancel`, {
         method: "POST",

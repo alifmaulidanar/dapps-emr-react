@@ -1,7 +1,7 @@
 import Navbar from "./Navbar";
 
 function NavbarController({ type, page, color, accountData = null }) {
-  const title = "Hospital";
+  const title = "Puskesmas";
   let navItems = [];
   let buttons = [];
   const defaultColor = "gray";
@@ -51,9 +51,9 @@ function NavbarController({ type, page, color, accountData = null }) {
         color: page === "Daftar Rekam Medis" ? color : defaultColor,
       },
       {
-        text: "Appointment",
+        text: "Rawat Jalan",
         linkToPage: `/patient/appointment-list`,
-        color: page === "Appointment" ? color : defaultColor,
+        color: page === "Rawat Jalan" ? color : defaultColor,
       },
       {
         text: "Profil Pasien",

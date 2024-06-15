@@ -56,7 +56,7 @@ function PatientAppointmentDisplayStaff({ data, token }) {
     const signer = await getSigner();
     const signature = await signer.signMessage(JSON.stringify(patientAppointment));
     patientAppointment.signature = signature;
-    console.log("Appointment signature:", signature);
+    console.log("Rawat Jalan signature:", signature);
     console.log({ patientAppointment });
     try {
       const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/cancel-appointment`, {
@@ -69,13 +69,13 @@ function PatientAppointmentDisplayStaff({ data, token }) {
       });
       const result = await response.json();
       if (response.ok) {
-        console.log("Appointment canceled successfully:", result);
+        console.log("Rawat Jalan canceled successfully:", result);
         window.location.reload();
       } else {
-        console.error("Failed to cancel appointment:", result.error);
+        console.error("Failed to cancel Rawat Jalan:", result.error);
       }
     } catch (error) {
-      console.error("Error canceling appointment:", error);
+      console.error("Error canceling Rawat Jalan:", error);
     }
   };
 

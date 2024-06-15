@@ -52,7 +52,7 @@ export default function AppointmentList({ appointmentData }) {
             </div>
           ))
         ) : (
-          <Empty description="Tidak ada Appointment" />
+          <Empty description="Tidak ada Rawat Jalan" />
         )}
       </div>
     </>

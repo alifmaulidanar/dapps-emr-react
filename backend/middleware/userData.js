@@ -140,7 +140,7 @@ async function retrieveDMRData(dmrNumber, cid) {
         emrProfiles.push({ emrFolder: file.name, profile: profileData });
         // console.log({profileData});
 
-        // Menggali ke dalam direktori Appointment untuk mencari appointment.json
+        // Menggali ke dalam direktori Rawat Jalan untuk mencari appointment.json
         const appointments = await retrieveAppointmentsFromEMR(file.cid);
         appointmentData.push(...appointments);
       }

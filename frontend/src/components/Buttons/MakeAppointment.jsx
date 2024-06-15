@@ -152,7 +152,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       <div className="mb-6">
         {selectedDoctorInfo.address !== "default" && (
           <div className="flex flex-nowrap gap-x-2">
-            <p><strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>Eka Hospital {selectedDoctor.lokasiPraktik}</strong> pada hari:</p>
+            <p><strong>{selectedDoctorInfo.name}</strong> melakukan praktik di <strong>{selectedDoctor.lokasiPraktik}</strong> pada hari:</p>
             <p>{doctorDays}</p>
           </div>
         )}
@@ -219,7 +219,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       }
       const signature = await signer.signMessage(JSON.stringify(signedData));
       signedData.signature = signature;
-      console.log("Appointment signature:", signature);
+      console.log("Rawat Jalan signature:", signature);
       console.log({signedData})
       const response = await fetch(
         `${CONN.BACKEND_LOCAL}/patient/appointment`,
@@ -271,7 +271,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
 
       {/* MODAL ANT DESIGN */}
       <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} width={1024} style={{ top: 20 }} footer={[]} >
-        <h2 className="my-8 text-2xl font-bold text-center">Buat Appointment</h2>
+        <h2 className="my-8 text-2xl font-bold text-center">Buat Rawat Jalan</h2>
         <div className="grid justify-center w-2/3 grid-cols-2 mx-auto">
           <Steps current={currentStep} labelPlacement="vertical" items={items} className="w-full col-span-2 pt-4" />
         </div>
@@ -368,11 +368,11 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
             </div>
           )}
 
-          {/* Konfirmasi Appointment */}
+          {/* Konfirmasi Rawat Jalan */}
           {currentStep === 2 && (
             <div className="grid">
               <div className="mb-6 text-lg font-medium text-gray-900">
-                Konfirmasi Appointment
+                Konfirmasi Rawat Jalan
                 <hr className="h-px bg-gray-700 border-0"></hr>
               </div>
               <div className="mb-6">
@@ -445,7 +445,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                 className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-fit sm:w-auto px-5 py-2.5 text-center"
                 onClick={handleCreateAppointment}
               >
-                Buat Appointment
+                Buat Rawat Jalan
               </button>
             )}
           </div>

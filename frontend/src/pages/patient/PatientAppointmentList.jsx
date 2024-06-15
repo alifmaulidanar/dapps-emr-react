@@ -92,7 +92,7 @@ export default function PatientAppointmentList({ role }) {
 
   return (
     <>
-      <NavbarController type={1} page="Appointment" color="blue" accountAddress={accountAddress}/>
+      <NavbarController type={1} page="Rawat Jalan" color="blue" accountAddress={accountAddress}/>
       <div className="grid items-center justify-center w-1/2 grid-cols-3 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3">
           <ProfileDropdown
@@ -103,7 +103,7 @@ export default function PatientAppointmentList({ role }) {
         </div>
         <div className="grid items-center grid-cols-1 col-span-3 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">
-            Daftar Appointment
+            Daftar Rawat Jalan
             <hr className="h-px bg-gray-700 border-0"></hr>
           </h5>
         </div>
@@ -111,14 +111,14 @@ export default function PatientAppointmentList({ role }) {
       <div className="grid items-baseline justify-center w-1/2 grid-cols-2 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-y-4">
         <div className="grid items-center grid-cols-1">
           <MakeAppointmentButton
-            buttonText={"Buat Appointment"}
+            buttonText={"Buat Rawat Jalan"}
             scheduleData={scheduleData || []}
             userData={userData}
             token={token}
           />
         </div>
         <div className="grid items-center grid-cols-1">
-          <RecordControl search={"Cari Appointment"} />
+          <RecordControl search={"Cari Rawat Jalan"} />
         </div>
       </div>
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 pb-8 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">

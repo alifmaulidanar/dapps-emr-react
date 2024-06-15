@@ -259,7 +259,7 @@ export default function DoctorPatientDetails({ role }) {
     if (!selectedData.appointmentId) {
       return (
         <Card>
-          <Empty description="Silakan pilih Appointment" />
+          <Empty description="Silakan pilih Rawat Jalan" />
         </Card>
       );
     }

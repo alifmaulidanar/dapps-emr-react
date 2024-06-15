@@ -46,7 +46,7 @@ export default function DoctorPatientList({ role }) {
     fetchAppointments();
   }, [token]);
 
-  let type = 2;
+  let type = 2; // doctor
   const columns = [
     {
       title: 'No.',

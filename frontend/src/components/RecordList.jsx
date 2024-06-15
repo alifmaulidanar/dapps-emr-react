@@ -39,7 +39,7 @@ export default function RecordList({ recordItems, chosenPatient, appointmentData
             </div>
             </div>
         ))
-      ) : (<Empty description="Tidak ada Appointment" />)}
+      ) : (<Empty description="Tidak ada Rawat Jalan" />)}
     </div>
   );
 }
