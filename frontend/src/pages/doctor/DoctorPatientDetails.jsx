@@ -41,7 +41,6 @@ export default function DoctorPatientDetails({ role }) {
   const [isNoAllergy, setIsNoAllergy] = useState(selectedData?.appointment?.anamnesis?.alergiObat == null && selectedData?.appointment?.anamnesis?.alergiMakanan == null && selectedData?.appointment?.anamnesis?.alergiLainnya == null);
   const [isEdit, setIsEdit] = useState(false);
   const [isDataFinished, setIsDataFinished] = useState(false);
-  const [checkedStates, setCheckedStates] = useState({});
   const [form] = Form.useForm();
   const dateFormat = 'DD/MM/YYYY';
   const onChange = (date, dateString) => { console.log(date, dateString) };
@@ -134,11 +133,6 @@ useEffect(() => {
     return <div id="lampiran" className="flex flex-wrap w-full gap-4"></div>;
   };
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setCheckedStates((prevState) => ({ ...prevState, [name]: checked }));
-  };
-
   const handleDiseaseCheckbox = (e) => {
     setIsNoDisease(e.target.checked);
     if (e.target.checked) {
@@ -164,7 +158,7 @@ useEffect(() => {
   const handleDoctorChange = (value) => {
     const selected = schedules.dokter.find(dokter => dokter.namaDokter === value);
     if (selected) {
-      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter, namaDokterDiagnosis: selected.namaDokter, namaDokterKia: selected.namaDokter, namaDokterTb: selected.namaDokter, namaDokterSelesai: selected.namaDokter});
+      setSelectedDoctor({ doctorAddress: selected.doctorAddress, namaDokter: selected.namaDokter, namaDokterAnamnesis: selected.namaDokter, namaDokterDiagnosis: selected.namaDokter, namaDokterKia: selected.namaDokter, namaDokterTb: selected.namaDokter, namaDokterSelesai: selected.namaDokter});
       form.setFieldsValue({ namaDokter: value, namaDokterKia: value, namaDokterTb: value, namaDokterSelesai: value});
     }
   };
@@ -172,20 +166,23 @@ useEffect(() => {
   const handleNurseChange = (value) => {
     const selected = uniqueNurses.find(perawat => perawat.namaAsisten === value);
     if (selected) { 
-      setSelectedNurse({ nurseAddress: selected.nurseAddress, namaAsisten: selected.namaAsisten, namaAsistenDiagnosis: selected.namaAsisten, namaAsistenKia: selected.namaAsisten, namaAsistenTb: selected.namaAsisten});
+      setSelectedNurse({ nurseAddress: selected.nurseAddress, namaAsisten: selected.namaAsisten, namaAsistenAnamnesis: selected.namaAsisten, namaAsistenDiagnosis: selected.namaAsisten, namaAsistenKia: selected.namaAsisten, namaAsistenTb: selected.namaAsisten});
       form.setFieldsValue({ namaAsisten: value, namaAsistenKia: value, namaAsistenTb: value});
     }
   };
 
   useEffect(() => {
-    const noDisease = selectedData?.appointment?.anamnesis?.rps == null && selectedData?.appointment?.anamnesis?.rpd && selectedData?.appointment?.anamnesis?.rpk == null;
-    const noAllergy = selectedData?.appointment?.anamnesis?.alergiObat == null && selectedData?.appointment?.anamnesis?.alergiMakanan == null && selectedData?.appointment?.anamnesis?.alergiLainnya == null;
-    setIsNoDisease(noDisease);
-    setIsNoAllergy(noAllergy);
+    if (selectedData) {
+      const anamnesis = selectedData?.appointment?.anamnesis || {};
+      const noDisease = anamnesis.rps == null && anamnesis.rpd == null && anamnesis.rpk == null;
+      const noAllergy = anamnesis.alergiObat == null && anamnesis.alergiMakanan == null && anamnesis.alergiLainnya == null;
+      setIsNoDisease(noDisease);
+      setIsNoAllergy(noAllergy);
+    }
   }, [selectedData]);
 
   useEffect(() => {
-    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten, namaDokterDiagnosis: selectedDoctor.namaDokterDiagnosis, namaAsistenDiagnosis: selectedNurse.namaAsistenDiagnosis, namaDokterKia: selectedDoctor.namaDokterKia, namaAsistenKia: selectedNurse.namaAsistenKia, namaDokterTb: selectedDoctor.namaDokterTb, namaAsistenTb: selectedNurse.namaAsistenTb, namaDokterSelesai: selectedDoctor.namaDokterSelesai});
+    form.setFieldsValue({ namaDokter: selectedDoctor.namaDokter, namaAsisten: selectedNurse.namaAsisten, namaDokterAnamnesis: selectedDoctor.namaDokter, namaAsistenAnamnesis: selectedNurse.namaAsisten, namaDokterDiagnosis: selectedDoctor.namaDokterDiagnosis, namaAsistenDiagnosis: selectedNurse.namaAsistenDiagnosis, namaDokterKia: selectedDoctor.namaDokterKia, namaAsistenKia: selectedNurse.namaAsistenKia, namaDokterTb: selectedDoctor.namaDokterTb, namaAsistenTb: selectedNurse.namaAsistenTb, namaDokterSelesai: selectedDoctor.namaDokterSelesai});
   }, [selectedDoctor, selectedNurse, form]);
 
   const handleCancel = () => {setIsModalOpen(false) };
@@ -193,7 +190,6 @@ useEffect(() => {
 
   const showEMR = (appointmentId) => {
     const appointment = appointments.find(a => a.appointmentId === appointmentId);
-    console.log({ appointment });
     setSelectedData({ appointmentId, appointment });
     setStatus(appointment.status);
     if (appointment.status === "done") {
@@ -271,7 +267,7 @@ useEffect(() => {
     { title: 'Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
     { title: 'Poli', dataIndex: 'spesialisasi',
       render: (spesialisasi) => (
-        <Tag color={ spesialisasi === "Umum" ? "blue" :  spesialisasi === "TB Paru" ? "green" : "red" }>
+        <Tag color={ spesialisasi === "Umum" ? "blue" :  spesialisasi === "TB Paru" ? "green" : "purple" }>
           {spesialisasi}
         </Tag>
       ) },
@@ -327,7 +323,6 @@ useEffect(() => {
   const inputStylingTextArea = { border: "1px solid #E2E8F0", borderRadius: "6px" };
 
   const EMRForm = ({ appointmentId, selectedCategory }) => {
-    // const [isEdit, setIsEdit] = useState(false);
     const [fileList, setFileList] = useState([]);
     const [selectedPsikologis, setSelectedPsikologis] = useState('');
     const [selectedstatusPemeriksaanLab, setSelectedstatusPemeriksaanLab] = useState('');
@@ -517,7 +512,6 @@ useEffect(() => {
         const tb = appointment.tb || {};
         const lab = appointment.lab || {};
         const selesai = appointment.selesai || {};
-        console.log({ selesai });
 
         setHematologyCheckedList(lab.hematology || []);
         setClinicalChemistryCheckedList(lab.clinicalChemistry || []);
@@ -531,8 +525,8 @@ useEffect(() => {
           // === start anamnesis ===
           appointmentId: selectedData.appointmentId,
           appointmentCreatedAt: dayjs(selectedData.appointment.appointmentCreatedAt).format("DD-MM-YYYY") || '',
-          namaDokter: anamnesis.namaDokter || selectedData.appointment.namaDokter || '',
-          namaAsisten: anamnesis.namaAsisten || selectedData.appointment.namaAsisten || '',
+          // namaDokter: anamnesis.namaDokter || '',
+          // namaAsisten: anamnesis.namaAsisten || '',
           tanggalRekamMedis: dayjs(selectedData.tanggalRekamMedis) || '',
           keluhanUtama: anamnesis.keluhanUtama || '',
           keluhanTambahan: anamnesis.keluhanTambahan || '',
@@ -874,13 +868,13 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">1. Anamnesis</Divider>
               </div>
-              <Form.Item label="Dokter / Tenaga Medis" name="namaDokter">
+              <Form.Item label="Dokter / Tenaga Medis" name="namaDokterAnamnesis">
                 <Select
                   showSearch
                   placeholder="Pilih Dokter"
                   optionFilterProp="children"
                   onChange={handleDoctorChange}
-                  value={selectedDoctor.namaDokter}
+                  value={selectedDoctor.namaDokterAnamnesis}
                   size='middle'
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -889,13 +883,13 @@ useEffect(() => {
                   disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
-              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsisten">
+              <Form.Item label="Perawat / Bidan / Nutrisionist / Sanitarian" name="namaAsistenAnamnesis">
                 <Select
                   showSearch
                   placeholder="Pilih Perawat"
                   optionFilterProp="children"
                   onChange={handleNurseChange}
-                  value={selectedNurse.namaAsisten}
+                  value={selectedNurse.namaAsistenAnamnesis}
                   size='middle'
                   filterOption={(input, option) =>
                     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
