@@ -15,7 +15,9 @@ import UserAccount from "./pages/Account";
 import PatientAccount from "./pages/AccountPatient";
 import UserProfile from "./pages/Profile";
 import DoctorPatientList from "./pages/doctor/DoctorPatientList";
+import DoctorPelayananMedis from "./pages/doctor/DoctorPelayananMedis";
 import NursePatientList from "./pages/nurse/NursePatientList";
+import NursePelayananMedis from "./pages/nurse/NursePelayananMedis";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
 import StaffAntrean from "./pages/staff/StaffAntrean";
@@ -111,8 +113,12 @@ function App() {
             {/* Routing Doctor */}
             <>
               <Route
-                path={`/doctor/patient-list`}
+                path={`/doctor/data-pasien`}
                 element={<DoctorPatientList role="doctor" />}
+              />
+              <Route
+                path={`/doctor/pelayanan-medis`}
+                element={<DoctorPelayananMedis role="doctor" />}
               />
               <Route
                 path={`/doctor/patient-list/patient-details`}
@@ -131,8 +137,12 @@ function App() {
             {/* Routing Nurse */}
             <>
               <Route
-                path={`/nurse/patient-list`}
+                path={`/nurse/data-pasien`}
                 element={<NursePatientList role="nurse" />}
+              />
+              <Route
+                path={`/nurse/pelayanan-medis`}
+                element={<NursePelayananMedis role="nurse" />}
               />
               <Route
                 path={`/nurse/patient-list/patient-details`}

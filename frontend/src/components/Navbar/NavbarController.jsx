@@ -77,9 +77,14 @@ function NavbarController({ type, page, color, accountData = null }) {
     // doctor
     navItems = [
       {
-        text: "Daftar Pasien",
-        linkToPage: `/doctor/patient-list`,
-        color: page === "doctor" ? color : defaultColor,
+        text: "Data Pasien",
+        linkToPage: `/doctor/data-pasien`,
+        color: page === "data-pasien" ? color : defaultColor,
+      },
+      {
+        text: "Pelayanan Medis",
+        linkToPage: `/doctor/pelayanan-medis`,
+        color: page === "pelayanan-medis" ? color : defaultColor,
       },
       {
         text: "Profil Dokter",
@@ -103,9 +108,14 @@ function NavbarController({ type, page, color, accountData = null }) {
     // nurse
     navItems = [
       {
-        text: "Daftar Pasien",
-        linkToPage: `/nurse/patient-list`,
-        color: page === "nurse" ? color : defaultColor,
+        text: "Data Pasien",
+        linkToPage: `/nurse/data-pasien`,
+        color: page === "data-pasien" ? color : defaultColor,
+      },
+      {
+        text: "Pelayanan Medis",
+        linkToPage: `/nurse/pelayanan-medis`,
+        color: page === "pelayanan-medis" ? color : defaultColor,
       },
       {
         text: "Profil Perawat",
