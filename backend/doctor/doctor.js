@@ -49,6 +49,21 @@ router.use(express.json());
 // const currentDateTime = new Date();
 // const formattedDateTime = formatDateTime(currentDateTime);
 
+async function fetchAndSaveFiles(files, appointmentPath) {
+  if (files.length > 0) {
+    for (let file of files) {
+      const { name, path: ipfsPath } = file;
+      const fileStream = client.cat(ipfsPath);
+      const chunks = [];
+      for await (const chunk of fileStream) { chunks.push(chunk) }
+      const fileBuffer = Buffer.concat(chunks);
+      const filePath = path.join(appointmentPath, name);
+      fs.writeFileSync(filePath, fileBuffer);
+    }
+  }
+  console.log("Files saved");
+}
+
 // get patient profile list
 router.get("/patient-list", authMiddleware, async (req, res) => {
   try {
