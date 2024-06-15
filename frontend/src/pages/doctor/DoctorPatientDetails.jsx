@@ -29,6 +29,7 @@ export default function DoctorPatientDetails({ role }) {
   const patientAccount = JSON.parse(sessionStorage.getItem("selectedAccount"));
   if (!token || !accountAddress) window.location.assign(`/${role}/signin`);
   
+  const [status, setStatus] = useState("");
   const [profile, setProfile] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
@@ -44,6 +45,22 @@ export default function DoctorPatientDetails({ role }) {
   const [form] = Form.useForm();
   const dateFormat = 'DD/MM/YYYY';
   const onChange = (date, dateString) => { console.log(date, dateString) };
+
+  const disableCategories = (appointment) => {
+    const disabled = { anamnesis: false, diagnosis: false, kehamilan: false, tbParu: false, lab: false, selesai: false };
+    if (appointment?.diagnosis) {
+      disabled.kehamilan = true;
+      disabled.tbParu = true;
+    } else if (appointment?.kehamilan) {
+      disabled.diagnosis = true;
+      disabled.tbParu = true;
+    } else if (appointment?.tbParu) {
+      disabled.diagnosis = true;
+      disabled.kehamilan = true;
+    }
+    return disabled;
+  };
+  const disabledCategories = disableCategories(selectedData?.appointment);
 
 useEffect(() => {
   if (selectedData) {
@@ -173,9 +190,22 @@ useEffect(() => {
 
   const handleCancel = () => {setIsModalOpen(false) };
   const showProfileModal = () => { setSelectedData({ profile }); setIsModalOpen(true); };
+
   const showEMR = (appointmentId) => {
     const appointment = appointments.find(a => a.appointmentId === appointmentId);
+    console.log({ appointment });
     setSelectedData({ appointmentId, appointment });
+    setStatus(appointment.status);
+    if (appointment.status === "done") {
+      setIsDataFinished(true);
+      setIsEdit(false);
+    } else if (appointment.status === "ongoing") {
+      setIsDataFinished(false);
+      setIsEdit(true);
+    } else if (appointment.status === "canceled") {
+      setIsDataFinished(true);
+      setIsEdit(false);
+    }
     handleDoctorChange(appointment.namaDokter);
     handleNurseChange(appointment.namaAsisten);
   };
@@ -2059,21 +2089,25 @@ useEffect(() => {
           )}
         </div>
         <Form.Item className="flex justify-center">
-          {isDataFinished && !isEdit ? (
-            <Button type="primary" ghost onClick={handleEdit} size="medium">Ubah Data</Button>
-          ) : (
+        {status === "ongoing" ? (
+          <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
+        ) : status === "done" ? (
+          isEdit ? (
             <>
-              {isEdit && <Button type="default" onClick={handleCancel} size="medium">Batal</Button>}
+              <Button type="default" onClick={handleCancel} size="medium">Batal</Button>
               <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
             </>
-          )}
+          ) : (
+            <Button type="primary" ghost onClick={handleEdit} size="medium">Ubah Data</Button>
+          )
+        ) : null}
         </Form.Item>
       </Form>
     );
   };
 
   const EMRCard = () => {
-    if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Appointment"/></Card>;
+    if (!selectedData.appointmentId) return <Card><Empty description="Silakan pilih Rawat Jalan"/></Card>;
     const doctor = { idDokter: selectedData.appointment?.idDokter, namaDokter: selectedData.appointment?.namaDokter, alamat: selectedData.appointment?.doctorAddress };
     const patient = { gender: profile.gender, usia: calculateAge(profile.tanggalLahir), golonganDarah: profile.golonganDarah };
     return (
@@ -2163,51 +2197,57 @@ useEffect(() => {
               </div>
               <div>
                 <div className='grid grid-cols-4 w-full gap-x-8 gap-y-4 pb-4'>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'anamnesis' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('anamnesis')}
-                  >
-                    Anamnesis
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'diagnosis' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('diagnosis')}
-                  >
-                    Diagnosis
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'kehamilan' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('kehamilan')}
-                  >
-                    Pengamatan Kehamilan
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'tbParu' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('tbParu')}
-                  >
-                    Pemeriksaan TB Paru
-                  </Button>
-                  <Button
-                    type="default"
-                    className={selectedCategory === 'lab' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
-                    onClick={() => setSelectedCategory('lab')}
-                  >
-                    Laboratorium
-                  </Button>
-                  <Button
-                    type="ghost"
-                    className={selectedCategory === 'selesai' ? "bg-green-500 hover:bg-green-400 text-white" : "bg-default border-1 border-gray-300 hover:bg-green-400 hover:border-green-400 hover:text-white"}
-                    onClick={() => setSelectedCategory('selesai')}
-                  >
-                    <div className='flex justify-center gap-x-2'>
-                      <SaveOutlined />
-                      <p>Selesai</p>
-                    </div>
-                  </Button>
+                <Button
+                  type="default"
+                  className={selectedCategory === 'anamnesis' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                  onClick={() => setSelectedCategory('anamnesis')}
+                  disabled={disabledCategories.anamnesis}
+                >
+                  Anamnesis
+                </Button>
+                <Button
+                  type="default"
+                  className={selectedCategory === 'diagnosis' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                  onClick={() => setSelectedCategory('diagnosis')}
+                  disabled={disabledCategories.diagnosis}
+                >
+                  Diagnosis
+                </Button>
+                <Button
+                  type="default"
+                  className={selectedCategory === 'kehamilan' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                  onClick={() => setSelectedCategory('kehamilan')}
+                  disabled={disabledCategories.kehamilan}
+                >
+                  Pengamatan Kehamilan
+                </Button>
+                <Button
+                  type="default"
+                  className={selectedCategory === 'tbParu' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                  onClick={() => setSelectedCategory('tbParu')}
+                  disabled={disabledCategories.tbParu}
+                >
+                  Pemeriksaan TB Paru
+                </Button>
+                <Button
+                  type="default"
+                  className={selectedCategory === 'lab' ? "bg-blue-600 text-white" : "bg-default border-1 border-gray-300"}
+                  onClick={() => setSelectedCategory('lab')}
+                  disabled={disabledCategories.lab}
+                >
+                  Laboratorium
+                </Button>
+                <Button
+                  type="ghost"
+                  className={selectedCategory === 'selesai' ? "bg-green-500 hover:bg-green-400 text-white" : "bg-default border-1 border-gray-300 hover:bg-green-400 hover:border-green-400 hover:text-white"}
+                  onClick={() => setSelectedCategory('selesai')}
+                  disabled={disabledCategories.selesai}
+                >
+                  <div className='flex justify-center gap-x-2'>
+                    <SaveOutlined />
+                    <p>Selesai</p>
+                  </div>
+                </Button>
                 </div>
                 <div className='scrollable-column'>
                   <EMRCard/>
