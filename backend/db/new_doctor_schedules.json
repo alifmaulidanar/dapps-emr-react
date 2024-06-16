@@ -2,7 +2,7 @@
   "dokter": [
     {
       "idDokter": 1,
-      "doctorAddress": "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D",
+      "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
       "namaDokter": "dr. Amalia Meihati",
       "spesialisasi": "Umum",
       "lokasiPraktik": "Puskesmas Pejuang",
@@ -12,7 +12,7 @@
           "hari": "Senin",
           "waktu": "07:30-14:30",
           "idPerawat": 11,
-          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaAsisten": "Elly Yunita",
           "jabatanAsisten": "Bidan"
         },
@@ -21,7 +21,7 @@
           "hari": "Selasa",
           "waktu": "07:30-14:30",
           "idPerawat": 1,
-          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "nurseAddress": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
           "namaAsisten": "Herningsih",
           "jabatanAsisten": "Perawat"
         },
@@ -30,7 +30,7 @@
           "hari": "Rabu",
           "waktu": "07:30-14:30",
           "idPerawat": 2,
-          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
           "namaAsisten": "Nur Khoffiah, AMK",
           "jabatanAsisten": "Perawat"
         },
@@ -39,7 +39,7 @@
           "hari": "Kamis",
           "waktu": "07:30-14:30",
           "idPerawat": 10,
-          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+          "nurseAddress": "0x119d6536434c434fa68CFFAFE104686a50E4Ef56",
           "namaAsisten": "Zubaidah, AMdKeb",
           "jabatanAsisten": "Bidan"
         },
@@ -48,7 +48,7 @@
           "hari": "Jumat",
           "waktu": "07:30-14:00",
           "idPerawat": 4,
-          "nurseAddress": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
           "namaAsisten": "Fitri Anisa Lestari, AMK",
           "jabatanAsisten": "Perawat"
         },
@@ -57,7 +57,7 @@
           "hari": "Sabtu",
           "waktu": "07:30-14:00",
           "idPerawat": 5,
-          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
+          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
           "namaAsisten": "Ipong Siti Khodijah, SST",
           "jabatanAsisten": "Bidan"
         }
@@ -65,7 +65,7 @@
     },
     {
       "idDokter": 2,
-      "doctorAddress": "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522",
+      "doctorAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
       "namaDokter": "dr. Milawati",
       "spesialisasi": "Umum",
       "lokasiPraktik": "Puskesmas Pejuang",
@@ -75,7 +75,7 @@
           "hari": "Senin",
           "waktu": "07:30-14:30",
           "idPerawat": 6,
-          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
+          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
           "namaAsisten": "Elfi",
           "jabatanAsisten": "Bidan"
         },
@@ -84,7 +84,7 @@
           "hari": "Selasa",
           "waktu": "07:30-14:30",
           "idPerawat": 5,
-          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
+          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
           "namaAsisten": "Ipong Siti Khodijah, SST",
           "jabatanAsisten": "Bidan"
         },
@@ -93,7 +93,7 @@
           "hari": "Rabu",
           "waktu": "07:30-14:30",
           "idPerawat": 8,
-          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
+          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
           "namaAsisten": "Ika Meinawati F. Amd.Keb",
           "jabatanAsisten": "Bidan"
         },
@@ -102,7 +102,7 @@
           "hari": "Kamis",
           "waktu": "07:30-14:30",
           "idPerawat": 9,
-          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
+          "nurseAddress": "0xdD76Ce44d1A22D5a3bCeD70e766AAAC95dc06f1b",
           "namaAsisten": "Lisha Guswari, Amd.Keb",
           "jabatanAsisten": "Bidan"
         },
@@ -111,7 +111,7 @@
           "hari": "Jumat",
           "waktu": "07:30-14:00",
           "idPerawat": 10,
-          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+          "nurseAddress": "0x119d6536434c434fa68CFFAFE104686a50E4Ef56",
           "namaAsisten": "Zubaidah, AMdKeb",
           "jabatanAsisten": "Bidan"
         },
@@ -120,7 +120,7 @@
           "hari": "Sabtu",
           "waktu": "07:30-14:00",
           "idPerawat": 11,
-          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaAsisten": "Elly Yunita",
           "jabatanAsisten": "Bidan"
         }
@@ -128,7 +128,7 @@
     },
     {
       "idDokter": 3,
-      "doctorAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+      "doctorAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
       "namaDokter": "Yuliani, AMK",
       "spesialisasi": "TB Paru",
       "lokasiPraktik": "Puskesmas Pejuang",
@@ -138,7 +138,7 @@
           "hari": "Senin",
           "waktu": "07:30-14:30",
           "idPerawat": 11,
-          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaAsisten": "Elly Yunita",
           "jabatanAsisten": "Bidan"
         },
@@ -147,7 +147,7 @@
           "hari": "Selasa",
           "waktu": "07:30-14:30",
           "idPerawat": 4,
-          "nurseAddress": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
+          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
           "namaAsisten": "Fitri Anisa Lestari, AMK",
           "jabatanAsisten": "Perawat"
         },
@@ -156,7 +156,7 @@
           "hari": "Rabu",
           "waktu": "07:30-14:30",
           "idPerawat": 5,
-          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
+          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
           "namaAsisten": "Ipong Siti Khodijah, SST",
           "jabatanAsisten": "Bidan"
         },
@@ -165,7 +165,7 @@
           "hari": "Kamis",
           "waktu": "07:30-14:30",
           "idPerawat": 6,
-          "nurseAddress": "0x2B8B2e67E1176378304597B044D766580D233e1f",
+          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
           "namaAsisten": "Elfi",
           "jabatanAsisten": "Bidan"
         },
@@ -174,7 +174,7 @@
           "hari": "Jumat",
           "waktu": "07:30-14:00",
           "idPerawat": 7,
-          "nurseAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
           "namaAsisten": "Hj. Istin Murbiyanti",
           "jabatanAsisten": "Bidan"
         },
@@ -183,7 +183,7 @@
           "hari": "Sabtu",
           "waktu": "07:30-14:00",
           "idPerawat": 8,
-          "nurseAddress": "0xC1Df9ad321ce0da253e32d1e21ea11BfD27Da498",
+          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
           "namaAsisten": "Ika Meinawati F. Amd.Keb",
           "jabatanAsisten": "Bidan"
         }
@@ -191,7 +191,7 @@
     },
     {
       "idDokter": 4,
-      "doctorAddress": "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1",
+      "doctorAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
       "namaDokter": "Hj. Istin Murbiyanti",
       "spesialisasi": "KIA",
       "lokasiPraktik": "Puskesmas Pejuang",
@@ -201,7 +201,7 @@
           "hari": "Senin",
           "waktu": "07:30-14:30",
           "idPerawat": 9,
-          "nurseAddress": "0xBE9EED2EfB39F5E80555e7200de80E5b145E66f6",
+          "nurseAddress": "0xdD76Ce44d1A22D5a3bCeD70e766AAAC95dc06f1b",
           "namaAsisten": "Lisha Guswari, Amd.Keb",
           "jabatanAsisten": "Bidan"
         },
@@ -210,7 +210,7 @@
           "hari": "Selasa",
           "waktu": "07:30-14:30",
           "idPerawat": 10,
-          "nurseAddress": "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C",
+          "nurseAddress": "0x119d6536434c434fa68CFFAFE104686a50E4Ef56",
           "namaAsisten": "Zubaidah, AMdKeb",
           "jabatanAsisten": "Bidan"
         },
@@ -219,7 +219,7 @@
           "hari": "Rabu",
           "waktu": "07:30-14:30",
           "idPerawat": 11,
-          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
+          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
           "namaAsisten": "Elly Yunita",
           "jabatanAsisten": "Bidan"
         },
@@ -228,7 +228,7 @@
           "hari": "Kamis",
           "waktu": "07:30-14:30",
           "idPerawat": 1,
-          "nurseAddress": "0x7837Eb4C4388842335f8d51De5C003f2a5c42169",
+          "nurseAddress": "0x0be909d68efd2b18111254782D0Edf077CD7F6aD",
           "namaAsisten": "Herningsih",
           "jabatanAsisten": "Perawat"
         },
@@ -237,7 +237,7 @@
           "hari": "Jumat",
           "waktu": "07:30-14:00",
           "idPerawat": 2,
-          "nurseAddress": "0xBec10133688B118Bd183B73B7963617472800E83",
+          "nurseAddress": "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6",
           "namaAsisten": "Nur Khoffiah, AMK",
           "jabatanAsisten": "Perawat"
         },
@@ -246,7 +246,7 @@
           "hari": "Sabtu",
           "waktu": "07:30-14:00",
           "idPerawat": 3,
-          "nurseAddress": "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58",
+          "nurseAddress": "0xe5dF08799114D618e628e2027fc8FF5B7F29705C",
           "namaAsisten": "Yuliani, AMK",
           "jabatanAsisten": "Perawat"
         }
