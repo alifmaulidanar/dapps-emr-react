@@ -121,7 +121,7 @@ function App() {
                 element={<DoctorPelayananMedis role="doctor" />}
               />
               <Route
-                path={`/doctor/patient-list/patient-details`}
+                path={`/doctor/pelayanan-medis/patient-details`}
                 element={<DoctorPatientDetails role="doctor" />}
               />
               <Route
@@ -145,7 +145,7 @@ function App() {
                 element={<NursePelayananMedis role="nurse" />}
               />
               <Route
-                path={`/nurse/patient-list/patient-details`}
+                path={`/nurse/pelayanan-medis/patient-details`}
                 element={<NursePatientDetails role="nurse" />}
               />
               <Route
@@ -169,11 +169,11 @@ function App() {
                 element={<StaffAntrean role="staff" />}
               />
               <Route
-                path={`/staff/patient-list`}
+                path={`/staff/data-pasien`}
                 element={<StaffPatientList role="staff" />}
               />
               <Route
-                path={`/staff/appointment-list`}
+                path={`/staff/pelayanan-medis`}
                 element={<StaffPelayananMedis role="staff" />}
               />
               <Route

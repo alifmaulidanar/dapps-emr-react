@@ -86,11 +86,11 @@ export default function SignInForm({ role, resetLink, signupLink }) {
                 if (role === "patient") {
                   window.location.assign(`/patient/record-list`);
                 } else if (role === "staff") {
-                  window.location.assign(`/staff/patient-list`);
+                  window.location.assign(`/staff/data-pasien`);
                 } else if (role === "doctor") {
-                  window.location.assign(`/doctor/patient-list`);
+                  window.location.assign(`/doctor/data-pasien`);
                 } else if (role === "nurse") {
-                  window.location.assign(`/nurse/patient-list`);
+                  window.location.assign(`/nurse/data-pasien`);
                 }
               });
             } else {

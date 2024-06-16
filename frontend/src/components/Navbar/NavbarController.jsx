@@ -145,12 +145,12 @@ function NavbarController({ type, page, color, accountData = null }) {
       // },
       {
         text: "Data Pasien",
-        linkToPage: `/staff/patient-list`,
+        linkToPage: `/staff/data-pasien`,
         color: page === "data-pasien" ? color : defaultColor,
       },
       {
         text: "Pelayanan Medis",
-        linkToPage: `/staff/appointment-list`,
+        linkToPage: `/staff/pelayanan-medis`,
         color: page === "pelayanan-medis" ? color : defaultColor,
       },
       // {

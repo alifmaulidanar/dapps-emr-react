@@ -414,7 +414,7 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="grid justify-center w-9/12 max-h-content grid-cols-1 px-4 py-24 mx-auto">
+      <div className="grid justify-center w-10/12 max-h-content grid-cols-1 px-4 py-24 mx-auto">
         <div className="grid w-full gap-y-8">
           <div className="flex items-stretch justify-between">
             <h1 className="flex items-center gap-2 text-2xl font-bold">
@@ -550,6 +550,10 @@ export default function AdminDashboard() {
                         value: "staff",
                         label: "Staf",
                       },
+                      {
+                        value: "admin",
+                        label: "Admin",
+                      }
                     ]}
                   />
                 </Form.Item>
