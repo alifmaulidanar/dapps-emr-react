@@ -133,7 +133,6 @@ router.post("/new", async (req, res) => {
       password,
       confirmPassword,
     });
-
     if (error) return res.status(400).json({ error: error.details[0].message });
 
     const accountList = await provider.listAccounts();
@@ -143,18 +142,29 @@ router.post("/new", async (req, res) => {
     }
 
     let selectedAccountAddress;
-    for (let account of accountList) {
-      const accountByAddress = await userContract.getAccountByAddress(account);
-      if (accountByAddress.accountAddress === ethers.constants.AddressZero) {
-        selectedAccountAddress = account;
-        break;
+    let privateKey;
+    let wallet;
+
+    if (role === 'admin') {
+      selectedAccountAddress = CONN.ADMIN_PUBLIC_KEY;
+      privateKey = CONN.ADMIN_PRIVATE_KEY;
+      wallet = new Wallet(privateKey);
+    } else {
+      const accountList = await provider.listAccounts();
+      for (let account of accountList) {
+        const accountByAddress = await userContract.getAccountByAddress(account);
+        if (accountByAddress.accountAddress === ethers.constants.AddressZero) {
+          selectedAccountAddress = account;
+          privateKey = accounts[selectedAccountAddress];
+          wallet = new Wallet(privateKey);
+          break;
+        }
+      }
+      if (!selectedAccountAddress) {
+        return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
       }
     }
 
-    if (!selectedAccountAddress) return res.status(400).json({ error: "Tidak ada akun tersedia untuk pendaftaran." });
-
-    const privateKey = accounts[selectedAccountAddress];
-    const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
     const contractWithSigner = new ethers.Contract(
       user_contract,
