@@ -383,57 +383,62 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
             <Input disabled style={inputStyling} />
           </Form.Item>
         </div>
-        <div className="grid grid-rows-3 mt-8 w-full h-fit content-end justify-end gap-y-4">
-          <button
-            type="button"
-            className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm w-[120px] h-auto text-center"
-            onClick={handleDeletePatient}
-          >
-            Hapus Pasien
-          </button>
-          <MakeAppointmentButtonStaff
-            buttonText={"Pendaftaran"}
-            scheduleData={scheduleData || []}
-            userData={userData}
-            token={token}
-          />
 
-          {/* UBAH DATA */}
-          {isEditing ? (
-            <>
-              <button
-                type="button"
-                className="text-white bg-yellow-400 hover:bg-yellow-300 focus:ring-4 focus:outline-none focus:ring-yellow-200 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
-                onClick={handleCancelClick}
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                className="text-white bg-green-500 hover:bg-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
-                onClick={showLoader}
-              >
-                Simpan
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm w-[120px] h-fit px-5 py-1.5 text-center"
-                onClick={handleEditClick}
-              >
-                Ubah Data
-              </button>
-              <Spin spinning={spinning} />
-            </>
-          )}
-        </div>
+        {/* Utilitas Profil Pasien */}
+        {(role !== "Dokter" && role !== "Perawat") && (
+          <div className="grid grid-rows-3 mt-8 w-full h-fit content-end justify-end gap-y-4">
+            <button
+              type="button"
+              className="text-white bg-red-700 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm w-[120px] h-auto text-center"
+              onClick={handleDeletePatient}
+            >
+              Hapus Pasien
+            </button>
+            <MakeAppointmentButtonStaff
+              buttonText={"Pendaftaran"}
+              scheduleData={scheduleData || []}
+              userData={userData}
+              token={token}
+            />
+
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  className="text-white bg-yellow-400 hover:bg-yellow-300 focus:ring-4 focus:outline-none focus:ring-yellow-200 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
+                  onClick={handleCancelClick}
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="text-white bg-green-500 hover:bg-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm w-[120px] h-fit px-3 py-1.5 text-center"
+                  onClick={showLoader}
+                >
+                  Simpan
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm w-[120px] h-fit px-5 py-1.5 text-center"
+                  onClick={handleEditClick}
+                >
+                  Ubah Data
+                </button>
+                <Spin spinning={spinning} />
+              </>
+            )}
+          </div>
+        )}
+        {/* Utilitas Profil Pasien */}
+
       </div>
       <div>
         <div className="grid grid-cols-2 gap-x-8">
           <div className="col-span-2 mb-6 text-lg text-gray-900">
-            Data {role}
+            Data Pasien
             <hr className="h-px bg-gray-700 border-0"></hr>
           </div>
           <Form.Item
