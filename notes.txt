@@ -661,10 +661,16 @@ next:
 ✅ bikin ulang seluruh akun untuk admin, staf, dokter, perawat -> deploy SC user, outpatient, patient
 ✅ redeploy user -> harus susun daftar semua akun staff doctor nurse lagi
 ✅ pada data pasien dokter dan nurse, hilangkan kemampuan untuk hapus, pendaftaran, dan edit data profil pasien -> harus lewat staff
+✅ di pasien, daftar rekam medis hanya memunculkan RME yang sudah ada field "selesai"
+✅ nambah modal untuk riwayat pengobatan / pelayanan medis -> dropdown accordion -> lewat doctor
+✅ nambah search dan filter untuk record list by patient, appointment list by patient, data pasien dan pelayanan medis by admin, staff, doctor, dan nurse
+✅ nambah 2 menu baru, data pasien dan pelayanan medis
+- cek daftar akun dan profil pasien dari admin
+- cek pengisian emr dari admin
+- ubah semua endpoint backend admin terkait menu baru, pindahkan endpoint saja
+- review butuh filter apa lagi
 - cek semua halaman nurse
 - cek pengisian emr untuk setiap kategori dari nurse
 - integrasi pengisian emr dari nurse dan dokter secara bergantian
-- di pasien, daftar rekam medis hanya memunculkan RME yang sudah ada field "selesai"
-- untuk dokter dan perawat, harus ada 2 menu untuk cek pasien:
-   1. daftar seluruh pasien, bisa cari bebas
-   2. daftar pasien yang mendaftar ke nama dokter/tenaga medis terkait di rawat jalan
+
+🟡🟡🟡 BESOK DOKUMEN WORD DULU, KAMIS BIMBINGAN WORD DULU 🟡🟡🟡
