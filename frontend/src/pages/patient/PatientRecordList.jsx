@@ -1,9 +1,8 @@
-import { Empty } from "antd";
+import { Empty, Input } from "antd";
+const { Search } = Input;
 import { useState, useEffect } from "react";
-import { CONN } from "../../../../enum-global";
 import RecordList from "../../components/RecordList";
 import PatientList from "../../components/PatientList";
-import RecordControl from "../../components/RecordControl";
 import NavbarController from "../../components/Navbar/NavbarController";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatient";
 import { fetchAndStorePatientData } from "./utils";
@@ -16,6 +15,7 @@ export default function PatientRecordList() {
   const [patientAccountData, setPatientAccountData] = useState(null);
   const [appointmentsData, setAppointmentsData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     if (token && accountAddress) {
@@ -40,13 +40,18 @@ export default function PatientRecordList() {
   const chosenPatient = patientListProps.find(
     (patient) => patient.patientIsChosen
   );
-  const recordItems =
-    chosenPatient && Array.isArray(chosenPatient.riwayatPengobatan)
-      ? chosenPatient.riwayatPengobatan.map((record) => ({ ...record }))
-      : [];
   const relatedAppointments = appointmentsData.filter(
     (appointment) =>
       appointment.emrNumber === chosenPatient?.emrNumber
+  );
+
+  const filteredAppointments = relatedAppointments.filter((appointment) =>
+    (appointment.selesai?.judulRekamMedis && appointment.selesai?.judulRekamMedis.toLowerCase().includes(searchText.toLowerCase())) ||
+  (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+    (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+    (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
+    (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
+    (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
   );
 
   return (
@@ -67,8 +72,13 @@ export default function PatientRecordList() {
         </div>
       </div>
       <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
-        <div className="grid items-center grid-cols-1 col-span-3 h-fit">
-          <RecordControl search={"Cari rekam medis"} />
+        <div className="grid items-center col-span-3 h-fit justify-end">
+          <Search
+            placeholder="ID pendaftaran, nama dokter, poli, dll."
+            allowClear
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 300 }}
+          />
         </div>
         <div className="grid items-center col-span-2 h-fit">
           <div className="flex justify-end">
@@ -79,14 +89,13 @@ export default function PatientRecordList() {
       <div className="grid justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
           {chosenPatient ? (
-            appointmentsData.length > 0 ? (
+            filteredAppointments.length > 0 ? (
               <RecordList
-                recordItems={recordItems}
                 chosenPatient={chosenPatient}
-                appointmentData={relatedAppointments}
+                appointmentData={filteredAppointments}
               />
             ) : (
-              <Empty description="Tidak ada rekam medis" />
+              <Empty description="Tidak ada riwayat pengobatan yang ditemukan." />
             )
           ) : (
             <Empty description="Pilih pasien untuk melihat rekam medis" />

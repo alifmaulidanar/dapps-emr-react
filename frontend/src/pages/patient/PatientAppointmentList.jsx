@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Empty, Input } from "antd";
+const { Search } = Input;
 import { CONN } from "../../../../enum-global";
-import RecordControl from "../../components/RecordControl";
 import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
 import NavbarController from "../../components/Navbar/NavbarController";
 import AppointmentCardList from "../../components/Cards/AppointmentCardList";
@@ -11,7 +12,6 @@ export default function PatientAppointmentList({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
   const userData = JSON.parse(sessionStorage.getItem("userData"));
-  const initialAppointmentData = JSON.parse(sessionStorage.getItem("appointmentData"));
   if (!token || !accountAddress) window.location.assign(`/patient/signin`);
   
   const [users, setUsers] = useState([]);
@@ -20,6 +20,7 @@ export default function PatientAppointmentList({ role }) {
   const [patientAccountData, setPatientAccountData] = useState(null);
   const [appointmentData, setAppointmentsData] = useState([]);
   const [filteredAppointmentData, setFilteredAppointmentData] = useState([]);
+  const [searchText, setSearchText] = useState("");
   
   useEffect(() => {
     if (token && accountAddress) {
@@ -85,6 +86,23 @@ export default function PatientAppointmentList({ role }) {
   }, [selectedUser, appointmentData]);
 
   const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.createdAt) - new Date(a.createdAt); });
+
+  useEffect(() => {
+    if (searchText) {
+      const filteredData = sortedAppointmentData.filter((appointment) =>
+        (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+        (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
+        (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+        (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
+        (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
+      );
+      setFilteredAppointmentData(filteredData);
+    } else if (selectedUser) {
+      const filteredData = appointmentData.filter((appointment) => appointment.nomorIdentitas === selectedUser.nomorIdentitas);
+      setFilteredAppointmentData(filteredData);
+    }
+  }, [searchText, sortedAppointmentData, selectedUser]);
+  
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
     setSelectedUser(user);
@@ -117,13 +135,22 @@ export default function PatientAppointmentList({ role }) {
             token={token}
           />
         </div>
-        <div className="grid items-center grid-cols-1">
-          <RecordControl search={"Cari Rawat Jalan"} />
+        <div className="grid items-center justify-end">
+          <Search
+            placeholder="ID pendaftaran, nama dokter, poli, dll."
+            allowClear
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 300 }}
+          />
         </div>
       </div>
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 pb-8 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          <AppointmentCardList appointmentData={sortedAppointmentData || []}/>
+          {filteredAppointmentData.length > 0 ? (
+            <AppointmentCardList appointmentData={filteredAppointmentData} />
+          ) : (
+            <Empty description="Tidak ada pendaftaran rawat jalan ditemukan" />
+          )}
         </div>
       </div>
     </>
