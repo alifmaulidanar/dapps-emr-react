@@ -15,6 +15,8 @@ import {
 } from "@ant-design/icons";
 import { CONN } from "../../../../enum-global";
 import DoctorSchedule from "./DoctorSchedule";
+import AdminPatientList from "./AdminPatientList"
+import AdminPelayananMedis from "./AdminPelayananMedis";
 
 export default function AdminDashboard() {
   const [form] = Form.useForm();
@@ -410,11 +412,29 @@ export default function AdminDashboard() {
       // icon: <CalendarOutlined />,
       onClick: () => setActiveMenu("doctorSchedule"),
     },
+    {
+      label: "Data Pasien",
+      key: "patientData",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("patientData"),
+    },
+    {
+      label: "Pelayanan Medis",
+      key: "pelayananMedis",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("pelayananMedis"),
+    },
+    {
+      label: "Akun",
+      key: "account",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("doctorSchedule"),
+    },
   ];
 
   return (
     <>
-      <div className="grid justify-center w-10/12 max-h-content grid-cols-1 px-4 py-24 mx-auto">
+      <div className="grid justify-center w-12/12 max-h-content grid-cols-1 px-4 py-24 mx-auto">
         <div className="grid w-full gap-y-8">
           <div className="flex items-stretch justify-between">
             <h1 className="flex items-center gap-2 text-2xl font-bold">
@@ -435,7 +455,7 @@ export default function AdminDashboard() {
           <div className="flex w-full flex-nowrap gap-x-8">
             <Menu
               style={{
-                width: 256,
+                width: 200,
               }}
               defaultSelectedKeys={"dashboard"}
               mode="inline"
@@ -449,9 +469,9 @@ export default function AdminDashboard() {
             {activeMenu === "dashboard" && (
               <div className="grid w-full gap-y-4">
                 <div className="flex justify-between">
-                  <div className="justify-self-start">
+                  <div className="flex flex-row gap-x-4 justify-self-start">
                     <Button type="default" onClick={showModal}>
-                      Add New
+                      Tambah Akun
                     </Button>
                   </div>
                   {/* <div>
@@ -471,10 +491,10 @@ export default function AdminDashboard() {
                       onChange={handleRoleChange}
                       options={[
                         { value: "all", label: "Semua role" },
-                        { value: "patient", label: "Pasien" },
                         { value: "doctor", label: "Dokter" },
                         { value: "nurse", label: "Perawat" },
                         { value: "staff", label: "Staf" },
+                        { value: "admin", label: "Admin" },
                       ]}
                       style={{ width: "100%" }}
                     />
@@ -496,8 +516,15 @@ export default function AdminDashboard() {
                 onScheduleCidUpdate={handleScheduleCidUpdate}
               />
             )}
+            {activeMenu === "patientData" && (
+              <AdminPatientList token={token} />
+            )}
+            {activeMenu === "pelayananMedis" && (
+              <AdminPelayananMedis token={token} />
+            )}
           </div>
         </div>
+
         <Modal
           // title="Daftarkan Akun Baru"
           open={isModalOpen}
@@ -534,10 +561,6 @@ export default function AdminDashboard() {
                   <Select
                     placeholder="Pilih Role"
                     options={[
-                      {
-                        value: "patient",
-                        label: "Pasien",
-                      },
                       {
                         value: "doctor",
                         label: "Dokter",
