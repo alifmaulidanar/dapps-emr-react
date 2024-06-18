@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import NavbarController from "../../components/Navbar/NavbarController";
 import PatientData from "../staff/PatientData";
-import { Table, Button, Modal, Tag } from "antd";
+import { Table, Button, Modal, Tag, Select, Input } from "antd";
+const { Search } = Input;
 import { CONN } from "../../../../enum-global";
 import RegisterPatientButton from "../../components/Buttons/RegisterPatientStaff";
+import { ConvertData, FormatDate2 } from "../../components/utils/Formating";
 
 export default function StaffPatientList({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -15,6 +17,9 @@ export default function StaffPatientList({ role }) {
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [selectedFaskesAsal, setSelectedFaskesAsal] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
 
   const handleCancel = () => {setIsModalOpen(false) };
   const showModal = (emrNumber) => {
@@ -95,6 +100,11 @@ export default function StaffPatientList({ role }) {
       key: 'namaLengkap',
     },
     {
+      title: 'Jenis Kelamin',
+      dataIndex: 'gender',
+      key: 'gender',
+    },
+    {
       title: 'Tanggal Lahir',
       dataIndex: 'tanggalLahir',
       key: 'tanggalLahir',
@@ -124,7 +134,6 @@ export default function StaffPatientList({ role }) {
     },
   ];
 
-  console.log({profiles});
   const dataSource = profiles?.map((profile, index) => ({
     key: index + 1,
     accountAddress: profile?.accountAddress,
@@ -132,32 +141,32 @@ export default function StaffPatientList({ role }) {
     emrNumber: profile?.emrNumber,
     nomorIdentitas: profile?.nomorIdentitas,
     namaLengkap: profile?.namaLengkap,
-    tanggalLahir: profile?.tanggalLahir,
+    gender: ConvertData(profile)?.gender,
+    tanggalLahir: FormatDate2(profile?.tanggalLahir),
     alamat: profile?.alamat,
     nomorTelepon: profile?.nomorTelepon,
     faskesAsal: profile?.faskesAsal,
   }));
 
-  // const mergeAccountAndProfileData = (accounts, profiles) => {
-  //   const accountMap = new Map();
-  //   if (accounts) {
-  //     accounts.forEach(account => {
-  //       accountMap.set(account.accountAddress, { ...account, accountProfiles: [] });
-  //     });
-  //   }
-  //   if (profiles) {
-  //     profiles.forEach(profile => {
-  //       const account = accountMap.get(profile.accountAddress);
-  //       if (account) {
-  //         account.accountProfiles.push(profile);
-  //       }
-  //     });
-  //   }
-  //   return Array.from(accountMap.values());
-  // };
-  
-  // const userData = mergeAccountAndProfileData(profiles);
-  // sessionStorage.setItem("staffPatientData", JSON.stringify(...userData));
+  const filteredDataSource = dataSource
+    ?.filter((record) => {
+      const matchesSearchText =
+        (record.accountAddress && record.accountAddress.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.dmrNumber && record.dmrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.emrNumber && record.emrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorIdentitas && record.nomorIdentitas.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.namaLengkap && record.namaLengkap.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.gender && record.gender.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.tanggalLahir && record.tanggalLahir.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.alamat && record.alamat.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorTelepon && record.nomorTelepon.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.faskesAsal && record.faskesAsal.toLowerCase().includes(searchText.toLowerCase()))
+
+      const matchesFaskesAsal = selectedFaskesAsal ? record.faskesAsal === selectedFaskesAsal : true;
+      const matchesGender = selectedGender ? record.gender === selectedGender : true;
+      return matchesSearchText && matchesGender && matchesFaskesAsal;
+    });
+
   sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
   sessionStorage.setItem("StaffPelayananMedis", JSON.stringify(appointments));
 
@@ -172,14 +181,36 @@ export default function StaffPatientList({ role }) {
         <div className="grid items-center justify-center w-11/12 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
             <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
-            {/* <ListSearchBar /> */}
+            <div className="flex justify-end gap-x-8 w-full pb-4">
+              <Select
+                placeholder="Pilih Faskes Asal"
+                allowClear
+                onChange={(value) => setSelectedFaskesAsal(value)}
+                style={{ width: 180 }}
+              >
+                <Select.Option value="Puskesmas Pejuang">Puskesmas Pejuang</Select.Option>
+              </Select>
+              <Select
+                placeholder="Pilih Jenis Kelamin"
+                allowClear
+                onChange={(value) => setSelectedGender(value)}
+                style={{ width: 150 }}
+              >
+                <Select.Option value="Laki-laki">Laki-laki</Select.Option>
+                <Select.Option value="Perempuan">Perempuan</Select.Option>
+              </Select>
+              <Search
+                placeholder="Cari berdasarkan teks"
+                allowClear
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+              />
+            </div>
           </div>
         </div>
         <div className="grid justify-center w-11/12 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="w-full">
-            {/* <div className="w-full px-8 py-4 bg-white border border-gray-200 rounded-lg shadow"> */}
-              <Table columns={columns} dataSource={dataSource} pagination={false} />
-            {/* </div> */}
+            <Table columns={columns} dataSource={filteredDataSource} pagination={false} />
           </div>
         </div>
       </div>

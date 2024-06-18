@@ -1,59 +1,46 @@
-import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
-import { Table, Button, Modal, Tag, Select } from "antd";
+import dayjs from 'dayjs';
 import NavbarController from "../../components/Navbar/NavbarController";
-// import MakeAppointmentButton from "../../components/Buttons/MakeAppointment";
+import { Tag, Table, Button, DatePicker, Select, Modal, Input } from "antd";
+const { Search } = Input;
+import { CONN } from "../../../../enum-global";
+import { ConvertData, FormatDate2 } from "../../components/utils/Formating";
 import PatientAppointmentDisplayStaff from "./PatientAppointmentDisplayStaff";
 
 export default function StaffPelayananMedis({ role }) {
   const token = sessionStorage.getItem("userToken");
   const accountAddress = sessionStorage.getItem("accountAddress");
-  // const userData = JSON.parse(sessionStorage.getItem("staffPatientData"));
-  // const profilesStorage = JSON.parse(sessionStorage.getItem("staffPatientProfiles"));
-  // const appointmentData = JSON.parse(sessionStorage.getItem("StaffPelayananMedis"));
   if (!token || !accountAddress) window.location.assign(`/staff/signin`);
 
-  // const [scheduleData, setScheduleData] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [accounts, setAccounts] = useState([]);
   const [profiles, setProfiles] = useState([]);
-  const [appointmentData, setAppointments] = useState([]);
-  // const [appointmentData, setAppointmentData] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [searchText, setSearchText] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedPoli, setSelectedPoli] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [selectedProfile, setSelectedProfile] = useState("Semua");
 
-  const handleProfileChange = (value) => { setSelectedProfile(value); };
-  // const handleOk = () => { setIsModalOpen(false) };
-  const handleCancel = () => {setIsModalOpen(false) };
+  const saveDataToSessionStorage = (emrNumber) => {
+    const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
+    const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
+    sessionStorage.setItem("selectedProfile", JSON.stringify(selectedProfile));
+    sessionStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
+    window.location.assign("/staff/pelayanan-medis/detail-pasien");
+  };
+
   const showModal = (appointmentId) => {
-    const selected = appointmentData.find(a => a.appointmentId === appointmentId);
+    const selected = appointments.find(a => a.appointmentId === appointmentId);
     setSelectedAppointment(selected);
     setIsModalOpen(true);
   };
 
-  // useEffect(() => {
-  //   if (token && accountAddress) {
-  //     const fetchDataAsync = async () => {
-  //       try {
-  //         const responseAppointment = await fetch(
-  //           `${CONN.BACKEND_LOCAL}/staff/patient-appointments`,
-  //           {
-  //             method: "GET",
-  //             headers: {
-  //               "Content-Type": "application/json",
-  //               Authorization: "Bearer " + token,
-  //             },
-  //           }
-  //         );
-  //         const data = await responseAppointment.json();
-  //         setScheduleData(data.dokter);
-  //         setAppointmentData(data.patientAppointments);
-  //       } catch (error) {
-  //         console.error(`Error fetching ${role} data:`, error);
-  //       }
-  //     };
-  //     fetchDataAsync();
-  //   }
-  // }, []);
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -67,9 +54,11 @@ export default function StaffPelayananMedis({ role }) {
         });
         const data = await response.json();
         if (!response.ok) console.log(data.error, data.message);
-        // setAccounts(data.patientAccountData);
+        setAccounts(data.accounts);
         setProfiles(data.profiles);
         setAppointments(data.appointments);
+        setSchedules(data.schedules);
+        sessionStorage.setItem("staffSchedules", JSON.stringify(data.schedules));
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -77,84 +66,194 @@ export default function StaffPelayananMedis({ role }) {
     fetchAppointments();
   }, [token]);
 
-  let type;
-  switch (role) {
-    case "patient": type = 1;
-      break;
-    case "doctor": type = 2;
-      break;
-    case "nurse": type = 3;
-      break;
-    case "staff": type = 4;
-      break;
-  }
-
+  let type = 4; // staff
   const columns = [
-    { title: 'No.', dataIndex: 'key', key: 'key' },
-    { title: 'ID Pendaftaran', dataIndex: 'appointmentId', key: 'appointmentId' },
-    { title: 'Nama Pasien', dataIndex: 'namaLengkap', key: 'namaLengkap' },
-    { title: 'Nama Dokter', dataIndex: 'namaDokter', key: 'namaDokter' },
-    { title: 'Spesialisasi', dataIndex: 'spesialisasi', key: 'spesialisasi' },
-    { title: 'Faskes Asal', dataIndex: 'faskesAsal', key: 'faskesAsal' },
-    { title: 'Waktu', dataIndex: 'waktuTerpilih', key: 'waktuTerpilih' },
-    { title: 'Tanggal', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
-    { title: 'Status', dataIndex: 'status',
-      render: (status) => (
-        <Tag color={ status === "ongoing" ? "blue" : status === "done" ? "green" : "red" }>
-          { status === "ongoing" ? "Sedang berjalan" : status === "done" ? "Selesai" : "Batal"}
-        </Tag>
-      ),
+    {
+      title: 'No.',
+      dataIndex: 'key',
+      key: 'key',
     },
-    { title: 'Aksi', key: 'action',
+    {
+      title: 'Nomor Antrean',
+      dataIndex: 'nomorAntrean',
+      key: 'nomorAntrean',
+    },
+    {
+      title: 'ID Pendaftaran',
+      dataIndex: 'appointmentId',
+      key: 'appointmentId',
+    },
+    {
+      title: 'Tanggal Pendaftaran',
+      dataIndex: 'tanggalTerpilih',
+      key: 'tanggalTerpilih',
+    },
+    {
+      title: 'Nomor RME',
+      dataIndex: 'emrNumber',
+      key: 'emrNumber',
+    },
+    {
+      title: 'NIK',
+      dataIndex: 'nomorIdentitas',
+      key: 'nomorIdentitas',
+    },
+    {
+      title: 'Nama Lengkap',
+      dataIndex: 'namaLengkap',
+      key: 'namaLengkap',
+    },
+    {
+      title: 'Jenis Kelamin',
+      dataIndex: 'gender',
+      key: 'gender',
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Poli/Ruangan',
+      dataIndex: 'spesialisasi',
+      key: 'spesialisasi'
+    },
+    {
+      title: 'Nama Dokter/Tenaga Medis',
+      dataIndex: 'namaDokter',
+      key: 'namaDokter',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (text) => {
+        let color;
+        let displayText;
+        switch (text) {
+          case 'ongoing':
+            color = 'blue';
+            displayText = 'Sedang berjalan';
+            break;
+          case 'done':
+            color = 'green';
+            displayText = 'Selesai';
+            break;
+          case 'canceled':
+            color = 'red';
+            displayText = 'Batal';
+            break;
+          default:
+            color = 'default';
+            displayText = '-';
+        }
+        return <Tag color={color}>{displayText}</Tag>;
+      },
+    },
+    {
+      title: 'Aksi',
+      key: 'action',
       render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.appointmentId)}>Lihat</Button>),
     },
   ];
 
-  const filteredAppointmentData = selectedProfile === "Semua" ? appointmentData : appointmentData.filter(appointment => appointment.emrNumber === selectedProfile);
-  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.appointmentCreatedAt) - new Date(a.appointmentCreatedAt); });
-  const dataSource = sortedAppointmentData?.map((appointment, index) => ({
-    key: index + 1,
-    appointmentId: appointment.appointmentId,
-    namaLengkap: appointment.namaLengkap,
-    namaDokter: appointment.namaDokter,
-    spesialisasi: `Dokter ${appointment.spesialisasi}`,
-    waktuTerpilih: appointment.waktuTerpilih,
-    tanggalTerpilih: new Date(appointment.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }),
-    faskesAsal: appointment.faskesAsal,
-    status: appointment.status,
-  }));
+  const combinedDataSource = appointments
+    ?.filter(appointment => appointment.tanggalTerpilih === selectedDate.format('YYYY-MM-DD'))
+    ?.map((appointment, index) => {
+      const profile = profiles?.find(profile => profile.emrNumber === appointment.emrNumber);
+      return {
+        key: index + 1,
+        appointmentId: appointment?.appointmentId,
+        tanggalTerpilih: FormatDate2(appointment?.tanggalTerpilih),
+        accountAddress: profile?.accountAddress,
+        nomorAntrean: appointment?.newIndexString,
+        dmrNumber: profile?.dmrNumber,
+        emrNumber: profile?.emrNumber,
+        nomorIdentitas: profile?.nomorIdentitas,
+        namaLengkap: profile?.namaLengkap,
+        namaDokter: appointment?.namaDokter,
+        gender: ConvertData(profile)?.gender,
+        spesialisasi: appointment?.spesialisasi,
+        status: appointment?.status,
+      };
+    });
+
+  const filteredDataSource = combinedDataSource
+    ?.filter((record) => {
+      const matchesSearchText =
+        (record.appointmentId && record.appointmentId.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorAntrean && record.nomorAntrean.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.dmrNumber && record.dmrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.emrNumber && record.emrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.namaLengkap && record.namaLengkap.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.namaDokter && record.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.spesialisasi && record.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorIdentitas && record.nomorIdentitas.toLowerCase().includes(searchText.toLowerCase()))
+
+      const matchesStatus = selectedStatus ? record.status === selectedStatus : true;
+      const matchesPoli = selectedPoli ? record.spesialisasi === selectedPoli : true;
+      const matchesGender = selectedGender ? record.gender === selectedGender : true;
+
+      return matchesSearchText && matchesStatus && matchesPoli && matchesGender;
+    });
 
   sessionStorage.setItem("staffPatientProfiles", JSON.stringify(profiles));
-  sessionStorage.setItem("StaffPelayananMedis", JSON.stringify(appointmentData));
+  sessionStorage.setItem("StaffPelayananMedis", JSON.stringify(appointments));
 
   return (
     <>
-      <NavbarController type={type} page="pelayanan-medis" color="blue" accountAddress={accountAddress} />
-      <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
-        <div className="grid justify-between grid-cols-5 gap-x-8">
-          <div className="grid items-start grid-cols-2 col-span-5">
-            <div className="grid mb-8">
-            </div>
-            <div className="grid mb-8 ml-auto">
-              <Select style={{ width: 200, marginLeft: 20 }} onChange={handleProfileChange} defaultValue="Semua"
-              >
-                <Select.Option value="Semua">Semua</Select.Option>
-                {profiles.map(profile => (
-                  <Select.Option key={profile.emrNumber} value={profile.emrNumber}>{profile.namaLengkap}</Select.Option>
-                ))}
-              </Select>
-            </div>
+      <NavbarController type={type} page="pelayanan-medis" color="blue" />
+      <div>
+        <div className="grid items-center justify-center w-11/12 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+          <div className="flex justify-end gap-x-8 w-full pb-4">
+            <Select
+              placeholder="Pilih Status"
+              allowClear
+              onChange={(value) => setSelectedStatus(value)}
+              style={{ width: 150 }}
+            >
+              <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+              <Select.Option value="done">Selesai</Select.Option>
+              <Select.Option value="canceled">Batal</Select.Option>
+            </Select>
+            <Select
+              placeholder="Pilih Poli/Ruangan"
+              allowClear
+              onChange={(value) => setSelectedPoli(value)}
+              style={{ width: 150 }}
+            >
+              <Select.Option value="Umum">Umum</Select.Option>
+              <Select.Option value="TB Paru">TB Paru</Select.Option>
+              <Select.Option value="KIA">KIA</Select.Option>
+            </Select>
+            <Select
+              placeholder="Pilih Jenis Kelamin"
+              allowClear
+              onChange={(value) => setSelectedGender(value)}
+              style={{ width: 150 }}
+            >
+              <Select.Option value="Laki-laki">Laki-laki</Select.Option>
+              <Select.Option value="Perempuan">Perempuan</Select.Option>
+            </Select>
+            <DatePicker
+              defaultValue={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              format="YYYY-MM-DD"
+              allowClear={false}
+            />
+            <Search
+              placeholder="Cari berdasarkan teks"
+              allowClear
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 300 }}
+            />
           </div>
-          <div className="grid items-start col-span-5">
-            <Table columns={columns} dataSource={dataSource} pagination={false} />
+        </div>
+        <div className="grid justify-center w-11/12 grid-cols-1 pt-8 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
+          <div className="w-full">
+            <Table columns={columns} dataSource={filteredDataSource} pagination={false} />
           </div>
         </div>
       </div>
       <Modal width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
         {selectedAppointment && (
-          <>
-            <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} />
-          </>
+          <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} />
         )}
       </Modal>
     </>
