@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Tag, Empty } from 'antd';
 
-export default function RecordList({ recordItems, chosenPatient, appointmentData }) {
+export default function RecordList({ chosenPatient, appointmentData }) {
   const navigate = useNavigate();
   const handleNavigate = (record) => {
     const matchedAppointment = appointmentData.find(appointment => appointment.appointmentId === record.appointmentId)?.data;
     navigate('/patient/record-list/details', { state: {record, chosenPatient, appointmentData: matchedAppointment} });
   };
-  console.log({appointmentData});
+  appointmentData = appointmentData.filter(appointment => appointment.selesai);
   return (
     <div className="grid gap-4">
       {appointmentData.length > 0 ? (
@@ -16,7 +16,7 @@ export default function RecordList({ recordItems, chosenPatient, appointmentData
             <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
               <div className="grid items-center justify-between grid-cols-4 mb-4">
                 <div className="col-span-4 grid grid-cols-3 gap-x-4">
-                  <h3 className="col-span-2 font-semibold text-lg text-gray-900">{appointment.selesai.judulRekamMedis}</h3>
+                  <h3 className="col-span-2 font-semibold text-lg text-gray-900">{appointment?.selesai?.judulRekamMedis}</h3>
                   <Tag color="green" className="self-center ml-auto m-0 h-fit w-fit">{appointment.appointmentId}</Tag>
                 </div>
               </div>
@@ -44,7 +44,7 @@ export default function RecordList({ recordItems, chosenPatient, appointmentData
             </div>
             </div>
         ))
-      ) : (<Empty description="Tidak ada Rawat Jalan" />)}
+      ) : (<Empty description="Tidak ada riwayat pengobatan yang ditemukan." />)}
     </div>
   );
 }

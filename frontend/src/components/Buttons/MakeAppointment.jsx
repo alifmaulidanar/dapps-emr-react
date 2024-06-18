@@ -338,29 +338,29 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   style={{ width: 430 }}
                   defaultValue="all"
                   size="large"
-                  placeholder="Select a specialization"
+                  placeholder="Pilih Poli/Ruangan"
                   optionFilterProp="children"
                   onChange={handleSpecializationChange}
                   value={selectedSpecialization}
                 >
                   {specializations.map(spec => (
-                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : "Dokter " + spec}</Option>
+                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : spec}</Option>
                   ))}
                 </Select>
               </div>
               <div className="mb-6">
-                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Dokter</label>
+                <label htmlFor="category" className="block mb-2 text-sm font-medium text-gray-900" >Pilih Dokter/Tenaga Medis</label>
                 <Select
                   showSearch
                   style={{ width: 430 }}
                   size="large"
-                  placeholder="Select a doctor"
+                  placeholder="Pilih Dokter/Tenaga Medis"
                   optionFilterProp="children"
                   value={selectedDoctorInfo.address}
                   onChange={handleDoctorChange}
                   filterOption={ (input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0 }
                 >
-                  <Option value="default">Pilih Dokter</Option>
+                  <Option value="default">Pilih Dokter/Tenaga Medis</Option>
                   {filteredDoctors.map((dokter) => (
                     <Option key={dokter.doctorAddress} value={dokter.doctorAddress}>
                       {dokter.namaDokter} ({dokter.spesialisasi})

@@ -1909,7 +1909,7 @@ useEffect(() => {
                 />
               </Form.Item>
               <Form.Item label="Rujukan dari" name="rujukanDari" >
-                <Select size="middle" onChange={onRujukanDariChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('rujukanDari')} options={[
+                <Select size="middle" onChange={onRujukanDariChange} disabled={isDataFinished && !isEdit} options={[
                   { value: 'Sendiri', label: <span>1. Sendiri</span> },
                   { value: 'Dokter', label: <span>2. Dokter</span> },
                   { value: 'Perawat/Bidan', label: <span>3. Perawat/Bidan</span> },
@@ -1993,7 +1993,7 @@ useEffect(() => {
                 <Divider orientation="left">Kesimpulan / Saran</Divider>
               </div>
               <Form.Item label="Status Pemeriksaan" name="statusPemeriksaanLab" >
-                <Select size="middle" onChange={onstatusPemeriksaanLabChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusPemeriksaanLab')} options={[
+                <Select size="middle" onChange={onstatusPemeriksaanLabChange} disabled={isDataFinished && !isEdit} options={[
                   { value: '1', label: <span>1. Urgent</span> },
                   { value: '2', label: <span>2. Tidak Urgent</span> },
                 ]}/>
@@ -2151,7 +2151,7 @@ useEffect(() => {
       <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start col-span-5">
-            <div className="grid mb-4"><BackButton linkToPage="/doctor/patient-list"/></div>
+            <div className="grid mb-4"><BackButton linkToPage="/doctor/pelayanan-medis"/></div>
           </div>
           <div className="grid items-start col-span-5">
             <div className="grid grid-cols-2 gap-x-8">

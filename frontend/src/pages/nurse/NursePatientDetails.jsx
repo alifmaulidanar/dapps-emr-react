@@ -2152,7 +2152,7 @@ useEffect(() => {
       <div className="grid grid-cols-1 py-24 mx-12 min-h-fit">
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start col-span-5">
-            <div className="grid mb-4"><BackButton linkToPage="/doctor/patient-list"/></div>
+            <div className="grid mb-4"><BackButton linkToPage="/nurse/pelayanan-medis"/></div>
           </div>
           <div className="grid items-start col-span-5">
             <div className="grid grid-cols-2 gap-x-8">

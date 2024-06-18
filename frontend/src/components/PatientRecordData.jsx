@@ -4,28 +4,7 @@ import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FileOutlined, CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons';
 import { CONN } from '../../../enum-global';
-
-function formatDateTime(dateString) {
-  const date = new Date(dateString);
-
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-
-  return `${day}/${month}/${year} pukul ${hours}:${minutes}:${seconds}`;
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
+import { FormatDateTime, FormatDate } from "./utils/Formating";
 
 function convertData(data) {
   const convertedData = {...data};
@@ -147,7 +126,7 @@ const StatusSelesaiRecordLoop = ({ data }) => {
     tanggalRencanaKontrol = data.tanggalRencanaKontrol;
   }
   const selesaiData = [
-    formatDateTime(data.selesaiCreatedAt),
+    FormatDateTime(data.selesaiCreatedAt),
     data.namaDokterTb,
     data.judulRekamMedis,
     data.catatanRekamMedis,
@@ -181,7 +160,7 @@ const StatusSelesaiRecordLoop = ({ data }) => {
 const AnamnesisRecordLoop = ({ data }) => {
   const headers = ['Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Keluhan Utama', 'Keluhan Tambahan','Lama Sakit', 'Merokok', 'Alkohol', 'Kurang Sayur/Buah', 'Edukasi', 'Terapi', 'Rencana Tindakan', 'Observasi', 'Biopsikososial', 'Keterangan'];
   const anamnesisData = [
-    formatDate(data.anamnesisCreatedAt),
+    FormatDate(data.anamnesisCreatedAt),
     data.namaDokterAnamnesis,
     data.namaAsistenAnamnesis,
     data.keluhanUtama,
@@ -344,7 +323,7 @@ const StatusFisisRecordLoop = ({ data }) => {
 const PemeriksaanFisikRecordLoop = ({ data }) => {
   const headers = ['Tanggal', 'Dokter/Tenaga Medis', 'Perawat', 'Status Hamil', 'Kesadaran','Sistole', 'Diastole', 'MAP', 'Tinggi Badan', 'Berat Badan', 'Detak Nadi', 'Pernapasan', 'Saturasi (Sp02)', 'Suhu'];
   const anamnesisData = [
-    formatDate(data.anamnesisCreatedAt),
+    FormatDate(data.anamnesisCreatedAt),
     data.namaDokterAnamnesis,
     data.namaAsistenAnamnesis,
     convertData(data).statusHamil,
@@ -526,7 +505,7 @@ const DiagnosaRecordLoop = ({ data }) => {
           {diagnosis.map((diag, index) => (
             <tr key={index} className="bg-white">
               <td className="py-2 text-center text-sm text-gray-900 border border-gray-300">{counter++}</td>
-              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{formatDateTime(data.diagnosisCreatedAt)}</td>
+              <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{FormatDateTime(data.diagnosisCreatedAt)}</td>
               <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.namaDokterDiagnosis}</td>
               <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.namaAsistenDiagnosis}</td>
               <td className="p-2 text-sm text-center text-gray-900 border border-gray-300">{diag.icdx}</td>
@@ -878,7 +857,7 @@ const PengobatanTbSelesaiRecordLoop = ({ data }) => {
 const PemeriksaanLabRecordLoop = ({ data }) => {
   const headers = ['Tanggal & Waktu Lab', 'Pemeriksa', 'Rujukan Dari', 'Perujuk', 'Status Pemeriksaan', 'Saran'];
   const pengamatanKehamilanData = [
-    formatDateTime(data.labCreatedAt),
+    FormatDateTime(data.labCreatedAt),
     data.pemeriksaLab,
     data.rujukanDari,
     data.perujukLab,
@@ -981,7 +960,7 @@ const LabImmunologyRecordLoop = ({ data }) => {
 };
 
 let patient;
-function PatientRecordDisplay({ record, chosenPatient, appointmentData }) {
+function PatientRecordDisplay({ record, chosenPatient, appointmentData = null }) {
   // console.log({chosenPatient})
   // console.log({record});
   const labFiles = record?.lab?.files || [];

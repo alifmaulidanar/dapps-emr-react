@@ -121,7 +121,7 @@ function App() {
                 element={<DoctorPelayananMedis role="doctor" />}
               />
               <Route
-                path={`/doctor/pelayanan-medis/patient-details`}
+                path={`/doctor/pelayanan-medis/detail-pasien`}
                 element={<DoctorPatientDetails role="doctor" />}
               />
               <Route

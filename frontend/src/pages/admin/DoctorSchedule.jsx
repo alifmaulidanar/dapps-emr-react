@@ -9,10 +9,10 @@ import { CONN } from "../../../../enum-global";
 // Doctor tag color
 const getTagColorDoctor = (address) => {
   const colorToAddress = {
-    "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D": "teal",
-    "0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522": "brown",
     "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58": "#108ee9",
     "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "#f50",
+    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "teal",
+    "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "brown",
   };
   return colorToAddress[address] || "gray";
 };
@@ -23,8 +23,8 @@ const getTagColorNurse = (address) => {
     "0x0be909d68efd2b18111254782D0Edf077CD7F6aD": "green",
     "0xadc8158B4d4b63126C18B258BAFd94d7e4614e58": "blue",
     "0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1": "orange",
-    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "red",
-    "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "purple",
+    "0xe5dF08799114D618e628e2027fc8FF5B7F29705C": "teal",
+    "0x7837Eb4C4388842335f8d51De5C003f2a5c42169": "brown",
     "0xBec10133688B118Bd183B73B7963617472800E83": "gold",
     "0x6b32DFFB8d087297b7397adE4F94AC06e1D47cA6": "geekblue",
     "0x2B8B2e67E1176378304597B044D766580D233e1f": "pink",
@@ -33,7 +33,7 @@ const getTagColorNurse = (address) => {
     "0xd43F2f3615B6F0ad5C8caC2f514Ae53F0F21e93C": "magenta",
     "0xdD76Ce44d1A22D5a3bCeD70e766AAAC95dc06f1b": "lime",
     "0xd078d842A58Df0A2282Ea626ce0629Af1C542A84": "navy",
-    "0x119d6536434c434fa68CFFAFE104686a50E4Ef56": "maroon",
+    "0x119d6536434c434fa68CFFAFE104686a50E4Ef56": "purple",
   };
   return colorToAddress[address] || "gray";
 };
@@ -109,7 +109,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       },
     },
     {
-      title: "Nama Dokter",
+      title: "Nama Dokter/Tenaga Medis",
       dataIndex: "namaDokter",
       key: "namaDokter",
       render: (value, row, index) => {
@@ -133,7 +133,7 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       },
     },
     {
-      title: "Spesialis",
+      title: "Poli/Ruangan",
       dataIndex: "spesialisasi",
       key: "spesialisasi",
       render: (value, row, index) => {

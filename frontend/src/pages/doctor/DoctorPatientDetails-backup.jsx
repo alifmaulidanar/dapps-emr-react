@@ -328,7 +328,7 @@ export default function DoctorPatientDetails({ role }) {
         <div className="grid justify-between grid-cols-5 gap-x-8">
           <div className="grid items-start col-span-5">
             <div className="grid mb-4">
-              <BackButton linkToPage="/doctor/patient-list" />
+              <BackButton linkToPage="/doctor/pelayanan-medis" />
             </div>
           </div>
           <div className="grid items-start col-span-5">

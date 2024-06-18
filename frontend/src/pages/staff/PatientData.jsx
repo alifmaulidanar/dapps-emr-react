@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, Upload, message, Button, Form, Input, Select, DatePicker, Spin } from "antd";
+import { Avatar, Upload, message, Button, Form, Input, Select, DatePicker, Spin, Tag } from "antd";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -72,7 +72,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
 
   // user identifier
   const userName = userDataProps.namaLengkap;
-  // const userIdentification = userDataProps.emrNumber;
+  const patientAccountAddress = userDataProps.accountAddress;
   const userImage = userDataProps.foto;
 
   const handleFileChange = async (info) => {
@@ -354,11 +354,9 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
           )}
           {renderUploadButton()}
           <h5 className="mb-1 text-xl font-medium text-gray-900">{userName}</h5>
-          {/* <div>
-            <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded text-center">
-              {userIdentification}
-            </span>
-          </div> */}
+          <div>
+            <Tag color="green">{patientAccountAddress}</Tag>
+          </div>
         </div>
         <div className="grid">
           <Form.Item
