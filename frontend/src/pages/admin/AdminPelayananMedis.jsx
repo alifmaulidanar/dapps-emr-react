@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import dayjs from 'dayjs';
-import NavbarController from "../../components/Navbar/NavbarController";
 import { Tag, Table, Button, DatePicker, Select, Input, Modal } from "antd";
 const { Search } = Input;
 import { CONN } from "../../../../enum-global";
@@ -25,7 +24,7 @@ export default function AdminPelayananMedis({ token }) {
     const selectedAccount = accounts.find(account => account.accountAddress === selectedProfile.accountAddress);
     sessionStorage.setItem("selectedProfile", JSON.stringify(selectedProfile));
     sessionStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
-    window.location.assign("/doctor/pelayanan-medis/detail-pasien");
+    window.location.assign("/admin/pelayanan-medis/detail-pasien");
   };
 
   const showModal = (appointmentId) => {
@@ -41,7 +40,7 @@ export default function AdminPelayananMedis({ token }) {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-data`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/patient-data`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -62,7 +61,6 @@ export default function AdminPelayananMedis({ token }) {
     fetchAppointments();
   }, [token]);
 
-  let type = 2; // doctor
   const columns = [
     {
       title: 'No.',
@@ -193,12 +191,11 @@ export default function AdminPelayananMedis({ token }) {
       return matchesSearchText && matchesStatus && matchesPoli && matchesGender;
     });
   
-  sessionStorage.setItem("doctorPatientProfiles", JSON.stringify(profiles));
-  sessionStorage.setItem("doctorPelayananMedis", JSON.stringify(appointments));
+  sessionStorage.setItem("adminPatientProfiles", JSON.stringify(profiles));
+  sessionStorage.setItem("adminPelayananMedis", JSON.stringify(appointments));
 
   return (
     <>
-      <NavbarController type={type} page="pelayanan-medis" color="blue" />
       <div>
         <div className="grid items-center justify-center w-12/12 grid-cols-1 mx-auto min-h-fit max-h-fit min-w-screen gap-x-8 gap-y-4">
           <div className="flex justify-end gap-x-8 w-full pb-4">

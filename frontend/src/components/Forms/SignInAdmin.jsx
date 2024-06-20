@@ -38,6 +38,7 @@ export default function AdminSignIn() {
             const data = await response.json();
             // console.log(data.message, data);
             sessionStorage.setItem("adminToken", data.token);
+            sessionStorage.setItem("accountAddress", data.accountAddress);
             setSpinning(false);
             // console.log("Sign In Successful!");
             window.location.assign(`/admin/dashboard`);
