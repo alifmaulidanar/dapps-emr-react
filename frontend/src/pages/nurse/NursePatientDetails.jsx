@@ -449,31 +449,31 @@ useEffect(() => {
       let specificData;
       switch (selectedCategory) {
         case 'anamnesis':
-          endpoint = '/doctor/patient-list/patient-details/emr-anamnesis';
+          endpoint = '/nurse/patient-list/patient-details/emr-anamnesis';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, anamnesisCreatedAt: new Date().toISOString(),...transformedValues };
           break;
         case 'diagnosis':
-          endpoint = '/doctor/patient-list/patient-details/emr-diagnosis';
+          endpoint = '/nurse/patient-list/patient-details/emr-diagnosis';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, diagnosisCreatedAt: new Date().toISOString(), ...transformedValues, };
           break;
         case 'kehamilan':
-          endpoint = '/doctor/patient-list/patient-details/emr-kehamilan';
+          endpoint = '/nurse/patient-list/patient-details/emr-kehamilan';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress,kehamilanCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         case 'tbParu':
-          endpoint = '/doctor/patient-list/patient-details/emr-tb';
+          endpoint = '/nurse/patient-list/patient-details/emr-tb';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, tbCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         case 'lab':
-          endpoint = '/doctor/patient-list/patient-details/emr-lab';
+          endpoint = '/nurse/patient-list/patient-details/emr-lab';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, labCreatedAt: new Date().toISOString(), ...transformedValues, files: uploadedFiles };
           break;
         case 'selesai':
-          endpoint = '/doctor/patient-list/patient-details/emr-selesai';
+          endpoint = '/nurse/patient-list/patient-details/emr-selesai';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, selesaiCreatedAt: new Date().toISOString(), ...transformedValues };
           break;
         default:
-          endpoint = '/doctor/patient-list/patient-details/emr';
+          endpoint = '/nurse/patient-list/patient-details/emr';
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
       }
 

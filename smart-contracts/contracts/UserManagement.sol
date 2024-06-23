@@ -14,7 +14,6 @@ contract UserManagement {
     event AccountDeactivated(address indexed userAddress);
 
     struct UserAccount {uint id; address accountAddress; string username; string email; string role; string phone; uint createdAt; string cid; bool isActive;}
-    // struct Patients {uint id; address accountAddress; string emrNumber; string idNumber;}
 
     UserAccount[] internal userAccounts;
     UserAccount[] internal patientAccounts;
@@ -22,7 +21,6 @@ contract UserManagement {
     UserAccount[] internal nurseAccounts;
     UserAccount[] internal staffAccounts;
     UserAccount[] internal adminAccounts;
-    // Patients[] private patientRecords;
 
     mapping(address => UserAccount) private userAccountsMap;
     mapping(string => address) private emailToAddressMap;
@@ -36,11 +34,6 @@ contract UserManagement {
         userAccountsMap[msg.sender] = newUserAccount;
         emailToAddressMap[_email] = msg.sender;
         userAccountCounter++;
-        // Role segregation logic
-        // if (keccak256(bytes(_role)) == keccak256(bytes("patient"))) {
-        //     patientAccounts.push(newUserAccount);
-        //     emit PatientAccountAdded(msg.sender, _email);
-        // } else if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
         if (keccak256(bytes(_role)) == keccak256(bytes("doctor"))) {
             doctorAccounts.push(newUserAccount);
             emit DoctorAccountAdded(msg.sender, _email);
@@ -112,16 +105,6 @@ contract UserManagement {
             if (accounts[i].accountAddress == userAddress) { accounts[i].isActive = false; break; }
         }
     }
-
-    // Add a new patient record
-    // function addPatient(address _accountAddress, string memory _emrNumber, string memory _idNumber) external {
-    //     Patients memory newPatientRecord = Patients(patientRecordCounter, _accountAddress, _emrNumber, _idNumber);
-    //     patientRecords.push(newPatientRecord);
-    //     patientRecordCounter++;
-    // }
-
-    // GET All Patients
-    // function getAllPatients() external view returns (Patients[] memory) { return patientRecords; }
 
     // GET All Acounts
     function getAllAccounts() public view returns (UserAccount[] memory) { return userAccounts; }

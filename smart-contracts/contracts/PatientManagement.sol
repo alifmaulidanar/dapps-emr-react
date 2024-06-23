@@ -1,37 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
-// import "./UserManagement.sol";
 
 contract PatientManagement {
-    // Reference to UserManagement contract
-    // UserManagement userManagement;
-    // Constructor to set UserManagement contract address
-    // constructor(address _userManagementAddress) {
-    //     userManagement = UserManagement(_userManagementAddress);
-    // }
-
-    // Event when a new patient account is added
     event PatientAccountAdded(address indexed userAddress, string dmrNumber);
     event PatientAccountUpdated(address indexed userAddress, string newDmrNumber);
 
     // Structure to hold patient account information
-    struct PatientAccount {
-        uint id;
-        address accountAddress;
-        string role;
-        uint createdAt;
-        string dmrNumber;
-        string dmrCid;
-        bool isActive;
-    }
-
+    struct PatientAccount { uint id; address accountAddress; string role; uint createdAt; string dmrNumber; string dmrCid; bool isActive; }
     // Structure to hold individual patient medical records
-    struct Patients {
-        uint id;
-        address accountAddress;
-        string emrNumber;
-        string idNumber;
-    }
+    struct Patients { uint id; address accountAddress; string emrNumber; string idNumber; }
 
     // Arrays and mappings to manage patient accounts and records
     PatientAccount[] internal patientAccounts;
@@ -59,7 +36,6 @@ contract PatientManagement {
         patientAccounts.push(newPatientAccount);
         patientAccountsMap[msg.sender] = newPatientAccount;
         dmrNumberToAccountIdMap[_dmrNumber] = newPatientAccount.id;
-
         emit PatientAccountAdded(msg.sender, _dmrNumber);
     }
 

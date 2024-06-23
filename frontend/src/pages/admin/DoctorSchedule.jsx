@@ -52,7 +52,6 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       const { dokter } = await ipfsResponse.json();
       if (!Array.isArray(dokter)) throw new Error("Data format is incorrect");
       let flattenedData = [];
-      console.log({ dokter });
       dokter.forEach((dokter) => {
         dokter.jadwal.forEach((schedule, index) => {
           flattenedData.push({
@@ -65,7 +64,6 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
                 </Tag>
               </>
             ),
-            // namaDokter: `${dokter.namaDokter}\n${dokter.doctorAddress}`,
             spesialisasi: dokter.spesialisasi,
             lokasiPraktik: dokter.lokasiPraktik,
             hari: schedule.hari,
@@ -164,12 +162,6 @@ function DoctorSchedule({ schedulesData, onScheduleCidUpdate }) {
       dataIndex: "jabatanAsisten",
       key: "jabatanAsisten",
     },
-    // {
-    //   title: "Perawat",
-    //   dataIndex: "nurseAddress",
-    //   key: "nurseAddress",
-    //   render: (nurse) => <Tag color={getTagColorNurse(nurse)}>{nurse}</Tag>,
-    // },
   ];
 
   // handle upload
