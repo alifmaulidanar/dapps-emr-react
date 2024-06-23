@@ -46,7 +46,7 @@ export default function AdminPatientList({ token }) {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(`${CONN.BACKEND_LOCAL}/doctor/patient-data`, {
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/admin/patient-data`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -170,9 +170,9 @@ export default function AdminPatientList({ token }) {
       return matchesSearchText && matchesGender && matchesFaskesAsal;
     });
 
-  sessionStorage.setItem("doctorPatientProfiles", JSON.stringify(profiles));
-  sessionStorage.setItem("doctorPelayananMedis", JSON.stringify(appointments));
-  const userAccountData = { role: "doctor" }
+  sessionStorage.setItem("adminPatientProfiles", JSON.stringify(profiles));
+  sessionStorage.setItem("adminPelayananMedis", JSON.stringify(appointments));
+  const userAccountData = { role: "admin" }
 
   return (
     <>

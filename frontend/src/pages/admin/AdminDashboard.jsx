@@ -401,7 +401,7 @@ export default function AdminDashboard() {
 
   const sideMenuItems = [
     {
-      label: "Dashboard",
+      label: "Data Pegawai",
       key: "dashboard",
       // icon: <DashboardOutlined />,
       onClick: () => setActiveMenu("dashboard"),
@@ -454,9 +454,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex w-full flex-nowrap gap-x-8">
             <Menu
-              style={{
-                width: 200,
-              }}
+              style={{ width: 200 }}
               defaultSelectedKeys={"dashboard"}
               mode="inline"
               items={sideMenuItems.map((item) => ({
@@ -474,17 +472,7 @@ export default function AdminDashboard() {
                       Tambah Akun
                     </Button>
                   </div>
-                  {/* <div>
-                  <Search
-                    placeholder="input search text"
-                    // onSearch={onSearch}
-                    style={{
-                      width: 200,
-                    }}
-                  />
-                </div> */}
 
-                  {/* Tampilkan berdasarkan role */}
                   <div className="justify-self-end w-[150px]">
                     <Select
                       defaultValue="all"

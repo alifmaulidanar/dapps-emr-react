@@ -19,6 +19,7 @@ import DoctorPelayananMedis from "./pages/doctor/DoctorPelayananMedis";
 import NursePatientList from "./pages/nurse/NursePatientList";
 import NursePelayananMedis from "./pages/nurse/NursePelayananMedis";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPatientDetails from "./pages/admin/AdminPatientDetails";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
 import StaffAntrean from "./pages/staff/StaffAntrean";
 import StaffPatientList from "./pages/staff/StaffPatientList";
@@ -196,7 +197,11 @@ function App() {
               />
               <Route
                 path={`/admin/dashboard`}
-                element={<AdminDashboard role="staff" />}
+                element={<AdminDashboard role="admin" />}
+              />
+              <Route
+                path={`/admin/pelayanan-medis/detail-pasien`}
+                element={<AdminPatientDetails role="admin" />}
               />
             </>
           </Routes>
