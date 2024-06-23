@@ -665,12 +665,42 @@ next:
 ✅ nambah modal untuk riwayat pengobatan / pelayanan medis -> dropdown accordion -> lewat doctor
 ✅ nambah search dan filter untuk record list by patient, appointment list by patient, data pasien dan pelayanan medis by admin, staff, doctor, dan nurse
 ✅ nambah 2 menu baru, data pasien dan pelayanan medis
+✅ SEMUA PROSES PENULISAN DATA KE BLOCKCHAIN HARUS DIHITUNG:
+   1. Gas Price
+   2. Gas Used
+   3. Gas Fee (Ether)
+✅ contoh output lengkap, make appointment:
+   Gas Price: 0.00000002
+   Update Patient Account Gas Used: 68724
+   Update Patient Account Gas Fee (Ether): 0.00137448
+   Add Outpatient Data Gas Used: 686280
+   Add Outpatient Data Gas Fee (Ether): 0.0137256
+   Add Doctor Temporary Data Gas Used: 176315
+   Add Doctor Temporary Data Gas Fee (Ether): 0.0035263
+   Add Nurse Temporary Data Gas Used: 193415
+   Add Nurse Temporary Data Gas Fee (Ether): 0.0038683
+   Total Gas Used: 1124734
+   Total Gas Fee (Ether): 0.02249468
+✅ nantinya yang akan digunakan di testbed adalah gas fee ether
+- benerin kode nomor antrean per poli/spesialisasi & pemisahan file txt nya
 - cek daftar akun dan profil pasien dari admin
-- cek pengisian emr dari admin
+- cek pengisian emr dari dokter, nurse, admin
 - ubah semua endpoint backend admin terkait menu baru, pindahkan endpoint saja
-- review butuh filter apa lagi
+- review butuh filter apa lagi di semua role
 - cek semua halaman nurse
 - cek pengisian emr untuk setiap kategori dari nurse
 - integrasi pengisian emr dari nurse dan dokter secara bergantian
+- lanjut isi lampiran bagian antarmuka, source code SC, dll.
+- hilangkan black box testing di laporan TA
+- review apakah test bed sudah benar
+
+NOTES:
+1. Gas Price di Ganache adalah dalam Wei (20000000000 Wei / 20 Gwei atau / 0.00000002 Ether)
 
 🟡🟡🟡 BESOK DOKUMEN WORD DULU, KAMIS BIMBINGAN WORD DULU 🟡🟡🟡
+
+urutan ngerjain BESOK
+1. hasil observasi -> data dari bu cucu, wawancara bang dinul dkk., dan observasi e-puskesmas
+2. selesaikan semua checkpoint hingga benerin kode antrean (sebelum includes output gas)
+3. implementasi seluruh output gas pada setiap transaksi ke blockchain
+4. lengkapi pengujian test bed
