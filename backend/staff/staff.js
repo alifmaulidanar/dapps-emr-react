@@ -12,6 +12,7 @@ import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatie
 import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
 import { retrieveDMRData  } from "../middleware/userData.js";
 import { handleFileWrite } from "../user/appointment/appointment.js";
+import { txChecker } from "../ganache/txChecker.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -120,6 +121,18 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
     const accountTX = await contractWithSigner.addPatientAccount( dmrNumber, dmrCid);
     await accountTX.wait();
+
+    const accountReceipt = await accountTX.wait();
+    const accountGasDetails = await txChecker(accountReceipt);
+
+    console.log("Admin / Staff")
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Account Gas Used:", accountGasDetails.gasUsed);
+    console.log("Add Patient Account Gas Fee (Wei):", accountGasDetails.gasFeeWei);
+    console.log("Add Patient Account Gas Fee (Gwei):", accountGasDetails.gasFeeGwei);
+    console.log("Add Patient Account Gas Fee (Ether):", accountGasDetails.gasFeeEther);
+    console.log("Block Number:", accountGasDetails.blockNumber);
+    console.log("Transaction Hash:", accountGasDetails.transactionHash);
 
     const responseData = {
       message: `Patient Registration Successful`,
@@ -462,9 +475,9 @@ router.post("/appointment", authMiddleware, async (req, res) => {
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
-    // referensi data outpatient ke doctor dan nurse terkait
     const outpatientTx = await outpatientContractWithSigner.addOutpatientData(
       appointmentData.accountAddress,
       appointmentData.doctorAddress,
@@ -473,15 +486,60 @@ router.post("/appointment", authMiddleware, async (req, res) => {
       appointmentDataIpfs.emrNumber,
       newDmrCid
     );
-    await outpatientTx.wait();
+    const outpatientReceipt = await outpatientTx.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
 
     const addDoctorTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.doctorAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
-    await addDoctorTemporary.wait()
-    // console.log("addDoctorTemporary successfully");
+    const addDoctorTemporaryReceipt = await addDoctorTemporary.wait();
+    const addDoctorTemporaryGasDetails = await txChecker(addDoctorTemporaryReceipt);
+
     const addNurseTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.nurseAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
-    await addNurseTemporary.wait()
-    // console.log("addNurseTemporary successfully");
-    // console.log({newIndexString, appointmentId, newDmrCid});
+    const addNurseTemporaryReceipt = await addNurseTemporary.wait();
+    const addNurseTemporaryGasDetails = await txChecker(addNurseTemporaryReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed
+      .add(outpatientReceipt.gasUsed)
+      .add(addDoctorTemporaryReceipt.gasUsed)
+      .add(addNurseTemporaryReceipt.gasUsed);
+
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+
+    console.log("appointment staff");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Doctor Temporary Data Gas Used:", addDoctorTemporaryGasDetails.gasUsed);
+    console.log("Add Doctor Temporary Data Gas Fee (Wei):", addDoctorTemporaryGasDetails.gasFeeWei);
+    console.log("Add Doctor Temporary Data Gas Fee (Gwei):", addDoctorTemporaryGasDetails.gasFeeGwei);
+    console.log("Add Doctor Temporary Data Gas Fee (Ether):", addDoctorTemporaryGasDetails.gasFeeEther);
+    console.log("Add Doctor Temporary Data Block Number:", addDoctorTemporaryGasDetails.blockNumber);
+    console.log("Add Doctor Temporary Data Transaction Hash:", addDoctorTemporaryGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Nurse Temporary Data Gas Used:", addNurseTemporaryGasDetails.gasUsed);
+    console.log("Add Nurse Temporary Data Gas Fee (Wei):", addNurseTemporaryGasDetails.gasFeeWei);
+    console.log("Add Nurse Temporary Data Gas Fee (Gwei):", addNurseTemporaryGasDetails.gasFeeGwei);
+    console.log("Add Nurse Temporary Data Gas Fee (Ether):", addNurseTemporaryGasDetails.gasFeeEther);
+    console.log("Add Nurse Temporary Data Block Number:", addNurseTemporaryGasDetails.blockNumber);
+    console.log("Add Nurse Temporary Data Transaction Hash:", addNurseTemporaryGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
     res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {
     console.error(error);

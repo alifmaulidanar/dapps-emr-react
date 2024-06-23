@@ -9,6 +9,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import { generatePassword, prepareFilesForUpload } from "../../utils/utils.js";
 import { generatePatientDMR, generatePatientEMR } from "../../patient/generatePatientCode.js";
+import { txChecker } from "../../ganache/txChecker.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
@@ -124,7 +125,17 @@ router.post("/patient/register-account", async (req, res) => {
 
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
     const accountTX = await contractWithSigner.addPatientAccount( dmrNumber, dmrCid);
-    await accountTX.wait();
+    const accountReceipt = await accountTX.wait();
+    const accountGasDetails = await txChecker(accountReceipt);
+
+    console.log("Pasien")
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Account Gas Used:", accountGasDetails.gasUsed);
+    console.log("Add Patient Account Gas Fee (Wei):", accountGasDetails.gasFeeWei);
+    console.log("Add Patient Account Gas Fee (Gwei):", accountGasDetails.gasFeeGwei);
+    console.log("Add Patient Account Gas Fee (Ether):", accountGasDetails.gasFeeEther);
+    console.log("Block Number:", accountGasDetails.blockNumber);
+    console.log("Transaction Hash:", accountGasDetails.transactionHash);
 
     const responseData = {
       message: `Patient Registration Successful`,

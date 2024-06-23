@@ -9,6 +9,7 @@ import authMiddleware from "../middleware/auth-middleware.js";
 import { prepareFilesForUpload } from "../utils/utils.js";
 import { retrieveDMRData } from "../middleware/userData.js";
 import { handleFileWrite } from "../user/appointment/appointment.js";
+import { txChecker } from "../ganache/txChecker.js";
 
 // Contract & ABI
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
@@ -311,17 +312,45 @@ router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
-    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+    const outpatientTx = await outpatientContractWithSigner.updateOutpatientData(
       commonData.appointmentId,
       commonData.accountAddress,
       specificData.doctorAddress,
       specificData.nurseAddress,
       newDmrCid
     );
-    await outpatientTX.wait();
+    const outpatientReceipt = await outpatientTx.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+  
+    console.log("rme anamnesa doctor");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
 
     res.status(200).json({ message: "EMR saved" });
   } catch (error) {
@@ -388,17 +417,45 @@ router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
-    const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
+    const outpatientTx = await outpatientContractWithSigner.updateOutpatientData(
       commonData.appointmentId,
       commonData.accountAddress,
       specificData.doctorAddress,
       specificData.nurseAddress,
       newDmrCid
     );
-    await outpatientTX.wait();
+    const outpatientReceipt = await outpatientTx.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+  
+    console.log("rme diagnosa doctor");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
 
     res.status(200).json({ message: "EMR saved" });
   } catch (error) {
@@ -465,7 +522,8 @@ router.post("/patient-list/patient-details/emr-kehamilan", authMiddleware, async
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
     const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
@@ -475,7 +533,34 @@ router.post("/patient-list/patient-details/emr-kehamilan", authMiddleware, async
       specificData.nurseAddress,
       newDmrCid
     );
-    await outpatientTX.wait();
+    const outpatientReceipt = await outpatientTX.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+  
+    console.log("rme kia doctor");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
 
     res.status(200).json({ message: "EMR saved" });
   } catch (error) {
@@ -542,7 +627,8 @@ router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, 
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
     const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
@@ -552,7 +638,34 @@ router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, 
       specificData.nurseAddress,
       newDmrCid
     );
-    await outpatientTX.wait();
+    const outpatientReceipt = await outpatientTX.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+  
+    console.log("rme tb paru doctor");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
 
     res.status(200).json({ message: "EMR saved" });
   } catch (error) {
@@ -620,7 +733,8 @@ router.post("/patient-list/patient-details/emr-lab", authMiddleware, async (req,
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
     const outpatientTX = await outpatientContractWithSigner.updateOutpatientData(
@@ -630,7 +744,34 @@ router.post("/patient-list/patient-details/emr-lab", authMiddleware, async (req,
       specificData.nurseAddress,
       newDmrCid
     );
-    await outpatientTX.wait();
+    const outpatientReceipt = await outpatientTX.wait();
+    const outpatientGasDetails = await txChecker(outpatientReceipt);
+
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+    const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasUsedInUnits = totalGasUsed.toString();
+    const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+  
+    console.log("rme lab doctor");
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+    console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+    console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+    console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+    console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+    console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+    console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", totalGasUsedInUnits);
+    console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("----------------------------------------");
 
     res.status(200).json({ message: "EMR saved" });
   } catch (error) {
@@ -737,7 +878,8 @@ router.post("/patient-list/patient-details/emr-selesai", authMiddleware, async (
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
 
     // Update outpatient data on blockchain
     const outpatientTX =
@@ -748,7 +890,34 @@ router.post("/patient-list/patient-details/emr-selesai", authMiddleware, async (
         commonData.nurseAddress,
         newDmrCid
       );
-    await outpatientTX.wait();
+      const outpatientReceipt = await outpatientTX.wait();
+      const outpatientGasDetails = await txChecker(outpatientReceipt);
+  
+      const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
+      const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+      const totalGasUsedInUnits = totalGasUsed.toString();
+      const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
+    
+      console.log("rme selesai doctor");
+      console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+      console.log("----------------------------------------");
+      console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
+      console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+      console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+      console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+      console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
+      console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
+      console.log("----------------------------------------");
+      console.log("Add Outpatient Data Gas Used:", outpatientGasDetails.gasUsed);
+      console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
+      console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
+      console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+      console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
+      console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
+      console.log("----------------------------------------");
+      console.log("Total Gas Used:", totalGasUsedInUnits);
+      console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+      console.log("----------------------------------------");
 
     console.log("Outpatient Done✅");
     res.status(200).json({ message: "Outpatient Done✅" });
