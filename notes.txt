@@ -682,17 +682,23 @@ next:
    Total Gas Used: 1124734
    Total Gas Fee (Ether): 0.02249468
 ✅ nantinya yang akan digunakan di testbed adalah gas fee ether
-- benerin kode nomor antrean per poli/spesialisasi & pemisahan file txt nya
-- cek daftar akun dan profil pasien dari admin
-- cek pengisian emr dari dokter, nurse, admin
-- ubah semua endpoint backend admin terkait menu baru, pindahkan endpoint saja
-- review butuh filter apa lagi di semua role
-- cek semua halaman nurse
-- cek pengisian emr untuk setiap kategori dari nurse
-- integrasi pengisian emr dari nurse dan dokter secara bergantian
+✅ benerin kode nomor antrean per poli/spesialisasi & pemisahan file txt nya
+✅ cek daftar akun dan profil pasien dari admin
+✅ page account admin (frontend)
+✅ cek semua halaman nurse
+✅ cek pengisian emr dari dokter
+✅ cek pengisian emr dari nurse
+✅ cek pengisian emr untuk setiap kategori dari nurse
+✅ hilangkan black box testing di laporan TA
+✅ review apakah test bed sudah benar
+✅ integrasi pengisian emr dari nurse dan dokter secara bergantian
+- cek excel -> ada select dokter yang jika diganti, maka dokter unauthorized
+- cek pengisian emr dari admin
+- endpoint admin yang perlu diubah tinggal appointment -> masih staff
+- butuh filter di detail pasien saat pengisian RME
+- butuh filter di daftar rekam medis by patient
+- butuh filter di daftar rawat jalan by patient
 - lanjut isi lampiran bagian antarmuka, source code SC, dll.
-- hilangkan black box testing di laporan TA
-- review apakah test bed sudah benar
 
 NOTES:
 1. Gas Price di Ganache adalah dalam Wei (20000000000 Wei / 20 Gwei atau / 0.00000002 Ether)
@@ -700,7 +706,92 @@ NOTES:
 🟡🟡🟡 BESOK DOKUMEN WORD DULU, KAMIS BIMBINGAN WORD DULU 🟡🟡🟡
 
 urutan ngerjain BESOK
-1. hasil observasi -> data dari bu cucu, wawancara bang dinul dkk., dan observasi e-puskesmas
-2. selesaikan semua checkpoint hingga benerin kode antrean (sebelum includes output gas)
-3. implementasi seluruh output gas pada setiap transaksi ke blockchain
-4. lengkapi pengujian test bed
+✅ 1. hasil observasi -> data dari bu cucu, wawancara bang dinul dkk., dan observasi e-puskesmas
+✅ selesaikan semua checkpoint hingga benerin kode antrean (sebelum includes output gas)
+✅ 3. implementasi seluruh output gas pada setiap transaksi ke blockchain
+✅ 4. lengkapi pengujian test bed
+5. cek turnitin jurnal ijece versi 10
+6. lanjut admin pengisian RME
+7. lengkapi filter
+8. lampiran
+9. ubah endpoint staff ke admin jika perlu
+10. urusin dokter unauthorized
+
+{ specialization: 'umum' }
+{ fileName: 'umum.txt' }
+{ queueNumber: 'U003' }
+{ appointmentId: '20240628000L001U003' }
+{ newDmrCid: 'QmUeTdXGPMnbkmFHLrhpyJtnSLoDBZm511y4WaJkRLVDVn' }
+
+{ specialization: 'tbparu' }
+{ fileName: 'tbparu.txt' }
+{ queueNumber: 'P002' }
+{ appointmentId: '20240628000L001P002' }
+{ newDmrCid: 'QmdW8ig2DWcnSkoApk6WYN6YpBsAsjN1C9xULCnQpzkKGj' }
+
+{ specialization: 'kia' }
+{ fileName: 'kia.txt' }
+{ queueNumber: 'K002' }
+{ appointmentId: '20240628000L001K002' }
+{ newDmrCid: 'QmfQCH7QFWQhw3ExR1VTCvrA15HQgzdbxTZevPHisxfTg5' }
+
+Nomor DRM: 000L008
+Nomor RME: 0000000000000011
+Kata Sandi: WmkASGWD / Test1234
+Public Key: 0x0be909d68efd2b18111254782D0Edf077CD7F6aD
+Private Key: 0x087863df9ff259ea0573cccc8b68b0340ccd75928575d045e226097a6534a013
+
+# Pasien
+pendaftaran akun pasien
+pendaftaran profil pasien
+update akun pasien
+update profil pasien
+pendaftaran rawat jalan
+cancel rawat jalan
+melihat riwayat pengobatan
+
+# Admin
+upload jadwal dokter
+pendaftaran akun pasien
+pendaftaran profil pasien
+pendaftarab akun dokter, perawat, dan staff
+update profil pasien
+hapus profil pasien
+pendaftaran rawat jalan
+cancel rawat jalan
+melihat riwayat pengobatan
+pengisian RME
+update RME
+update akun admin
+
+# Staff
+pendaftaran akun pasien
+pendaftaran profil pasien
+update profil pasien
+hapus profil pasien
+pendaftaran rawat jalan
+cancel rawat jalan
+update akun staff
+update profil staff
+
+# Dokter
+update profil pasien
+hapus profil pasien
+pendaftaran rawat jalan
+cancel rawat jalan
+melihat riwayat pengobatan
+pengisian RME
+update RME
+update akun dokter
+update profil dokter
+
+# Perawat
+update profil pasien
+hapus profil pasien
+pendaftaran rawat jalan
+cancel rawat jalan
+melihat riwayat pengobatan
+pengisian RME
+update RME
+update akun perawat
+update profil perawat
