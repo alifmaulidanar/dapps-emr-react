@@ -5,23 +5,17 @@ contract PatientManagement {
     event PatientAccountAdded(address indexed userAddress, string dmrNumber);
     event PatientAccountUpdated(address indexed userAddress, string newDmrNumber);
 
-    // Structure to hold patient account information
     struct PatientAccount { uint id; address accountAddress; string role; uint createdAt; string dmrNumber; string dmrCid; bool isActive; }
-    // Structure to hold individual patient medical records
     struct Patients { uint id; address accountAddress; string emrNumber; string idNumber; }
-
-    // Arrays and mappings to manage patient accounts and records
     PatientAccount[] internal patientAccounts;
     Patients[] private patientRecords;
     mapping(address => PatientAccount) private patientAccountsMap;
-    mapping(string => uint) private dmrNumberToAccountIdMap; // Mapping for dmrNumber to Account ID
+    mapping(string => uint) private dmrNumberToAccountIdMap;
     uint private patientRecordCounter = 1;
 
     // Function to add a new patient account
     function addPatientAccount(string memory _dmrNumber, string memory _dmrCid) public {
         require(dmrNumberToAccountIdMap[_dmrNumber] == 0, "DMR already exists");
-
-        // Create a new patient account
         PatientAccount memory newPatientAccount = PatientAccount({
             id: patientAccounts.length + 1,
             accountAddress: msg.sender,
@@ -32,7 +26,6 @@ contract PatientManagement {
             isActive: true
         });
 
-        // Add the new patient account to arrays and mappings
         patientAccounts.push(newPatientAccount);
         patientAccountsMap[msg.sender] = newPatientAccount;
         dmrNumberToAccountIdMap[_dmrNumber] = newPatientAccount.id;
@@ -43,23 +36,20 @@ contract PatientManagement {
     function updatePatientAccount(address _accountAddress, string memory _newDmrNumber, string memory _newDmrCid, bool _newIsActive) public returns (bool success) {
         if (patientAccountsMap[_accountAddress].accountAddress == address(0)) return false;
         PatientAccount storage account = patientAccountsMap[_accountAddress];
-        uint accountId = account.id - 1; // Get the index in the array
+        uint accountId = account.id - 1;
 
-        // Update dmrNumber if changed and ensure no duplicates
         if (keccak256(bytes(account.dmrNumber)) != keccak256(bytes(_newDmrNumber))) {
             if (dmrNumberToAccountIdMap[_newDmrNumber] != 0) return false;
             delete dmrNumberToAccountIdMap[account.dmrNumber];
             dmrNumberToAccountIdMap[_newDmrNumber] = account.id;
             account.dmrNumber = _newDmrNumber;
-            patientAccounts[accountId].dmrNumber = _newDmrNumber; // Update array
+            patientAccounts[accountId].dmrNumber = _newDmrNumber;
         }
 
-        // Update the other fields
         account.dmrCid = _newDmrCid;
         account.isActive = _newIsActive;
-        patientAccounts[accountId].dmrCid = _newDmrCid; // Update array
-        patientAccounts[accountId].isActive = _newIsActive; // Update array
-
+        patientAccounts[accountId].dmrCid = _newDmrCid;
+        patientAccounts[accountId].isActive = _newIsActive;
         emit PatientAccountUpdated(_accountAddress, _newDmrNumber);
         return true;
     }
