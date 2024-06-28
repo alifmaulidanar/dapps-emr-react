@@ -33,3 +33,5 @@ dist-ssr
 /smart-contracts/cache
 /smart-contracts/artifacts
 # /smart-contracts/hardhat.config.js
+
+/lampiran

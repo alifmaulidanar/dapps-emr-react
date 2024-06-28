@@ -17,6 +17,7 @@ import { CONN } from "../../../../enum-global";
 import DoctorSchedule from "./DoctorSchedule";
 import AdminPatientList from "./AdminPatientList"
 import AdminPelayananMedis from "./AdminPelayananMedis";
+import AdminAccount from "../AccountAdmin";
 
 export default function AdminDashboard() {
   const [form] = Form.useForm();
@@ -428,7 +429,7 @@ export default function AdminDashboard() {
       label: "Akun",
       key: "account",
       // icon: <CalendarOutlined />,
-      onClick: () => setActiveMenu("doctorSchedule"),
+      onClick: () => setActiveMenu("akunAdmin"),
     },
   ];
 
@@ -509,6 +510,9 @@ export default function AdminDashboard() {
             )}
             {activeMenu === "pelayananMedis" && (
               <AdminPelayananMedis token={token} />
+            )}
+            {activeMenu === "akunAdmin" && (
+              <AdminAccount role="admin" />
             )}
           </div>
         </div>

@@ -9,7 +9,6 @@ import { prepareFilesForUpload } from "../../utils/utils.js"
 import { retrieveDMRData } from "../../middleware/userData.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 import { txChecker } from "../../ganache/txChecker.js";
-// import  { performance } from 'perf_hooks';
 
 // Contract & ABI
 import { SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
@@ -34,30 +33,39 @@ const accountsJson = fs.readFileSync(accountsPath);
 const accounts = JSON.parse(accountsJson);
 
 export const handleFileWrite = (specialization, selectedDate) => {
-  // Tentukan path folder berdasarkan tanggal yang dipilih
   const dateFolderPath = path.join(servicesPath, selectedDate);
-  // Buat folder jika belum ada
   if (!fs.existsSync(dateFolderPath)) {
     fs.mkdirSync(dateFolderPath, { recursive: true });
   }
-  // Tentukan path file berdasarkan spesialisasi dokter
-  const fileName = specialization === 'umum' ? 'umum.txt' : 'gigi.txt';
+  const fileName = `${specialization}.txt`;
   const filePath = path.join(dateFolderPath, fileName);
-  // Inisialisasi nomor urut
+
   let nextIndex = 1;
-  // Jika file sudah ada, baca nomor urut terakhir dari file
   if (fs.existsSync(filePath)) {
     const fileContent = fs.readFileSync(filePath, 'utf8').trim();
     const lastLine = fileContent.split('\n').pop();
     const lastIndex = parseInt(lastLine.substring(1), 10);
     nextIndex = lastIndex + 1;
   }
-  // Buat nomor urut baru dengan format yang sesuai
-  const prefix = specialization === 'umum' ? 'U' : 'G';
-  const newIndexString = `${prefix}${String(nextIndex).padStart(3, '0')}`;
-  // Tulis nomor urut baru ke file (tambahkan di baris baru)
-  fs.appendFileSync(filePath, `${newIndexString}\n`);
-  return newIndexString;
+
+  let prefix;
+  switch (specialization) {
+    case 'umum':
+      prefix = 'U';
+      break;
+    case 'tbparu':
+      prefix = 'P';
+      break;
+    case 'kia':
+      prefix = 'K';
+      break;
+    default:
+      prefix = '';
+      break;
+  }
+  const queueNumber = `${prefix}${String(nextIndex).padStart(3, '0')}`;
+  fs.appendFileSync(filePath, `${queueNumber}\n`);
+  return queueNumber;
 };
 
 // GET Doctor Schedule
@@ -73,10 +81,6 @@ router.get("/:role/appointment", authMiddleware, async (req, res) => {
     const ipfsResponse = await fetch(ipfsGatewayUrl);
     const ipfsData = await ipfsResponse.json();
 
-    // const start = performance.now();
-    // const end = performance.now();
-    // const duration = end - start;
-    // console.log(`Promise.all took ${duration} milliseconds`);
     res.status(200).json({ ...ipfsData });
   } catch (error) {
     console.error(error);
@@ -105,9 +109,7 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     const data = await retrieveDMRData(dmrNumber, dmrCid);
 
     // profiles
-    const accountProfiles = data.emrProfiles.map(profileInfo => {
-      return JSON.parse(profileInfo.profile);
-    });
+    const accountProfiles = data.emrProfiles.map(profileInfo => { return JSON.parse(profileInfo.profile) });
 
     // Find matched profile with emrNumber
     const emrNumber = appointmentDataIpfs.emrNumber;
@@ -116,20 +118,15 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
     }
 
-    // hilangkan dash pada tanggal terpilih
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
-    // buat const polyCode: untuk spesialisasi umum, polyCode = 1, untuk spesialisasi gigi, polyCode = 2
-    // const polyCode = appointmentDataIpfs.spesialisasi.toLowerCase() === "umum" ? "01" : "02";
-    // generate appointmentId by using format "tanggalTerpilih-dmrNumber-polyCode"
-    const specialization = appointmentDataIpfs.spesialisasi.toLowerCase();
-    // Nomor urut baru
-    const newIndexString = handleFileWrite(specialization, selectedDate);
-    const appointmentId = `${selectedDate.replace(/-/g, "")}${dmrNumber}${newIndexString}`;
+    const specialization = appointmentDataIpfs.spesialisasi.trim().replace(/\s+/g, '').toLowerCase();
+    const queueNumber = handleFileWrite(specialization, selectedDate);
+    const appointmentId = `${selectedDate.replace(/-/g, "")}${dmrNumber}${queueNumber}`;
 
     // susun patientAppointmentData
     const patientAppointmentData = {
       appointmentId,
-      nomorAntrean: newIndexString,
+      nomorAntrean: queueNumber,
       ...appointmentDataIpfs
     };
 
@@ -149,6 +146,7 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
       allResults.push(result);
     }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    console.log({newDmrCid});
 
     const updateTX = await contractWithSigner.updatePatientAccount(
       dmrData.accountAddress,

@@ -18,18 +18,13 @@ import { txChecker } from "../ganache/txChecker.js";
 import { USER_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import patientABI from "../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
-// import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
 import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
-// const schedule_contract = SCHEDULE_CONTRACT.toString();
 const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
-
 const userContract = new ethers.Contract(user_contract, userABI, provider);
 const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
-// const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
-// const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const __filename = fileURLToPath(import.meta.url);
@@ -423,9 +418,7 @@ router.post("/appointment", authMiddleware, async (req, res) => {
     const data = await retrieveDMRData(appointmentData.dmrNumber, dmrCid);
 
     // profiles
-    const accountProfiles = data.emrProfiles.map(profileInfo => {
-      return JSON.parse(profileInfo.profile);
-    });
+    const accountProfiles = data.emrProfiles.map(profileInfo => { return JSON.parse(profileInfo.profile) });
 
     // Find matched profile with emrNumber
     const emrNumber = appointmentDataIpfs.emrNumber;
@@ -434,20 +427,15 @@ router.post("/appointment", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: `Profile with nomor rekam medis ${emrNumber} tidak ditemukan.` });
     }
 
-    // hilangkan dash pada tanggal terpilih
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
-    // buat const polyCode: untuk spesialisasi umum, polyCode = 1, untuk spesialisasi gigi, polyCode = 2
-    // const polyCode = appointmentDataIpfs.spesialisasi.toLowerCase() === "umum" ? "01" : "02";
-    // generate appointmentId by using format "tanggalTerpilih-appointmentData.dmrNumber-polyCode"
-    const specialization = appointmentDataIpfs.spesialisasi.toLowerCase();
-    // Nomor urut baru
-    const newIndexString = handleFileWrite(specialization, selectedDate);
-    const appointmentId = `${selectedDate.replace(/-/g, "")}${appointmentData.dmrNumber}${newIndexString}`;
+    const specialization = appointmentDataIpfs.spesialisasi.trim().replace(/\s+/g, '').toLowerCase();
+    const queueNumber = handleFileWrite(specialization, selectedDate);
+    const appointmentId = `${selectedDate.replace(/-/g, "")}${appointmentData.dmrNumber}${queueNumber}`;
 
     // susun patientAppointmentData
     const patientAppointmentData = {
       appointmentId,
-      newIndexString,
+      nomorAntrean: queueNumber,
       ...appointmentDataIpfs
     };
 
@@ -625,62 +613,5 @@ router.post("/cancel-appointment", authMiddleware, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// get patient appointments
-// router.get("/patient-appointments", authMiddleware, async (req, res) => {
-//   try {
-//     const address = req.auth.address;
-//     const appointments = await outpatientContract.getTemporaryPatientData(address);
-//     let patientAppointments = [];
-
-//     for (const appointment of appointments) {
-//       const patientAppointmentData = await outpatientContract.getAppointmentsByPatient(appointment.patientAddress);
-//       for (const patientAppointment of patientAppointmentData) {
-//         const cid = patientAppointment.cid;
-//         const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${cid}`;
-//         const response = await fetch(ipfsGatewayUrl);
-//         const patientData = await response.json();
-//         if (patientData.emrNumber === appointment.emrNumber) {
-//           patientAppointments.push({
-//             data: {
-//               appointmentId: patientData.appointmentId,
-//               accountAddress: patientData.accountAddress,
-//               accountEmail: patientData.accountEmail,
-//               emrNumber: patientData.emrNumber,
-//               namaLengkap: patientData.namaLengkap,
-//               nomorIdentitas: patientData.nomorIdentitas,
-//               email: patientData.email,
-//               rumahSakit: patientData.rumahSakit,
-//               idDokter: patientData.idDokter,
-//               doctorAddress: patientData.doctorAddress,
-//               namaDokter: patientData.namaDokter,
-//               spesialisasi: patientData.spesialisasi,
-//               idJadwal: patientData.idJadwal,
-//               hariTerpilih: patientData.hariTerpilih,
-//               tanggalTerpilih: patientData.tanggalTerpilih,
-//               waktuTerpilih: patientData.waktuTerpilih,
-//               idPerawat: patientData.idPerawat,
-//               nurseAddress: patientData.nurseAddress,
-//               namaAsisten: patientData.namaAsisten,
-//               status: patientData.status,
-//               createdAt: patientData.createdAt
-//             },
-//           });
-//         }
-//       }
-//     }
-
-//     const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
-//     const schedules = await scheduleContract.getLatestActiveDoctorSchedule();
-//     const scheduleCid = schedules.cid;
-//     const ipfsGatewayUrl = `${CONN.IPFS_LOCAL}/${scheduleCid}`;
-//     const ipfsResponse = await fetch(ipfsGatewayUrl);
-//     const ipfsData = await ipfsResponse.json();
-//     res.status(200).json({ ...ipfsData, patientAppointments });
-//   } catch (error) {
-//     console.error("Error fetching patient appointments:", error);
-//     res.status(500).json({ message: "Failed to fetch patient appointments" });
-//   }
-// });
 
 export default router;

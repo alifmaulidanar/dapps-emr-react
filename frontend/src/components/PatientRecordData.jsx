@@ -1051,7 +1051,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData = null })
   }
   const dataPasienKiri = [
     { key: "appointmentId", value1: "ID Pendaftaran", value2: <p>{record.appointmentId}</p> },
-    { key: "newIndexString", value1: "Nomor Antrean", value2: <p>{record.newIndexString}</p> },
+    { key: "nomorAntrean", value1: "Nomor Antrean", value2: <p>{record.nomorAntrean}</p> },
     { key: "instalasi", value1: "Instalasi", value2: <p>Rawat Jalan</p> },
     { key: "tanggalTerpilih", value1: "Tanggal Pelayanan", value2: <p>{convertProfileData(record).tanggalTerpilih}</p> },
     { key: "waktuTerpilih", value1: "Waktu Pelayanan", value2: <p>{record.waktuTerpilih}</p> },

@@ -7,6 +7,7 @@ import CopyIDButton from "../components/Buttons/CopyIDButton";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { CONN } from "../../../enum-global";
+import getSigner from "../components/utils/getSigner";
 
 export default function PatientAccount() {
   const token = sessionStorage.getItem("userToken");

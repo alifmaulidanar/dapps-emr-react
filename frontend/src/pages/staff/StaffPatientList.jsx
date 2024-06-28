@@ -4,7 +4,7 @@ import PatientData from "../staff/PatientData";
 import { Table, Button, Modal, Tag, Select, Input } from "antd";
 const { Search } = Input;
 import { CONN } from "../../../../enum-global";
-import RegisterPatientButton from "../../components/Buttons/RegisterPatientStaff";
+import RegisterPatientButtonStaff from "../../components/Buttons/RegisterPatientStaff";
 import { ConvertData, FormatDate2 } from "../../components/utils/Formating";
 
 export default function StaffPatientList({ role }) {
@@ -180,7 +180,7 @@ export default function StaffPatientList({ role }) {
       <div>
         <div className="grid items-center justify-center w-11/12 grid-cols-1 pt-24 mx-auto min-h-fit max-h-fit min-w-screen px-14 gap-x-8 gap-y-4">
           <div className="flex gap-x-4 h-fit">
-            <RegisterPatientButton buttonText={"Daftarkan Pasien Baru"} />
+            <RegisterPatientButtonStaff buttonText={"Daftarkan Pasien Baru"} role="staff" />
             <div className="flex justify-end gap-x-8 w-full pb-4">
               <Select
                 placeholder="Pilih Faskes Asal"
@@ -217,7 +217,7 @@ export default function StaffPatientList({ role }) {
       <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
         {selectedData.profile && (
           <>
-            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} />
+            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} prerole="staff" />
           </>
         )}
       </Modal>

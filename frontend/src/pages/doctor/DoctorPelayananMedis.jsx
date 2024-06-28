@@ -149,7 +149,7 @@ export default function DoctorPelayananMedis({ role }) {
       appointmentId: appointment?.appointmentId,
       tanggalTerpilih: FormatDate2(appointment?.tanggalTerpilih),
       accountAddress: profile?.accountAddress,
-      nomorAntrean: appointment?.newIndexString,
+      nomorAntrean: appointment?.nomorAntrean,
       dmrNumber: profile?.dmrNumber,
       emrNumber: profile?.emrNumber,
       nomorIdentitas: profile?.nomorIdentitas,

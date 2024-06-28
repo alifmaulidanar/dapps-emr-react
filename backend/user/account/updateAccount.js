@@ -151,7 +151,7 @@ router.post("/:role/update", async (req, res) => {
 
     // Update account details
     try {
-      const tx = await contract.updateUserAccount(getIpfs.email, username, email, phone, updatedCid);
+      const tx = await contract.updateUserAccount(getIpfs.email, username, getIpfs.email, getIpfs.phone, updatedCid);
       await tx.wait();
 
       // cek data baru di ipfs

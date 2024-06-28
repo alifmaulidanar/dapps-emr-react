@@ -2,7 +2,6 @@
 pragma solidity ^0.8.22;
 
 contract UserManagement {
-    // event PatientAccountAdded(address indexed userAddress, string email);
     event DoctorAccountAdded(address indexed userAddress, string email);
     event NurseAccountAdded(address indexed userAddress, string email);
     event StaffAccountAdded(address indexed userAddress, string email);
@@ -126,8 +125,6 @@ contract UserManagement {
     // GET Account by Address
     function getAccountByAddress(address _address) public view returns (UserAccount memory) {
         UserAccount memory account = userAccountsMap[_address];
-        // require(account.accountAddress != address(0), "Account does not exist");
-        // require(account.isActive, "Account is not active");
         return account;
     }
 
@@ -135,7 +132,6 @@ contract UserManagement {
     function getAccountByEmail(string memory _email) public view returns (UserAccount memory) {
         address userAddress = emailToAddressMap[_email];
         UserAccount memory account = userAccountsMap[userAddress];
-        // require(account.isActive, "Account is not active or does not exist");
         return account;
     }
 
@@ -155,9 +151,6 @@ contract UserManagement {
 
     // GET Accounts by Role directly from Role Arrays
     function getAccountsByRoleInArray(string memory role) public view returns (UserAccount[] memory) {
-        // if (keccak256(bytes(role)) == keccak256(bytes("patient"))) {
-        //     return patientAccounts;
-        // } else if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
         if (keccak256(bytes(role)) == keccak256(bytes("doctor"))) {
             return doctorAccounts;
         } else if (keccak256(bytes(role)) == keccak256(bytes("nurse"))) {

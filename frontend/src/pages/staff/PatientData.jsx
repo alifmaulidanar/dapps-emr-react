@@ -14,8 +14,13 @@ import MakeAppointmentButtonStaff from "../../components/Buttons/StaffMakeAppoin
 // Membuat instance client IPFS
 const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
-export default function PatientData({ dmrNumber, userDataProps, userAccountData = null, userData }) {
-  const token = sessionStorage.getItem("userToken");
+export default function PatientData({ dmrNumber, userDataProps, userAccountData = null, userData, prerole }) {
+  let token;
+  if (prerole === "staff") {
+    token = sessionStorage.getItem("userToken");
+  } else if (prerole === "admin") {
+    token = sessionStorage.getItem("adminToken");
+  }
   const accountAddress = sessionStorage.getItem("accountAddress");
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
