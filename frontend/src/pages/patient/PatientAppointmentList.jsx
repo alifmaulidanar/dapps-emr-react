@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Empty, Input } from "antd";
+import { useState, useEffect, useMemo } from "react";
+import { Empty, Input, Select } from "antd";
 const { Search } = Input;
 import { CONN } from "../../../../enum-global";
 import ProfileDropdown from "../../components/Buttons/ProfileDropdown";
@@ -13,7 +13,7 @@ export default function PatientAppointmentList({ role }) {
   const accountAddress = sessionStorage.getItem("accountAddress");
   const userData = JSON.parse(sessionStorage.getItem("userData"));
   if (!token || !accountAddress) window.location.assign(`/patient/signin`);
-  
+
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
@@ -21,13 +21,15 @@ export default function PatientAppointmentList({ role }) {
   const [appointmentData, setAppointmentsData] = useState([]);
   const [filteredAppointmentData, setFilteredAppointmentData] = useState([]);
   const [searchText, setSearchText] = useState("");
-  
+  const [selectedOrder, setSelectedOrder] = useState("newest");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedPoli, setSelectedPoli] = useState("");
+
   useEffect(() => {
     if (token && accountAddress) {
       const fetchDataAsync = async () => {
         try {
-          const responseAppointment = await fetch(
-            `${CONN.BACKEND_LOCAL}/${role}/appointment`,
+          const responseAppointment = await fetch(`${CONN.BACKEND_LOCAL}/patient/appointment`,
             {
               method: "GET",
               headers: {
@@ -78,31 +80,40 @@ export default function PatientAppointmentList({ role }) {
     }
   }, [token, accountAddress]);
 
-  useEffect(() => {
-    if (selectedUser && appointmentData) {
-      const filteredData = appointmentData.filter((appointment) => appointment.nomorIdentitas === selectedUser.nomorIdentitas);
-      setFilteredAppointmentData(filteredData);
+  const filteredAndSortedDataSource = useMemo(() => {
+    let filteredData = appointmentData;
+    if (selectedUser) {
+      filteredData = filteredData.filter((appointment) => appointment.nomorIdentitas === selectedUser.nomorIdentitas);
     }
-  }, [selectedUser, appointmentData]);
 
-  const sortedAppointmentData = [...filteredAppointmentData].sort((a, b) => { return new Date(b.createdAt) - new Date(a.createdAt); });
-
-  useEffect(() => {
     if (searchText) {
-      const filteredData = sortedAppointmentData.filter((appointment) =>
-        (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
-        (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
-        (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
-        (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
-        (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
+      filteredData = filteredData.filter(
+        (appointment) =>
+          (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
       );
-      setFilteredAppointmentData(filteredData);
-    } else if (selectedUser) {
-      const filteredData = appointmentData.filter((appointment) => appointment.nomorIdentitas === selectedUser.nomorIdentitas);
-      setFilteredAppointmentData(filteredData);
     }
-  }, [searchText, sortedAppointmentData, selectedUser]);
-  
+
+    if (selectedStatus) {
+      filteredData = filteredData.filter((appointment) => appointment.status === selectedStatus);
+    }
+
+    if (selectedPoli) {
+      filteredData = filteredData.filter((appointment) => appointment.spesialisasi === selectedPoli);
+    }
+
+    return filteredData.sort((a, b) => {
+      if (selectedOrder === "newest") {
+        return new Date(b.tanggalTerpilih) - new Date(a.tanggalTerpilih);
+      } else {
+        return new Date(a.tanggalTerpilih) - new Date(b.tanggalTerpilih);
+      }
+    });
+  }, [appointmentData, selectedUser, searchText, selectedOrder, selectedStatus, selectedPoli]);
+
   const handleUserChange = (nomorIdentitas) => {
     const user = users.find((p) => p.nomorIdentitas === nomorIdentitas);
     setSelectedUser(user);
@@ -110,7 +121,12 @@ export default function PatientAppointmentList({ role }) {
 
   return (
     <>
-      <NavbarController type={1} page="Rawat Jalan" color="blue" accountAddress={accountAddress}/>
+      <NavbarController
+        type={1}
+        page="Rawat Jalan"
+        color="blue"
+        accountAddress={accountAddress}
+      />
       <div className="grid items-center justify-center w-1/2 grid-cols-3 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3">
           <ProfileDropdown
@@ -126,7 +142,7 @@ export default function PatientAppointmentList({ role }) {
           </h5>
         </div>
       </div>
-      <div className="grid items-baseline justify-center w-1/2 grid-cols-2 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-y-4">
+      <div className="grid items-baseline justify-center w-1/2 grid-cols-3 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-y-4">
         <div className="grid items-center grid-cols-1">
           <MakeAppointmentButton
             buttonText={"Buat Rawat Jalan"}
@@ -135,7 +151,36 @@ export default function PatientAppointmentList({ role }) {
             token={token}
           />
         </div>
-        <div className="grid items-center justify-end">
+        <div className="col-span-2 flex justify-end gap-x-4 w-full">
+          <Select
+            placeholder="Pilih Status"
+            onChange={(value) => setSelectedStatus(value)}
+            style={{ width: 150 }}
+            allowClear
+          >
+            <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+            <Select.Option value="done">Selesai</Select.Option>
+            <Select.Option value="canceled">Batal</Select.Option>
+          </Select>
+          <Select
+            placeholder="Pilih Poli/Ruangan"
+            onChange={(value) => setSelectedPoli(value)}
+            style={{ width: 150 }}
+            allowClear
+          >
+            <Select.Option value="Umum">Umum</Select.Option>
+            <Select.Option value="TB Paru">TB Paru</Select.Option>
+            <Select.Option value="KIA">KIA</Select.Option>
+          </Select>
+          <Select
+            placeholder="Urutkan"
+            onChange={(value) => setSelectedOrder(value)}
+            style={{ width: 120 }}
+            defaultValue="newest"
+          >
+            <Select.Option value="newest">Terbaru</Select.Option>
+            <Select.Option value="oldest">Terlama</Select.Option>
+          </Select>
           <Search
             placeholder="ID pendaftaran, nama dokter, poli, dll."
             allowClear
@@ -146,8 +191,8 @@ export default function PatientAppointmentList({ role }) {
       </div>
       <div className="grid justify-center w-1/2 grid-cols-3 px-4 pt-4 pb-8 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
-          {filteredAppointmentData.length > 0 ? (
-            <AppointmentCardList appointmentData={filteredAppointmentData} />
+          {filteredAndSortedDataSource.length > 0 ? (
+            <AppointmentCardList appointmentData={filteredAndSortedDataSource} />
           ) : (
             <Empty description="Tidak ada pendaftaran rawat jalan ditemukan" />
           )}

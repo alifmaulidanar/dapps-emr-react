@@ -4,12 +4,11 @@ import { Tag, Empty } from 'antd';
 export default function AppointmentList({ appointmentData }) {
   const navigate = useNavigate();
   const handleNavigate = (appointment) => { navigate('/patient/appointment-list/details', { state: { appointment } }) };
-  const sortedAppointments = [...appointmentData].sort((a, b) => new Date(b.tanggalTerpilih) - new Date(a.tanggalTerpilih));
   return (
     <>
       <div className="grid gap-4">
-        {sortedAppointments.length > 0 ? (
-          sortedAppointments.map((appointment, index) => (
+        {appointmentData.length > 0 ? (
+          appointmentData.map((appointment, index) => (
             <div key={index} onClick={() => handleNavigate(appointment)} className="cursor-pointer" >
               <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
                 <div className="grid items-center justify-between grid-cols-3 mb-4">
