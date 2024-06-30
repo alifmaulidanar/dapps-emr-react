@@ -703,10 +703,14 @@ next:
 ✅ butuh filter di daftar rekam medis by patient
 ✅ butuh filter di daftar rawat jalan by patient
 ✅ sementara hilangkan profil staff, doctor, dan nurse
+✅ hanya bisa mendaftar 1 rawat jalan per hari
+✅ LabAttachments udah bener, tapi untuk ubah data LabAttachments masih harus upload ulang semua files
 ❌ [BUG] initial values di pengisian RME jika sudah terisi harus menampilkan doctor yang terpilih/terisi di RME yang sudah terekam dahulu yg utama,
 jika masih kosong baru sesuaikan dengan yang ada di outpatient registration
 🟡 [NOT URGENT] endpoint admin yang perlu diubah tinggal appointment -> masih staff
 - lanjut isi lampiran bagian antarmuka, source code SC, dll.
+- masih banyak yang perlu swal confirm sebelum konfirmasi metamask
+- Staff antrean
 
 NOTES:
 1. Gas Price di Ganache adalah dalam Wei (20000000000 Wei / 20 Gwei atau / 0.00000002 Ether)
