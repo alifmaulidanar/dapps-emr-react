@@ -86,11 +86,11 @@ function NavbarController({ type, page, color, accountData = null }) {
         linkToPage: `/doctor/pelayanan-medis`,
         color: page === "pelayanan-medis" ? color : defaultColor,
       },
-      {
-        text: "Profil Dokter",
-        linkToPage: `/doctor/profile`,
-        color: page === "Profil Dokter" ? color : defaultColor,
-      },
+      // {
+      //   text: "Profil Dokter",
+      //   linkToPage: `/doctor/profile`,
+      //   color: page === "Profil Dokter" ? color : defaultColor,
+      // },
     ];
 
     buttons = [
@@ -117,11 +117,11 @@ function NavbarController({ type, page, color, accountData = null }) {
         linkToPage: `/nurse/pelayanan-medis`,
         color: page === "pelayanan-medis" ? color : defaultColor,
       },
-      {
-        text: "Profil Perawat",
-        linkToPage: `/nurse/profile`,
-        color: page === "Profil Perawat" ? color : defaultColor,
-      },
+      // {
+      //   text: "Profil Perawat",
+      //   linkToPage: `/nurse/profile`,
+      //   color: page === "Profil Perawat" ? color : defaultColor,
+      // },
     ];
 
     buttons = [
