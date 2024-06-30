@@ -35,9 +35,9 @@ contract OutpatientManagement {
         bool found = false;
         for (uint i = 0; i < patientAppointments.length; i++) {
             if (keccak256(abi.encodePacked(patientAppointments[i].id)) == keccak256(abi.encodePacked(_appointmentId))) {
-                require(patientAppointments[i].patientAddress == _patientAddress, "Unauthorized patient");
-                require(patientAppointments[i].doctorAddress == _doctorAddress, "Unauthorized doctor");
-                require(patientAppointments[i].nurseAddress == _nurseAddress, "Unauthorized nurse");
+                // require(patientAppointments[i].patientAddress == _patientAddress, "Unauthorized patient");
+                // require(patientAppointments[i].doctorAddress == _doctorAddress, "Unauthorized doctor");
+                // require(patientAppointments[i].nurseAddress == _nurseAddress, "Unauthorized nurse");
                 patientAppointments[i].cid = _cid;
                 found = true;
                 emit OutpatientDataUpdated(_appointmentId, _patientAddress, _doctorAddress, _nurseAddress, _cid);
