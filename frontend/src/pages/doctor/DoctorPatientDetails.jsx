@@ -1993,7 +1993,7 @@ useEffect(() => {
               </div>
               <div className="col-span-2">
                 <div className="flex flex-wrap w-full gap-4"></div>
-                {isDataFinished && isEdit && (
+                {(!isDataFinished || isEdit) && (
                   <div className='grid gap-y-4'>
                     <div>
                       <Dragger {...props} >
@@ -2004,7 +2004,7 @@ useEffect(() => {
                         </p>
                       </Dragger>
                     </div>
-                    <div id='lampiran'></div>
+                    <div id='lampiran' className="flex gap-x-8"></div>
                   </div>
                 )}
               </div>
@@ -2074,7 +2074,7 @@ useEffect(() => {
           isEdit ? (
             <>
               <Button type="default" onClick={handleCancel} size="medium">Batal</Button>
-              <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
+              <Button type="primary" ghost htmlType="submit" size="medium" className="z-50">Simpan</Button>
             </>
           ) : (
             <Button type="primary" ghost onClick={handleEdit} size="medium">Ubah Data</Button>

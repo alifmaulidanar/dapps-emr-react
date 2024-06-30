@@ -1239,7 +1239,7 @@ function PatientRecordDisplay({ record, chosenPatient, appointmentData = null })
         </div>
         <div className="col-span-4 my-4">
           <p className="font-semibold pb-2">Lampiran Berkas</p>
-          <div id='lampiran'></div>
+          <div id='lampiran' className="flex gap-x-8"></div>
           <LabAttachments files={labFiles} />
         </div>
         {/* DATA Lab */}
