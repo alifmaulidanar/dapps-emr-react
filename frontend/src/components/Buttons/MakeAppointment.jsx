@@ -252,8 +252,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       signedData.signature = signature;
       console.log("Rawat Jalan signature:", signature);
       console.log({signedData})
-      const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/patient/appointment`,
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/patient/appointment`,
         {
           method: "POST",
           headers: {

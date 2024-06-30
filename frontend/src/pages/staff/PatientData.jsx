@@ -16,10 +16,10 @@ const ipfsClient = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 export default function PatientData({ dmrNumber, userDataProps, userAccountData = null, userData, prerole }) {
   let token;
-  if (prerole === "staff") {
-    token = sessionStorage.getItem("userToken");
-  } else if (prerole === "admin") {
+  if (prerole === "admin") {
     token = sessionStorage.getItem("adminToken");
+  } else {
+    token = sessionStorage.getItem("userToken")
   }
   const accountAddress = sessionStorage.getItem("accountAddress");
   const [form] = Form.useForm();
@@ -35,8 +35,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
     if (token && accountAddress) {
       const fetchDataAsync = async () => {
         try {
-          const responseAppointment = await fetch(
-            `${CONN.BACKEND_LOCAL}/${userAccountData.role}/appointment`,
+          const responseAppointment = await fetch(`${CONN.BACKEND_LOCAL}/${userAccountData.role}/appointment`,
             {
               method: "GET",
               headers: {
@@ -239,10 +238,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
     { value: "Kalimantan Tengah", label: "Kalimantan Tengah" },
     { value: "Kalimantan Timur", label: "Kalimantan Timur" },
     { value: "Kalimantan Utara", label: "Kalimantan Utara" },
-    {
-      value: "Kepulauan Bangka Belitung",
-      label: "Kepulauan Bangka Belitung",
-    },
+    { value: "Kepulauan Bangka Belitung", label: "Kepulauan Bangka Belitung" },
     { value: "Kepulauan Riau", label: "Kepulauan Riau" },
     { value: "Lampung", label: "Lampung" },
     { value: "Maluku", label: "Maluku" },
@@ -288,8 +284,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
       patientReferences.signature = signature;
 
       try {
-        const response = await fetch(
-          `${CONN.BACKEND_LOCAL}/staff/delete-profile`,
+        const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/delete-profile`,
           {
             method: "POST",
             headers: {
@@ -306,9 +301,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
             icon: "success",
             title: "Pasien Berhasil Dihapus!",
             text: "Data pasien telah dihapus.",
-          }).then(() => {
-            window.location.reload();
-          });
+          }).then(() => { window.location.reload() });
         } else {
           console.log(responseData.error, responseData.message);
           Swal.fire({
@@ -388,7 +381,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
         </div>
 
         {/* Utilitas Profil Pasien */}
-        {(role !== "Dokter" && role !== "Perawat") && (
+        {/* {(role !== "Dokter" && role !== "Perawat") && ( */}
           <div className="grid grid-rows-3 mt-8 w-full h-fit content-end justify-end gap-y-4">
             <button
               type="button"
@@ -402,6 +395,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
               scheduleData={scheduleData || []}
               userData={userData}
               token={token}
+              prerole={prerole}
             />
 
             {isEditing ? (
@@ -434,7 +428,7 @@ export default function PatientData({ dmrNumber, userDataProps, userAccountData 
               </>
             )}
           </div>
-        )}
+        {/* )} */}
         {/* Utilitas Profil Pasien */}
 
       </div>

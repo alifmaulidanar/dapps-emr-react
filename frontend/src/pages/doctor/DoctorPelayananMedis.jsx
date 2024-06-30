@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import dayjs from 'dayjs';
 import NavbarController from "../../components/Navbar/NavbarController";
-import { Tag, Table, Button, DatePicker, Select, Input } from "antd";
+import { Tag, Table, Button, DatePicker, Select, Input, Modal } from "antd";
 const { Search } = Input;
 import { CONN } from "../../../../enum-global";
 import { ConvertData, FormatDate2 } from "../../components/utils/Formating";
+import PatientAppointmentDisplayStaff from "../staff/PatientAppointmentDisplayStaff";
 
 export default function DoctorPelayananMedis({ role }) {
   const token = sessionStorage.getItem("userToken");
@@ -20,6 +21,8 @@ export default function DoctorPelayananMedis({ role }) {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedPoli, setSelectedPoli] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const saveDataToSessionStorage = (emrNumber) => {
     const selectedProfile = profiles.find(profile => profile.emrNumber === emrNumber);
@@ -27,6 +30,16 @@ export default function DoctorPelayananMedis({ role }) {
     sessionStorage.setItem("selectedProfile", JSON.stringify(selectedProfile));
     sessionStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
     window.location.assign("/doctor/pelayanan-medis/detail-pasien");
+  };
+
+  const showModal = (appointmentId) => {
+    const selected = appointments.find(a => a.appointmentId === appointmentId);
+    setSelectedAppointment(selected);
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -134,9 +147,14 @@ export default function DoctorPelayananMedis({ role }) {
       },
     },
     {
-      title: 'Aksi',
+      title: 'RME',
       key: 'action',
       render: (_, record) => (<Button type="primary" ghost onClick={() => saveDataToSessionStorage(record.emrNumber)}>Lihat</Button>),
+    },
+    {
+      title: 'Aksi',
+      key: 'action',
+      render: (_, record) => (<Button type="primary" ghost onClick={() => showModal(record.appointmentId)}>Lihat</Button>),
     },
   ];
 
@@ -237,6 +255,11 @@ export default function DoctorPelayananMedis({ role }) {
           </div>
         </div>
       </div>
+      <Modal width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
+        {selectedAppointment && (
+          <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} prerole="doctor" />
+        )}
+      </Modal>
     </>
   );
 }

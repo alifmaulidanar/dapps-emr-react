@@ -16,7 +16,7 @@ const PatientRecordLoop = ({ data }) => {
   );
 };
 
-function PatientAppointmentDisplayStaff({ data, token }) {
+function PatientAppointmentDisplayStaff({ data, token, prerole }) {
   const patientDataProps1 = [
     { key: "tanggalTerpilih", value1: "Hari & Tanggal",
       value2: (
@@ -59,7 +59,7 @@ function PatientAppointmentDisplayStaff({ data, token }) {
     console.log("Rawat Jalan signature:", signature);
     console.log({ patientAppointment });
     try {
-      const response = await fetch(`${CONN.BACKEND_LOCAL}/staff/cancel-appointment`, {
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/${prerole}/cancel-appointment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

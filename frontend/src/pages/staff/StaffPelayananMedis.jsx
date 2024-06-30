@@ -253,7 +253,7 @@ export default function StaffPelayananMedis({ role }) {
       </div>
       <Modal width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
         {selectedAppointment && (
-          <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} />
+          <PatientAppointmentDisplayStaff data={{appointment: {data: selectedAppointment}}} token={token} prerole="staff" />
         )}
       </Modal>
     </>

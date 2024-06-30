@@ -231,7 +231,7 @@ export default function DoctorPatientList({ role }) {
       <Modal width={1000} open={isModalOpen} onCancel={handleCancel} footer={null} style={{top: 20}}>
         {selectedData.profile && (
           <>
-            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} />
+            <PatientData dmrNumber={selectedData.profile.dmrNumber} userDataProps={selectedData.profile} userAccountData={userAccountData} userData={selectedData} prerole="doctor" />
           </>
         )}
       </Modal>

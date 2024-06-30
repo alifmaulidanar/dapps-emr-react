@@ -9,7 +9,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Modal, Steps, Select, Tag, Radio, Spin } from "antd";
 import getSigner from "../utils/getSigner";
 
-export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = [], userData, token }) {
+export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = [], userData, token, prerole }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -220,8 +220,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
       signedData.signature = signature;
       console.log("Rawat Jalan signature:", signature);
       console.log({signedData})
-      const response = await fetch(
-        `${CONN.BACKEND_LOCAL}/staff/appointment`,
+      const response = await fetch(`${CONN.BACKEND_LOCAL}/${prerole}/appointment`,
         {
           method: "POST",
           headers: {
