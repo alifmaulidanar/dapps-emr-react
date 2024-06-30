@@ -821,3 +821,257 @@ appointment cancelation from nurse
 
 appointment creation from patient
 appointment cancelation from patient
+
+
+
+# Riwayat txChecker
+# Pasien
+Gas Price: 0.00000002
+Add Patient Account Gas Used: 457989
+Add Patient Account Gas Fee (Wei): 9159780000000000
+Add Patient Account Gas Fee (Gwei): 9159780.0
+Add Patient Account Gas Fee (Ether): 0.00915978
+Block Number: 1831
+Transaction Hash: 0x17efb22ea0df67a63b08d711e176ce4c850b6bd90c3705813f27a5e3fec3f765
+{
+  responseData: {
+    message: 'Patient Registration Successful',
+    username: 'txChecker1',
+    nomorIdentitas: '1113613151531111',
+    dmrNumber: '000L004',
+    dmrCid: 'QmcoYJpEpgmWoasMPrgSCvNVKajafUp1AMat4h2sZkfWfp',
+    emrNumber: '0000000000000005',
+    password: '2sbLo9sU',
+    publicKey: '0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1',
+    privateKey: '0xadd60474c2709a79ab76eec0d412de938e045a6ddb6f61569617652bd1456f47'
+  }
+}
+
+# Admin / Staff
+Gas Price: 0.00000002
+Add Patient Account Gas Used: 457989
+Add Patient Account Gas Fee (Wei): 9159780000000000
+Add Patient Account Gas Fee (Gwei): 9159780.0
+Add Patient Account Gas Fee (Ether): 0.00915978
+Block Number: 1838
+Transaction Hash: 0x18cb2cf6098724fb35485cfe9ef124fe5bd974fda51f23fe873cf8e76258f24d
+{
+  responseData: {
+    message: 'Patient Registration Successful',
+    username: 'txChecker2',
+    nomorIdentitas: '1113613151531222',
+    dmrNumber: '000M005',
+    dmrCid: 'QmNioGkvFH53Rnm94b3wuvoeT5CVwqtYBUgwwr6ZgzY6vy',
+    emrNumber: '0000000000000006',
+    password: 'yvkIhVir',
+    publicKey: '0xe5dF08799114D618e628e2027fc8FF5B7F29705C',
+    privateKey: '0xcfd23946a27aad8fe3aa3f3091cb28a26d26ccb9d709e5bdd197bcddffac8ebc'
+  }
+}
+
+# schedule admin
+Gas Price: 0.00000002
+Add Doctor Schedule Gas Used: 176065
+Add Doctor Schedule Gas Fee (Wei): 3521300000000000
+Add Doctor Schedule Gas Fee (Gwei): 3521300.0
+Add Doctor Schedule Gas Fee (Ether): 0.0035213
+Add Doctor Schedule Block Number: 1832
+Add Doctor Schedule Transaction Hash: 0xaf5fd648179bc6c7b087db5523dee67f1d69bafe6721842ec349b5a5378f15a9
+{ cid: 'QmaLL2b7SyvMdyZPG49SajhHDkrwe6bjEigvQVKatEzpZw' }
+
+# appointment patient
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1834
+Update Patient Account Transaction Hash: 0x4d92006b09a59075b065cabd28f154d08ad56807b43adb4a4c23dc7dfe70abae
+----------------------------------------
+Add Outpatient Data Gas Used: 686280
+Add Outpatient Data Gas Fee (Wei): 13725600000000000
+Add Outpatient Data Gas Fee (Gwei): 13725600.0
+Add Outpatient Data Gas Fee (Ether): 0.0137256
+Add Outpatient Data Block Number: 1835
+Add Outpatient Data Transaction Hash: 0x4f01aaab736854e48b5cf2200620161eefaadd14f7cf5f52127965403b40a28b
+----------------------------------------
+Add Doctor Temporary Data Gas Used: 176315
+Add Doctor Temporary Data Gas Fee (Wei): 3526300000000000
+Add Doctor Temporary Data Gas Fee (Gwei): 3526300.0
+Add Doctor Temporary Data Gas Fee (Ether): 0.0035263
+Add Doctor Temporary Data Block Number: 1836
+Add Doctor Temporary Data Transaction Hash: 0xb8e6ce7d369d8350d8ad7f8088cf501b8984796b6f8df894474a76c3e2fedfd3
+----------------------------------------
+Add Nurse Temporary Data Gas Used: 176315
+Add Nurse Temporary Data Gas Fee (Wei): 3526300000000000
+Add Nurse Temporary Data Gas Fee (Gwei): 3526300.0
+Add Nurse Temporary Data Gas Fee (Ether): 0.0035263
+Add Nurse Temporary Data Block Number: 1837
+Add Nurse Temporary Data Transaction Hash: 0xd7aeb83e835e6488a9046f1a23db1c21ab6e9091d982b35d34ed7dd57447a451
+----------------------------------------
+Total Gas Used: 1107634
+Total Gas Fee (Ether): 0.02215268
+----------------------------------------
+
+# appointment staff
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1843
+Update Patient Account Transaction Hash: 0x154cb6319fa25c20915a7b0a380a768ad3e8716fb2809d85d443604127203d24
+----------------------------------------
+Add Outpatient Data Gas Used: 669180
+Add Outpatient Data Gas Fee (Wei): 13383600000000000
+Add Outpatient Data Gas Fee (Gwei): 13383600.0
+Add Outpatient Data Gas Fee (Ether): 0.0133836
+Add Outpatient Data Block Number: 1844
+Add Outpatient Data Transaction Hash: 0x36de92319f53f516fa028646756c017ba3279b7645bdc197ab73f8f3b9e7a582
+----------------------------------------
+Add Doctor Temporary Data Gas Used: 176315
+Add Doctor Temporary Data Gas Fee (Wei): 3526300000000000
+Add Doctor Temporary Data Gas Fee (Gwei): 3526300.0
+Add Doctor Temporary Data Gas Fee (Ether): 0.0035263
+Add Doctor Temporary Data Block Number: 1845
+Add Doctor Temporary Data Transaction Hash: 0xb9c1a1827149925e925a22d124932130d4aaecf100914e0367a032cb6dcc254b
+----------------------------------------
+Add Nurse Temporary Data Gas Used: 176315
+Add Nurse Temporary Data Gas Fee (Wei): 3526300000000000
+Add Nurse Temporary Data Gas Fee (Gwei): 3526300.0
+Add Nurse Temporary Data Gas Fee (Ether): 0.0035263
+Add Nurse Temporary Data Block Number: 1846
+Add Nurse Temporary Data Transaction Hash: 0x40cd011eb92968f94526dba3d0f62b976fb815907bfb54c5d0ca4a42e6ad4b88
+----------------------------------------
+Total Gas Used: 1090534
+Total Gas Fee (Ether): 0.02181068
+----------------------------------------
+
+# rme anamnesa doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1859
+Update Patient Account Transaction Hash: 0xd97b06c994076f44eadc99e47111bf4dd21a6fc169a33f9a3df1373cb2c747f4
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1860
+Add Outpatient Data Transaction Hash: 0xc20482d27dd9c96a294abd261752c1e1838573921516d486dbdc226d10172730
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+
+# rme diagnosa doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1861
+Update Patient Account Transaction Hash: 0x55f3c511786fa29b1e8daf4ef007b3ce35a197637b008b3cd7b6382187484d41
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1862
+Add Outpatient Data Transaction Hash: 0xba26035dec71e475d5f9052e89855acdf745cd27cd2e5f8fc5f892b904a03986
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+
+# rme kia doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1863
+Update Patient Account Transaction Hash: 0x3c1b34c3955fde6c8994c89364398d1b71a5b1798d7708ecd3b1e9b2af03a66f
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1864
+Add Outpatient Data Transaction Hash: 0xc0c6a65868833dc4744301e296ce5c2c5f602d7fdde85c30bc5594aee7fbde4e
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+
+# rme tb paru doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1865
+Update Patient Account Transaction Hash: 0x0a39e33644a75cfe2144121667ce31713c917c10939b6ada64d8df9d773b6650
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1866
+Add Outpatient Data Transaction Hash: 0x6fc1ace2ef3c665b81d733487b07e33cd41fef3ce3d83d58157173a37dd23414
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+
+# rme lab doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1867
+Update Patient Account Transaction Hash: 0xa98aeb3db6f2b2c7e6c10de87d608b08b96f6c4d9b8329292433fe2beb6b1ed8
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1868
+Add Outpatient Data Transaction Hash: 0x201362544b39a703f70e87190c4d98e25abadc3b6e7e3785575d80bfd9acbd92
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+
+# rme selesai doctor
+Gas Price: 0.00000002
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 1374480000000000
+Update Patient Account Gas Fee (Gwei): 1374480.0
+Update Patient Account Gas Fee (Ether): 0.00137448
+Update Patient Account Block Number: 1869
+Update Patient Account Transaction Hash: 0x1ef07bb5d0790cc9aee9856fb2e3c3401b9a05076ada9a9cb0ee11b49ba3b68a
+----------------------------------------
+Add Outpatient Data Gas Used: 122916
+Add Outpatient Data Gas Fee (Wei): 2458320000000000
+Add Outpatient Data Gas Fee (Gwei): 2458320.0
+Add Outpatient Data Gas Fee (Ether): 0.00245832
+Add Outpatient Data Block Number: 1870
+Add Outpatient Data Transaction Hash: 0xacc881884efcb55079b16c7f63ec60763fee7b8b0cef3e92e7154ffad95421bc
+----------------------------------------
+Total Gas Used: 191640
+Total Gas Fee (Ether): 0.0038328
+----------------------------------------
+Outpatient Done✅
