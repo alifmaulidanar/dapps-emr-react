@@ -1,6 +1,6 @@
-import { Empty, Input } from "antd";
+import { Empty, Input, Select } from "antd";
 const { Search } = Input;
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import RecordList from "../../components/RecordList";
 import PatientList from "../../components/PatientList";
 import NavbarController from "../../components/Navbar/NavbarController";
@@ -16,6 +16,8 @@ export default function PatientRecordList() {
   const [appointmentsData, setAppointmentsData] = useState([]);
   const [chosenIndex, setChosenIndex] = useState(0);
   const [searchText, setSearchText] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState("newest");
+  const [selectedPoli, setSelectedPoli] = useState("");
 
   useEffect(() => {
     if (token && accountAddress) {
@@ -45,14 +47,33 @@ export default function PatientRecordList() {
       appointment.emrNumber === chosenPatient?.emrNumber
   );
 
-  const filteredAppointments = relatedAppointments.filter((appointment) =>
-    (appointment.selesai?.judulRekamMedis && appointment.selesai?.judulRekamMedis.toLowerCase().includes(searchText.toLowerCase())) ||
-  (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
-    (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
-    (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
-    (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
-    (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
-  );
+  const filteredAndSortedAppointments = useMemo(() => {
+    let filteredData = relatedAppointments;
+
+    if (searchText) {
+      filteredData = filteredData.filter(
+        (appointment) =>
+          (appointment.selesai?.judulRekamMedis && appointment.selesai?.judulRekamMedis.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.spesialisasi && appointment.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.namaDokter && appointment.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.doctorAddress && appointment.doctorAddress.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.faskesTujuan && appointment.faskesTujuan.toLowerCase().includes(searchText.toLowerCase())) ||
+          (appointment.appointmentId && appointment.appointmentId.toLowerCase().includes(searchText.toLowerCase()))
+      );
+    }
+
+    if (selectedPoli) {
+      filteredData = filteredData.filter((appointment) => appointment.spesialisasi === selectedPoli);
+    }
+
+    return filteredData.sort((a, b) => {
+      if (selectedOrder === "newest") {
+        return new Date(b.tanggalTerpilih) - new Date(a.tanggalTerpilih);
+      } else {
+        return new Date(a.tanggalTerpilih) - new Date(b.tanggalTerpilih);
+      }
+    });
+  }, [relatedAppointments, searchText, selectedOrder, selectedPoli]);
 
   return (
     <>
@@ -72,7 +93,26 @@ export default function PatientRecordList() {
         </div>
       </div>
       <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
-        <div className="grid items-center col-span-3 h-fit justify-end">
+        <div className="flex items-center col-span-3 h-fit justify-end gap-x-4">
+          <Select
+            placeholder="Pilih Poli/Ruangan"
+            onChange={(value) => setSelectedPoli(value)}
+            style={{ width: 150 }}
+            allowClear
+          >
+            <Select.Option value="Umum">Umum</Select.Option>
+            <Select.Option value="TB Paru">TB Paru</Select.Option>
+            <Select.Option value="KIA">KIA</Select.Option>
+          </Select>
+          <Select
+            placeholder="Urutkan"
+            onChange={(value) => setSelectedOrder(value)}
+            style={{ width: 120 }}
+            defaultValue="newest"
+          >
+            <Select.Option value="newest">Terbaru</Select.Option>
+            <Select.Option value="oldest">Terlama</Select.Option>
+          </Select>
           <Search
             placeholder="ID pendaftaran, nama dokter, poli, dll."
             allowClear
@@ -89,10 +129,10 @@ export default function PatientRecordList() {
       <div className="grid justify-center w-9/12 grid-cols-5 px-4 pt-4 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="w-full col-span-3">
           {chosenPatient ? (
-            filteredAppointments.length > 0 ? (
+            filteredAndSortedAppointments.length > 0 ? (
               <RecordList
                 chosenPatient={chosenPatient}
-                appointmentData={filteredAppointments}
+                appointmentData={filteredAndSortedAppointments}
               />
             ) : (
               <Empty description="Tidak ada riwayat pengobatan yang ditemukan." />
