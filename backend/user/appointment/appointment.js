@@ -119,6 +119,15 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     }
 
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
+    const existingAppointment = data.appointmentData.find(appointment => {
+      const appointmentDetails = JSON.parse(appointment.appointments);
+      return appointmentDetails.tanggalTerpilih === selectedDate;
+    });
+
+    if (existingAppointment) {
+      return res.status(400).json({ error: `Pasien ${appointmentDataIpfs.namaLengkap} sudah mendaftar rawat jalan pada ${new Date(selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}.` });
+    }
+
     const specialization = appointmentDataIpfs.spesialisasi.trim().replace(/\s+/g, '').toLowerCase();
     const queueNumber = handleFileWrite(specialization, selectedDate);
     const appointmentId = `${selectedDate.replace(/-/g, "")}${dmrNumber}${queueNumber}`;
@@ -340,6 +349,15 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     }
 
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
+    const existingAppointment = data.appointmentData.find(appointment => {
+      const appointmentDetails = JSON.parse(appointment.appointments);
+      return appointmentDetails.tanggalTerpilih === selectedDate;
+    });
+
+    if (existingAppointment) {
+      return res.status(400).json({ error: `Pasien ${appointmentDataIpfs.namaLengkap} sudah mendaftar rawat jalan pada ${new Date(selectedDate).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}.` });
+    }
+
     const specialization = appointmentDataIpfs.spesialisasi.trim().replace(/\s+/g, '').toLowerCase();
     const queueNumber = handleFileWrite(specialization, selectedDate);
     const appointmentId = `${selectedDate.replace(/-/g, "")}${appointmentData.dmrNumber}${queueNumber}`;
