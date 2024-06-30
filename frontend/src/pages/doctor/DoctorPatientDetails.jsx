@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { SaveOutlined, InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
 import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, Row, Col, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
-const { TextArea } = Input;
+const { TextArea, Search } = Input;
 const { Dragger } = Upload;
 import DoctorPatientProfile from "../../components/Cards/NakesPatientProfile";
 import BackButton from "../../components/Buttons/Navigations";
@@ -33,6 +33,10 @@ export default function DoctorPatientDetails({ role }) {
   const [profile, setProfile] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [selectedData, setSelectedData] = useState({});
+  const [searchText, setSearchText] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedPoli, setSelectedPoli] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState("newest");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('anamnesis');
   const [selectedDoctor, setSelectedDoctor] = useState({});
@@ -280,26 +284,10 @@ useEffect(() => {
       ) },
     { title: 'Aksi', key: 'action', render: (_, record) => (<Button type="primary" ghost onClick={() => showEMR(record.appointmentId)} icon={<RightOutlined/>}/>) },
   ];
-  
   const userImage = profile?.foto;
-  const appointmentDataSource = appointments?.map((appointment, index) => ({
-    key: index + 1,
-    appointmentId: appointment?.appointmentId,
-    spesialisasi: appointment?.spesialisasi,
-    namaDokter: appointment?.namaDokter,
-    tanggalTerpilih: (
-      <>
-        {new Date(appointment?.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}<br></br>
-        {appointment?.waktuTerpilih}
-      </>
-    ),
-    status: appointment?.status,
-    tanggalTerpilihRaw: new Date(appointment?.tanggalTerpilih)
-  })).sort((a, b) => b.tanggalTerpilihRaw - a.tanggalTerpilihRaw);
 
   function convertProfileData(originalProfile) {
     const profile = {...originalProfile};
-    console.log({profile})
     const genderMap = { '0': 'Tidak diketahui', '1': 'Laki-laki', '2': 'Perempuan', '3': 'Tidak dapat ditentukan', '4': 'Tidak mengisi' };
     const agamaMap = { '1': 'Islam', '2': 'Kristen (Protestan)', '3': 'Katolik', '4': 'Hindu', '5': 'Budha', '6': 'Konghuchu', '7': 'Penghayat', '8': 'Lain-lain' };
     const golonganDarahMap = { '1': 'A', '2': 'B', '3': 'AB', '4': 'O', '5': 'A+', '6': 'A-', '7': 'B+', '8': 'B-', '9': 'AB+', '10': 'AB-', '11': 'O+', '12': 'O-', '13': 'Tidak tahu' };
@@ -476,7 +464,7 @@ useEffect(() => {
           specificData = { doctorAddress: selectedDoctor.doctorAddress, nurseAddress: selectedNurse.nurseAddress, ...transformedValues };
       }
 
-      console.log({ commonData, specificData });
+      // console.log({ commonData, specificData });
       const signer = await getSigner();
       const signature = await signer.signMessage(JSON.stringify(specificData));
       specificData.signature = signature;
@@ -1015,9 +1003,6 @@ useEffect(() => {
                   { value: '6', label: <span>6. Marah</span> },
                 ]}/>
               </Form.Item>
-              {/* <Form.Item label="Status Psikologis Lainnya" name="statusPsikologisLainnya">
-                <Input.TextArea className="content-center" disabled={selectedPsikologis !== '6'} autoSize placeholder="Tuliskan status psikologis lainnya"/>
-              </Form.Item> */}
               <Form.Item label="Bahasa yang digunakan" name="bahasa" >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bahasa')}>
                   <Radio value="1">Indonesia</Radio>
@@ -2145,6 +2130,55 @@ useEffect(() => {
     </>
   );
 
+  const combinedDataSource = appointments
+    ?.map((appointment, index) => {
+      return {
+        key: index + 1,
+        appointmentId: appointment?.appointmentId,
+        tanggalTerpilih: (
+          <>
+            {new Date(appointment?.tanggalTerpilih).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}<br></br>
+            {appointment?.waktuTerpilih}
+          </>
+        ),
+        originalTanggalTerpilih: appointment?.tanggalTerpilih,
+        accountAddress: appointment?.accountAddress,
+        nomorAntrean: appointment?.nomorAntrean,
+        dmrNumber: appointment?.dmrNumber,
+        emrNumber: appointment?.emrNumber,
+        nomorIdentitas: appointment?.nomorIdentitas,
+        namaLengkap: appointment?.namaLengkap,
+        namaDokter: appointment?.namaDokter,
+        gender: appointment?.gender,
+        spesialisasi: appointment?.spesialisasi,
+        status: appointment?.status,
+      };
+    })
+    ?.sort((a, b) => {
+      if (selectedOrder === "newest") {
+        return new Date(b.originalTanggalTerpilih) - new Date(a.originalTanggalTerpilih);
+      } else {
+        return new Date(a.originalTanggalTerpilih) - new Date(b.originalTanggalTerpilih);
+      }
+    });
+
+  const filteredDataSource = combinedDataSource
+    ?.filter((record) => {
+      const matchesSearchText =
+        (record.appointmentId && record.appointmentId.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorAntrean && record.nomorAntrean.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.dmrNumber && record.dmrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.emrNumber && record.emrNumber.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.namaLengkap && record.namaLengkap.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.namaDokter && record.namaDokter.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.spesialisasi && record.spesialisasi.toLowerCase().includes(searchText.toLowerCase())) ||
+        (record.nomorIdentitas && record.nomorIdentitas.toLowerCase().includes(searchText.toLowerCase()))
+
+      const matchesStatus = selectedStatus ? record.status === selectedStatus : true;
+      const matchesPoli = selectedPoli ? record.spesialisasi === selectedPoli : true;
+      return matchesSearchText && matchesStatus && matchesPoli;
+    });
+
   return (
     <>
       <NavbarController type={type} page={role} color="blue"/>
@@ -2185,8 +2219,45 @@ useEffect(() => {
                     </div>
                   </div>
                 </Card>
+                <div className="flex justify-end gap-x-8 w-full">
+                  <Select
+                    placeholder="Pilih Status"
+                    onChange={(value) => setSelectedStatus(value)}
+                    style={{ width: 150 }}
+                    allowClear
+                  >
+                    <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+                    <Select.Option value="done">Selesai</Select.Option>
+                    <Select.Option value="canceled">Batal</Select.Option>
+                  </Select>
+                  <Select
+                    placeholder="Pilih Poli/Ruangan"
+                    onChange={(value) => setSelectedPoli(value)}
+                    style={{ width: 150 }}
+                    allowClear
+                  >
+                    <Select.Option value="Umum">Umum</Select.Option>
+                    <Select.Option value="TB Paru">TB Paru</Select.Option>
+                    <Select.Option value="KIA">KIA</Select.Option>
+                  </Select>
+                  <Select
+                    placeholder="Urutkan"
+                    onChange={(value) => setSelectedOrder(value)}
+                    style={{ width: 120 }}
+                    defaultValue="newest"
+                  >
+                    <Select.Option value="newest">Terbaru</Select.Option>
+                    <Select.Option value="oldest">Terlama</Select.Option>
+                  </Select>
+                  <Search
+                    placeholder="Cari berdasarkan teks"
+                    onChange={(e) => setSearchText(e.target.value)}
+                    style={{ width: 300 }}
+                    allowClear
+                    />
+                </div>
                 <div>
-                  <Table columns={columns} dataSource={appointmentDataSource} size="middle"/>
+                  <Table columns={columns} dataSource={filteredDataSource} size="middle"/>
                 </div>
               </div>
               <div>
