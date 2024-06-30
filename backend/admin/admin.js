@@ -18,17 +18,22 @@ import { handleFileWrite } from "../user/appointment/appointment.js";
 import { txChecker } from "../ganache/txChecker.js";
 
 // Contract & ABI
-import { USER_CONTRACT, ADMIN_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT } from "../dotenvConfig.js";
+import { USER_CONTRACT, ADMIN_CONTRACT, PATIENT_CONTRACT, SCHEDULE_CONTRACT, OUTPATIENT_CONTRACT } from "../dotenvConfig.js";
 import adminABI from "../contractConfig/abi/AdminManagement.abi.json" assert { type: "json" };
 import patientABI from "../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
 import userABI from "../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import scheduleABI from "../contractConfig/abi/ScheduleManagement.abi.json" assert { type: "json" };
+import outpatientABI from "../contractConfig/abi/OutpatientManagement.abi.json" assert { type: "json" };
 const admin_contract = ADMIN_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
 const user_contract = USER_CONTRACT.toString();
 const schedule_contract = SCHEDULE_CONTRACT.toString();
+const outpatient_contract = OUTPATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
 const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
+const outpatientContract = new ethers.Contract(outpatient_contract, outpatientABI, provider);
+const userContract = new ethers.Contract( user_contract, userABI, provider);
+const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,16 +41,25 @@ const basePath = path.join(__dirname, "../patient/data");
 const accountsPath = path.join(__dirname, "../ganache/accounts.json");
 const accountsJson = fs.readFileSync(accountsPath);
 const accounts = JSON.parse(accountsJson);
-
-// user
-const userContract = new ethers.Contract( user_contract, userABI, provider);
-// schedule
-const scheduleContract = new ethers.Contract(schedule_contract, scheduleABI, provider);
-// IPFS
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
 router.use(express.json());
+
+async function fetchAndSaveFiles(files, appointmentPath) {
+  if (files.length > 0) {
+    for (let file of files) {
+      const { name, path: ipfsPath } = file;
+      const fileStream = client.cat(ipfsPath);
+      const chunks = [];
+      for await (const chunk of fileStream) { chunks.push(chunk) }
+      const fileBuffer = Buffer.concat(chunks);
+      const filePath = path.join(appointmentPath, name);
+      fs.writeFileSync(filePath, fileBuffer);
+    }
+  }
+  console.log("Files saved");
+}
 
 const schema = Joi.object({
   username: Joi.string().min(3).max(50).required(),
