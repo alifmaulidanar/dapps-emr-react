@@ -692,12 +692,20 @@ next:
 ✅ hilangkan black box testing di laporan TA
 ✅ review apakah test bed sudah benar
 ✅ integrasi pengisian emr dari nurse dan dokter secara bergantian
-- cek excel -> ada select dokter yang jika diganti, maka dokter unauthorized
-- cek pengisian emr dari admin
-- endpoint admin yang perlu diubah tinggal appointment -> masih staff
+✅ cek excel -> ada select dokter yang jika diganti, maka dokter unauthorized
+✅ cek pengisian emr dari admin
+✅ pengubahan OutpatientManagement.sol agar menghilangkan unauthorized
+✅ pendaftaran outpatient dari admin, doctor, dan nurse
+✅ pembatalan outpatient dari admin, doctor, dan nurse
+✅ update profile outpatient dari admin, doctor, dan nurse
+✅ delete profile outpatient dari admin, doctor, dan nurse
+- profil staff, doctor, dan nurse
+- initial values di pengisian RME jika sudah terisi harus menampilkan doctor yang terpilih/terisi di RME yang sudah terekam dahulu yg utama,
+jika masih kosong baru sesuaikan dengan yang ada di outpatient registration
 - butuh filter di detail pasien saat pengisian RME
 - butuh filter di daftar rekam medis by patient
 - butuh filter di daftar rawat jalan by patient
+- endpoint admin yang perlu diubah tinggal appointment -> masih staff
 - lanjut isi lampiran bagian antarmuka, source code SC, dll.
 
 NOTES:
@@ -710,12 +718,12 @@ urutan ngerjain BESOK
 ✅ selesaikan semua checkpoint hingga benerin kode antrean (sebelum includes output gas)
 ✅ 3. implementasi seluruh output gas pada setiap transaksi ke blockchain
 ✅ 4. lengkapi pengujian test bed
-5. cek turnitin jurnal ijece versi 10
-6. lanjut admin pengisian RME
+✅ 5. cek turnitin jurnal ijece versi 10
+✅ 6. lanjut admin pengisian RME
 7. lengkapi filter
 8. lampiran
 9. ubah endpoint staff ke admin jika perlu
-10. urusin dokter unauthorized
+✅ 10. urusin dokter unauthorized
 
 { specialization: 'umum' }
 { fileName: 'umum.txt' }
@@ -795,3 +803,21 @@ pengisian RME
 update RME
 update akun perawat
 update profil perawat
+
+
+
+
+appointment creation from admin
+appointment cancelation from admin
+
+appointment creation from staff
+appointment cancelation from staff
+
+appointment creation from doctor
+appointment cancelation from doctor
+
+appointment creation from nurse
+appointment cancelation from nurse
+
+appointment creation from patient
+appointment cancelation from patient
