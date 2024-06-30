@@ -138,11 +138,11 @@ function NavbarController({ type, page, color, accountData = null }) {
   } else if (type === 4) {
     // staff
     navItems = [
-      // {
-      //   text: "Pendaftaran",
-      //   linkToPage: `/staff/antrean`,
-      //   color: page === "antrean" ? color : defaultColor,
-      // },
+      {
+        text: "Pendaftaran",
+        linkToPage: `/staff/antrean`,
+        color: page === "antrean" ? color : defaultColor,
+      },
       {
         text: "Data Pasien",
         linkToPage: `/staff/data-pasien`,

@@ -40,12 +40,12 @@ export default function StaffAntrean({ role }) {
               </Card>
             </Col>
             <Col span={8}>
-              <Card title="Poli Gigi (G)" bordered={false}>
+              <Card title="Poli Kehamilan (K)" bordered={false}>
                 Card content
               </Card>
             </Col>
             <Col span={8}>
-              <Card title="Poli Anak (A)" bordered={false}>
+              <Card title="Poli TB Paru (P)" bordered={false}>
                 Card content
               </Card>
             </Col>
