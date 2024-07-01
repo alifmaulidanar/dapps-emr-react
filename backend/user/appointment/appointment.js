@@ -78,9 +78,7 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
       return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
           if (err) {
-            if (err.code === 'ENOENT') {
-              return resolve([]);
-            }
+            if (err.code === 'ENOENT') return resolve([]);
             return reject(err);
           }
           const lines = data.trim().split('\n');
@@ -92,38 +90,59 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
     const kiaPath = path.join(basePath, 'kia.txt');
     const tbparuPath = path.join(basePath, 'tbparu.txt');
     const umumPath = path.join(basePath, 'umum.txt');
+    const donePath = path.join(basePath, 'outpatientDone.txt');
 
     if (!fs.existsSync(basePath)) {
       console.log(`Folder for date ${selectedDate} not found.`);
       return res.status(200).json({ 
         message: "Queue fetched successfully",
-        lastLines: {
-          kia: [],
-          tbparu: [],
-          umum: []
-        }
+        queues: { kia: [], tbparu: [], umum: [] }
       });
     }
 
-    const [linesKia, linesTbparu, linesUmum] = await Promise.all([
+    const [linesKia, linesTbparu, linesUmum, doneLines] = await Promise.all([
       readLines(kiaPath),
       readLines(tbparuPath),
-      readLines(umumPath)
+      readLines(umumPath),
+      readLines(donePath)
     ]);
-
-    // console.log(`=====================================================`);
-    // console.log(`Data antrean tanggal ${selectedDate}`)
-    // console.log(`Lines from kia.txt: ${linesKia}`);
-    // console.log(`Lines from tbparu.txt: ${linesTbparu}`);
-    // console.log(`Lines from umum.txt: ${linesUmum}`);
+    const filterDone = (lines) => lines.filter(line => !doneLines.includes(line));
+    const filteredKia = filterDone(linesKia);
+    const filteredTbparu = filterDone(linesTbparu);
+    const filteredUmum = filterDone(linesUmum);
 
     res.status(200).json({ 
       message: "Queue fetched successfully",
       queues: {
-        kia: linesKia,
-        tbparu: linesTbparu,
-        umum: linesUmum
+        kia: filteredKia,
+        tbparu: filteredTbparu,
+        umum: filteredUmum
       }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+router.post("/:role/next-queue", authMiddleware, async (req, res) => {
+  try {
+    const { currentQueue, selectedDate } = req.body;
+    const basePath = path.join(__dirname, '../../patient/services', selectedDate);
+    const donePath = path.join(basePath, 'outpatientDone.txt');
+
+    if (!fs.existsSync(basePath)) {
+      fs.mkdirSync(basePath, { recursive: true });
+    }
+
+    fs.appendFile(donePath, currentQueue + '\n', (err) => {
+      if (err) {
+        console.error("Error writing to file:", err);
+        return res.status(500).json({ error: "Error writing to file" });
+      }
+      console.log(`Appended ${currentQueue} to outpatientDone.txt`);
+      res.status(200).json({ message: "Queue updated successfully" });
     });
   } catch (error) {
     console.error(error);
