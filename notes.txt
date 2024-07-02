@@ -705,7 +705,8 @@ next:
 ✅ sementara hilangkan profil staff, doctor, dan nurse
 ✅ hanya bisa mendaftar 1 rawat jalan per hari
 ✅ LabAttachments udah bener, tapi untuk ubah data LabAttachments masih harus upload ulang semua files
-✅ nomor antrean udah jadi di staff
+✅ nomor antrean udah jadi untuk admin, staff, doctor, nurse
+✅ Statistic pasien yang rawat jalan ada di queue/halaman pendaftaran
 ❌ [BUG] initial values di pengisian RME jika sudah terisi harus menampilkan doctor yang terpilih/terisi di RME yang sudah terekam dahulu yg utama,
 jika masih kosong baru sesuaikan dengan yang ada di outpatient registration
 🟡 [NOT URGENT] endpoint admin yang perlu diubah tinggal appointment -> masih staff
