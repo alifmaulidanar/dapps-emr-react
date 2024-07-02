@@ -78,7 +78,9 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
       return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf8', (err, data) => {
           if (err) {
-            if (err.code === 'ENOENT') return resolve([]);
+            if (err.code === 'ENOENT') {
+              return resolve([]);
+            }
             return reject(err);
           }
           const lines = data.trim().split('\n');
@@ -93,10 +95,10 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
     const donePath = path.join(basePath, 'outpatientDone.txt');
 
     if (!fs.existsSync(basePath)) {
-      console.log(`Folder for date ${selectedDate} not found.`);
       return res.status(200).json({ 
         message: "Queue fetched successfully",
-        queues: { kia: [], tbparu: [], umum: [] }
+        queues: { kia: [], tbparu: [], umum: [] },
+        stats: { total: 0, perPoli: { kia: 0, tbparu: 0, umum: 0 }, called: 0, notCalled: 0 }
       });
     }
 
@@ -106,10 +108,27 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
       readLines(umumPath),
       readLines(donePath)
     ]);
+
     const filterDone = (lines) => lines.filter(line => !doneLines.includes(line));
     const filteredKia = filterDone(linesKia);
     const filteredTbparu = filterDone(linesTbparu);
     const filteredUmum = filterDone(linesUmum);
+
+    const totalPatients = linesKia.length + linesTbparu.length + linesUmum.length;
+    const calledPatients = doneLines.length;
+    const notCalledPatients = totalPatients - calledPatients;
+
+    const perPoliCalled = {
+      kia: linesKia.filter(line => doneLines.includes(line)).length,
+      tbparu: linesTbparu.filter(line => doneLines.includes(line)).length,
+      umum: linesUmum.filter(line => doneLines.includes(line)).length
+    };
+
+    const perPoliNotCalled = {
+      kia: filteredKia.length,
+      tbparu: filteredTbparu.length,
+      umum: filteredUmum.length
+    };
 
     res.status(200).json({ 
       message: "Queue fetched successfully",
@@ -117,6 +136,14 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
         kia: filteredKia,
         tbparu: filteredTbparu,
         umum: filteredUmum
+      },
+      stats: {
+        total: totalPatients,
+        perPoli: { kia: linesKia.length, tbparu: linesTbparu.length, umum: linesUmum.length },
+        called: calledPatients,
+        notCalled: notCalledPatients,
+        perPoliCalled,
+        perPoliNotCalled
       }
     });
   } catch (error) {
@@ -124,7 +151,6 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 router.post("/:role/next-queue", authMiddleware, async (req, res) => {
   try {
