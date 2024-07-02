@@ -21,7 +21,7 @@ import NursePelayananMedis from "./pages/nurse/NursePelayananMedis";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPatientDetails from "./pages/admin/AdminPatientDetails";
 import PatientAppointmentDetails from "./pages/patient/PatientAppointmentDetails";
-import StaffAntrean from "./pages/staff/StaffAntrean";
+import Antrean from "./pages/Antrean";
 import StaffPatientList from "./pages/staff/StaffPatientList";
 import StaffPelayananMedis from "./pages/staff/StaffPelayananMedis";
 
@@ -114,6 +114,10 @@ function App() {
             {/* Routing Doctor */}
             <>
               <Route
+                path={`/doctor/antrean`}
+                element={<Antrean role="doctor" />}
+              />
+              <Route
                 path={`/doctor/data-pasien`}
                 element={<DoctorPatientList role="doctor" />}
               />
@@ -137,6 +141,10 @@ function App() {
 
             {/* Routing Nurse */}
             <>
+              <Route
+                path={`/nurse/antrean`}
+                element={<Antrean role="nurse" />}
+              />
               <Route
                 path={`/nurse/data-pasien`}
                 element={<NursePatientList role="nurse" />}
@@ -167,7 +175,7 @@ function App() {
             <>
               <Route
                 path={`/staff/antrean`}
-                element={<StaffAntrean role="staff" />}
+                element={<Antrean role="staff" />}
               />
               <Route
                 path={`/staff/data-pasien`}
@@ -185,6 +193,10 @@ function App() {
 
             {/* Routing Admin */}
             <>
+              <Route
+                path={`/admin/antrean`}
+                element={<Antrean role="admin" />}
+              />
               <Route
                 path="/admin/signin"
                 element={

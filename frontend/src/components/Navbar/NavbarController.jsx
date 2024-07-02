@@ -77,6 +77,11 @@ function NavbarController({ type, page, color, accountData = null }) {
     // doctor
     navItems = [
       {
+        text: "Pendaftaran",
+        linkToPage: `/doctor/antrean`,
+        color: page === "antrean" ? color : defaultColor,
+      },
+      {
         text: "Data Pasien",
         linkToPage: `/doctor/data-pasien`,
         color: page === "data-pasien" ? color : defaultColor,
@@ -107,6 +112,11 @@ function NavbarController({ type, page, color, accountData = null }) {
   } else if (type === 3) {
     // nurse
     navItems = [
+      {
+        text: "Pendaftaran",
+        linkToPage: `/nurse/antrean`,
+        color: page === "antrean" ? color : defaultColor,
+      },
       {
         text: "Data Pasien",
         linkToPage: `/nurse/data-pasien`,

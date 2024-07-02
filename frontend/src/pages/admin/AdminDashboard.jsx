@@ -18,6 +18,7 @@ import DoctorSchedule from "./DoctorSchedule";
 import AdminPatientList from "./AdminPatientList"
 import AdminPelayananMedis from "./AdminPelayananMedis";
 import AdminAccount from "../AccountAdmin";
+import Antrean from "../Antrean";
 
 export default function AdminDashboard() {
   const [form] = Form.useForm();
@@ -420,6 +421,12 @@ export default function AdminDashboard() {
       onClick: () => setActiveMenu("patientData"),
     },
     {
+      label: "Antrean Pasien",
+      key: "antreanPasien",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("antreanPasien"),
+    },
+    {
       label: "Pelayanan Medis",
       key: "pelayananMedis",
       // icon: <CalendarOutlined />,
@@ -507,6 +514,9 @@ export default function AdminDashboard() {
             )}
             {activeMenu === "patientData" && (
               <AdminPatientList token={token} />
+            )}
+            {activeMenu === "antreanPasien" && (
+              <Antrean role="admin" />
             )}
             {activeMenu === "pelayananMedis" && (
               <AdminPelayananMedis token={token} />
