@@ -98,7 +98,7 @@ router.post("/:role/queue", authMiddleware, async (req, res) => {
       return res.status(200).json({ 
         message: "Queue fetched successfully",
         queues: { kia: [], tbparu: [], umum: [] },
-        stats: { total: 0, perPoli: { kia: 0, tbparu: 0, umum: 0 }, called: 0, notCalled: 0 }
+        stats: { total: 0, perPoli: { kia: 0, tbparu: 0, umum: 0 }, called: 0, notCalled: 0, perPoliCalled: { kia: 0, tbparu: 0, umum: 0 }, perPoliNotCalled: { kia: 0, tbparu: 0, umum: 0 } }
       });
     }
 

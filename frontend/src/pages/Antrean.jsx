@@ -87,8 +87,9 @@ export default function Antrean({ role }) {
       if (newQueues[poli].length > 0) {
         const currentQueue = newQueues[poli][0];
         sendCurrentQueueToBackend(currentQueue, dayjs(selectedDate));
-        if (newQueues[poli].length > 1) {
-          newQueues[poli].shift();
+        newQueues[poli].shift();
+        if (newQueues[poli].length === 0) {
+          newQueues[poli].push("-");
         }
         // Update stats
         setStats((prevStats) => ({
@@ -146,7 +147,7 @@ export default function Antrean({ role }) {
   return (
     <>
       <NavbarController type={type} page="antrean" color="blue" />
-      <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-20 pb-12 mx-auto min-h-fit max-h-screen min-w-screen px-14 gap-x-8 gap-y-4 justify-center items-center">
+      <div className="grid items-center justify-center w-4/5 grid-cols-1 pt-24 pb-12 mx-auto min-h-fit max-h-screen min-w-screen px-14 gap-x-8 gap-y-4 justify-center items-center">
         <div className="flex gap-x-4">
           <p>Pilih tanggal:</p>
           <DatePicker
@@ -199,24 +200,42 @@ export default function Antrean({ role }) {
             <Card bordered={true}>
               <Statistic title="Poli Umum (U)" value={stats.perPoli.umum || 0} />
               <Divider />
-              <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.umum || 0} />
-              <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.umum || 0} />
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.umum || 0} />
+                </Col>
+                <Col span={12}>
+                  <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.umum || 0} />
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={8}>
             <Card bordered={true}>
               <Statistic title="Poli Kehamilan (K)" value={stats.perPoli.kia || 0} />
               <Divider />
-              <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.kia || 0} />
-              <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.kia || 0} />
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.kia || 0} />
+                </Col>
+                <Col span={12}>
+                  <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.kia || 0} />
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={8}>
             <Card bordered={true}>
               <Statistic title="Poli TB Paru (P)" value={stats.perPoli.tbparu || 0} />
               <Divider />
-              <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.tbparu || 0} />
-              <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.tbparu || 0} />
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Statistic title="Belum Dipanggil" value={stats.perPoliNotCalled.tbparu || 0} />
+                </Col>
+                <Col span={12}>
+                  <Statistic title="Sudah Dipanggil" value={stats.perPoliCalled.tbparu || 0} />
+                </Col>
+              </Row>
             </Card>
           </Col>
         </Row>
