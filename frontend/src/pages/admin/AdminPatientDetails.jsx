@@ -11,7 +11,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
 import { SaveOutlined, InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
-import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, Row, Col, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
+import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, Row, Col, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, InputNumber, message } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 const { TextArea, Search } = Input;
 const { Dragger } = Upload;
@@ -199,6 +199,9 @@ useEffect(() => {
     if (appointment.status === "done") {
       setIsDataFinished(true);
       setIsEdit(false);
+    } else if (appointment.status === "active") {
+      setIsDataFinished(false);
+      setIsEdit(true);
     } else if (appointment.status === "ongoing") {
       setIsDataFinished(false);
       setIsEdit(true);
@@ -278,8 +281,18 @@ useEffect(() => {
     { title: 'Jadwal Berobat', dataIndex: 'tanggalTerpilih', key: 'tanggalTerpilih' },
     { title: 'Status', dataIndex: 'status',
       render: (status) => (
-        <Tag color={ status === "ongoing" ? "blue" :  status === "done" ? "green" : "red" }>
-          { status === "ongoing" ? "Sedang berjalan" :  status === "done" ? "Selesai" : "Batal" }
+        <Tag color={ 
+          status === "ongoing" ? "blue" : 
+          status === "active" ? "gold" : 
+          status === "done" ? "green" : 
+          "red" 
+        }>
+          { 
+            status === "ongoing" ? "Sedang berjalan" : 
+            status === "active" ? "Sedang diperiksa" : 
+            status === "done" ? "Selesai" : 
+            "Batal" 
+          }
         </Tag>
       ) },
     { title: 'Aksi', key: 'action', render: (_, record) => (<Button type="primary" ghost onClick={() => showEMR(record.appointmentId)} icon={<RightOutlined/>}/>) },
@@ -833,7 +846,7 @@ useEffect(() => {
         className='w-full h-full overflow-y-auto'
     >
         <div className="grid grid-cols-2 p-4 gap-x-4">
-          { selectedCategory === 'anamnesis' && (
+        { selectedCategory === 'anamnesis' && (
             <>
               {/* DATA PENDAFTARAN */}
               <div className="col-span-2 mb-6 text-lg text-gray-900">
@@ -890,8 +903,8 @@ useEffect(() => {
                   disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
-              <Form.Item label="Keluhan Utama" name="keluhanUtama" >
-                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
+              <Form.Item label="Keluhan Utama" name="keluhanUtama" rules={[{ required: true, message: 'Harap isi keluhan utama!' }]}>
+                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} autoSize />
               </Form.Item>
               <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
                 <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
@@ -959,7 +972,7 @@ useEffect(() => {
                     <Input disabled={isDataFinished && !isEdit} style={inputStyling} placeholder="0" defaultValue={0} />
                   </Form.Item>
                   <span className='mt-1'>Bulan</span>
-                  <Form.Item label="" name="lamaSakitHari" required>
+                  <Form.Item label="" name="lamaSakitHari" rules={[{ required: true, message: 'Harap isi lama sakit!' }]} >
                     <Input disabled={isDataFinished && !isEdit} style={inputStyling} placeholder="0" defaultValue={0} />
                   </Form.Item>
                   <span className='mt-1'>Hari</span>
@@ -970,31 +983,31 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">2. Pemeriksaan Psikologis, Sosial Ekonomi, Spiritual</Divider>
               </div>
-              <Form.Item label="Penggunaan alat bantu ketika beraktivitas" name="alatBantu" >
+              <Form.Item label="Penggunaan alat bantu ketika beraktivitas" name="alatBantu" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('alatBantu')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Mengalami kendala komunikasi" name="kendalaKomunikasi" >
+              <Form.Item label="Mengalami kendala komunikasi" name="kendalaKomunikasi" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('kendalaKomunikasi')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Ada yang merawat di rumah" name="perawatRumah" >
+              <Form.Item label="Ada yang merawat di rumah" name="perawatRumah" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('perawatRumah')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Membutuhkan bantuan orang lain ketika beraktivitas" name="bantuanOrangLain" >
+              <Form.Item label="Membutuhkan bantuan orang lain ketika beraktivitas" name="bantuanOrangLain" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bantuanOrangLain')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Ekspresi dan emosi" name="ekspresiDanEmosi" >
+              <Form.Item label="Ekspresi dan emosi" name="ekspresiDanEmosi" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('ekspresiDanEmosi')} onChange={onPsikologisChange} options={[
                   { value: '1', label: <span>1. Tenang</span> },
                   { value: '2', label: <span>2. Cemas</span> },
@@ -1004,20 +1017,17 @@ useEffect(() => {
                   { value: '6', label: <span>6. Marah</span> },
                 ]}/>
               </Form.Item>
-              {/* <Form.Item label="Status Psikologis Lainnya" name="statusPsikologisLainnya">
-                <Input.TextArea className="content-center" disabled={selectedPsikologis !== '6'} autoSize placeholder="Tuliskan status psikologis lainnya"/>
-              </Form.Item> */}
-              <Form.Item label="Bahasa yang digunakan" name="bahasa" >
+              <Form.Item label="Bahasa yang digunakan" name="bahasa" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bahasa')}>
                   <Radio value="1">Indonesia</Radio>
                   <Radio value="2">Daerah</Radio>
                   <Radio value="3">Lainnya</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Pekerjaan" name="pekerjaan">
+              <Form.Item label="Pekerjaan" name="pekerjaan" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit}/>
               </Form.Item>
-              <Form.Item label="Tinggal dengan" name="tinggalBersama">
+              <Form.Item label="Tinggal dengan" name="tinggalBersama" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tinggalBersama')}>
                   <Radio value="1">Sendiri</Radio>
                   <Radio value="2">Suami/Istri</Radio>
@@ -1025,33 +1035,33 @@ useEffect(() => {
                   <Radio value="4">Lainnya</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Gangguan jiwa di masa lalu" name="gangguanJiwaLampau" >
+              <Form.Item label="Gangguan jiwa di masa lalu" name="gangguanJiwaLampau" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('gangguanJiwaLampau')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Sosial Ekonomi" name="sosialEkonomi" >
+              <Form.Item label="Sosial Ekonomi" name="sosialEkonomi" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('sosialEkonomi')}>
                   <Radio value="1">Baik</Radio>
                   <Radio value="2">Cukup</Radio>
                   <Radio value="3">Kurang</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Status Ekonomi" name="statusEkonomi" >
+              <Form.Item label="Status Ekonomi" name="statusEkonomi" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusEkonomi')}>
                   <Radio value="1">Baik</Radio>
                   <Radio value="2">Cukup</Radio>
                   <Radio value="3">Kurang</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Jaminan Pengobatan" name="jaminanPengobatan" >
+              <Form.Item label="Jaminan Pengobatan" name="jaminanPengobatan" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('jaminanPengobatan')}>
                   <Radio value="1">BPJS</Radio>
                   <Radio value="2">Umum / Mandiri</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Hubungan dengan keluarga" name="hubunganKeluarga" >
+              <Form.Item label="Hubungan dengan keluarga" name="hubunganKeluarga" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('hubunganKeluarga')} options={[
                   { value: '1', label: <span>1. Harmonis</span> },
                   { value: '2', label: <span>2. Kurang Harmonis</span> },
@@ -1067,7 +1077,7 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left">A. Keadaan Umum</Divider>
               </div>
-              <Form.Item label="Tingkat Kesadaran" name="tingkatKesadaran" >
+              <Form.Item label="Tingkat Kesadaran" name="tingkatKesadaran" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('tingkatKesadaran')} options={[
                   { value: '1', label: <span>1. Compos Mentis</span> },
                   { value: '2', label: <span>2. Somnolen</span> },
@@ -1078,52 +1088,52 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left">B. Organ Vital</Divider>
               </div>
-              <Form.Item label="Detak Nadi" name="detakNadi">
+              <Form.Item label="Detak Nadi" name="detakNadi" rules={[{ required: true, message: 'Harap isi detak nadi!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/menit"/>
               </Form.Item>
-              <Form.Item label="Pernapasan" name="pernapasan">
+              <Form.Item label="Pernapasan" name="pernapasan" rules={[{ required: true, message: 'Harap isi pernapasan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/menit"/>
               </Form.Item>
-              <Form.Item label="Tekanan Darah Sistole" name="tekananDarahSistole">
+              <Form.Item label="Tekanan Darah Sistole" name="tekananDarahSistole" rules={[{ required: true, message: 'Harap isi tekanan darah sistole!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/mm"/>
               </Form.Item>
-              <Form.Item label="Tekanan Darah Diastole" name="tekananDarahDiastole">
+              <Form.Item label="Tekanan Darah Diastole" name="tekananDarahDiastole" rules={[{ required: true, message: 'Harap isi diastole!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/Hg"/>
               </Form.Item>
-              <Form.Item label="MAP" name="map">
+              <Form.Item label="MAP" name="map" rules={[{ required: true, message: 'Harap isi MAP!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="/mmHg"/>
               </Form.Item>
-              <Form.Item label="Berat Badan" name="beratBadan">
+              <Form.Item label="Berat Badan" name="beratBadan" rules={[{ required: true, message: 'Harap isi berat badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
-              <Form.Item label="Tinggi Badan" name="tinggiBadan">
+              <Form.Item label="Tinggi Badan" name="tinggiBadan" rules={[{ required: true, message: 'Harap isi tinggi badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
-              <Form.Item label="Cara ukur tinggi badan" name="caraUkurTinggiBadan" >
+              <Form.Item label="Cara ukur tinggi badan" name="caraUkurTinggiBadan" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Select size="middle" disabled={isDataFinished && !isEdit && !!form.getFieldValue('caraUkurTinggiBadan')} options={[
                   { value: '1', label: <span>1. Berdiri</span> },
                   { value: '2', label: <span>2. Telentang</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Suhu Tubuh" name="suhuTubuh">
+              <Form.Item label="Suhu Tubuh" name="suhuTubuh" rules={[{ required: true, message: 'Harap isi suhu tubuh!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="°C"/>
               </Form.Item>
-              <Form.Item label="Saturasi (Sp02)" name="saturasi">
+              <Form.Item label="Saturasi (Sp02)" name="saturasi" rules={[{ required: true, message: 'Harap isi saturasi!' }]}>
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="%"/>
               </Form.Item>
-              <Form.Item label="Status hamil" name="statusHamil" >
+              <Form.Item label="Status hamil" name="statusHamil" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusHamil')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Detak Jantung" name="detakJantung" >
+              <Form.Item label="Detak Jantung" name="detakJantung" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('detakJantung')}>
                   <Radio value="1">Regular</Radio>
                   <Radio value="2">Iregular</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Triage" name="triage" >
+              <Form.Item label="Triage" name="triage" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('triage')}>
                   <Radio value="1">Gawat Darurat</Radio>
                   <Radio value="2">Darurat</Radio>
@@ -1136,7 +1146,7 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">4. Asesmen Nyeri</Divider>
               </div>
-              <Form.Item label="Pasien merasakan nyeri" name="nyeriTubuh" >
+              <Form.Item label="Pasien merasakan nyeri" name="nyeriTubuh" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('nyeriTubuh')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
@@ -1173,7 +1183,7 @@ useEffect(() => {
                 <Divider orientation="left" orientationMargin="0">5. Asesmen Risiko Jatuh</Divider>
               </div>
               <div className="col-span-2">
-                <Form.Item label="Perhatikan cara berjalan pasien saat akan duduk di kursi. Apakah pasien tampak tidak seimbang?" name="pasienTidakSeimbang">
+                <Form.Item label="Perhatikan cara berjalan pasien saat akan duduk di kursi. Apakah pasien tampak tidak seimbang?" name="pasienTidakSeimbang" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                   <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('pasienTidakSeimbang')}>
                     <Radio value="1">Ya</Radio>
                     <Radio value="0">Tidak</Radio>
@@ -1181,7 +1191,7 @@ useEffect(() => {
                 </Form.Item>
               </div>
               <div className="col-span-2">
-                <Form.Item label="Apakah pasien memegang benda sekitar untuk penopang tubuh?" name="pasienButuhPenopang">
+                <Form.Item label="Apakah pasien memegang benda sekitar untuk penopang tubuh?" name="pasienButuhPenopang" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                   <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('pasienButuhPenopang')}>
                     <Radio value="1">Ya</Radio>
                     <Radio value="0">Tidak</Radio>
@@ -1246,10 +1256,6 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left" orientationMargin="0">7. Keadaan Fisik</Divider>
               </div>
-              {/* <Form.Item label="Keluhan Tambahan" name="keluhanTambahan">
-                <Input.TextArea style={inputStylingTextArea} className="content-center" disabled={isDataFinished && !isEdit} autoSize/>
-              </Form.Item> */}
-
               <Form.Item label="Pemeriksaan Kulit" name="pemeriksaanKulit">
                 <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
@@ -1298,7 +1304,6 @@ useEffect(() => {
               <Form.Item label="Pemeriksaan Genitalia Wanita" name="pemeriksaanGenitaliaWanita">
                 <TextArea rows={3} style={inputStylingTextArea} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-                
             </>
           )}
 
@@ -1444,21 +1449,6 @@ useEffect(() => {
                               </Form.Item>
                             ),
                           },
-                          // {
-                          //   title: 'Status',
-                          //   dataIndex: ['status'],
-                          //   key: 'status',
-                          //   render: (text, field) => (
-                          //     <Form.Item
-                          //       {...field}
-                          //       name={[field.name, 'status']}
-                          //       fieldKey={[field.fieldKey, 'status']}
-                          //       valuePropName="checked"
-                          //     >
-                          //       <Checkbox />
-                          //     </Form.Item>
-                          //   ),
-                          // },
                           {
                             title: 'Aksi',
                             dataIndex: 'aksi',
@@ -1473,13 +1463,7 @@ useEffect(() => {
                     <div></div>
                     <div className='grid pt-6 justify-end'>
                       <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<PlusOutlined />}
-                          // style={{ marginTop: 16 }}
-                        >
+                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
                           Tambah Diagnosis
                         </Button>
                       </Form.Item>
@@ -1556,27 +1540,27 @@ useEffect(() => {
                 Riwayat Obstetrik
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Gravida" name="gravida">
-                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
+              <Form.Item label="Gravida" name="gravida" rules={[{ required: true, message: 'Harap isi gravida!' }]}>
+                <InputNumber style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Partus" name="partus" >
-                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
+              <Form.Item label="Partus" name="partus" rules={[{ required: true, message: 'Harap isi partus!' }]}>
+                <InputNumber style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Abortus" name="abortus">
-                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
+              <Form.Item label="Abortus" name="abortus" rules={[{ required: true, message: 'Harap isi abortus!' }]}>
+                <InputNumber style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Hidup" name="hidup">
-                <Input style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
+              <Form.Item label="Hidup" name="hidup" rules={[{ required: true, message: 'Harap isi hidup!' }]}>
+                <InputNumber style={inputStyling} className="content-center" disabled={isDataFinished && !isEdit} />
               </Form.Item>
 
               <div className="col-span-2 mb-6 text-lg text-gray-900">
                 Rencana Persalinan
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Tanggal" name="tanggalRencanaPersalinan" >
+              <Form.Item label="Tanggal" name="tanggalRencanaPersalinan" rules={[{ required: true, message: 'Harap isi rencana persalinan!' }]} >
                 <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Penolong" name="penolongPersalinan" >
+              <Form.Item label="Penolong" name="penolongPersalinan" rules={[{ required: true, message: 'Harap isi penolong persalinan!' }]} >
                 <Select size="middle" onChange={onPenolongPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('penolongPersalinan')} options={[
                   { value: '1', label: <span>1. Keluarga</span> },
                   { value: '2', label: <span>2. Dukun</span> },
@@ -1587,7 +1571,7 @@ useEffect(() => {
                   { value: '7', label: <span>7. Tidak ada</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Tempat" name="tempatPersalinan" >
+              <Form.Item label="Tempat" name="tempatPersalinan" rules={[{ required: true, message: 'Harap isi tempat persalinan!' }]} >
                 <Select size="middle" onChange={onTempatPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('tempatPersalinan')} options={[
                   { value: '1', label: <span>1. Rumah</span> },
                   { value: '2', label: <span>2. Polides</span> },
@@ -1600,7 +1584,7 @@ useEffect(() => {
                   { value: '9', label: <span>9. Rumah Sakit Orang Dengan HIV AIDS (RS ODHA)</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Pendamping" name="pendampingPersalinan" >
+              <Form.Item label="Pendamping" name="pendampingPersalinan" rules={[{ required: true, message: 'Harap isi pendamping persalinan!' }]} >
                 <Select size="middle" onChange={onPendampingPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('pendampingPersalinan')} options={[
                   { value: '1', label: <span>1. Suami</span> },
                   { value: '2', label: <span>2. Keluarga</span> },
@@ -1609,7 +1593,7 @@ useEffect(() => {
                   { value: '5', label: <span>5. Lainnya</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Transportasi" name="transportasiPersalinan" >
+              <Form.Item label="Transportasi" name="transportasiPersalinan" rules={[{ required: true, message: 'Harap isi transportasi persalinan!' }]} >
                 <Select size="middle" onChange={onTransportasiPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('transportasiPersalinan')} options={[
                   { value: '1', label: <span>1. Ambulans Desa</span> },
                   { value: '2', label: <span>2. Ambulans Puskesmas</span> },
@@ -1618,7 +1602,7 @@ useEffect(() => {
                   { value: '5', label: <span>5. Kendaraan Umum</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Pendonor" name="pendonorPersalinan" >
+              <Form.Item label="Pendonor" name="pendonorPersalinan" rules={[{ required: true, message: 'Harap isi pendonor persalinan!' }]} >
                 <Select size="middle" onChange={onPendonorPersalinanChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('pendonorPersalinan')} options={[
                   { value: '1', label: <span>1. Suami</span> },
                   { value: '2', label: <span>2. Keluarga</span> },
@@ -1632,25 +1616,25 @@ useEffect(() => {
                 Pemeriksaan Bidan
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Tanggal Hari Pertama Haid Terakhir (HPHT)" name="tanggalHpht" >
+              <Form.Item label="Tanggal Hari Pertama Haid Terakhir (HPHT)" name="tanggalHpht" rules={[{ required: true, message: 'Harap isi tanggal HPHT!' }]} >
                 <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Taksiran Persalinan" name="taksiranPersalinan" >
+              <Form.Item label="Taksiran Persalinan" name="taksiranPersalinan" rules={[{ required: true, message: 'Harap isi taksiran persalinan!' }]} >
                 <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Persalinan Sebelumnya" name="persalinanSebelumnya" >
                 <DatePicker onChange={onChange} size='middle' format={dateFormat} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Buku Kesehatan Ibu dan Anak (KIA)" name="bukuKia" >
+              <Form.Item label="Buku Kesehatan Ibu dan Anak (KIA)" name="bukuKia" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('bukuKia')}>
                   <Radio value="1">Memiliki</Radio>
                   <Radio value="0">Tidak memiliki</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Berat Badan sebelum hamil" name="beratBadanSebelumHamil">
+              <Form.Item label="Berat Badan sebelum hamil" name="beratBadanSebelumHamil" rules={[{ required: true, message: 'Harap isi berat badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
-              <Form.Item label="Tinggi Badan" name="tinggiBadanHamil">
+              <Form.Item label="Tinggi Badan" name="tinggiBadanHamil" rules={[{ required: true, message: 'Harap isi tinggi badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
 
@@ -1658,16 +1642,16 @@ useEffect(() => {
                 Risiko
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Skor Ibu Kartu Skor Poedji Rochjati (KSPR)" name="skorKspr" >
+              <Form.Item label="Skor Ibu Kartu Skor Poedji Rochjati (KSPR)" name="skorKspr" rules={[{ required: true, message: 'Harap isi skor KSPR!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Tingkat Risiko" name="tingkatRisiko" >
+              <Form.Item label="Tingkat Risiko" name="tingkatRisiko" rules={[{ required: true, message: 'Harap isi tingkat risiko!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
               <Form.Item label="Sebutkan jenis risiko tinggi" name="jenisRisikoTinggi" >
                 <Input.TextArea style={inputStylingTextArea} rows={4} disabled={isDataFinished && !isEdit} />
               </Form.Item>
-              <Form.Item label="Risiko Kasuistik" name="risikoKasuistik" >
+              <Form.Item label="Risiko Kasuistik" name="risikoKasuistik" rules={[{ required: true, message: 'Harap isi risiko kasuistik!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} />
               </Form.Item>
             </>
@@ -1710,20 +1694,20 @@ useEffect(() => {
                   disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
-              <Form.Item label="Berat Badan" name="beratBadanTb">
+              <Form.Item label="Berat Badan" name="beratBadanTb" rules={[{ required: true, message: 'Harap isi berat badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="kg"/>
               </Form.Item>
-              <Form.Item label="Tinggi Badan" name="tinggiBadanTb">
+              <Form.Item label="Tinggi Badan" name="tinggiBadanTb" rules={[{ required: true, message: 'Harap isi tinggi badan!' }]} >
                 <Input style={inputStyling} disabled={isDataFinished && !isEdit} placeholder="cm"/>
               </Form.Item>
-              <Form.Item label={<span>Parut <i>Bacillus Calmette-Guerin</i> (BCG)</span>} name="parutBcg" >
+              <Form.Item label={<span>Parut <i>Bacillus Calmette-Guerin</i> (BCG)</span>} name="parutBcg" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('parutBcg')}>
                   <Radio value="1">Jelas</Radio>
                   <Radio value="2">Tidak ada</Radio>
                   <Radio value="3">Meragukan</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Jika wanita usia subur" name="wanitaUsiaSubur" >
+              <Form.Item label="Jika wanita usia subur" name="wanitaUsiaSubur" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('wanitaUsiaSubur')}>
                   <Radio value="1">Hamil</Radio>
                   <Radio value="2">Tidak hamil</Radio>
@@ -1763,19 +1747,19 @@ useEffect(() => {
                 Tipe Diagnosis dan Klasifikasi Pasien
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Tipe Diagnosis" name="tipeDiagnosis" >
+              <Form.Item label="Tipe Diagnosis" name="tipeDiagnosis" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tipeDiagnosis')}>
                   <Radio value="1">Terkontaminasi Bakteriologis</Radio>
                   <Radio value="2">Terdiagnosa klinis</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Klasifikasi berdasarkan lokasi anatomi" name="klasifikasiByAnatomi" >
+              <Form.Item label="Klasifikasi berdasarkan lokasi anatomi" name="klasifikasiByAnatomi" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByAnatomi')}>
                   <Radio value="1">Paru</Radio>
                   <Radio value="2">Ekstra Paru</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Klasifikasi berdasarkan riwayat pengobatan sebelumnya" name="klasifikasiByRiwayat" >
+              <Form.Item label="Klasifikasi berdasarkan riwayat pengobatan sebelumnya" name="klasifikasiByRiwayat" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByRiwayat')}>
                   <Radio value="1">Baru</Radio>
                   <Radio value="2">Kambuh</Radio>
@@ -1785,7 +1769,7 @@ useEffect(() => {
                   <Radio value="6">Lain-lain</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Klasifikasi berdasarkan status HIV" name="klasifikasiByHiv" >
+              <Form.Item label="Klasifikasi berdasarkan status HIV" name="klasifikasiByHiv" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('klasifikasiByHiv')}>
                   <Radio value="1">Positif</Radio>
                   <Radio value="2">Negatif</Radio>
@@ -1797,13 +1781,13 @@ useEffect(() => {
                 Kegiatan TB <i>Diabetes Mellitus</i> (DM)
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Riwayat DM" name="riwayatDm" >
+              <Form.Item label="Riwayat DM" name="riwayatDm" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('riwayatDm')}>
                   <Radio value="1">Ya</Radio>
                   <Radio value="0">Tidak</Radio>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Hasil Tes DM" name="tesDm" >
+              <Form.Item label="Hasil Tes DM" name="tesDm" rules={[{ required: true, message: 'Harap pilih salah satu!' }]} >
                 <Radio.Group disabled={isDataFinished && !isEdit && !!form.getFieldValue('tesDm')}>
                   <Radio value="1">Positif</Radio>
                   <Radio value="2">Negatif</Radio>
@@ -1884,7 +1868,7 @@ useEffect(() => {
                 Pemeriksaan Laboratorium
                 <hr className="h-px bg-gray-700 border-0"/>
               </div>
-              <Form.Item label="Pemeriksa" name="pemeriksaLab">
+              <Form.Item label="Pemeriksa" name="pemeriksaLab" rules={[{ required: true, message: 'Harap pilih pemeriksa lab!' }]} >
                 <Select
                   showSearch
                   placeholder="Pilih Pemeriksa"
@@ -1897,7 +1881,7 @@ useEffect(() => {
                   disabled={isDataFinished && !isEdit}
                 />
               </Form.Item>
-              <Form.Item label="Rujukan dari" name="rujukanDari" >
+              <Form.Item label="Rujukan dari" name="rujukanDari" rules={[{ required: true, message: 'Harap pilih sumber rujukan!' }]} >
                 <Select size="middle" onChange={onRujukanDariChange} disabled={isDataFinished && !isEdit} options={[
                   { value: 'Sendiri', label: <span>1. Sendiri</span> },
                   { value: 'Dokter', label: <span>2. Dokter</span> },
@@ -1905,7 +1889,7 @@ useEffect(() => {
                   { value: 'Eksternal', label: <span>4. Eksternal</span> },
                 ]}/>
               </Form.Item>
-              <Form.Item label="Perujuk" name="perujukLab">
+              <Form.Item label="Perujuk" name="perujukLab" >
                 <Select
                   showSearch
                   placeholder="Pilih Dokter / Perawat / Bidan Perujuk"
@@ -1981,7 +1965,7 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left">Kesimpulan / Saran</Divider>
               </div>
-              <Form.Item label="Status Pemeriksaan" name="statusPemeriksaanLab" >
+              <Form.Item label="Status Pemeriksaan" name="statusPemeriksaanLab" rules={[{ required: true, message: 'Harap isi status lab!' }]} >
                 <Select size="middle" onChange={onstatusPemeriksaanLabChange} disabled={isDataFinished && !isEdit} options={[
                   { value: '1', label: <span>1. Urgent</span> },
                   { value: '2', label: <span>2. Tidak Urgent</span> },
@@ -1997,7 +1981,7 @@ useEffect(() => {
               </div>
               <div className="col-span-2">
                 <div className="flex flex-wrap w-full gap-4"></div>
-                {isDataFinished && isEdit && (
+                {(!isDataFinished || isEdit) && (
                   <div className='grid gap-y-4'>
                     <div>
                       <Dragger {...props} >
@@ -2008,7 +1992,7 @@ useEffect(() => {
                         </p>
                       </Dragger>
                     </div>
-                    <div id='lampiran'></div>
+                    <div id='lampiran' className="flex gap-x-8"></div>
                   </div>
                 )}
               </div>
@@ -2043,7 +2027,7 @@ useEffect(() => {
                 <Divider orientation="left">Judul Rekam Medis</Divider>
               </div>
               <div className="col-span-2">
-                <Form.Item label="Judul Rekam Medis" name="judulRekamMedis">
+                <Form.Item label="Judul Rekam Medis" name="judulRekamMedis" rules={[{ required: true, message: 'Harap isi judul pemeriksaan!' }]} >
                   <Input style={inputStyling} disabled={isDataFinished && !isEdit} rules={[{ required: true, message: 'Harap isi judul rekam medis!' }]}/>
                 </Form.Item>
                 <Form.Item label="Catatan" name="catatanRekamMedis">
@@ -2053,7 +2037,7 @@ useEffect(() => {
               <div className="col-span-2">
                 <Divider orientation="left">Status Pulang</Divider>
               </div>
-              <Form.Item label="Status Pulang" name="statusPulang" >
+              <Form.Item label="Status Pulang" name="statusPulang" rules={[{ required: true, message: 'Harap pilih status pulang!' }]} >
                 <Select size="middle" onChange={onStatusPulangChange} disabled={isDataFinished && !isEdit && !!form.getFieldValue('statusPulang')} options={[
                   { value: '1', label: <span>1. Berobat Jalan</span> },
                   { value: '2', label: <span>2. Rujuk Internal</span> },
@@ -2231,6 +2215,7 @@ useEffect(() => {
                     allowClear
                   >
                     <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+                    <Select.Option value="active">Sedang diperiksa</Select.Option>
                     <Select.Option value="done">Selesai</Select.Option>
                     <Select.Option value="canceled">Batal</Select.Option>
                   </Select>
