@@ -16,18 +16,22 @@ export default function AppointmentList({ appointmentData }) {
                     <h5 className="font-bold text-gray-900">
                       {appointment.namaDokter}
                     </h5>
-                    <Tag color="gold" className="m-0">{appointment.doctorAddress}</Tag>
+                    <Tag color="magenta" className="m-0">{appointment.doctorAddress}</Tag>
                   </div>
                   <div className="grid justify-end w-full mr-auto">
-                    <Tag className="m-0" color={
-                      appointment.status === "ongoing" ? "blue" : 
-                      appointment.status === "done" ? "green" : "red"
-                    }>
-                      {
-                        appointment.status === "ongoing" ? "Sedang berjalan" : 
-                        appointment.status === "done" ? "Selesai" : "Batal"
-                      }
-                    </Tag>
+                  <Tag className="m-0" color={
+                    appointment.status === "ongoing" ? "blue" : 
+                    appointment.status === "active" ? "gold" : 
+                    appointment.status === "done" ? "green" : 
+                    "red"
+                  }>
+                    {
+                      appointment.status === "ongoing" ? "Sedang berjalan" : 
+                      appointment.status === "active" ? "Sedang diperiksa" : 
+                      appointment.status === "done" ? "Selesai" : 
+                      "Batal"
+                    }
+                  </Tag>
                   </div>
                 </div>
                 <div className="flex justify-between mb-4 flex-nowrap">

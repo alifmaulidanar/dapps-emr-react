@@ -159,6 +159,7 @@ export default function PatientAppointmentList({ role }) {
             allowClear
           >
             <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+            <Select.Option value="active">Sedang diperiksa</Select.Option>
             <Select.Option value="done">Selesai</Select.Option>
             <Select.Option value="canceled">Batal</Select.Option>
           </Select>

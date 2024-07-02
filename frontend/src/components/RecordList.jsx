@@ -30,7 +30,7 @@ export default function RecordList({ chosenPatient, appointmentData }) {
               </div>
               <div className="flex justify-between mb-4 flex-nowrap">
                 <p className="w-full text-base text-gray-900">
-                  {appointment.namaDokter}
+                  {appointment.namaDokter} <Tag color="magenta" className="m-0">{appointment.doctorAddress}</Tag>
                 </p>
                 <p className="w-full text-right text-gray-900">
                   Pukul {appointment.waktuTerpilih?.split(":").slice(0, 2).join(":")}

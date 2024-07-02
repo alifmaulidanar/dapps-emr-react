@@ -213,6 +213,7 @@ export default function DoctorPelayananMedis({ role }) {
               style={{ width: 150 }}
             >
               <Select.Option value="ongoing">Sedang berjalan</Select.Option>
+              <Select.Option value="active">Sedang diperiksa</Select.Option>
               <Select.Option value="done">Selesai</Select.Option>
               <Select.Option value="canceled">Batal</Select.Option>
             </Select>
