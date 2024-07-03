@@ -313,7 +313,7 @@ export default function MakeAppointmentButtonStaff({ buttonText, scheduleData = 
                   disabled={false}
                 >
                   {specializations.map(spec => (
-                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : spec}</Option>
+                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Poli" : spec}</Option>
                   ))}
                 </Select>
               </div>

@@ -131,6 +131,10 @@ export default function DoctorPelayananMedis({ role }) {
             color = 'blue';
             displayText = 'Sedang berjalan';
             break;
+          case 'active':
+            color = 'gold';
+            displayText = 'Sedang berjalan';
+            break;
           case 'done':
             color = 'green';
             displayText = 'Selesai';

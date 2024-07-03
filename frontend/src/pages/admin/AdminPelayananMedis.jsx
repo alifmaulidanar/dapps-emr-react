@@ -125,6 +125,10 @@ export default function AdminPelayananMedis({ token }) {
             color = 'blue';
             displayText = 'Sedang berjalan';
             break;
+          case 'active':
+            color = 'gold';
+            displayText = 'Sedang berjalan';
+            break;
           case 'done':
             color = 'green';
             displayText = 'Selesai';

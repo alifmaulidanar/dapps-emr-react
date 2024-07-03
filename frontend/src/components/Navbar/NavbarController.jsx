@@ -46,9 +46,9 @@ function NavbarController({ type, page, color, accountData = null }) {
     // patient
     navItems = [
       {
-        text: "Daftar Rekam Medis",
+        text: "Daftar Pengobatan",
         linkToPage: `/patient/record-list`,
-        color: page === "Daftar Rekam Medis" ? color : defaultColor,
+        color: page === "Daftar Pengobatan" ? color : defaultColor,
       },
       {
         text: "Rawat Jalan",

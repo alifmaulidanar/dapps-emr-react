@@ -131,6 +131,10 @@ export default function NursePelayananMedis({ role }) {
             color = 'blue';
             displayText = 'Sedang berjalan';
             break;
+          case 'active':
+            color = 'gold';
+            displayText = 'Sedang berjalan';
+            break;
           case 'done':
             color = 'green';
             displayText = 'Selesai';

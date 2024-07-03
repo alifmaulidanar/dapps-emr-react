@@ -403,7 +403,7 @@ export default function AdminDashboard() {
 
   const sideMenuItems = [
     {
-      label: "Data Pegawai",
+      label: "Data Tenaga Medis",
       key: "dashboard",
       // icon: <DashboardOutlined />,
       onClick: () => setActiveMenu("dashboard"),
@@ -415,16 +415,16 @@ export default function AdminDashboard() {
       onClick: () => setActiveMenu("doctorSchedule"),
     },
     {
-      label: "Data Pasien",
-      key: "patientData",
-      // icon: <CalendarOutlined />,
-      onClick: () => setActiveMenu("patientData"),
-    },
-    {
       label: "Antrean Pasien",
       key: "antreanPasien",
       // icon: <CalendarOutlined />,
       onClick: () => setActiveMenu("antreanPasien"),
+    },
+    {
+      label: "Data Pasien",
+      key: "patientData",
+      // icon: <CalendarOutlined />,
+      onClick: () => setActiveMenu("patientData"),
     },
     {
       label: "Pelayanan Medis",

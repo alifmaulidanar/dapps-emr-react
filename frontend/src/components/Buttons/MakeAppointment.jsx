@@ -343,7 +343,7 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
                   value={selectedSpecialization}
                 >
                   {specializations.map(spec => (
-                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Spesialisasi" : spec}</Option>
+                    <Option key={spec} value={spec}>{spec === "all" ? "Semua Poli" : spec}</Option>
                   ))}
                 </Select>
               </div>
