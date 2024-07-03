@@ -1002,6 +1002,7 @@ router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async
     }
 
     matchedAppointment.anamnesis = { ...rest };
+    matchedAppointment.status = "active"
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
     const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
@@ -1079,6 +1080,7 @@ router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async
     }
 
     matchedAppointment.diagnosis = { ...rest };
+    matchedAppointment.status = "active"
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
     const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
@@ -1156,6 +1158,7 @@ router.post("/patient-list/patient-details/emr-kehamilan", authMiddleware, async
     }
 
     matchedAppointment.kehamilan = { ...rest };
+    matchedAppointment.status = "active"
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
     const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
@@ -1233,6 +1236,7 @@ router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, 
     }
 
     matchedAppointment.tb = { ...rest };
+    matchedAppointment.status = "active"
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
     const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
@@ -1310,6 +1314,7 @@ router.post("/patient-list/patient-details/emr-lab", authMiddleware, async (req,
     }
 
     matchedAppointment.lab = { ...rest };
+    matchedAppointment.status = "active"
 
     const dmrFolderName = `${commonData.dmrNumber}J${commonData.dmrNumber}`;
     const emrFolderName = `${commonData.emrNumber}J${commonData.emrNumber}`;
