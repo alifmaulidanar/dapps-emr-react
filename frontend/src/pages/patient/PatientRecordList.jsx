@@ -77,11 +77,11 @@ export default function PatientRecordList() {
 
   return (
     <>
-      <NavbarController type={1} page="Daftar Pengobatan" color="blue" />
+      <NavbarController type={1} page="Daftar Rekam Medis" color="blue" />
       <div className="grid items-center justify-center w-9/12 grid-cols-5 px-4 pt-24 mx-auto min-h-fit max-h-fit gap-x-8 gap-y-4">
         <div className="grid items-center grid-cols-1 col-span-3 h-fit">
           <h5 className="text-xl font-semibold text-gray-900">
-            Daftar Pengobatan
+            Daftar Rekam Medis
             <hr className="h-px bg-gray-700 border-0" />
           </h5>
         </div>
