@@ -711,13 +711,20 @@ next:
 jika masih kosong baru sesuaikan dengan yang ada di outpatient registration
 🟡 [NOT URGENT] endpoint admin yang perlu diubah tinggal appointment -> masih staff
 ✅ lanjut isi lampiran bagian antarmuka, source code SC, dll.
-- masih banyak yang perlu swal confirm sebelum konfirmasi metamask
-- BAB 1 harus sejalan dengan pendahuluan PatientProfile
-- bikin ppt
-- tentukan di laporan, desain antarmuka taro di mana
-- integrasi dengan IPFS perlu penjelasan detail tentang hierarki ke IPFS atau engga
+✅ masih banyak yang perlu swal confirm sebelum konfirmasi metamask
+✅ BAB 1 harus sejalan dengan pendahuluan
+✅ bikin ppt
+✅ tentukan di laporan, desain antarmuka taro di mana
+✅ integrasi dengan IPFS perlu penjelasan detail tentang hierarki ke IPFS atau engga
 - foto sama pak husni
 - minta ttd
+✅ sudah bisa cek NIK sebelum daftar akun pasien
+✅ beberapa aksi penting sudah ada swal confirm
+✅ fix tag
+✅ fix disabled di area pengisian RME
+✅ ganti kalimat di jumbotron
+✅ lengkapi output dan detail transaksi -> simpan di markdown
+
 
 NOTES:
 1. Gas Price di Ganache adalah dalam Wei (20000000000 Wei / 20 Gwei atau / 0.00000002 Ether)
@@ -816,27 +823,8 @@ update akun perawat
 update profil perawat
 
 
-
-
-appointment creation from admin
-appointment cancelation from admin
-
-appointment creation from staff
-appointment cancelation from staff
-
-appointment creation from doctor
-appointment cancelation from doctor
-
-appointment creation from nurse
-appointment cancelation from nurse
-
-appointment creation from patient
-appointment cancelation from patient
-
-
-
 # Riwayat txChecker
-# Pasien
+# Pendaftaran Akun dan Profil Pasien - Public
 Gas Price: 0.00000002
 Add Patient Account Gas Used: 457989
 Add Patient Account Gas Fee (Wei): 9159780000000000
@@ -855,6 +843,28 @@ Transaction Hash: 0x17efb22ea0df67a63b08d711e176ce4c850b6bd90c3705813f27a5e3fec3
     password: '2sbLo9sU',
     publicKey: '0x2d761572fb2962d9a5c4D6DF34b120947bb3AbC1',
     privateKey: '0xadd60474c2709a79ab76eec0d412de938e045a6ddb6f61569617652bd1456f47'
+  }
+}
+
+# Pendaftaran Akun dan Profil Pasien - Consortium
+Gas Price: 0.0
+Add Patient Account Gas Used: 457989
+Add Patient Account Gas Fee (Wei): 0
+Add Patient Account Gas Fee (Gwei): 0.0
+Add Patient Account Gas Fee (Ether): 0.0
+Block Number: 2088
+Transaction Hash: 0xcdd6fbf5135326fd2faa57c177a13d2bec578151c2dc00c072e3667142e4c36b
+{
+  responseData: {
+    message: 'Patient Registration Successful',
+    username: 'Consortium',
+    nomorIdentitas: '1234567890123450',
+    dmrNumber: '000M002',
+    dmrCid: 'Qme2iS4qhtc1hM85W3Sa8wUcGW2H7UUPsaXeMYe8BBkvbC',        
+    emrNumber: '0000000000000002',
+    password: 'FYjONgIB',
+    publicKey: '0x64cEe3E0CD7E59d1eD387717e41D8ac6ca291522',
+    privateKey: '0xadc1718ea19509cb57ec9ed95bb6d407c1581fff2b4406811cf6ecaca3e17899'
   }
 }
 
