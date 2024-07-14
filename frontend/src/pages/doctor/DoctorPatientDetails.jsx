@@ -60,6 +60,13 @@ export default function DoctorPatientDetails({ role }) {
     } else if (appointment?.tbParu) {
       disabled.diagnosis = true;
       disabled.kehamilan = true;
+    } else if (appointment?.status === "canceled") {
+      disabled.anamnesis = true;
+      disabled.diagnosis = true;
+      disabled.kehamilan = true;
+      disabled.tbParu = true;
+      disabled.lab = true;
+      disabled.selesai = true;
     }
     return disabled;
   };
@@ -2245,7 +2252,7 @@ useEffect(() => {
                     />
                 </div>
                 <div>
-                  <Table columns={columns} dataSource={filteredDataSource} size="middle"/>
+                  <Table columns={columns} dataSource={filteredDataSource} size="middle" pagination={false} />
                 </div>
               </div>
               <div>

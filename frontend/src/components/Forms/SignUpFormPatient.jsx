@@ -26,9 +26,7 @@ export default function SignUpFormPatient({ role }) {
         setCopySuccess(true);
         message.success("Account information copied to clipboard!");
       },
-      () => {
-        message.error("Failed to copy account information.");
-      }
+      () => { message.error("Failed to copy account information.") }
     );
   };
 
@@ -130,10 +128,7 @@ export default function SignUpFormPatient({ role }) {
     if (selectedTab === "Profil Baru") {
       kelurahan = getKelurahanByDMR(patientData.dmrNumber);
     }
-    const formattedPatientData = {
-      ...patientData,
-      kelurahan,
-    };
+    const formattedPatientData = { ...patientData, kelurahan };
 
     if (selectedTab === "Akun Baru" && formattedPatientData.areaCode === "") {
       Swal.fire({
@@ -166,9 +161,7 @@ export default function SignUpFormPatient({ role }) {
         try {
           const response = await fetch(endpoint, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formattedPatientData),
           });
 
@@ -247,9 +240,7 @@ export default function SignUpFormPatient({ role }) {
         <h1 className="mb-8 text-2xl font-semibold text-center text-gray-900">
           Pendaftaran Akun Pasien Baru
         </h1>
-        <div className="col-span-2 pb-12">
-          <Tab />
-        </div>
+        <div className="col-span-2 pb-12"><Tab /></div>
         <Form
           form={form}
           className="grid grid-cols-1 gap-x-12 gap-y-6"
@@ -267,9 +258,7 @@ export default function SignUpFormPatient({ role }) {
                 id="areaCode"
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 value={patientData.areaCode}
-                onChange={(e) =>
-                  setPatientData({ ...patientData, areaCode: e.target.value })
-                }
+                onChange={(e) => setPatientData({ ...patientData, areaCode: e.target.value }) }
                 required
               >
                 <option value="">Pilih Wilayah</option>
@@ -294,12 +283,7 @@ export default function SignUpFormPatient({ role }) {
                 className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 placeholder="Nomor DMR"
                 value={patientData.dmrNumber}
-                onChange={(e) =>
-                  setPatientData({
-                    ...patientData,
-                    dmrNumber: e.target.value,
-                  })
-                }
+                onChange={(e) => setPatientData({ ...patientData, dmrNumber: e.target.value }) }
                 required
               />
             </div>
@@ -317,12 +301,7 @@ export default function SignUpFormPatient({ role }) {
               className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="Nama lengkap"
               value={patientData.namaLengkap}
-              onChange={(e) =>
-                setPatientData({
-                  ...patientData,
-                  namaLengkap: e.target.value,
-                })
-              }
+              onChange={(e) => setPatientData({ ...patientData, namaLengkap: e.target.value }) }
               required
             />
           </div>
@@ -339,12 +318,7 @@ export default function SignUpFormPatient({ role }) {
               className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="Nomor identitas"
               value={patientData.nomorIdentitas}
-              onChange={(e) =>
-                setPatientData({
-                  ...patientData,
-                  nomorIdentitas: e.target.value,
-                })
-              }
+              onChange={(e) => setPatientData({ ...patientData, nomorIdentitas: e.target.value }) }
               required
             />
           </div>
@@ -352,11 +326,24 @@ export default function SignUpFormPatient({ role }) {
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full px-5 mt-4 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 sm:w-auto"
+              className="px-28 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
             >
               Daftarkan Akun
             </Button>
             <Spin spinning={spinning} fullscreen />
+          </div>
+          <div className="flex items-center mt-8 text-center justify-evenly">
+            <div className="flex gap-4 items-center text-center justify-evenly">
+              <p>Sudah memiliki akun?</p>
+              <Button
+                href="/patient/signin"
+                type="primary"
+                ghost
+                className="px-6 mr-3 text-sm font-medium text-center md:mr-0"
+              >
+                Masuk
+              </Button>
+            </div>
           </div>
         </Form>
         <Modal

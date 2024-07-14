@@ -61,6 +61,30 @@ export default function PatientAccount() {
   };
 
   const onFinish = async (values) => {
+    if ((values.oldPass == undefined) || (values.newPass == undefined) || (values.confirmPass == undefined)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Form Tidak Lengkap",
+        text: "Untuk mengganti kata sandi, semua kolom harus diisi.",
+        confirmButtonColor: "#1c64f2",
+      });
+      return;
+    }
+
+    if (values.newPass && values.confirmPass) {
+      const result = await Swal.fire({
+        title: "Apakah Anda yakin ingin mengganti kata sandi?",
+        text: "Pastikan Anda telah mengingat kata sandi baru Anda.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#1c64f2",
+        confirmButtonText: "Ya, ganti!",
+        cancelButtonText: "Batal",
+      });
+      if (!result.isConfirmed) return;
+    }
+
     showLoader();
     let dataToSend = values;
 
@@ -302,14 +326,14 @@ export default function PatientAccount() {
                   {isEditing ? (
                     <>
                       <Button onClick={handleCancel} danger>
-                        Cancel
+                        Batal
                       </Button>
                       <Button
                         type="primary"
                         htmlType="submit"
                         className="text-white bg-blue-600 blue-button"
                       >
-                        Save Changes
+                        Simpan Perubahan
                       </Button>
                     </>
                   ) : (

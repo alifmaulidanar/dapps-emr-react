@@ -199,19 +199,19 @@ export default function SignInFormPatient({ role, resetLink, signupLink }) {
               />
             </Form.Item>
           </div>
-          <div className="text-right">
+          <div className="mx-auto">
             <Button
               type="primary"
               htmlType="submit"
-              className="px-6 mr-3 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
+              className="px-32 mr-3 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
             >
               Masuk
             </Button>
             <Spin spinning={spinning} fullscreen />
           </div>
         </Form>
-        <div className="flex items-center mt-8 text-center justify-evenly">
-          <div>
+        <div className="flex items-center text-center justify-evenly">
+          {/* <div>
             <a href={resetLink}>
               <Button type="primary" danger className="font-medium red-button">
                 Lupa Password
@@ -220,16 +220,17 @@ export default function SignInFormPatient({ role, resetLink, signupLink }) {
           </div>
           <div>
             <p className="text-gray-900 text-l">atau</p>
-          </div>
-          <div>
-            <a href={signupLink}>
-              <Button
-                type="primary"
-                className="px-6 mr-3 text-sm font-medium text-center text-white bg-blue-600 blue-button hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 md:mr-0"
-              >
-                Daftar Baru
-              </Button>
-            </a>
+          </div> */}
+          <div className="flex gap-4 mt-12 items-center text-center justify-evenly">
+            <p>Belum memiliki akun?</p>
+            <Button
+              href={signupLink}
+              type="primary"
+              ghost
+              className="px-6 mr-3 text-sm font-medium text-center md:mr-0"
+            >
+              Daftar Baru
+            </Button>
           </div>
         </div>
       </div>

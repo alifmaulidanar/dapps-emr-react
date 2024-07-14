@@ -69,6 +69,7 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
     event.preventDefault();
     showLoader();
     const formattedPatientData = {
+      accountAddress,
       dmrNumber,
       ...patientData,
       kelurahan: mainNeighborhood,
@@ -112,7 +113,6 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
     formattedPatientData.signature = signature;
     console.log("Register Patient Profile Signature:", signature);
     formattedPatientData.foto = null;
-    console.log({ formattedPatientData });
 
     try {
       const response = await fetch(
@@ -129,15 +129,12 @@ export default function RegisterPatientButton({ buttonText, mainNeighborhood }) 
 
       const responseData = await response.json();
       if (response.ok) {
-        console.log({ responseData });
         setSpinning(false);
         Swal.fire({
           icon: "success",
           title: "Pendaftaran Profil Pasien Berhasil!",
           text: "Sekarang Anda dapat mengajukan pendaftaran Rawat Jalan.",
-        }).then(() => {
-          window.location.reload();
-        });
+        }).then(() => { window.location.reload() });
       } else {
         console.log(responseData.error, responseData.message);
         setSpinning(false);

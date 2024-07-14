@@ -35,11 +35,11 @@ function PatientAppointmentDisplay({ data, token }) {
     { key: "email", value1: "Email Pasien", value2: (<p>{data.appointment.email || "-"}</p>), },
     { key: "nomorTelepon", value1: "Nomor Telepon Pasien", value2: (<p>{data.appointment.nomorTelepon || "-"}</p>), },
     { key: "namaDokter", value1: "Nama Dokter", value2: (<p>{data.appointment.namaDokter}</p>), },
-    { key: "doctorAddress", value1: "Alamat Akun Dokter", value2: (<Tag color="gold" className="m-0">{data.appointment.doctorAddress}</Tag>), },
+    { key: "doctorAddress", value1: "Alamat Akun Dokter", value2: (<Tag color="magenta" className="m-0">{data.appointment.doctorAddress}</Tag>), },
     { key: "namaAsisten", value1: "Nama Perawat", value2: (<p>{data.appointment.namaAsisten}</p>), },
-    { key: "nurseAddress", value1: "Alamat Akun Perawat", value2: (<Tag color="gold" className="m-0">{data.appointment.nurseAddress}</Tag>), },
+    { key: "nurseAddress", value1: "Alamat Akun Perawat", value2: (<Tag color="purple" className="m-0">{data.appointment.nurseAddress}</Tag>), },
     { key: "createdAt", value1: "Pendaftaran Dibuat Pada", value2: (<p>{new Date(data.appointment.appointmentCreatedAt).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>), },
-    { key: "patientGender", value1: "Status Rawat Jalan", value2: (<Tag color={ appointmentStatus === "ongoing" ? "blue" : appointmentStatus === "done" ? "green" : "red" }>{ appointmentStatus === "ongoing" ? "Sedang berjalan" : appointmentStatus === "done" ? "Selesai" : "Batal" }</Tag>), },
+    { key: "status", value1: "Status Rawat Jalan", value2: (<Tag color={ appointmentStatus === "ongoing" ? "blue" : appointmentStatus === "done" ? "green" : appointmentStatus === "active" ? "gold" : "red" }>{ appointmentStatus === "ongoing" ? "Sedang berjalan" : appointmentStatus === "done" ? "Selesai" : appointmentStatus === "active" ? "Sedang diperiksa" : "Batal" }</Tag>), },
   ];
 
   const cancelAppointment = async () => {

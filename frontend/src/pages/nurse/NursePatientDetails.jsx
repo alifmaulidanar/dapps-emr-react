@@ -11,7 +11,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../../enum-global";
 import { useState, useEffect } from "react";
 import { SaveOutlined, InboxOutlined, UserOutlined, RightOutlined, FileOutlined } from "@ant-design/icons";
-import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, Row, Col, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, message } from "antd";
+import { Upload, Table, Button, Card, Modal, Avatar, Empty, Form, Input, Row, Col, DatePicker, Tag, Divider, Select, Slider, Checkbox, Radio, InputNumber, message } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 const { TextArea, Search } = Input;
 const { Dragger } = Upload;
@@ -60,6 +60,13 @@ export default function NursePatientDetails({ role }) {
     } else if (appointment?.tb) {
       disabled.diagnosis = true;
       disabled.kehamilan = true;
+    } else if (appointment?.status === "canceled") {
+      disabled.anamnesis = true;
+      disabled.diagnosis = true;
+      disabled.kehamilan = true;
+      disabled.tbParu = true;
+      disabled.lab = true;
+      disabled.selesai = true;
     }
     return disabled;
   };
@@ -2056,7 +2063,7 @@ useEffect(() => {
           )}
         </div>
         <Form.Item className="flex justify-center">
-        {status === "ongoing" ? (
+        {(status === "ongoing" || status === "active") ? (
           <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
         ) : status === "done" ? (
           isEdit ? (
@@ -2246,7 +2253,7 @@ useEffect(() => {
                     />
                 </div>
                 <div>
-                  <Table columns={columns} dataSource={filteredDataSource} size="middle"/>
+                  <Table columns={columns} dataSource={filteredDataSource} size="middle" pagination={false} />
                 </div>
               </div>
               <div>

@@ -60,6 +60,13 @@ export default function AdminPatientDetails({ role }) {
     } else if (appointment?.tbParu) {
       disabled.diagnosis = true;
       disabled.kehamilan = true;
+    } else if (appointment?.status === "canceled") {
+      disabled.anamnesis = true;
+      disabled.diagnosis = true;
+      disabled.kehamilan = true;
+      disabled.tbParu = true;
+      disabled.lab = true;
+      disabled.selesai = true;
     }
     return disabled;
   };
@@ -2056,7 +2063,7 @@ useEffect(() => {
           )}
         </div>
         <Form.Item className="flex justify-center">
-        {status === "ongoing" ? (
+        {(status === "ongoing" || status === "active") ? (
           <Button type="primary" ghost htmlType="submit" size="medium">Simpan</Button>
         ) : status === "done" ? (
           isEdit ? (
@@ -2246,7 +2253,7 @@ useEffect(() => {
                     />
                 </div>
                 <div>
-                  <Table columns={columns} dataSource={filteredDataSource} size="middle"/>
+                  <Table columns={columns} dataSource={filteredDataSource} size="middle" pagination={false} />
                 </div>
               </div>
               <div>

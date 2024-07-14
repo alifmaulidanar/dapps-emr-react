@@ -285,8 +285,8 @@ export default function MakeAppointmentButton({ buttonText, scheduleData = [], u
       setSpinning(false);
       Swal.fire({
         icon: "error",
-        title: "Terjadi kesalahan saat melakukan pendaftaran",
-        text: error,
+        title: "Pendaftaran rawat jalan dibatalkan",
+        // text: error,
       });
     }
   };

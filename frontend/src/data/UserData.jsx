@@ -50,6 +50,7 @@ export default function UserData({ userDataProps, userAccountData }) {
   const handleEditClick = () => setIsEditing(true);
   const handleCancelClick = () => {
     setIsEditing(false);
+    setSpinning(false)
     form.setFieldsValue(initialData);
   };
 
@@ -87,6 +88,19 @@ export default function UserData({ userDataProps, userAccountData }) {
   // };
 
   const handleFormSubmit = async (values) => {
+    const result = await Swal.fire({
+      title: "Apakah Anda yakin ingin menyimpan perubahan?",
+      text: "Pastikan data yang Anda masukkan sudah benar.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#1c64f2",
+      confirmButtonText: "Ya, simpan!",
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
+    showLoader();
+
     if (window.ethereum) {
       try {
         let cid;
