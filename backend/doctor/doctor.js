@@ -332,7 +332,8 @@ router.post("/patient-list/patient-details/emr-anamnesis", authMiddleware, async
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("rme anamnesa doctor");
+    console.log("Pengisian RME Anamnesis oleh Dokter @ doctor.js")
+    console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -438,7 +439,8 @@ router.post("/patient-list/patient-details/emr-diagnosis", authMiddleware, async
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("rme diagnosa doctor");
+    console.log("Pengisian RME Diagnosa oleh Dokter @ doctor.js")
+    console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -544,7 +546,8 @@ router.post("/patient-list/patient-details/emr-kehamilan", authMiddleware, async
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("rme kia doctor");
+    console.log("Pengisian RME Kehamilan oleh Dokter @ doctor.js")
+    console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -650,7 +653,8 @@ router.post("/patient-list/patient-details/emr-tb", authMiddleware, async (req, 
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("rme tb paru doctor");
+    console.log("Pengisian RME TB Paru oleh Dokter @ doctor.js")
+    console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -757,7 +761,8 @@ router.post("/patient-list/patient-details/emr-lab", authMiddleware, async (req,
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("rme lab doctor");
+    console.log("Pengisian RME Laboratorium oleh Dokter @ doctor.js")
+    console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -903,7 +908,8 @@ router.post("/patient-list/patient-details/emr-selesai", authMiddleware, async (
       const totalGasUsedInUnits = totalGasUsed.toString();
       const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
     
-      console.log("rme selesai doctor");
+      console.log("Pengisian RME Selesai oleh Dokter @ doctor.js")
+      console.log({ dmrNumber: commonData.dmrNumber, emrNumber: commonData.emrNumber, newDmrCid })
       console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
       console.log("----------------------------------------");
       console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);

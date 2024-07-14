@@ -115,6 +115,32 @@ async function getUserAccountDataPatient(address) {
   }
 }
 
+async function getPatientProfiles(address) {
+  try {
+    const [exists, account] = await patientContract.getPatientByAddress(address);
+    if (!exists) throw new Error("Account not found");
+    const dmrNumber = account.dmrNumber;
+    const dmrCid = account.dmrCid;
+    const data = await retrieveDMRData(dmrNumber, dmrCid);
+
+    // account
+    const accountJsonString = data.accountData[`J${dmrNumber}.json`];
+    const accountObj = JSON.parse(accountJsonString);
+
+    // profiles
+    const accountProfiles = data.emrProfiles.map(profileInfo => {
+      return JSON.parse(profileInfo.profile);
+    });
+    const activeProfiles = accountProfiles.filter(profile => profile.isActive === true);
+
+    const responseData = { profiles: activeProfiles };
+    return responseData;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 async function retrieveDMRData(dmrNumber, cid) {
   try {
     const accountData = {};
@@ -233,4 +259,4 @@ async function retrieveNonJSONAppointmentData(appointmentCid) {
   return nonJSONAppointmentData;
 }
 
-export { getUserAccountData, getUserAccountDataPatient, retrieveEMRData, retrieveDMRData, retrieveNonJSONAppointmentData };
+export { getUserAccountData, getUserAccountDataPatient, getPatientProfiles, retrieveEMRData, retrieveDMRData, retrieveNonJSONAppointmentData };

@@ -8,6 +8,7 @@ import { ethers, Wallet } from "ethers";
 import { create } from "ipfs-http-client";
 import { CONN } from "../../enum-global.js";
 import authMiddleware from "../middleware/auth-middleware.js";
+import { getPatientProfiles } from "../middleware/userData.js";
 import { generatePatientDMR, generatePatientEMR } from "../patient/generatePatientCode.js";
 import { formatDateTime, prepareFilesForUpload, generatePassword } from "../utils/utils.js";
 import { retrieveDMRData  } from "../middleware/userData.js";
@@ -54,15 +55,25 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     const { areaCode, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, foto } = req.body;
     const password = generatePassword();
     const encryptedPassword = await bcrypt.hash(password, 10);
-    // const { error } = schema.validate({ username, nik, password, confirmPassword });
-    // if (error) return res.status(400).json({ error: error.details[0].message });
 
     const accountList = await provider.listAccounts();
-    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    // if (nikExists) {
-    //   console.log({ existingPatientData });
-    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    // }
+    const allPatients = await patientContract.getAllPatients();
+    const existingPatientsData = [];
+    for (const patient of allPatients) {
+      const accountAddress = patient.accountAddress;
+      const patientsData = await getPatientProfiles(accountAddress);
+      existingPatientsData.push(patientsData);
+    }
+
+    // Iterasi melalui existingPatientsData
+    for (const patientData of existingPatientsData) {
+      // Iterasi melalui setiap profile dalam profiles
+      for (const profile of patientData.profiles) {
+        if (profile.nomorIdentitas === nomorIdentitas) {
+          return res.status(400).json({ error: `NIK yang Anda masukkan sudah pernah terdaftar. Silahkan masuk menggunakan Nomor DRM.` });
+        }
+      }
+    }
 
     let selectedAccountAddress;
     for (let account of accountList) {
@@ -114,13 +125,14 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
     }
 
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
-    const accountTX = await contractWithSigner.addPatientAccount( dmrNumber, dmrCid);
+    const accountTX = await contractWithSigner.addPatientAccount(dmrNumber, dmrCid);
     await accountTX.wait();
 
     const accountReceipt = await accountTX.wait();
     const accountGasDetails = await txChecker(accountReceipt);
 
-    console.log("Admin / Staff")
+    console.log("Pendaftaran Akun Pasien oleh Staff @ staff.js")
+    console.log({ nomorIdentitas, dmrNumber, dmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("Add Patient Account Gas Used:", accountGasDetails.gasUsed);
     console.log("Add Patient Account Gas Fee (Wei):", accountGasDetails.gasFeeWei);
@@ -152,15 +164,24 @@ router.post("/register/patient-account", authMiddleware, async (req, res) => {
 router.post("/register/patient-profile", authMiddleware, async (req, res) => {
   try {
     const { accountAddress, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
-    // console.log({ accountAddress, dmrNumber, namaLengkap, nomorIdentitas });
 
-    // const accountList = await provider.listAccounts();
-    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    // if (nikExists) {
-    //   console.log({ existingPatientData });
-    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    // }
+    const allPatients = await patientContract.getAllPatients();
+    const existingPatientsData = [];
+    for (const patient of allPatients) {
+      const accountAddress = patient.accountAddress;
+      const patientsData = await getPatientProfiles(accountAddress);
+      existingPatientsData.push(patientsData);
+    }
 
+    // Iterasi melalui existingPatientsData
+    for (const patientData of existingPatientsData) {
+      // Iterasi melalui setiap profile dalam profiles
+      for (const profile of patientData.profiles) {
+        if (profile.nomorIdentitas === nomorIdentitas) {
+          return res.status(400).json({ error: `NIK yang Anda masukkan sudah terdaftar.` });
+        }
+      }
+    }
     const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
@@ -194,7 +215,19 @@ router.post("/register/patient-profile", authMiddleware, async (req, res) => {
       dmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
+
+    console.log("Pendaftaran Profil Pasien oleh Staff @ staff.js");
+    console.log({ nomorIdentitas, dmrNumber, dmrCid });
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Profile Gas Used:", updateGasDetails.gasUsed);
+    console.log("Add Patient Profile Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Add Patient Profile Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Add Patient Profile Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Block Number:", updateGasDetails.blockNumber);
+    console.log("Transaction Hash:", updateGasDetails.transactionHash);
 
     const responseData = {
       message: `Profile Registration Successful`,
@@ -302,7 +335,18 @@ router.post("/update-profile", authMiddleware, async (req, res) => {
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
+
+    console.log("Update Profil Pasien oleh Staff @ staff.js")
+    console.log({ nomorIdentitas, dmrNumber, newDmrCid })
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Profile Gas Used:", updateGasDetails.gasUsed);
+    console.log("Add Patient Profile Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Add Patient Profile Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Add Patient Profile Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Block Number:", updateGasDetails.blockNumber);
+    console.log("Transaction Hash:", updateGasDetails.transactionHash);
 
     res.status(200).json({ updatedPatientData });
   } catch (error) {

@@ -9,6 +9,7 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import { generatePassword, prepareFilesForUpload } from "../../utils/utils.js";
 import { generatePatientDMR, generatePatientEMR } from "../../patient/generatePatientCode.js";
+import { getPatientProfiles } from "../../middleware/userData.js";
 import { txChecker } from "../../ganache/txChecker.js";
 
 // Contract & ABI
@@ -68,11 +69,23 @@ router.post("/patient/register-account", async (req, res) => {
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     const accountList = await provider.listAccounts();
-    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    // if (nikExists) {
-    //   console.log({ existingPatientData });
-    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    // }
+    const allPatients = await patientContract.getAllPatients();
+    const existingPatientsData = [];
+    for (const patient of allPatients) {
+      const accountAddress = patient.accountAddress;
+      const patientsData = await getPatientProfiles(accountAddress);
+      existingPatientsData.push(patientsData);
+    }
+
+    // Iterasi melalui existingPatientsData
+    for (const patientData of existingPatientsData) {
+      // Iterasi melalui setiap profile dalam profiles
+      for (const profile of patientData.profiles) {
+        if (profile.nomorIdentitas === nomorIdentitas) {
+          return res.status(400).json({ error: `NIK yang Anda masukkan sudah terdaftar. Silahkan masuk menggunakan Nomor DRM.` });
+        }
+      }
+    }
 
     let selectedAccountAddress;
     for (let account of accountList) {
@@ -124,11 +137,12 @@ router.post("/patient/register-account", async (req, res) => {
     }
 
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
-    const accountTX = await contractWithSigner.addPatientAccount( dmrNumber, dmrCid);
+    const accountTX = await contractWithSigner.addPatientAccount(dmrNumber, dmrCid);
     const accountReceipt = await accountTX.wait();
     const accountGasDetails = await txChecker(accountReceipt);
 
-    console.log("Pasien")
+    console.log("Pendaftaran Pasien oleh Pasien @ signup.js")
+    console.log({ nomorIdentitas, dmrNumber, dmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("Add Patient Account Gas Used:", accountGasDetails.gasUsed);
     console.log("Add Patient Account Gas Fee (Wei):", accountGasDetails.gasFeeWei);

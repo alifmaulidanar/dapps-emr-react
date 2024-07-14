@@ -8,14 +8,17 @@ import { create } from "ipfs-http-client";
 import { CONN } from "../../../enum-global.js";
 import authMiddleware from "../../middleware/auth-middleware.js";
 import { generatePatientEMR } from "../../patient/generatePatientCode.js";
+import { getPatientProfiles } from "../../middleware/userData.js";
 import { prepareFilesForUpload } from "../../utils/utils.js"
 
 import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import patientABI from "../../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
+import { txChecker } from "../../ganache/txChecker.js";
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
+const patientContract = new ethers.Contract(patient_contract, patientABI, provider);
 const client = create({ host: "127.0.0.1", port: 5001, protocol: "http" });
 
 const router = express.Router();
@@ -105,16 +108,26 @@ const userSchema = Joi.object({
 // Add New Patient Profile
 router.post("/patient/register-profile", async (req, res) => {
   try {
-    const { dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
-    console.log({ dmrNumber, namaLengkap, nomorIdentitas });
+    const { accountAddress, dmrNumber, namaLengkap, nomorIdentitas, tempatLahir, tanggalLahir, namaIbu, gender, agama, suku, bahasa, golonganDarah, nomorTelepon, email, pendidikan, pekerjaan, pernikahan, alamat, rt, rw, kelurahan, kecamatan, kota, pos, provinsi, negara, namaKerabat, nomorIdentitasKerabat, tanggalLahirKerabat, genderKerabat, telpKerabat, hubunganKerabat, alamatKerabat, rtKerabat, rwKerabat, kelurahanKerabat, kecamatanKerabat, kotaKerabat, posKerabat, provinsiKerabat, negaraKerabat, signature = null, foto } = req.body;
 
-    // const [nikExists, existingPatientData] = await patientContract.getPatientByNik(nomorIdentitas);
-    // if (nikExists) {
-    //   console.log({ existingPatientData });
-    //   return res.status(400).json({ error: `NIK ${nomorIdentitas} sudah terdaftar.` });
-    // }
+    const allPatients = await patientContract.getAllPatients();
+    const existingPatientsData = [];
+    for (const patient of allPatients) {
+      const accountAddress = patient.accountAddress;
+      const patientsData = await getPatientProfiles(accountAddress);
+      existingPatientsData.push(patientsData);
+    }
 
-    const accountAddress = "0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D";
+    // Iterasi melalui existingPatientsData
+    for (const patientData of existingPatientsData) {
+      // Iterasi melalui setiap profile dalam profiles
+      for (const profile of patientData.profiles) {
+        if (profile.nomorIdentitas === nomorIdentitas) {
+          return res.status(400).json({ error: `NIK yang Anda masukkan sudah terdaftar.` });
+        }
+      }
+    }
+
     const privateKey = accounts[accountAddress];
     const wallet = new Wallet(privateKey);
     const walletWithProvider = wallet.connect(provider);
@@ -148,7 +161,18 @@ router.post("/patient/register-profile", async (req, res) => {
       dmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
+
+    console.log("Pendaftaran Profil Pasien oleh Pasien @ addProfile.js");
+    console.log({ nomorIdentitas, dmrNumber, dmrCid });
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Profile Gas Used:", updateGasDetails.gasUsed);
+    console.log("Add Patient Profile Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Add Patient Profile Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Add Patient Profile Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Block Number:", updateGasDetails.blockNumber);
+    console.log("Transaction Hash:", updateGasDetails.transactionHash);
 
     const responseData = {
       message: `Profile Registration Successful`,

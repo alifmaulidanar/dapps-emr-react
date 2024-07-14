@@ -229,7 +229,7 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
     const existingAppointment = data.appointmentData.find(appointment => {
       const appointmentDetails = JSON.parse(appointment.appointments);
-      return appointmentDetails.tanggalTerpilih === selectedDate;
+      return appointmentDetails.tanggalTerpilih === selectedDate && appointmentDetails.emrNumber === emrNumber;
     });
 
     if (existingAppointment) {
@@ -263,7 +263,6 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
       allResults.push(result);
     }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
-    console.log({newDmrCid});
 
     const updateTX = await contractWithSigner.updatePatientAccount(
       dmrData.accountAddress,
@@ -302,7 +301,8 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
   
-    console.log("appointment patient");
+    console.log("Pendaftaran Rawat Jalan oleh Pasien @ appointment.js")
+    console.log({ dmrNumber, emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -336,7 +336,6 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     console.log("Total Gas Used:", totalGasUsedInUnits);
     console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
     console.log("----------------------------------------");
-    console.log("appointment creation from patient")
     res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {
     console.error(error);
@@ -459,7 +458,7 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     const selectedDate = appointmentDataIpfs.tanggalTerpilih;
     const existingAppointment = data.appointmentData.find(appointment => {
       const appointmentDetails = JSON.parse(appointment.appointments);
-      return appointmentDetails.tanggalTerpilih === selectedDate;
+      return appointmentDetails.tanggalTerpilih === selectedDate && appointmentDetails.emrNumber === emrNumber;
     });
 
     if (existingAppointment) {
@@ -532,7 +531,8 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
 
-    console.log("appointment staff");
+    console.log("Pendaftaran Rawat Jalan oleh Admin / Staff @ appointment.js")
+    console.log({ dmrNumber: appointmentData.dmrNumber, emrNumber, newDmrCid })
     console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
@@ -566,7 +566,6 @@ router.post("/:role/appointment", authMiddleware, async (req, res) => {
     console.log("Total Gas Used:", totalGasUsedInUnits);
     console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
     console.log("----------------------------------------");
-    console.log(`appointment creation from ${role}`)
     res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {
     console.error(error);

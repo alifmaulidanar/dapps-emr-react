@@ -15,6 +15,7 @@ import { retrieveDMRData } from "../../middleware/userData.js";
 import { USER_CONTRACT, PATIENT_CONTRACT } from "../../dotenvConfig.js";
 import userABI from "../../contractConfig/abi/UserManagement.abi.json" assert { type: "json" };
 import patientABI from "../../contractConfig/abi/PatientManagement.abi.json" assert { type: "json" };
+import { txChecker } from "../../ganache/txChecker.js";
 const user_contract = USER_CONTRACT.toString();
 const patient_contract = PATIENT_CONTRACT.toString();
 const provider = new ethers.providers.JsonRpcProvider(CONN.GANACHE_LOCAL);
@@ -193,7 +194,18 @@ router.post("/patient/update-profile", authMiddleware, async (req, res) => {
       newDmrCid,
       dmrData.isActive
     );
-    await updateTX.wait();
+    const updateReceipt = await updateTX.wait();
+    const updateGasDetails = await txChecker(updateReceipt);
+
+    console.log("Update Profil Pasien oleh Pasien @ updateProfile.js")
+    console.log({ nomorIdentitas, dmrNumber, newDmrCid })
+    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Add Patient Profile Gas Used:", updateGasDetails.gasUsed);
+    console.log("Add Patient Profile Gas Fee (Wei):", updateGasDetails.gasFeeWei);
+    console.log("Add Patient Profile Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
+    console.log("Add Patient Profile Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Block Number:", updateGasDetails.blockNumber);
+    console.log("Transaction Hash:", updateGasDetails.transactionHash);
 
     res.status(200).json({ updatedPatientData });
   } catch (error) {
