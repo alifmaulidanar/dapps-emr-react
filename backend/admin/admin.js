@@ -415,14 +415,26 @@ router.post("/schedule", upload.single("file"), async (req, res) => {
     const scheduleReceipt = await scheduleTX.wait();
     const scheduleGasDetails = await txChecker(scheduleReceipt);
 
-    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Pengunggahan Jadwal Praktik Dokter oleh Admin @ admin.js");
+    console.log("CID Jadwal Praktik Dokter:", cid);
+    console.log("Gas Price Quorum:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Gas Price Sepolia: 0.000000000009346783");
+    console.log("----------------------------------------");
     console.log("Add Doctor Schedule Gas Used:", scheduleGasDetails.gasUsed);
     console.log("Add Doctor Schedule Gas Fee (Wei):", scheduleGasDetails.gasFeeWei);
     console.log("Add Doctor Schedule Gas Fee (Gwei):", scheduleGasDetails.gasFeeGwei);
     console.log("Add Doctor Schedule Gas Fee (Ether):", scheduleGasDetails.gasFeeEther);
+    console.log("Add Doctor Schedule Gas Fee Sepolia (Wei):", scheduleGasDetails.gasFeeWeiSepolia);
+    console.log("Add Doctor Schedule Gas Fee Sepolia (Gwei):", scheduleGasDetails.gasFeeGweiSepolia);
+    console.log("Add Doctor Schedule Gas Fee Sepolia (Ether):", scheduleGasDetails.gasFeeEtherSepolia);
     console.log("Add Doctor Schedule Block Number:", scheduleGasDetails.blockNumber);
     console.log("Add Doctor Schedule Transaction Hash:", scheduleGasDetails.transactionHash);
-    console.log({ cid });
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", scheduleGasDetails.gasUsed);
+    console.log("Total Gas Fee (Ether):", scheduleGasDetails.gasFeeEther);
+    console.log("Total Gas Fee Sepolia (Ether):", scheduleGasDetails.gasFeeEtherSepolia);
+    console.log("----------------------------------------");
     res.json({ cid });
   } catch (error) {
     console.error(error);

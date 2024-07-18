@@ -152,7 +152,12 @@ router.post("/patient/register-profile", async (req, res) => {
     for await (const result of client.addAll(files, { wrapWithDirectory: true })) {
       allResults.push(result);
     }
+
     const dmrCid = allResults[allResults.length - 1].cid.toString();
+    const emrFiles = await prepareFilesForUpload(emrPath);
+    const emrResults = [];
+    for await (const result of client.addAll(emrFiles, { wrapWithDirectory: true })) { emrResults.push(result) }
+    const emrCid = emrResults[emrResults.length - 1].cid.toString();
 
     // Update informasi DMR di blockchain jika perlu
     const updateTX = await contractWithSigner.updatePatientAccount(
@@ -164,15 +169,27 @@ router.post("/patient/register-profile", async (req, res) => {
     const updateReceipt = await updateTX.wait();
     const updateGasDetails = await txChecker(updateReceipt);
 
-    console.log("Pendaftaran Profil Pasien oleh Pasien @ addProfile.js");
-    console.log({ nomorIdentitas, dmrNumber, dmrCid });
-    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Penambahan Profil Pasien oleh Pasien @ addProfile.js");
+    console.log("CID Tingkat Akun:", dmrCid);
+    console.log("CID Tingkat Profil:", emrCid);
+    console.log("Gas Price Quorum:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Gas Price Sepolia: 0.000000000009346783");
+    console.log("----------------------------------------");
     console.log("Add Patient Profile Gas Used:", updateGasDetails.gasUsed);
     console.log("Add Patient Profile Gas Fee (Wei):", updateGasDetails.gasFeeWei);
     console.log("Add Patient Profile Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
     console.log("Add Patient Profile Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Add Patient Profile Gas Fee Sepolia (Wei):", updateGasDetails.gasFeeWeiSepolia);
+    console.log("Add Patient Profile Gas Fee Sepolia (Gwei):", updateGasDetails.gasFeeGweiSepolia);
+    console.log("Add Patient Profile Gas Fee Sepolia (Ether):", updateGasDetails.gasFeeEtherSepolia);
     console.log("Block Number:", updateGasDetails.blockNumber);
     console.log("Transaction Hash:", updateGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", updateGasDetails.gasUsed);
+    console.log("Total Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Total Gas Fee Sepolia (Ether):", updateGasDetails.gasFeeEtherSepolia);
+    console.log("----------------------------------------");
 
     const responseData = {
       message: `Profile Registration Successful`,

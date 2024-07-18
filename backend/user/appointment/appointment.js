@@ -263,6 +263,14 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
       allResults.push(result);
     }
     const newDmrCid = allResults[allResults.length - 1].cid.toString();
+    const emrFiles = await prepareFilesForUpload(emrPath);
+    const emrResults = [];
+    for await (const result of client.addAll(emrFiles, { wrapWithDirectory: true })) { emrResults.push(result) }
+    const emrCid = emrResults[emrResults.length - 1].cid.toString();
+    const appointmentFiles = await prepareFilesForUpload(appointmentPath);
+    const appointmentResults = [];
+    for await (const result of client.addAll(appointmentFiles, { wrapWithDirectory: true })) { appointmentResults.push(result) }
+    const appointmentCid = appointmentResults[appointmentResults.length - 1].cid.toString();
 
     const updateTX = await contractWithSigner.updatePatientAccount(
       dmrData.accountAddress,
@@ -284,31 +292,28 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     const outpatientReceipt = await outpatientTx.wait();
     const outpatientGasDetails = await txChecker(outpatientReceipt);
 
-    const addDoctorTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.doctorAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
-    const addDoctorTemporaryReceipt = await addDoctorTemporary.wait();
-    const addDoctorTemporaryGasDetails = await txChecker(addDoctorTemporaryReceipt);
-    
-    const addNurseTemporary = await outpatientContractWithSigner.addTemporaryPatientData(appointmentData.nurseAddress, appointmentData.accountAddress, appointmentDataIpfs.emrNumber);
-    const addNurseTemporaryReceipt = await addNurseTemporary.wait();
-    const addNurseTemporaryGasDetails = await txChecker(addNurseTemporaryReceipt);
-
-    const totalGasUsed = updateReceipt.gasUsed
-      .add(outpatientReceipt.gasUsed)
-      .add(addDoctorTemporaryReceipt.gasUsed)
-      .add(addNurseTemporaryReceipt.gasUsed);
-
+    const totalGasUsed = updateReceipt.gasUsed.add(outpatientReceipt.gasUsed)
     const totalGasFee = totalGasUsed.mul(await provider.getGasPrice());
+    const totalGasFeeSepolia = totalGasUsed.mul(9346783);
     const totalGasUsedInUnits = totalGasUsed.toString();
     const totalGasFeeInEther = ethers.utils.formatEther(totalGasFee);
-  
+    const totalGasFeeInSepolia = ethers.utils.formatEther(totalGasFeeSepolia);
+
+    console.log("----------------------------------------");
     console.log("Pendaftaran Rawat Jalan oleh Pasien @ appointment.js")
-    console.log({ dmrNumber, emrNumber, newDmrCid })
-    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Update CID Tingkat Akun:", newDmrCid);
+    console.log("Update CID Tingkat Profil:", emrCid);
+    console.log("Update CID Tingkat Pengobatan:", appointmentCid);
+    console.log("Gas Price Quorum:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Gas Price Sepolia: 0.000000000009346783");
     console.log("----------------------------------------");
     console.log("Update Patient Account Gas Used:", updateGasDetails.gasUsed);
     console.log("Update Patient Account Gas Fee (Wei):", updateGasDetails.gasFeeWei);
     console.log("Update Patient Account Gas Fee (Gwei):", updateGasDetails.gasFeeGwei);
     console.log("Update Patient Account Gas Fee (Ether):", updateGasDetails.gasFeeEther);
+    console.log("Update Patient Account Gas Fee Sepolia (Wei):", updateGasDetails.gasFeeWeiSepolia);
+    console.log("Update Patient Account Gas Fee Sepolia (Gwei):", updateGasDetails.gasFeeGweiSepolia);
+    console.log("Update Patient Account Gas Fee Sepolia (Ether):", updateGasDetails.gasFeeEtherSepolia);
     console.log("Update Patient Account Block Number:", updateGasDetails.blockNumber);
     console.log("Update Patient Account Transaction Hash:", updateGasDetails.transactionHash);
     console.log("----------------------------------------");
@@ -316,25 +321,15 @@ router.post("/patient/appointment", authMiddleware, async (req, res) => {
     console.log("Add Outpatient Data Gas Fee (Wei):", outpatientGasDetails.gasFeeWei);
     console.log("Add Outpatient Data Gas Fee (Gwei):", outpatientGasDetails.gasFeeGwei);
     console.log("Add Outpatient Data Gas Fee (Ether):", outpatientGasDetails.gasFeeEther);
+    console.log("Add Outpatient Data Gas Fee Sepolia (Wei):", outpatientGasDetails.gasFeeWeiSepolia);
+    console.log("Add Outpatient Data Gas Fee Sepolia (Gwei):", outpatientGasDetails.gasFeeGweiSepolia);
+    console.log("Add Outpatient Data Gas Fee Sepolia (Ether):", outpatientGasDetails.gasFeeEtherSepolia);
     console.log("Add Outpatient Data Block Number:", outpatientGasDetails.blockNumber);
     console.log("Add Outpatient Data Transaction Hash:", outpatientGasDetails.transactionHash);
     console.log("----------------------------------------");
-    console.log("Add Doctor Temporary Data Gas Used:", addDoctorTemporaryGasDetails.gasUsed);
-    console.log("Add Doctor Temporary Data Gas Fee (Wei):", addDoctorTemporaryGasDetails.gasFeeWei);
-    console.log("Add Doctor Temporary Data Gas Fee (Gwei):", addDoctorTemporaryGasDetails.gasFeeGwei);
-    console.log("Add Doctor Temporary Data Gas Fee (Ether):", addDoctorTemporaryGasDetails.gasFeeEther);
-    console.log("Add Doctor Temporary Data Block Number:", addDoctorTemporaryGasDetails.blockNumber);
-    console.log("Add Doctor Temporary Data Transaction Hash:", addDoctorTemporaryGasDetails.transactionHash);
-    console.log("----------------------------------------");
-    console.log("Add Nurse Temporary Data Gas Used:", addNurseTemporaryGasDetails.gasUsed);
-    console.log("Add Nurse Temporary Data Gas Fee (Wei):", addNurseTemporaryGasDetails.gasFeeWei);
-    console.log("Add Nurse Temporary Data Gas Fee (Gwei):", addNurseTemporaryGasDetails.gasFeeGwei);
-    console.log("Add Nurse Temporary Data Gas Fee (Ether):", addNurseTemporaryGasDetails.gasFeeEther);
-    console.log("Add Nurse Temporary Data Block Number:", addNurseTemporaryGasDetails.blockNumber);
-    console.log("Add Nurse Temporary Data Transaction Hash:", addNurseTemporaryGasDetails.transactionHash);
-    console.log("----------------------------------------");
     console.log("Total Gas Used:", totalGasUsedInUnits);
     console.log("Total Gas Fee (Ether):", totalGasFeeInEther);
+    console.log("Total Gas Fee Sepolia (Ether):", totalGasFeeInSepolia);
     console.log("----------------------------------------");
     res.status(200).json({ message: "Rawat Jalan created successfully" });
   } catch (error) {

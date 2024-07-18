@@ -137,19 +137,36 @@ router.post("/patient/register-account", async (req, res) => {
     }
 
     const dmrCid = allResults[allResults.length - 1].cid.toString(); // Last item is the root directory
+    const emrFiles = await prepareFilesForUpload(emrPath);
+    const emrResults = [];
+    for await (const result of client.addAll(emrFiles, { wrapWithDirectory: true })) { emrResults.push(result) }
+    const emrCid = emrResults[emrResults.length - 1].cid.toString();
+
     const accountTX = await contractWithSigner.addPatientAccount(dmrNumber, dmrCid);
     const accountReceipt = await accountTX.wait();
     const accountGasDetails = await txChecker(accountReceipt);
 
-    console.log("Pendaftaran Pasien oleh Pasien @ signup.js")
-    console.log({ nomorIdentitas, dmrNumber, dmrCid })
-    console.log("Gas Price:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("----------------------------------------");
+    console.log("Pendaftaran Pasien oleh Pasien @ signup.js");
+    console.log("CID Tingkat Akun:", dmrCid);
+    console.log("CID Tingkat Profil:", emrCid);
+    console.log("Gas Price Quorum:", ethers.utils.formatEther(await provider.getGasPrice()));
+    console.log("Gas Price Sepolia: 0.000000000009346783");
+    console.log("----------------------------------------");
     console.log("Add Patient Account Gas Used:", accountGasDetails.gasUsed);
     console.log("Add Patient Account Gas Fee (Wei):", accountGasDetails.gasFeeWei);
     console.log("Add Patient Account Gas Fee (Gwei):", accountGasDetails.gasFeeGwei);
     console.log("Add Patient Account Gas Fee (Ether):", accountGasDetails.gasFeeEther);
+    console.log("Add Patient Account Gas Fee Sepolia (Wei):", accountGasDetails.gasFeeWeiSepolia);
+    console.log("Add Patient Account Gas Fee Sepolia (Gwei):", accountGasDetails.gasFeeGweiSepolia);
+    console.log("Add Patient Account Gas Fee Sepolia (Ether):", accountGasDetails.gasFeeEtherSepolia);
     console.log("Block Number:", accountGasDetails.blockNumber);
     console.log("Transaction Hash:", accountGasDetails.transactionHash);
+    console.log("----------------------------------------");
+    console.log("Total Gas Used:", accountGasDetails.gasUsed);
+    console.log("Total Gas Fee (Ether):", accountGasDetails.gasFeeEther);
+    console.log("Total Gas Fee Sepolia (Ether):", accountGasDetails.gasFeeEtherSepolia);
+    console.log("----------------------------------------");
 
     const responseData = {
       message: `Patient Registration Successful`,
