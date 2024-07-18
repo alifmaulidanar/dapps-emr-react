@@ -1,0 +1,337 @@
+============= Pengunggahan Jadwal Praktik Dokter =============✅
+----------------------------------------
+Pengunggahan Jadwal Praktik Dokter oleh Admin @ admin.js
+CID Jadwal Praktik Dokter: QmaLL2b7SyvMdyZPG49SajhHDkrwe6bjEigvQVKatEzpZw
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Add Doctor Schedule Gas Used: 176065
+Add Doctor Schedule Gas Fee (Wei): 0
+Add Doctor Schedule Gas Fee (Gwei): 0.0
+Add Doctor Schedule Gas Fee (Ether): 0.0
+Add Doctor Schedule Gas Fee Sepolia (Wei): 1645641348895
+Add Doctor Schedule Gas Fee Sepolia (Gwei): 1645.641348895
+Add Doctor Schedule Gas Fee Sepolia (Ether): 0.000001645641348895
+Add Doctor Schedule Block Number: 2325
+Add Doctor Schedule Transaction Hash: 0x50f166f3a699747cd07d2d08f2e9ab3a47112e6bb63aa219ede6a64e04bf4d5b
+----------------------------------------
+Total Gas Used: 176065
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001645641348895
+----------------------------------------
+
+
+============= Pendaftaran Akun Pasien =============✅
+----------------------------------------
+Pendaftaran Pasien oleh Pasien @ signup.js
+CID Tingkat Akun: QmZ1Euy9w75JAqbivha1r9677MBkZmftgCCGnXeTMAz2uR
+CID Tingkat Profil: QmPAYqUWwRWL4YKi9qoBrwLgL2LWxGeRaiwE2iU2KCn3j5
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Add Patient Account Gas Used: 475089
+Add Patient Account Gas Fee (Wei): 0
+Add Patient Account Gas Fee (Gwei): 0.0
+Add Patient Account Gas Fee (Ether): 0.0
+Add Patient Account Gas Fee Sepolia (Wei): 4440553788687
+Add Patient Account Gas Fee Sepolia (Gwei): 4440.553788687
+Add Patient Account Gas Fee Sepolia (Ether): 0.000004440553788687
+Block Number: 2326
+Transaction Hash: 0x00129830c57a1b5b362e847259b1203f93cfc61cfc9d0957cc5a5ac64acb26ce
+----------------------------------------
+Total Gas Used: 475089
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000004440553788687
+----------------------------------------
+{
+  responseData: {
+    message: 'Patient Registration Successful',
+    username: 'Alif Maulidanar',
+    nomorIdentitas: '1113613151531577',
+    dmrNumber: '000L001',
+    dmrCid: 'QmZ1Euy9w75JAqbivha1r9677MBkZmftgCCGnXeTMAz2uR',
+    emrNumber: '0000000000000001',
+    password: 'l4kgPtmk',
+    publicKey: '0xf7C9Bd049Cc6e4538033AEa5254136F1DF9A4A6D',
+    privateKey: '0xe5ec0f87ce6786c29f2dea2374da267abb3f09252a097ceeaf83f3e4d9a8fd83'
+  }
+}
+
+
+============= Penambahan Profil Pasien =============✅
+----------------------------------------
+Penambahan Profil Pasien oleh Pasien @ addProfile.js
+CID Tingkat Akun: QmPDU2ZzBa1nrxmm9Yzs9jrnGPXAcArKjkZ588N8izettY
+CID Tingkat Profil: Qmep4qNddRwWtmYnu4mKqnFvZ6Sud96rSkyHVuaxzo3AAm
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Add Patient Profile Gas Used: 68724
+Add Patient Profile Gas Fee (Wei): 0
+Add Patient Profile Gas Fee (Gwei): 0.0
+Add Patient Profile Gas Fee (Ether): 0.0
+Add Patient Profile Gas Fee Sepolia (Wei): 642348314892
+Add Patient Profile Gas Fee Sepolia (Gwei): 642.348314892
+Add Patient Profile Gas Fee Sepolia (Ether): 0.000000642348314892
+Block Number: 2327
+Transaction Hash: 0xbe1fbe266594326fb7c39268d955567c21b56800d050eaf5208d8376977267a0
+----------------------------------------
+Total Gas Used: 68724
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000000642348314892
+----------------------------------------
+{
+  responseData: {
+    message: 'Profile Registration Successful',
+    emrNumber: '0000000000000002',
+    dmrNumber: '000L001',
+    dmrCid: 'QmPDU2ZzBa1nrxmm9Yzs9jrnGPXAcArKjkZ588N8izettY'
+  }
+}
+
+
+============= Pendaftaran Rawat Jalan =============✅
+----------------------------------------
+Pendaftaran Rawat Jalan oleh Pasien @ appointment.js
+Update CID Tingkat Akun: QmeQkJkoK7w2R1v7pEVSbzG4ANsg8KxS1PLWPYu8BCB3mK
+Update CID Tingkat Profil: Qmb3QWQpgjtkUPU7dWAUZMv2skSTRoKwfNL7GX3BrSYohi
+Update CID Tingkat Pengobatan: Qmb8jLENcWf6GsQJk7KhoWi3DzhRF7g8PpVtRpH7SsVTEo
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2329
+Update Patient Account Transaction Hash: 0x5a4b1b92e0420286d96ac9d4211d9193c99b059a0994478035ec2c1e64b33e2d
+----------------------------------------
+Add Outpatient Data Gas Used: 771780
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 7213660183740
+Add Outpatient Data Gas Fee Sepolia (Gwei): 7213.66018374
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.00000721366018374
+Add Outpatient Data Block Number: 2330
+Add Outpatient Data Transaction Hash: 0x1415d31c1e0bfbd363f31a6db1b101c6b24c3ff3a6985b3363a11994b56ac0d5
+----------------------------------------
+Total Gas Used: 840504
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000007856008498632
+----------------------------------------
+
+
+============= Pengisian RME Anamnesis =============✅
+----------------------------------------
+Pengisian RME Anamnesis oleh Dokter @ doctor.js
+Update CID Tingkat Akun: QmPhvor3t3ZaH7GMNHav15otdGLmT5pUE43AE6GJYb4Bod
+Update CID Tingkat Profil: QmR8DXAdV6Hxz4xhkHGJv2QKWjTb9a8Kx6KVJwrP4fiGSr
+Update CID Tingkat Pengobatan: QmNsFXRwB33DxSKNxes4d9mTe3QpSzwcPS6MuW9AoYrf55
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2331
+Update Patient Account Transaction Hash: 0x3d14121b12be5fece3d50650c0231d8d5013a3a24dc9d47948e3e9b98628bc2c
+----------------------------------------
+Add Outpatient Data Gas Used: 50105
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 468320562215
+Add Outpatient Data Gas Fee Sepolia (Gwei): 468.320562215
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000468320562215
+Add Outpatient Data Block Number: 2332
+Add Outpatient Data Transaction Hash: 0x3a316898433c602a29f2b6f627687f990fd74468f28de67c1853a6a53c760044
+----------------------------------------
+Total Gas Used: 118829
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001110668877107
+----------------------------------------
+
+
+============= Pengisian RME Diagnosis =============✅
+----------------------------------------
+Pengisian RME Diagnosis oleh Dokter @ doctor.js
+Update CID Tingkat Akun: Qme4zb5bafiboHCBrzPmCYf6qtGSMHfaZEEorwhs9cPD7S
+Update CID Tingkat Profil: QmW5QDxJaaxXL9xNm1K2UM1RgX9VAnUrDJkaFhDQhXN733
+Update CID Tingkat Pengobatan: QmQ6xeGJZdzCXENmyRT3mtxn2Xx8iaAnaN1eyxPVaoPeGs
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2333
+Update Patient Account Transaction Hash: 0x15104159ed2bffc60c91af105770bf7fb0e236a7df08a77c7b2181398dcee998
+----------------------------------------
+Add Outpatient Data Gas Used: 50105
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 468320562215
+Add Outpatient Data Gas Fee Sepolia (Gwei): 468.320562215
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000468320562215
+Add Outpatient Data Block Number: 2334
+Add Outpatient Data Transaction Hash: 0x73275e83b3e04314890a6f657c9c9767f586bdf31b1a2c99c29bc02d90ff4f85
+----------------------------------------
+Total Gas Used: 118829
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001110668877107
+----------------------------------------
+
+
+============= Pengisian RME Kehamilan =============✅
+----------------------------------------
+Pengisian RME Kehamilan oleh Dokter @ doctor.js
+Update CID Tingkat Akun: QmNYrqB7HcQzCbetsZ341DqBagWMaodkfGqvjv7PhC9eCb
+Update CID Tingkat Profil: QmcWFL3XyPeXLkXRN97XYRUeQvVvVtevZ1FMSzvUunaa7H
+Update CID Tingkat Pengobatan: QmSQogg7yEkBfzqNo6nUzuDxMqF5TJSFTzNKM1o6MFoUkd
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2343
+Update Patient Account Transaction Hash: 0xdf9c332508234f40b724a02d31f7c99cc1ed7eff8c18b4d65da15c7811a6ae7f
+----------------------------------------
+Add Outpatient Data Gas Used: 53562
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 500632391046
+Add Outpatient Data Gas Fee Sepolia (Gwei): 500.632391046
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000500632391046
+Add Outpatient Data Block Number: 2344
+Add Outpatient Data Transaction Hash: 0x653d625ffce1a6487c665f1e58f17bdba08b09d5e930de4012461deb1fef9f7b
+----------------------------------------
+Total Gas Used: 122286
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001142980705938
+----------------------------------------
+
+
+============= Pengisian RME TB Paru =============✅
+----------------------------------------
+Pengisian RME TB Paru oleh Dokter @ doctor.js
+Update CID Tingkat Akun: QmQBbRLsWphDcvtYcvd2sM4MGeuPzLcNG5mtPwjvhEQ3r3
+Update CID Tingkat Profil: QmWGbN8sG4FjvMGtHEuVwCdesugawpA5F8XmceqjUgYppm
+Update CID Tingkat Pengobatan: QmXxE7ENSqLXkStcKfraf1uWoRh42v8CcUJEqqaqaeiD77
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2351
+Update Patient Account Transaction Hash: 0x8041dc92a62254a5283c716100604d3426354dcc5cbf7cbce33e5735865d49fd
+----------------------------------------
+Add Outpatient Data Gas Used: 57019
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 532944219877
+Add Outpatient Data Gas Fee Sepolia (Gwei): 532.944219877
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000532944219877
+Add Outpatient Data Block Number: 2352
+Add Outpatient Data Transaction Hash: 0x8fa87475a2da694e39f7c93f35bae716ca2decb65d1e7b841d45ce872908d51f
+----------------------------------------
+Total Gas Used: 125743
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001175292534769
+----------------------------------------
+
+
+============= Pengisian RME Laboratorium =============✅
+Files saved
+----------------------------------------
+Pengisian RME Laboratorium oleh Dokter @ doctor.js
+Update CID Tingkat Akun: QmUfFp94GbKxfj2gqAdbgfew3kKNNzSKdHqTEQF1bC3Cbo
+Update CID Tingkat Profil: QmSgPhX6iJuEwL9zJgeKqjmxo8rTNtvNpN5yzkp6e1G7YA
+Update CID Tingkat Pengobatan: QmUuMmcALzEXbLkBb3YVbtk9Y7U7sBeyGxurveGLvAaUod
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2335
+Update Patient Account Transaction Hash: 0xa4bd3542e0484116d772bb897724df8b53b190189692cb4a31e1654fc1edb30e
+----------------------------------------
+Add Outpatient Data Gas Used: 50105
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 468320562215
+Add Outpatient Data Gas Fee Sepolia (Gwei): 468.320562215
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000468320562215
+Add Outpatient Data Block Number: 2336
+Add Outpatient Data Transaction Hash: 0x5fd1a5a6c5e933f8dd870aff5f781e46a606a908f7f518f1a1cfaf4b9fc66c67
+----------------------------------------
+Total Gas Used: 118829
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001110668877107
+----------------------------------------
+
+
+============= Pengisian RME Selesai =============✅
+----------------------------------------
+Pengisian RME Selesai oleh Dokter @ doctor.js
+Update CID Tingkat Akun: QmR13Ku1GJBQU6tJXDs698gjTXJ3zwYpL2yx1kG43aHPVV
+Update CID Tingkat Profil: Qmd2GYsJbVuFcRa6QmPeMjnmPyPMQ6kbA7AfKAJikZzegy
+Update CID Tingkat Pengobatan: Qmb6n6kcJuXpyfwe1MtygwQrPcyg7vxTksfqVteUqXnujZ
+Gas Price Quorum: 0.0
+Gas Price Sepolia: 0.000000000009346783
+----------------------------------------
+Update Patient Account Gas Used: 68724
+Update Patient Account Gas Fee (Wei): 0
+Update Patient Account Gas Fee (Gwei): 0.0
+Update Patient Account Gas Fee (Ether): 0.0
+Update Patient Account Gas Fee Sepolia (Wei): 642348314892
+Update Patient Account Gas Fee Sepolia (Gwei): 642.348314892
+Update Patient Account Gas Fee Sepolia (Ether): 0.000000642348314892
+Update Patient Account Block Number: 2337
+Update Patient Account Transaction Hash: 0x1bb2ddcd5a0de6123d67191ed9125ee323952c1483b4ec55c6decf28dbf0ad17
+----------------------------------------
+Add Outpatient Data Gas Used: 50105
+Add Outpatient Data Gas Fee (Wei): 0
+Add Outpatient Data Gas Fee (Gwei): 0.0
+Add Outpatient Data Gas Fee (Ether): 0.0
+Add Outpatient Data Gas Fee Sepolia (Wei): 468320562215
+Add Outpatient Data Gas Fee Sepolia (Gwei): 468.320562215
+Add Outpatient Data Gas Fee Sepolia (Ether): 0.000000468320562215
+Add Outpatient Data Block Number: 2338
+Add Outpatient Data Transaction Hash: 0x24d6b40ecc5d8ee2c6c2b233c42f6da74015bf4dae22c64a22fc57e89144b076
+----------------------------------------
+Total Gas Used: 118829
+Total Gas Fee (Ether): 0.0
+Total Gas Fee Sepolia (Ether): 0.000001110668877107
+----------------------------------------
+Outpatient Done✅
