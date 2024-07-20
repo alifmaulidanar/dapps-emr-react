@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Helmet } from "react-helmet";
 // import { RequireAuth } from "./components/Utils/RequireAuth";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
@@ -33,81 +34,158 @@ function App() {
           <Routes>
             {/* Area Tamu */}
             <>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={
+                  <>
+                    <Helmet>
+                      <title>Beranda</title>
+                    </Helmet>
+                    <Home />
+                  </>
+                }
+              />
               <Route
                 path="/patient/signin"
                 element={
-                  <SignInPatient
-                    role="patient"
-                    resetLink="/patient/reset-password"
-                    signupLink="/patient/signup"
-                  />
+                  <>
+                    <Helmet>
+                      <title>Masuk Pasien</title>
+                    </Helmet>
+                    <SignInPatient
+                      role="patient"
+                      resetLink="/patient/reset-password"
+                      signupLink="/patient/signup"
+                    />
+                  </>
                 }
               />
               <Route
                 path="/patient/signup"
-                element={<SignUp role="patient" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Pendaftaran Pasien</title>
+                    </Helmet>
+                    <SignUp role="patient" />
+                  </>
+                }
               />
               <Route
                 path="/doctor/signin"
                 element={
-                  <SignIn
-                    role="doctor"
-                    resetLink="/doctor/reset-password"
-                    signupLink="/doctor/signup"
-                  />
+                  <>
+                    <Helmet>
+                      <title>Masuk Dokter</title>
+                    </Helmet>
+                    <SignIn
+                      role="doctor"
+                      resetLink="/doctor/reset-password"
+                      signupLink="/doctor/signup"
+                    />
+                  </>
                 }
               />
-              <Route path="/doctor/signup" element={<SignUp role="doctor" />} />
+              {/* <Route path="/doctor/signup" element={<SignUp role="doctor" />} /> */}
               <Route
                 path="/nurse/signin"
                 element={
-                  <SignIn
-                    role="nurse"
-                    resetLink="/nurse/reset-password"
-                    signupLink="/nurse/signup"
-                  />
+                  <>
+                    <Helmet>
+                      <title>Masuk Perawat</title>
+                    </Helmet>
+                    <SignIn
+                      role="nurse"
+                      resetLink="/nurse/reset-password"
+                      signupLink="/nurse/signup"
+                    />
+                  </>
                 }
               />
-              <Route path="/nurse/signup" element={<SignUp role="nurse" />} />
+              {/* <Route path="/nurse/signup" element={<SignUp role="nurse" />} /> */}
               <Route
                 path="/staff/signin"
                 element={
-                  <SignIn
-                    role="staff"
-                    resetLink="/staff/reset-password"
-                    signupLink="/staff/signup"
-                  />
+                  <>
+                    <Helmet>
+                      <title>Masuk Petugas Pendaftaran</title>
+                    </Helmet>
+                    <SignIn
+                      role="staff"
+                      resetLink="/staff/reset-password"
+                      signupLink="/staff/signup"
+                    />
+                  </>
                 }
               />
-              <Route path="/staff/signup" element={<SignUp role="staff" />} />
+              {/* <Route path="/staff/signup" element={<SignUp role="staff" />} /> */}
             </>
 
             {/* Routing Patient */}
             <>
               <Route
                 path={`/patient/record-list`}
-                element={<PatientRecordList />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Daftar Rekam Medis</title>
+                    </Helmet>
+                    <PatientRecordList />
+                  </>
+                }
               />
               <Route
                 path={`/patient/record-list/details/`}
-                element={<PatientRecord />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Detail Rekam Medis</title>
+                    </Helmet>
+                    <PatientRecord />
+                  </>
+                }
               />
               <Route
                 path={`/patient/appointment-list`}
-                element={<PatientAppointmentList role="patient" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Daftar Rawat Jalan</title>
+                    </Helmet>
+                    <PatientAppointmentList role="patient" />
+                  </>
+                }
               />
               <Route
                 path={`/patient/appointment-list/details`}
-                element={<PatientAppointmentDetails role="patient" linkToPage={"/patient/appointment-list"} />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Detail Rawat Jalan</title>
+                    </Helmet>
+                    <PatientAppointmentDetails role="patient" linkToPage={"/patient/appointment-list"} />
+                  </>
+                }
               />
               <Route
                 path={`/patient/profile`}
-                element={<UserProfile role="patient" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Profil Pasien</title>
+                    </Helmet>
+                    <UserProfile role="patient" />
+                  </>
+                }
               />
               <Route
                 path={`/patient/account`}
-                element={<PatientAccount />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Informasi Akun</title>
+                    </Helmet>
+                    <PatientAccount />
+                  </>
+                }
               />
             </>
 
@@ -115,27 +193,62 @@ function App() {
             <>
               <Route
                 path={`/doctor/antrean`}
-                element={<Antrean role="doctor" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Antrean Pasien</title>
+                    </Helmet>
+                    <Antrean role="doctor" />
+                  </>
+                }
               />
               <Route
                 path={`/doctor/data-pasien`}
-                element={<DoctorPatientList role="doctor" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Data Pasien</title>
+                    </Helmet>
+                    <DoctorPatientList role="doctor" />
+                  </>
+                }
               />
               <Route
                 path={`/doctor/pelayanan-medis`}
-                element={<DoctorPelayananMedis role="doctor" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Pelayanan Medis</title>
+                    </Helmet>
+                    <DoctorPelayananMedis role="doctor" />
+                  </>
+                }
               />
               <Route
                 path={`/doctor/pelayanan-medis/detail-pasien`}
-                element={<DoctorPatientDetails role="doctor" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Detail Pasien</title>
+                    </Helmet>
+                    <DoctorPatientDetails role="doctor" />
+                  </>
+                }
               />
-              <Route
+              {/* <Route
                 path={`/doctor/profile`}
                 element={<UserProfile role="doctor" />}
-              />
+              /> */}
               <Route
                 path={`/doctor/account`}
-                element={<UserAccount role="doctor" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Informasi Akun Dokter</title>
+                    </Helmet>
+                    <UserAccount role="doctor" />
+                  </>
+                }
               />
             </>
 
@@ -143,31 +256,66 @@ function App() {
             <>
               <Route
                 path={`/nurse/antrean`}
-                element={<Antrean role="nurse" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Antrean Pasien</title>
+                    </Helmet>
+                    <Antrean role="nurse" />
+                  </>
+                }
               />
               <Route
                 path={`/nurse/data-pasien`}
-                element={<NursePatientList role="nurse" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Data Pasien</title>
+                    </Helmet>
+                    <NursePatientList role="nurse" />
+                  </>
+                }
               />
               <Route
                 path={`/nurse/pelayanan-medis`}
-                element={<NursePelayananMedis role="nurse" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Pelayanan Medis</title>
+                    </Helmet>
+                    <NursePelayananMedis role="nurse" />
+                  </>
+                }
               />
               <Route
                 path={`/nurse/pelayanan-medis/patient-details`}
-                element={<NursePatientDetails role="nurse" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Detail Pasien</title>
+                    </Helmet>
+                    <NursePatientDetails role="nurse" />
+                  </>
+                }
               />
-              <Route
+              {/* <Route
                 path={`/nurse/appointment`}
                 element={<PatientAppointmentList />}
-              />
-              <Route
+              /> */}
+              {/* <Route
                 path={`/nurse/profile`}
                 element={<UserProfile role="nurse" />}
-              />
+              /> */}
               <Route
                 path={`/nurse/account`}
-                element={<UserAccount role="nurse" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Informasi Akun Perawat</title>
+                    </Helmet>
+                    <UserAccount role="nurse" />
+                  </>
+                }
               />
             </>
 
@@ -175,45 +323,92 @@ function App() {
             <>
               <Route
                 path={`/staff/antrean`}
-                element={<Antrean role="staff" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Antrean Pasien</title>
+                    </Helmet>
+                    <Antrean role="staff" />
+                  </>
+                }
               />
               <Route
                 path={`/staff/data-pasien`}
-                element={<StaffPatientList role="staff" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Data Pasien</title>
+                    </Helmet>
+                    <StaffPatientList role="staff" />
+                  </>
+                }
               />
               <Route
                 path={`/staff/pelayanan-medis`}
-                element={<StaffPelayananMedis role="staff" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Pelayanan Medis</title>
+                    </Helmet>
+                    <StaffPelayananMedis role="staff" />
+                  </>
+                }
               />
               <Route
                 path={`/staff/account`}
-                element={<UserAccount role="staff" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Informasi Akun Petugas Pendaftaran</title>
+                    </Helmet>
+                    <UserAccount role="staff" />
+                  </>
+                }
               />
             </>
 
             {/* Routing Admin */}
             <>
-              <Route
+              {/* <Route
                 path={`/admin/antrean`}
                 element={<Antrean role="admin" />}
-              />
+              /> */}
               <Route
                 path="/admin/signin"
                 element={
-                  <SignIn
-                    role="admin"
-                    resetLink="/patient/reset-password"
-                    signupLink="/patient/signup"
-                  />
+                  <>
+                    <Helmet>
+                      <title>Masuk Admin</title>
+                    </Helmet>
+                    <SignIn
+                      role="admin"
+                      resetLink="/patient/reset-password"
+                      signupLink="/patient/signup"
+                    />
+                  </>
                 }
               />
               <Route
                 path={`/admin/dashboard`}
-                element={<AdminDashboard role="admin" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Dashboard Admin</title>
+                    </Helmet>
+                    <AdminDashboard role="admin" />
+                  </>
+                }
               />
               <Route
                 path={`/admin/pelayanan-medis/detail-pasien`}
-                element={<AdminPatientDetails role="admin" />}
+                element={
+                  <>
+                    <Helmet>
+                      <title>Detail Pasien</title>
+                    </Helmet>
+                    <AdminPatientDetails role="admin" />
+                  </>
+                }
               />
             </>
           </Routes>

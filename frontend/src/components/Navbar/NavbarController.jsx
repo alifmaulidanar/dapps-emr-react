@@ -77,7 +77,7 @@ function NavbarController({ type, page, color, accountData = null }) {
     // doctor
     navItems = [
       {
-        text: "Pendaftaran",
+        text: "Antrean Pasien",
         linkToPage: `/doctor/antrean`,
         color: page === "antrean" ? color : defaultColor,
       },
@@ -113,7 +113,7 @@ function NavbarController({ type, page, color, accountData = null }) {
     // nurse
     navItems = [
       {
-        text: "Pendaftaran",
+        text: "Antrean Pasien",
         linkToPage: `/nurse/antrean`,
         color: page === "antrean" ? color : defaultColor,
       },
@@ -149,7 +149,7 @@ function NavbarController({ type, page, color, accountData = null }) {
     // staff
     navItems = [
       {
-        text: "Pendaftaran",
+        text: "Antrean Pasien",
         linkToPage: `/staff/antrean`,
         color: page === "antrean" ? color : defaultColor,
       },

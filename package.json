@@ -5,5 +5,7 @@
     "be": "cd backend && npm run dev",
     "sc": "cd smart-contracts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react-helmet": "^6.1.0"
+  }
 }

@@ -57,7 +57,7 @@ export default function AdminPatientDetails({ role }) {
     } else if (appointment?.kehamilan) {
       disabled.diagnosis = true;
       disabled.tbParu = true;
-    } else if (appointment?.tbParu) {
+    } else if (appointment?.tb) {
       disabled.diagnosis = true;
       disabled.kehamilan = true;
     } else if (appointment?.status === "canceled") {

@@ -215,7 +215,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
             <Spin spinning={spinning} fullscreen />
           </div>
         </Form>
-        <div className="flex items-center mt-8 text-center justify-evenly">
+        {/* <div className="flex items-center mt-8 text-center justify-evenly">
           <div>
             <a href={resetLink}>
               <Button type="primary" danger className="font-medium red-button">
@@ -236,7 +236,7 @@ export default function SignInForm({ role, resetLink, signupLink }) {
               </Button>
             </a>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
