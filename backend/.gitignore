@@ -31,3 +31,4 @@ patient/data/
 patient/services/
 patient/dmrList.txt
 patient/emrList.txt
+patient-backup/
